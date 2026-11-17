@@ -11,7 +11,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from .pipeline import Params, Refusal, statement_doc, to_date, to_dec
+from .pipeline import Params, Refusal, date_order, statement_doc, to_date, to_dec
 
 MAX_PAGES, MAX_WORDS_PER_PAGE = 60, 20_000
 OCR_DPI, OCR_MAX_PX = 200, 3200
@@ -267,18 +267,31 @@ def _merge_drcr(line: list[Word]) -> list[Word]:
     return out
 
 
-def _dates(line: list[Word]) -> list[tuple[int, int, str, str]]:
-    """Every date in a line as (first word, word count, ISO date, raw text). Impossible dates (31/02) raise PARSE_ERROR."""
+def _date_spans(line: list[Word]) -> list[tuple[int, int, str]]:
+    """Every date-like span in a line as (first word, word count, raw text)."""
     out, i = [], 0
     while i < len(line):
         for n in (3, 2, 1):
             raw = " ".join(w.text for w in line[i:i + n])
             if i + n <= len(line) and _DATE_LIKE.match(raw):
-                out.append((i, n, to_date(raw, f"page {line[0].page}"), raw))
+                out.append((i, n, raw))
                 i += n - 1
                 break
         i += 1
     return out
+
+
+def _dates(line: list[Word], order: str = "dmy") -> list[tuple[int, int, str, str]]:
+    """Every date in a line as (first word, word count, ISO date, raw text), numeric dates read in `order`.
+    Impossible dates (31/02, or 15/01 read month-first) raise PARSE_ERROR."""
+    return [(i, n, to_date(raw, f"page {line[0].page}", order), raw) for i, n, raw in _date_spans(line)]
+
+
+def _date_order(all_lines, p: Params) -> str:
+    """One day/month order for the whole document, by the bank CSV rule: --date-order wins, a field above 12 proves it,
+    otherwise day-first (Indian layouts)."""
+    raws = [raw for lines in all_lines for ln in lines for _, _, raw in _date_spans(ln)]
+    return date_order(raws, p.date_order, default="dmy", where="statement dates")
 
 
 def _money_tokens(line: list[Word]) -> list[Word]:
@@ -345,7 +358,7 @@ def _row(line, pick, mode, cols, role_fn, no):
 def _stated(lines: list[list[Word]], label: str):
     found = []
     for ln in lines:
-        if re.search(label, _text(ln), re.I) and not _dates(ln):
+        if re.search(label, _text(ln), re.I) and not _date_spans(ln):
             money = _money_tokens(ln)
             if money:
                 w = money[-1]
@@ -377,9 +390,10 @@ def _attach_descriptions(page_rows: list[dict], frags: list[tuple[float, float, 
             r["frags"].append((cy, text))
 
 
-def _rows(all_lines, preds, prev=None):
+def _rows(all_lines, preds, prev=None, order: str = "dmy"):
     """Walk every page; returns (recs, noops, assigned, model_used). prev = opening balance if known: the
-    header-less model path uses the running balance to resolve rows whose column sets are not a single role."""
+    header-less model path uses the running balance to resolve rows whose column sets are not a single role.
+    order = day/month order of numeric dates for the whole document."""
     recs, noops, assigned, hdr, model_used = [], [], [], None, False
     for lines in all_lines:
         found = next(((i, h) for i, ln in enumerate(lines) if (h := _header_cols(ln))), None)
@@ -400,7 +414,7 @@ def _rows(all_lines, preds, prev=None):
             text = _text(ln)
             if _OPEN_CLOSE.search(text) or re.search(r"\bpage \d+ of \d+\b", text, re.I):
                 continue
-            dates, money = _dates(ln), _money_tokens(ln)
+            dates, money = _dates(ln, order), _money_tokens(ln)
             if dates and money:
                 pick = min(dates, key=lambda d: abs(ln[d[0]].cx - cols["date"].cx)) if cols else dates[0]
                 if cols is None:
@@ -434,7 +448,9 @@ def extract_statement(pages: list[list[Word]], p: Params, method: str, preds=Non
     all_lines = [_lines(pg) for pg in pages]
     flat = [ln for lines in all_lines for ln in lines]
     openings, closings = _stated(flat, r"opening\s+balance"), _stated(flat, r"closing\s+balance")
-    recs, noops, assigned, model_used = _rows(all_lines, preds, p.opening if p.opening is not None else (openings[0][0] if openings else None))
+    order = _date_order(all_lines, p)
+    recs, noops, assigned, model_used = _rows(all_lines, preds, p.opening if p.opening is not None else (openings[0][0] if openings else None),
+                                              order)
     if not recs:
         raise Refusal("UNKNOWN_LAYOUT", "no statement table found")
     cur = _currency(pages, p)

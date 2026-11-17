@@ -22,16 +22,19 @@ export function RefusalFix({
 }) {
   const [opening, setOpening] = useState("");
   const [currency, setCurrency] = useState("");
+  const [order, setOrder] = useState<"" | "dmy" | "mdy">("");
   const [touched, setTouched] = useState(false);
   const uid = useId();
 
   const openingOk = !fields.includes("opening") || AMOUNT.test(opening.replace(/,/g, "").trim());
   const currencyOk = !fields.includes("currency") || CURRENCY.test(currency.trim());
+  const orderOk = !fields.includes("date_order") || order !== "";
 
   if (!available) {
+    const names = fields.map((f) => (f === "date_order" ? "a date order" : f === "opening" ? "an opening balance" : "a currency"));
     return (
       <p className="fix-note">
-        To re-run with {fields.join(" and ")}, attach the file again. Files are kept only for this browser tab, not in history.
+        To re-run with {names.join(" and ")}, attach the file again. Files are kept only for this browser tab, not in history.
       </p>
     );
   }
@@ -42,10 +45,11 @@ export function RefusalFix({
       onSubmit={(e) => {
         e.preventDefault();
         setTouched(true);
-        if (!openingOk || !currencyOk) return;
+        if (!openingOk || !currencyOk || !orderOk) return;
         const p: RunParams = {};
         if (fields.includes("opening")) p.opening = opening.replace(/,/g, "").trim();
         if (fields.includes("currency")) p.currency = currency.trim().toUpperCase();
+        if (fields.includes("date_order") && order) p.date_order = order;
         onRerun(p);
       }}
     >
@@ -81,6 +85,30 @@ export function RefusalFix({
           />
           {touched && !currencyOk && <span id={`${uid}-currency-err`} className="field-error"><span className="dot" />Three letters, like INR</span>}
         </div>
+      )}
+      {fields.includes("date_order") && (
+        <div className="fix-field" style={{ flexBasis: 260 }}>
+          <label className="mono-label" htmlFor={`${uid}-order`}>Date order</label>
+          <select
+            id={`${uid}-order`}
+            className="field"
+            value={order}
+            onChange={(e) => setOrder(e.target.value as "" | "dmy" | "mdy")}
+            aria-invalid={touched && !orderOk}
+            aria-describedby={`${uid}-order-help`}
+          >
+            <option value="">Choose…</option>
+            <option value="dmy">Day first: 03/04 is 3 April</option>
+            <option value="mdy">Month first: 03/04 is 4 March</option>
+          </select>
+          {touched && !orderOk && <span className="field-error"><span className="dot" />Pick the order the export uses</span>}
+        </div>
+      )}
+      {fields.includes("date_order") && (
+        <p id={`${uid}-order-help`} className="fix-note">
+          Every date in this file has a day and month of 12 or less, so the file itself cannot prove the order. Check one date
+          against the source before choosing: the wrong order moves transactions between months.
+        </p>
       )}
       <button type="submit" className="btn btn-primary-landing btn-sm" disabled={disabled}>
         <RotateCw size={14} /> Re-run file

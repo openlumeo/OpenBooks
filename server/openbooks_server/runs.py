@@ -59,6 +59,9 @@ def parse_params(raw: dict | None, base: Params | None = None) -> Params:
     account = raw.get("account", b.account) or None
     if account is not None and not isinstance(account, str):
         raise ValueError("account must be text")
+    order = raw.get("date_order", b.date_order) or None
+    if order not in (None, "dmy", "mdy"):
+        raise ValueError(f"date_order must be dmy or mdy, got {order!r}")
 
     def flag(name: str, default: bool) -> bool:
         v = raw.get(name, default)
@@ -73,6 +76,7 @@ def parse_params(raw: dict | None, base: Params | None = None) -> Params:
         allow_derived_opening=flag("allow_derived_opening", b.allow_derived_opening),
         ocr=flag("ocr", b.ocr),
         model=flag("model", b.model),
+        date_order=order,
     )
 
 

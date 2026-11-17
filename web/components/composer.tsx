@@ -277,6 +277,25 @@ function ParamsPanel({
         <label className="mono-label" htmlFor={`${id}-acct`}>Account</label>
         <input id={`${id}-acct`} className="field" placeholder="Optional label" value={acct} onChange={(e) => setAcct(e.target.value)} />
       </div>
+      <div className="params-field">
+        <label className="mono-label" htmlFor={`${id}-order`}>Date order</label>
+        <select
+          id={`${id}-order`}
+          className="field"
+          value={params.date_order ?? ""}
+          onChange={(e) => {
+            const v = e.target.value as "" | "dmy" | "mdy";
+            const next = { ...params };
+            if (v) next.date_order = v;
+            else delete next.date_order;
+            setParams(next);
+          }}
+        >
+          <option value="">Prove from file</option>
+          <option value="dmy">Day first (03/04 = 3 Apr)</option>
+          <option value="mdy">Month first (03/04 = 4 Mar)</option>
+        </select>
+      </div>
       <div className="params-toggles">
         <label className="check">
           <input type="checkbox" checked={params.ocr !== false} onChange={(e) => setParams({ ...params, ocr: e.target.checked })} />
@@ -297,7 +316,8 @@ function ParamsPanel({
       </div>
       <p className="params-help">
         Applies to every file in this run; sample files bring their own. A derived opening never counts as independent evidence.
-        The model cross-check can only add refusals, never a release.
+        Dates are read in the order the file proves (a day above 12); bank statements without proof are read day-first, and
+        PayPal and 1099-B refuse rather than guess. The model cross-check can only add refusals, never a release.
       </p>
     </div>
   );

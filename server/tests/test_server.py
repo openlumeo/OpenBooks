@@ -40,13 +40,48 @@ def run(client, files, params=None, file_params=None):
     return client.post("/v1/runs", files=[("files", f) for f in files], data=data)
 
 
+def engine_layouts() -> set[str]:
+    """Every layout id the engine source can put in file.layout_version."""
+    import inspect
+    import re
+
+    from openbooks import parsers_extra, parsers_more, pdf_front, pipeline
+
+    src = "".join(inspect.getsource(m) for m in (pipeline, parsers_extra, parsers_more, pdf_front))
+    return set(re.findall(r'"([a-z0-9_]+\.v1)"', src)) - {"openbooks.v1"}
+
+
 def test_health_and_formats(client):
     h = client.get("/v1/health").json()
     assert h["schema_version"] == "openbooks.v1" and h["max_bytes"] == 20 * 1024 * 1024
-    groups = client.get("/v1/formats").json()["groups"]
-    assert [g["title"] for g in groups] == ["Bank statements", "Gateway settlements", "Tax documents", "Excel workpapers"]
-    text = json.dumps(groups).lower()
-    assert "paypal" not in text and "wise" not in text and "1099" not in text
+    f = client.get("/v1/formats").json()
+    assert [g["title"] for g in f["groups"]] == ["Bank statements", "Gateway settlements", "Tax documents", "Excel workpapers"]
+    assert {u["layout"] for u in f["unverified"]} <= engine_layouts() and all(u["name"] for u in f["unverified"])
+
+
+def test_catalog_lists_exactly_the_layouts_the_engine_emits(client):
+    listed = {lay for g in client.get("/v1/formats").json()["groups"] for lay in g["layouts"]}
+    engine = engine_layouts()
+    assert {"paypal_activity.v1", "wise_statement.v1", "form_1099b.v1", "bank_statement_pdf.v1"} <= engine  # the scan works
+    assert listed == engine, f"missing from catalog: {engine - listed}; not in engine: {listed - engine}"
+
+
+PAYPAL_AMBIGUOUS = (
+    "Date,Time,TimeZone,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID,Balance Impact\n"
+    "01/05/2026,10:00:00,PST,Acme,Payment,Completed,USD,100.00,-3.20,96.80,T1,Credit\n"
+    "02/03/2026,12:00:00,PST,Bob,Payment,Completed,USD,-50.00,0.00,-50.00,T3,Debit\n"
+)
+
+
+def test_date_order_reaches_the_engine(client):
+    f = ("paypal.csv", PAYPAL_AMBIGUOUS.encode())
+    refused = [d["doc"] for e, d in events(run(client, [f])) if e == "file.done"][0]
+    assert refused["error"]["code"] == "PARSE_ERROR" and "supply --date-order" in refused["error"]["message"]
+    for order, first in (("mdy", "2026-01-05"), ("dmy", "2026-05-01")):
+        doc = [d["doc"] for e, d in events(run(client, [f], {"date_order": order})) if e == "file.done"][0]
+        assert doc["status"] == "ok" and doc["data"]["transactions"][0]["date"] == first
+    per_file = [d["doc"] for e, d in events(run(client, [f], {}, {"0": {"date_order": "mdy"}})) if e == "file.done"][0]
+    assert per_file["status"] == "ok"
 
 
 def test_samples_list_featured_first(client):
@@ -86,6 +121,7 @@ def test_tampered_file_is_refused_and_per_file_params_apply(client):
     ({"opening": "1,000.0.0"}, "opening balance"),
     ({"currency": "RUPEES"}, "currency"),
     ({"ocr": "yes"}, "ocr"),
+    ({"date_order": "ymd"}, "date_order"),
 ])
 def test_bad_params_are_rejected_before_any_file_runs(client, params, needle):
     r = run(client, [("a.csv", b"x")], params)

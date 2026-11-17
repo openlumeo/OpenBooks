@@ -1,7 +1,8 @@
 """What the engine can read, whether it is healthy, and the synthetic sample files.
 
-Everything here is derived from the engine itself so the web app can never claim
-a format the engine does not parse (PayPal, Wise and 1099 are not built).
+FORMATS is the human-readable grouping shown in the web app. It is written by hand, so
+tests/test_server.py checks it against every layout id the engine source can emit: adding a
+parser without listing it here (or listing one that does not exist) fails the build.
 """
 from __future__ import annotations
 
@@ -24,22 +25,22 @@ FORMATS = [
     {
         "id": "statements",
         "title": "Bank statements",
-        "inputs": ["CSV", "OFX / QFX", "MT940", "PDF (text layer)", "Scans (OCR)"],
-        "layouts": ["bank_csv.v1", "ofx.v1", "mt940.v1", "bank_statement_pdf.v1"],
-        "extensions": [".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt", ".pdf", ".png", ".jpg", ".jpeg"],
+        "inputs": ["CSV", "OFX / QFX", "MT940", "PDF (text layer)", "Scans (OCR)", "Wise statement"],
+        "layouts": ["bank_csv.v1", "ofx.v1", "mt940.v1", "bank_statement_pdf.v1", "wise_statement.v1"],
+        "extensions": [".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt", ".pdf", ".png", ".jpg", ".jpeg", ".xlsx"],
     },
     {
         "id": "gateways",
         "title": "Gateway settlements",
-        "inputs": ["Stripe balance export", "Razorpay settlement"],
-        "layouts": ["stripe_balance.v1", "razorpay_settlement.v1"],
+        "inputs": ["Stripe balance export", "Razorpay settlement", "PayPal activity"],
+        "layouts": ["stripe_balance.v1", "razorpay_settlement.v1", "paypal_activity.v1"],
         "extensions": [".csv", ".xlsx"],
     },
     {
         "id": "tax",
         "title": "Tax documents",
-        "inputs": ["Form 26AS (TDS)", "AIS", "FIRA"],
-        "layouts": ["tds_26as.v1", "ais.v1", "fira.v1"],
+        "inputs": ["Form 26AS (TDS)", "AIS", "FIRA", "Form 1099-B"],
+        "layouts": ["tds_26as.v1", "ais.v1", "fira.v1", "form_1099b.v1"],
         "extensions": [".csv", ".xlsx"],
     },
     {
@@ -85,8 +86,16 @@ def health() -> dict:
     }
 
 
+# Layouts built from public descriptions of an export, with no real redacted sample tested yet (parsers_more.py).
+UNVERIFIED = [
+    {"layout": "paypal_activity.v1", "name": "PayPal activity"},
+    {"layout": "wise_statement.v1", "name": "Wise statement"},
+    {"layout": "form_1099b.v1", "name": "Form 1099-B"},
+]
+
+
 def formats() -> dict:
-    return {"groups": FORMATS, "allowed_extensions": sorted(ALLOWED_EXT), "max_bytes": MAX_BYTES}
+    return {"groups": FORMATS, "unverified": UNVERIFIED, "allowed_extensions": sorted(ALLOWED_EXT), "max_bytes": MAX_BYTES}
 
 
 class Samples:

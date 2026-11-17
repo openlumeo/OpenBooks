@@ -11,7 +11,7 @@ export type RefusalCode =
   | "LOW_CONFIDENCE"
   | "OUTPUT_INVALID";
 
-export type BatchKind = "statement" | "settlement" | "tax_statement" | "ais" | "fira" | "trial_balance";
+export type BatchKind = "statement" | "settlement" | "tax_statement" | "ais" | "fira" | "trial_balance" | "form_1099b";
 
 export type Account = { id: string; number: string | null; currency: string };
 
@@ -68,7 +68,15 @@ export type Assertion = {
 export type ReleasedDoc = {
   schema_version: "openbooks.v1";
   status: "ok";
-  file: { sha256: string; name: string; detected_format: string; layout_version: string; method: string };
+  file: {
+    sha256: string;
+    name: string;
+    detected_format: string;
+    layout_version: string;
+    method: string;
+    /** present on a --model release: the exact weights and calibration that cross-checked it */
+    model?: { weights_sha256: string; calibration_sha256: string };
+  };
   data: {
     accounts: Account[];
     parties: unknown[];
@@ -121,7 +129,13 @@ export type Health = {
 };
 
 export type FormatGroup = { id: string; title: string; inputs: string[]; layouts: string[]; extensions: string[] };
-export type Formats = { groups: FormatGroup[]; allowed_extensions: string[]; max_bytes: number };
+export type Formats = {
+  groups: FormatGroup[];
+  /** layouts built from public descriptions, tested on synthetic files only */
+  unverified?: { layout: string; name: string }[];
+  allowed_extensions: string[];
+  max_bytes: number;
+};
 
 export type Sample = {
   id: string;
@@ -142,6 +156,8 @@ export type RunParams = {
   allow_derived_opening?: boolean;
   ocr?: boolean;
   model?: boolean;
+  /** numeric dates: day-first or month-first; unset lets the engine prove it from the file */
+  date_order?: "dmy" | "mdy";
 };
 
 // ---- conversation --------------------------------------------------------------

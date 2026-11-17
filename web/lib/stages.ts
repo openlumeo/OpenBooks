@@ -37,11 +37,12 @@ export const REFUSAL_MEANING: Record<RefusalCode, string> = {
 };
 
 /** What a refusal needs from the user, when the engine's message says so. */
-export type FixField = "opening" | "currency";
+export type FixField = "opening" | "currency" | "date_order";
 
 export function fixesFor(message: string): FixField[] {
   const out: FixField[] = [];
   if (/supply --opening/.test(message)) out.push("opening");
   if (/supply --currency/.test(message)) out.push("currency");
+  if (/supply --date-order/.test(message)) out.push("date_order");
   return out;
 }

@@ -14,14 +14,23 @@ export type TxnFilter = {
   date_to?: string;
   min_amount?: string;
   max_amount?: string;
+  /** sum this money field instead of the row's default amount, e.g. proceeds, cost_basis, fee, tax_deducted */
+  field?: string;
   limit?: number;
 };
 
-/** The single money value that represents a row's size, per batch kind. */
+function moneyAt(t: Transaction, k: string): Money | undefined {
+  const m = t[k];
+  return m && typeof m === "object" && "amount" in m && "currency" in m ? (m as Money) : undefined;
+}
+
+/** The single money value that represents a row's size, per batch kind:
+ *  amount (statements), net (settlements), inr_amount (FIRA), reported_value (AIS), gain_loss (1099-B),
+ *  or debit/credit (trial balance, debits negative). */
 export function rowAmount(t: Transaction): Money | undefined {
-  for (const k of ["amount", "net", "inr_amount", "reported_value"] as const) {
-    const m = t[k] as Money | undefined;
-    if (m && typeof m === "object" && "amount" in m) return m;
+  for (const k of ["amount", "net", "inr_amount", "reported_value", "gain_loss"] as const) {
+    const m = moneyAt(t, k);
+    if (m) return m;
   }
   const deb = t.debit as Money | undefined;
   const cre = t.credit as Money | undefined;
@@ -74,7 +83,7 @@ export function queryTransactions(docs: DocRef[], f: TxnFilter): QueryResult {
         const hay = `${t.description ?? ""} ${t.reference ?? ""} ${t.kind ?? ""} ${t.deductor ?? ""} ${t.remitter ?? ""} ${t.account ?? ""} ${t.category ?? ""}`.toLowerCase();
         if (!hay.includes(needle)) continue;
       }
-      const amt = rowAmount(t);
+      const amt = f.field ? moneyAt(t, f.field) : rowAmount(t);
       if (min || max) {
         if (!amt) continue;
         const a = new Decimal(amt.amount).abs();

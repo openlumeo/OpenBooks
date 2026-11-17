@@ -8,7 +8,7 @@ A conversation-style web app for the Open Books engine. A user drops financial f
 
 Primary user (PRODUCT.md): chartered accountants and bookkeepers in India processing client files. Deployment target: hosted by Lumeo.
 
-Non-goals (v1): accounts or auth, server-side storage, PayPal, Wise and 1099 (not built in the engine), editing engine output, mobile-native apps.
+Non-goals (v1): accounts or auth, server-side storage, editing engine output, mobile-native apps. (PayPal, Wise and Form 1099-B were added to the engine later and are listed as unverified layouts.)
 
 Before a hosted deployment accepts real client data (outside v1, tracked as open decisions in PRODUCT.md): authentication and accounts, data-processing and retention terms, and per-user rate limits on `/v1/runs` and `/api/ask`. v1 is built so these can be added at the Next.js layer without touching the engine service.
 

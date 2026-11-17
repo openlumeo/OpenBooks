@@ -78,7 +78,10 @@ export function EmptyState({
             </tbody>
           </table>
           <p className="t-body-sm">
-            Up to 20 files per run, {Math.round(formats.max_bytes / (1024 * 1024))} MB each. PayPal, Wise and 1099 are not supported yet.
+            Up to 20 files per run, {Math.round(formats.max_bytes / (1024 * 1024))} MB each.
+            {formats.unverified && formats.unverified.length > 0 && (
+              <> The {formats.unverified.map((u) => u.name).join(", ")} layouts follow public descriptions of those exports and have been tested on synthetic files only.</>
+            )}
           </p>
         </section>
       )}

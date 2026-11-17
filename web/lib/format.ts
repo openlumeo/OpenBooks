@@ -43,12 +43,21 @@ export function jsonFileName(name: string): string {
   return `${name.replace(/\.[^.]+$/, "") || "file"}.openbooks.json`;
 }
 
-export function paramSummary(p: { currency?: string; opening?: string; account?: string; allow_derived_opening?: boolean; ocr?: boolean; model?: boolean }): string {
+export function paramSummary(p: {
+  currency?: string;
+  opening?: string;
+  account?: string;
+  allow_derived_opening?: boolean;
+  ocr?: boolean;
+  model?: boolean;
+  date_order?: "dmy" | "mdy";
+}): string {
   const parts: string[] = [];
   if (p.currency) parts.push(p.currency);
   if (p.opening) parts.push(`opening ${p.opening}`);
   if (p.account) parts.push(`acct ${p.account}`);
   if (p.allow_derived_opening) parts.push("derived opening allowed");
+  if (p.date_order) parts.push(p.date_order === "dmy" ? "day-first dates" : "month-first dates");
   if (p.ocr === false) parts.push("no OCR");
   if (p.model) parts.push("model cross-check");
   return parts.join(" · ");

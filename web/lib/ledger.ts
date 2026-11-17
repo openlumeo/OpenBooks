@@ -89,6 +89,15 @@ export const COLUMNS: Record<BatchKind, Column[]> = {
     { key: "bank_charges", label: "Charges", numeric: true, field: "bank_charges", get: money("bank_charges") },
     { key: "net_credited", label: "Net credited", numeric: true, field: "net_credited", get: money("net_credited") },
   ],
+  form_1099b: [
+    { key: "date", label: "Sold", field: "date", get: text("date") },
+    { key: "date_acquired", label: "Acquired", field: "date_acquired", get: text("date_acquired") },
+    { key: "description", label: "Description", get: text("description") },
+    { key: "proceeds", label: "Proceeds", numeric: true, field: "proceeds", get: money("proceeds") },
+    { key: "cost_basis", label: "Cost basis", numeric: true, field: "cost_basis", get: money("cost_basis") },
+    { key: "adjustment", label: "Adjustment", numeric: true, field: "adjustment", get: money("adjustment") },
+    { key: "gain_loss", label: "Gain / loss", numeric: true, field: "gain_loss", get: money("gain_loss") },
+  ],
   trial_balance: [
     { key: "account", label: "Account", get: text("account") },
     { key: "debit", label: "Debit", numeric: true, field: "debit", get: money("debit") },
@@ -109,6 +118,7 @@ export const KIND_LABEL: Record<BatchKind, string> = {
   ais: "AIS",
   fira: "FIRA",
   trial_balance: "Trial balance",
+  form_1099b: "Form 1099-B",
 };
 
 const SUMMARY: [string, string][] = [
@@ -124,6 +134,9 @@ const SUMMARY: [string, string][] = [
   ["total_net_credited", "Printed total net"],
   ["total_debit", "Printed total debit"],
   ["total_credit", "Printed total credit"],
+  ["total_proceeds", "Printed total proceeds"],
+  ["total_cost_basis", "Printed total cost basis"],
+  ["total_gain_loss", "Printed total gain / loss"],
 ];
 
 /** Label/value pairs for the batch header, in a stable order, only for fields the batch has. */

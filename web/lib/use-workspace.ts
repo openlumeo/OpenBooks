@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, ask, getAskStatus, getFormats, getHealth, getSamples, linkDocs, runFiles } from "./engine-client";
-import { uid } from "./format";
+import { paramSummary, uid } from "./format";
 import { fileKeys } from "./query";
 import { recallFile, rememberFiles } from "./session-files";
 import * as store from "./store";
@@ -273,7 +273,7 @@ export function useWorkspace() {
       if (!file) return false;
       const prev = run.files.find((f) => f.index === index);
       const params = { ...(prev?.params ?? {}), ...override };
-      const changed = Object.entries(override).map(([k, v]) => `${k} ${v}`).join(", ");
+      const changed = paramSummary(override);
       await sendRun([file], params, {}, undefined, `Re-run with ${changed}`);
       return true;
     },

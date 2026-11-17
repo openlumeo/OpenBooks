@@ -42,6 +42,7 @@ const QueryInput = z
     date_to: IsoDate.optional(),
     min_amount: Amount.optional(),
     max_amount: Amount.optional(),
+    field: z.string().regex(/^[a-z_]{1,40}$/).optional(),
     limit: z.number().int().min(1).max(200).optional(),
   })
   .strict();
@@ -52,18 +53,19 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   {
     name: "query_transactions",
     description:
-      "Filter the released documents' transactions and get an exact count and per-currency decimal sum. Use this for every total, count or comparison of money; never compute amounts yourself. Refused files are skipped and listed in skipped_refused. Filters combine with AND. The amount used per row is: amount (statements), net (settlements), inr_amount (FIRA), reported_value (AIS), or debit/credit (trial balance, debits negative). min_amount/max_amount compare the absolute value. Rows are capped by limit but count and sums always cover every match.",
+      "Filter the released documents' transactions and get an exact count and per-currency decimal sum. Use this for every total, count or comparison of money; never compute amounts yourself. Refused files are skipped and listed in skipped_refused. Filters combine with AND. The amount used per row is: amount (bank and Wise statements), net (Stripe, Razorpay and PayPal settlements), inr_amount (FIRA), reported_value (AIS), gain_loss (Form 1099-B), or debit/credit (trial balance, debits negative). Set field to sum another money field instead, e.g. proceeds or cost_basis (1099-B), gross or fee (settlements), tax_deducted (26AS). min_amount/max_amount compare the absolute value of that amount. Rows are capped by limit but count and sums always cover every match.",
     input_schema: {
       type: "object",
       properties: {
         file: { type: "string", description: "Exact file key from <documents>. Omit to search all released files." },
         direction: { type: "string", enum: ["credit", "debit"], description: "Statements only: money in (credit) or out (debit)." },
-        kind: { type: "string", description: "Row kind, e.g. charge, refund, payment, tds, fira, ais, ledger_balance." },
+        kind: { type: "string", description: "Row kind, e.g. charge, refund, payment, tds, fira, ais, 1099b, ledger_balance." },
         description_contains: { type: "string", description: "Case-insensitive match on description, reference, kind, deductor, remitter, account or category." },
         date_from: { type: "string", description: "Inclusive, YYYY-MM-DD." },
         date_to: { type: "string", description: "Inclusive, YYYY-MM-DD." },
         min_amount: { type: "string", description: "Plain decimal, compared to the absolute row amount." },
         max_amount: { type: "string", description: "Plain decimal, compared to the absolute row amount." },
+        field: { type: "string", description: "Money field to sum instead of the default row amount, e.g. proceeds, cost_basis, fee, gross, tax_deducted." },
         limit: { type: "integer", description: "Rows to return, 1-200. Default 50." },
       },
       additionalProperties: false,

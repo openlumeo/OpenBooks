@@ -27,7 +27,7 @@ Proven or refused, never guessed. Other extraction tools return their best readi
 ## Operating Context
 
 - Accountants work through batches of client files, often at month-end or tax-filing time. A thread holds one batch.
-- Inputs: bank CSV, OFX/QFX, MT940, bank-statement PDFs and scans (text layer or OCR), Stripe balance exports, Razorpay settlements, Form 26AS (TDS), AIS, FIRA, trial balances, `.xlsx` workpapers. Limit 20 MB per file.
+- Inputs: bank CSV, OFX/QFX, MT940, bank-statement PDFs and scans (text layer or OCR), Wise statements, Stripe balance exports, Razorpay settlements, PayPal activity, Form 26AS (TDS), AIS, FIRA, Form 1099-B, trial balances, `.xlsx` workpapers. Limit 20 MB per file.
 - Cross-file linking matches gateway payouts and FIRA remittances to the bank credits that received them. A match needs exactly equal amounts and dates within a window; ties are reported as ambiguous, not resolved.
 - Hosted by Lumeo: users upload files to a Lumeo-run service. Files are processed in memory and not stored server-side; thread history lives in the user's browser.
 
@@ -36,7 +36,9 @@ Proven or refused, never guessed. Other extraction tools return their best readi
 - Six refusal codes, shown verbatim with the engine's message: `UNKNOWN_LAYOUT`, `UNSUPPORTED_INPUT`, `PARSE_ERROR`, `BALANCE_MISMATCH`, `LOW_CONFIDENCE`, `OUTPUT_INVALID`.
 - Output is always one JSON per input file; the app never merges, edits or "fixes" engine output.
 - Money is Decimal end to end; the UI must never round, reformat away precision, or compute totals in floating point.
-- Not built (must not be claimed or listed as supported): PayPal, Wise and 1099 parsers, and the separately installable packages shown on the pipeline diagram.
+- PayPal activity, Wise statement and Form 1099-B layouts are built but follow public descriptions of those exports and are tested on synthetic files only; present them as unverified. Other 1099 forms are not parsed.
+- Numeric dates: the day/month order is proven from the file; bank statements (CSV and PDF) default to day-first without proof, PayPal and 1099-B refuse rather than guess. The user can supply the order.
+- Not built (must not be claimed or listed as supported): the separately installable packages shown on the pipeline diagram.
 - Open decision: authentication and account model for the hosted service. The v1 spec has no accounts; a hosted deployment will need them before real client data is accepted.
 - Open decision: data-processing terms and retention statement for hosted uploads (financial data of the accountant's clients).
 

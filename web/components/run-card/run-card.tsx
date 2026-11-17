@@ -62,6 +62,14 @@ export function RunCard({
               <span className="meta-item"><b>{doc.file.detected_format}</b></span>
               <span className="meta-item"><b>{doc.file.layout_version}</b></span>
               <span className="meta-item">method <b>{doc.file.method}</b></span>
+              {doc.file.model && (
+                <span
+                  className="meta-item"
+                  title={`Cross-checked by weights ${doc.file.model.weights_sha256} with calibration ${doc.file.model.calibration_sha256}`}
+                >
+                  model <b>{doc.file.model.weights_sha256.slice(0, 12)}</b>
+                </span>
+              )}
             </>
           )}
           {sha && (

@@ -17,7 +17,7 @@
 - Money: never `Number()` an amount. Display engine strings as-is; aggregate with `decimal.js`.
 - Engine output is displayed and downloaded byte-faithful (no reformatting of doc fields).
 - Refusal codes and messages are shown verbatim.
-- Do not claim PayPal, Wise or 1099 anywhere.
+- List only layouts the engine emits; a server test checks the catalog against the engine source.
 - The maturity note `EARLY RELEASE · TESTED ON SYNTHETIC DATA` is visible in the sidebar and on the empty state.
 - Model `claude-opus-5-5`, adaptive thinking, `output_config.effort: "medium"`, `betas: ["server-side-fallback-2026-07-01"]`, `fallbacks: "default"`.
 - The engine service binds `127.0.0.1:8765`; the browser never calls it directly.
