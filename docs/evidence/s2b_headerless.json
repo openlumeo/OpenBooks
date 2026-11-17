@@ -1,0 +1,16 @@
+{
+  "strict_before": {
+    "correct": 0,
+    "wrong": 0,
+    "abstained": 52,
+    "other_refusal": 8,
+    "files": 60
+  },
+  "chain_after": {
+    "correct": 41,
+    "wrong": 0,
+    "abstained": 11,
+    "other_refusal": 8,
+    "files": 60
+  }
+}

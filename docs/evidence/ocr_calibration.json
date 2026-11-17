@@ -1,0 +1,74 @@
+{
+  "scans": 40,
+  "outcomes": {
+    "refused:PARSE_ERROR": 10,
+    "correct": 26,
+    "refused:BALANCE_MISMATCH": 4
+  },
+  "outcomes_by_font": {
+    "helv": {
+      "correct": 13
+    },
+    "tiro": {
+      "refused:BALANCE_MISMATCH": 3,
+      "correct": 4,
+      "refused:PARSE_ERROR": 2
+    },
+    "cour": {
+      "refused:PARSE_ERROR": 8,
+      "correct": 9,
+      "refused:BALANCE_MISMATCH": 1
+    }
+  },
+  "date_conf_sweep": {
+    "0.0": {
+      "accepted": 26,
+      "accepted_wrong": 0,
+      "abstained_by_confidence": 0
+    },
+    "0.3": {
+      "accepted": 25,
+      "accepted_wrong": 0,
+      "abstained_by_confidence": 1
+    },
+    "0.5": {
+      "accepted": 19,
+      "accepted_wrong": 0,
+      "abstained_by_confidence": 7
+    },
+    "0.6": {
+      "accepted": 11,
+      "accepted_wrong": 0,
+      "abstained_by_confidence": 15
+    },
+    "0.7": {
+      "accepted": 4,
+      "accepted_wrong": 0,
+      "abstained_by_confidence": 22
+    },
+    "0.8": {
+      "accepted": 2,
+      "accepted_wrong": 0,
+      "abstained_by_confidence": 24
+    },
+    "0.9": {
+      "accepted": 1,
+      "accepted_wrong": 0,
+      "abstained_by_confidence": 25
+    }
+  },
+  "refusal_reasons": {
+    "page 1: unreadable date '01-01-202'": 2,
+    "page 1: could not read one amount and one balance on the row dated 03/01/2026": 2,
+    "page 1: a line with amounts is not a transaction row": 2,
+    "batch-1: running balance ties on every row (expected 17 rows, got 16 rows)": 1,
+    "batch-1: opening + sum(txns) = closing (expected 4487.94 INR, got -2354.08 INR); batch-1: ": 1,
+    "statement has no stated opening balance; supply --opening": 1,
+    "page 1: could not read one amount and one balance on the row dated 05/01/2026": 1,
+    "batch-1: running balance ties on every row (expected 26 rows, got 25 rows)": 1,
+    "batch-1: running balance ties on every row (expected 30 rows, got 29 rows)": 1,
+    "page 1: could not read one amount and one balance on the row dated 08-Jan-2026": 1,
+    "page 2: could not read one amount and one balance on the row dated 08/01/2026": 1
+  },
+  "note": "synthetic scans, EasyOCR, GPU. WRONG = accepted with a field that differs from the rendered truth."
+}

@@ -1,0 +1,30 @@
+{
+  "origin": "SYNTHETIC (own generator), Indian formats; not real exports",
+  "model": true,
+  "scans": true,
+  "cases": 69,
+  "decision_accuracy": 1.0,
+  "released_of_expected_ok": "27/27",
+  "schema_violations": [],
+  "decision_mismatches": [],
+  "false_accepts": 0,
+  "released_in_report": 27,
+  "refused_by_code": {
+    "BALANCE_MISMATCH": 25,
+    "PARSE_ERROR": 9,
+    "UNKNOWN_LAYOUT": 3,
+    "UNSUPPORTED_INPUT": 2
+  },
+  "crowded_pack": {
+    "links": 0,
+    "ambiguous_not_linked": 1,
+    "all_links_proven": true
+  },
+  "isolated_pair": {
+    "links": 1,
+    "expected": 1,
+    "amounts": [
+      "77.64"
+    ]
+  }
+}

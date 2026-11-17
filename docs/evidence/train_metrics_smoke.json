@@ -1,0 +1,37 @@
+{
+  "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+  "params_pretrain_total": 51404672,
+  "params_encoder": 50876416,
+  "pretrain_steps": 30,
+  "pretrain_log": [
+    {
+      "step": 0,
+      "loss": 0.8026,
+      "jepa": 0.5021,
+      "var": 0.0628,
+      "target_std": 0.9637,
+      "sec": 1
+    },
+    {
+      "step": 29,
+      "loss": 0.7277,
+      "jepa": 0.4688,
+      "var": 0.0666,
+      "target_std": 0.9632,
+      "sec": 6
+    }
+  ],
+  "corpus_windows": 1049,
+  "finetune": {
+    "train": 149,
+    "test": 50
+  },
+  "funsd_pretrained": {
+    "token_f1_non_O": 0.3517,
+    "token_acc": 0.3164
+  },
+  "funsd_scratch": {
+    "token_f1_non_O": 0.3527,
+    "token_acc": 0.3179
+  }
+}

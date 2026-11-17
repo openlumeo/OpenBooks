@@ -1,0 +1,50 @@
+{
+  "origin": "third-party SYNTHETIC Indian statements (AgamiAI/Indian-Bank-Statements, Apache-2.0); not real customer data",
+  "files_per_kind": 20,
+  "kinds": {
+    "Digital_Type1": {
+      "files": 20,
+      "seconds_per_file": 0.36,
+      "extraction": {
+        "extracted": 20,
+        "row_count_matches": 20,
+        "rows_missing_or_extra": 0
+      },
+      "field_accuracy_over_rows": {
+        "date": 1.0,
+        "direction": 1.0,
+        "amount": 1.0,
+        "balance": 1.0,
+        "all_four": 1.0
+      },
+      "rows_scored": 3205,
+      "decision": {
+        "inconsistent_refused_correctly": 20,
+        "outcome:refused:BALANCE_MISMATCH": 20
+      },
+      "extraction_refusal_reasons": {}
+    },
+    "Digital_Type2": {
+      "files": 20,
+      "seconds_per_file": 0.36,
+      "extraction": {
+        "extracted": 20,
+        "row_count_matches": 20,
+        "rows_missing_or_extra": 0
+      },
+      "field_accuracy_over_rows": {
+        "date": 1.0,
+        "direction": 1.0,
+        "amount": 1.0,
+        "balance": 1.0,
+        "all_four": 1.0
+      },
+      "rows_scored": 3199,
+      "decision": {
+        "inconsistent_refused_correctly": 20,
+        "outcome:refused:BALANCE_MISMATCH": 20
+      },
+      "extraction_refusal_reasons": {}
+    }
+  }
+}

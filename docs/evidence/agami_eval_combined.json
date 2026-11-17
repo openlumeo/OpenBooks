@@ -1,0 +1,102 @@
+{
+ "origin": "third-party SYNTHETIC Indian statements (AgamiAI/Indian-Bank-Statements, Apache-2.0); not real customer data",
+ "files_per_kind": 20,
+ "kinds": {
+  "Digital_Type1": {
+   "files": 20,
+   "seconds_per_file": 0.36,
+   "extraction": {
+    "extracted": 20,
+    "row_count_matches": 20,
+    "rows_missing_or_extra": 0
+   },
+   "field_accuracy_over_rows": {
+    "date": 1.0,
+    "direction": 1.0,
+    "amount": 1.0,
+    "balance": 1.0,
+    "all_four": 1.0
+   },
+   "rows_scored": 3205,
+   "decision": {
+    "inconsistent_refused_correctly": 20,
+    "outcome:refused:BALANCE_MISMATCH": 20
+   },
+   "extraction_refusal_reasons": {}
+  },
+  "Digital_Type2": {
+   "files": 20,
+   "seconds_per_file": 0.36,
+   "extraction": {
+    "extracted": 20,
+    "row_count_matches": 20,
+    "rows_missing_or_extra": 0
+   },
+   "field_accuracy_over_rows": {
+    "date": 1.0,
+    "direction": 1.0,
+    "amount": 1.0,
+    "balance": 1.0,
+    "all_four": 1.0
+   },
+   "rows_scored": 3199,
+   "decision": {
+    "inconsistent_refused_correctly": 20,
+    "outcome:refused:BALANCE_MISMATCH": 20
+   },
+   "extraction_refusal_reasons": {}
+  },
+  "Scanned_Type1": {
+   "files": 8,
+   "seconds_per_file": 148.57,
+   "extraction": {
+    "extraction_refused:PARSE_ERROR": 7,
+    "extraction_refused:UNKNOWN_LAYOUT": 1
+   },
+   "field_accuracy_over_rows": {
+    "date": 0.0,
+    "direction": 0.0,
+    "amount": 0.0,
+    "balance": 0.0,
+    "all_four": 0.0
+   },
+   "rows_scored": 0,
+   "decision": {
+    "inconsistent_refused_correctly": 8,
+    "outcome:refused:PARSE_ERROR": 7,
+    "outcome:refused:UNKNOWN_LAYOUT": 1
+   },
+   "extraction_refusal_reasons": {
+    "page 1: a line with amounts is not a transaction row": 4,
+    "page 2: a line with amounts is not a transaction row": 2,
+    "no statement table found": 1,
+    "page 3: a line with amounts is not a transaction row": 1
+   }
+  },
+  "Scanned_Type2": {
+   "files": 8,
+   "seconds_per_file": 162.92,
+   "extraction": {
+    "extraction_refused:PARSE_ERROR": 8
+   },
+   "field_accuracy_over_rows": {
+    "date": 0.0,
+    "direction": 0.0,
+    "amount": 0.0,
+    "balance": 0.0,
+    "all_four": 0.0
+   },
+   "rows_scored": 0,
+   "decision": {
+    "inconsistent_refused_correctly": 8,
+    "outcome:refused:PARSE_ERROR": 8
+   },
+   "extraction_refusal_reasons": {
+    "page 1: could not read one amount and one balance on the row dated 01/01/2024": 6,
+    "page 3: could not read one amount and one balance on the row dated 02/02/2024": 1,
+    "page 1: the debit/credit marker next to '1100.31' is missing or ambiguous": 1
+   }
+  }
+ },
+ "note": "digital PDFs: extraction 100%; scanned PDFs: all refused (safe, 0 false accepts) but 0 rows extracted - OCR row parsing does not yet handle these layouts"
+}

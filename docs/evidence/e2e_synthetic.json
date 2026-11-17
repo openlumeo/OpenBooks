@@ -1,0 +1,25 @@
+{
+  "origin": "SYNTHETIC (own generator), Indian formats; not real exports",
+  "cases": 64,
+  "decision_mismatches": [],
+  "false_accepts": 0,
+  "released_in_report": 24,
+  "refused_by_code": {
+    "BALANCE_MISMATCH": 23,
+    "PARSE_ERROR": 9,
+    "UNKNOWN_LAYOUT": 3,
+    "UNSUPPORTED_INPUT": 2
+  },
+  "crowded_pack": {
+    "links": 0,
+    "ambiguous_not_linked": 1,
+    "all_links_proven": true
+  },
+  "isolated_pair": {
+    "links": 1,
+    "expected": 1,
+    "amounts": [
+      "77.64"
+    ]
+  }
+}

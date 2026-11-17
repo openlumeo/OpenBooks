@@ -1,0 +1,99 @@
+{
+  "fp32": {
+    "calibration": {
+      "role_temperature": 1.783,
+      "role_qhat": 0.8167346715927124,
+      "alpha": 0.01
+    },
+    "calib": {
+      "tokens": 136092,
+      "role_accuracy": 0.9703,
+      "amount_tokens": 38275,
+      "amount_role_accuracy": 0.9167,
+      "type_accuracy": 0.9995,
+      "role_ece_after_temperature": 0.0061,
+      "role_coverage": 0.9901,
+      "role_singleton_rate": 0.9543,
+      "amount_singleton_rate": 0.8623,
+      "amount_singleton_wrong": 738,
+      "amount_abstain_rate": 0.1377
+    },
+    "test": {
+      "tokens": 140526,
+      "role_accuracy": 0.9688,
+      "amount_tokens": 39617,
+      "amount_role_accuracy": 0.9153,
+      "type_accuracy": 0.9995,
+      "role_ece_after_temperature": 0.0067,
+      "role_coverage": 0.9895,
+      "role_singleton_rate": 0.9525,
+      "amount_singleton_rate": 0.8554,
+      "amount_singleton_wrong": 726,
+      "amount_abstain_rate": 0.1446
+    },
+    "shifted": {
+      "tokens": 79030,
+      "role_accuracy": 0.853,
+      "amount_tokens": 20575,
+      "amount_role_accuracy": 0.7867,
+      "type_accuracy": 0.9963,
+      "role_ece_after_temperature": 0.0787,
+      "role_coverage": 0.9116,
+      "role_singleton_rate": 0.8651,
+      "amount_singleton_rate": 0.6429,
+      "amount_singleton_wrong": 875,
+      "amount_abstain_rate": 0.3571
+    }
+  },
+  "int8_shipped": {
+    "calibration": {
+      "role_temperature": 1.782,
+      "role_qhat": 0.8165456652641296,
+      "alpha": 0.01
+    },
+    "calib": {
+      "tokens": 136092,
+      "role_accuracy": 0.9704,
+      "amount_tokens": 38275,
+      "amount_role_accuracy": 0.9168,
+      "type_accuracy": 0.9995,
+      "role_ece_after_temperature": 0.0061,
+      "role_coverage": 0.9901,
+      "role_singleton_rate": 0.9543,
+      "amount_singleton_rate": 0.8623,
+      "amount_singleton_wrong": 739,
+      "amount_abstain_rate": 0.1377
+    },
+    "test": {
+      "tokens": 140526,
+      "role_accuracy": 0.9689,
+      "amount_tokens": 39617,
+      "amount_role_accuracy": 0.9155,
+      "type_accuracy": 0.9995,
+      "role_ece_after_temperature": 0.0066,
+      "role_coverage": 0.9894,
+      "role_singleton_rate": 0.9525,
+      "amount_singleton_rate": 0.8554,
+      "amount_singleton_wrong": 731,
+      "amount_abstain_rate": 0.1446
+    },
+    "shifted": {
+      "tokens": 79030,
+      "role_accuracy": 0.8529,
+      "amount_tokens": 20575,
+      "amount_role_accuracy": 0.787,
+      "type_accuracy": 0.9962,
+      "role_ece_after_temperature": 0.0787,
+      "role_coverage": 0.9117,
+      "role_singleton_rate": 0.865,
+      "amount_singleton_rate": 0.643,
+      "amount_singleton_wrong": 873,
+      "amount_abstain_rate": 0.357
+    }
+  },
+  "parameters": 18878602,
+  "weights_mb_int8": 19.04,
+  "epochs": 12,
+  "seconds": 1087,
+  "note": "synthetic statements only (text layer + EasyOCR scans); 'shifted' = unseen font sizes, header words, date formats. Coverage guarantees need exchangeable data, so expect them to weaken on shifted/real layouts. No real statements were used or scored."
+}

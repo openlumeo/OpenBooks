@@ -1,0 +1,49 @@
+{
+  "int8_shipped": {
+    "calibration": {
+      "role_temperature": 2.065,
+      "role_qhat": 0.9959005117416382,
+      "alpha": 0.003
+    },
+    "calib": {
+      "tokens": 72677,
+      "role_accuracy": 0.9454,
+      "amount_tokens": 20081,
+      "amount_role_accuracy": 0.8932,
+      "type_accuracy": 0.9985,
+      "role_ece_after_temperature": 0.0118,
+      "role_coverage": 0.999,
+      "role_singleton_rate": 0.3673,
+      "amount_singleton_rate": 0.3507,
+      "amount_singleton_wrong": 2,
+      "amount_abstain_rate": 0.6493
+    },
+    "test": {
+      "tokens": 65099,
+      "role_accuracy": 0.9485,
+      "amount_tokens": 18195,
+      "amount_role_accuracy": 0.8946,
+      "type_accuracy": 0.9988,
+      "role_ece_after_temperature": 0.0154,
+      "role_coverage": 0.9996,
+      "role_singleton_rate": 0.393,
+      "amount_singleton_rate": 0.3583,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.6417
+    },
+    "shifted": {
+      "tokens": 44186,
+      "role_accuracy": 0.8206,
+      "amount_tokens": 11685,
+      "amount_role_accuracy": 0.7733,
+      "type_accuracy": 0.9955,
+      "role_ece_after_temperature": 0.0659,
+      "role_coverage": 0.987,
+      "role_singleton_rate": 0.17,
+      "amount_singleton_rate": 0.1939,
+      "amount_singleton_wrong": 2,
+      "amount_abstain_rate": 0.8061
+    }
+  },
+  "note": "shipped weights (unchanged) + shift-aware calibration (calib + wide-layout windows, alpha 0.003); scored on the original calib/test/shifted splits, SYNTHETIC"
+}

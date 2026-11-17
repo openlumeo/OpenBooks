@@ -1,0 +1,18 @@
+{
+  "origin": "REAL receipts (SROIE 2019 test, photographed/scanned). Not bank statements. Internal evaluation only.",
+  "partial": false,
+  "images": 100,
+  "total_read_exactly": 0.7,
+  "date_read_exactly": 0.8,
+  "of_totals_read_share_with_conf_at_least": {
+    "0.5": 0.9857,
+    "0.7": 0.8429,
+    "0.9": 0.7286
+  },
+  "of_dates_read_share_with_conf_at_least": {
+    "0.5": 0.8875,
+    "0.7": 0.6,
+    "0.9": 0.275
+  },
+  "note": "recall of one labelled field per receipt; receipts are noisier than the synthetic scans, so use this as the real-scan reference"
+}

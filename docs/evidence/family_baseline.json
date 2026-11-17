@@ -1,0 +1,24 @@
+{
+  "sign": {
+    "seeds": 12,
+    "released": 4,
+    "wrong_releases": 0,
+    "refusals": {
+      "PARSE_ERROR": 8
+    }
+  },
+  "branch": {
+    "seeds": 12,
+    "released": 12,
+    "wrong_releases": 0,
+    "refusals": {}
+  },
+  "skew": {
+    "seeds": 12,
+    "released": 4,
+    "wrong_releases": 0,
+    "refusals": {
+      "PARSE_ERROR": 8
+    }
+  }
+}

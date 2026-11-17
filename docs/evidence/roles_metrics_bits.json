@@ -1,0 +1,86 @@
+{
+  "variant": "bit-level token input (first 12 bytes + end-of-token bit, MLP); hashed word table removed",
+  "fp32": {
+    "calibration": {
+      "role_temperature": 1.239,
+      "role_qhat": 0.90324467420578,
+      "alpha": 0.01
+    },
+    "calib": {
+      "tokens": 72656,
+      "role_accuracy": 0.9373,
+      "amount_tokens": 20056,
+      "amount_role_accuracy": 0.8728,
+      "type_accuracy": 0.9991,
+      "role_ece_after_temperature": 0.0086,
+      "role_coverage": 0.9897,
+      "role_singleton_rate": 0.8528,
+      "amount_singleton_rate": 0.7064,
+      "amount_singleton_wrong": 122,
+      "amount_abstain_rate": 0.2936
+    },
+    "test": {
+      "tokens": 65047,
+      "role_accuracy": 0.9421,
+      "amount_tokens": 18150,
+      "amount_role_accuracy": 0.8879,
+      "type_accuracy": 0.9989,
+      "role_ece_after_temperature": 0.0069,
+      "role_coverage": 0.9898,
+      "role_singleton_rate": 0.8648,
+      "amount_singleton_rate": 0.7183,
+      "amount_singleton_wrong": 79,
+      "amount_abstain_rate": 0.2817
+    },
+    "shifted": {
+      "tokens": 44046,
+      "role_accuracy": 0.8141,
+      "amount_tokens": 11629,
+      "amount_role_accuracy": 0.7418,
+      "type_accuracy": 0.9893,
+      "role_ece_after_temperature": 0.0826,
+      "role_coverage": 0.9216,
+      "role_singleton_rate": 0.7209,
+      "amount_singleton_rate": 0.5023,
+      "amount_singleton_wrong": 240,
+      "amount_abstain_rate": 0.4977
+    }
+  },
+  "parameters": 12772618,
+  "epochs": 5,
+  "loss": "ce",
+  "epoch_curve": [
+    {
+      "epoch": 1,
+      "train_loss": 0.7233,
+      "train_exact_memorisation": 0.7547,
+      "calib_loss": 0.2826
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.1706,
+      "train_exact_memorisation": 0.9281,
+      "calib_loss": 0.182
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.1039,
+      "train_exact_memorisation": 0.9555,
+      "calib_loss": 0.1498
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.077,
+      "train_exact_memorisation": 0.9659,
+      "calib_loss": 0.1435
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.069,
+      "train_exact_memorisation": 0.9697,
+      "calib_loss": 0.1444
+    }
+  ],
+  "seconds": 74,
+  "note": "experiment, fp32, same seeds/splits/loss/schedule as the shipped model; not integrated into roles.py"
+}

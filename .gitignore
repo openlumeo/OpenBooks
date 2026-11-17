@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+build/
+dist/
+
+# Secrets and local config
+.env
+.env.*
+*.key
+*.pem
+.claude/
+
+# Downloaded third-party datasets (licences: some are NC / share-alike; never redistribute)
+data/raw/
+data/download_log.json
+data/*_stdout.txt
+
+# Generated training data (rebuilt by scripts/train_roles.py)
+data/*.pkl
+
+# Internal-only weights: pretrained on CORD (CC BY-SA), must not be shipped
+models/jepa_encoder.pt
+# Experimental runs (leave-one-family-out etc.); only the promoted model in models/ is tracked
+models/fam_*/
+models/*_bak*/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
