@@ -123,7 +123,9 @@ export type Health = {
   engine_version: string;
   schema_version: string;
   ocr_available: boolean;
+  /** true only when a --model run would load (weights, matching calibration, PyTorch) */
   model_weights_present: boolean;
+  model_issue?: string | null;
   max_bytes: number;
   allowed_extensions: string[];
 };

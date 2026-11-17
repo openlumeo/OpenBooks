@@ -59,6 +59,22 @@ def test_health_and_formats(client):
     assert {u["layout"] for u in f["unverified"]} <= engine_layouts() and all(u["name"] for u in f["unverified"])
 
 
+def test_model_status_applies_the_engines_hash_binding(tmp_path):
+    import hashlib
+
+    from openbooks_server.catalog import model_status
+
+    w, c = tmp_path / "w.pt", tmp_path / "cal.json"
+    assert model_status(w, c) == (False, "no model weights (models/roles_head.pt)")
+    w.write_bytes(b"weights-v2")
+    assert model_status(w, c) == (False, "no calibration (models/roles_calibration.json)")
+    c.write_text(json.dumps({"weights_sha256": "0" * 64}), encoding="utf-8")
+    ready, issue = model_status(w, c)
+    assert not ready and "calibration was fitted for other weights" in issue
+    c.write_text(json.dumps({"weights_sha256": hashlib.sha256(b"weights-v2").hexdigest()}), encoding="utf-8")
+    assert model_status(w, c) == (True, None)
+
+
 def test_catalog_lists_exactly_the_layouts_the_engine_emits(client):
     listed = {lay for g in client.get("/v1/formats").json()["groups"] for lay in g["layouts"]}
     engine = engine_layouts()

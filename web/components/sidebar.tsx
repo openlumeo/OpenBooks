@@ -13,7 +13,7 @@ export function Sidebar({ ws, open, onNavigate }: { ws: Workspace; open: boolean
   const h = engine.health;
   const status =
     engine.status === "up" && h
-      ? `Engine ${h.engine_version} · OCR ${h.ocr_available ? "on" : "not installed"} · Model ${h.model_weights_present ? "ready" : "not installed"}`
+      ? `Engine ${h.engine_version} · OCR ${h.ocr_available ? "on" : "not installed"} · Model ${h.model_weights_present ? "ready" : "off"}`
       : engine.status === "down"
         ? "Engine unreachable"
         : "Checking engine";
@@ -109,7 +109,7 @@ export function Sidebar({ ws, open, onNavigate }: { ws: Workspace; open: boolean
 
       <div className="ob-sidebar-foot">
         <div className="ob-foot-row">
-          <span className="ob-status mono-label" role="status" title={engine.message ?? status}>
+          <span className="ob-status mono-label" role="status" title={engine.message ?? (h?.model_issue ? `${status}. Model: ${h.model_issue}` : status)}>
             <span className={`dot ${engine.status === "up" ? "dot--live" : engine.status === "down" ? "dot--bad" : ""}`} aria-hidden="true" />
             <span className="ob-status-text">{status}</span>
           </span>

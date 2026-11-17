@@ -97,7 +97,7 @@ The browser only talks to the Next.js server, which proxies to the engine servic
 }
 ```
 
-A refusal is `{ "status": "refused", "error": { "code", "message" }, "file": { "sha256" } }`.
+A refusal is `{ "schema_version": "openbooks.v1", "status": "refused", "data": null, "error": { "code", "message", "file_sha256" } }` (no `file` block; the file hash is inside `error`).
 
 | Refusal code | Meaning |
 |---|---|

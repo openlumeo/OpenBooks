@@ -172,6 +172,7 @@ export function Workspace() {
             allowed={allowed}
             maxBytes={maxBytes}
             modelAvailable={!!ws.engine.health?.model_weights_present}
+            modelIssue={ws.engine.health?.model_issue}
             hasDocs={threadDocs(ws.active).length > 0}
           />
         </div>

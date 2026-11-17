@@ -24,7 +24,7 @@ Open Books turns financial files into **one proven JSON document per file**, or 
   assertions: [ { id, rule, expected, computed, passed, independent } ] }
 ```
 
-A refusal is `{ status: "refused", error: { code, message }, file: { sha256 } }`.
+A refusal is `{ schema_version, status: "refused", data: null, error: { code, message, file_sha256 } }` (no `file` block; see `refusal_doc` in `pipeline.py`).
 
 ### Refusal codes
 

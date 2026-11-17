@@ -138,7 +138,7 @@ python -c "import json,sys; sys.path.insert(0,'src'); from openbooks.pipeline im
 npx json-schema-to-zod -i packages/js/core/schema/openbooks.v1.schema.json -o packages/js/core/src/schema.ts
 ```
 
-Add that export as a script in `package.json` and a CI check that fails if the committed file differs from a fresh export. A refusal document is `{ "status": "refused", "error": {"code","message"}, "file": {"sha256"} }`: add its Zod type by hand in `core` and export `OpenBooksResult = z.union([Ok, Refused])`.
+Add that export as a script in `package.json` and a CI check that fails if the committed file differs from a fresh export. A refusal document is `{ "schema_version": "openbooks.v1", "status": "refused", "data": null, "error": {"code","message","file_sha256"} }` (no `file` block; see `refusal_doc` in `pipeline.py`): add its Zod type by hand in `core` and export `OpenBooksResult = z.union([Ok, Refused])`.
 
 ### 4.3 `@openbooks/core`
 
@@ -249,7 +249,7 @@ Status today: data generation, training, calibration, evaluation, a promotion ga
 | M8 | Reduce abstention on unseen layouts (67 to 83% today): more family variety in `synth.py`, calibrate on real data (M7), try byte-level embeddings (`bitenc.py`, `train_roles_bits.py` exist), try ConfTS/SAPS-style set-size-minimising calibration. Keep the gate: 0 confident-wrong. | lower held-out abstention with the gate still green |
 | M9 | Monitoring: aggregate `report.json` over time (release rate, refusal codes, abstain rate, model hash per release); alert on drift in refusal mix or abstain rate; log the model hash (already in `file.model`). | a dashboard or weekly script output from real runs |
 | M10 | Inference export (optional): ONNX int8 export and a parity test against the torch int8 path; NPU only after that. | parity test passes within tolerance |
-| M11 | Serving (the "live" workflow): a small FastAPI service with `POST /process` (file in, `openbooks.v1` or typed refusal out), `GET /model` (identity and metrics), `GET /healthz` (runs doctor). Same engine, no new logic. | the section 8 e2e checks pass over HTTP |
+| M11 | Serving (the "live" workflow): a small FastAPI service with `POST /process` (file in, `openbooks.v1` or typed refusal out), `GET /model` (identity and metrics), `GET /healthz` (runs doctor). Same engine, no new logic. Started: `server/` (FastAPI, used by the `web/` app) already serves `POST /v1/runs` (per-file stage events over SSE), `POST /v1/link`, `GET /v1/health` and `GET /v1/formats`; extend it rather than starting a second service. | the section 8 e2e checks pass over HTTP |
 | M12 | Early stopping on a dedicated validation split (calibration data must stay separate to avoid leakage). | no change in held-out metrics, shorter runs |
 
 Known limits to keep visible: numeric dates are day-first unless proven otherwise (`--date-order`); other 1099 forms have no arithmetic to prove and are not parsed; scans cost about 3 s per page (OCR).

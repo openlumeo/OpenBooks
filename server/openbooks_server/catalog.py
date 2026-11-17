@@ -20,6 +20,31 @@ from openbooks.pipeline import ALLOWED_EXT, MAX_BYTES, SCHEMA_VERSION
 # Same location openbooks.roles uses (repo/models). Not imported from there: that module needs torch at
 # import time, and the service must start without the optional [scan] extra.
 WEIGHTS = Path(pipeline.__file__).resolve().parents[2] / "models" / "roles_head.pt"
+CALIBRATION = WEIGHTS.with_name("roles_calibration.json")
+
+_status_cache: dict = {}
+
+
+def model_status(weights: Path = WEIGHTS, calibration: Path = CALIBRATION) -> tuple[bool, str | None]:
+    """Whether --model can run, by the engine's own rule (roles.RoleModel._build): the calibration names the sha256 of
+    the weights it was fitted on, and a mismatch refuses. Cached by modification time so the health poll stays cheap."""
+    if not weights.exists():
+        return False, "no model weights (models/roles_head.pt)"
+    if not calibration.exists():
+        return False, "no calibration (models/roles_calibration.json)"
+    key = (str(weights), str(calibration), weights.stat().st_mtime_ns, calibration.stat().st_mtime_ns)
+    if key not in _status_cache:
+        _status_cache.clear()
+        import hashlib
+
+        try:
+            fitted = json.loads(calibration.read_text(encoding="utf-8")).get("weights_sha256")
+        except (OSError, ValueError):
+            fitted = None
+        actual = hashlib.sha256(weights.read_bytes()).hexdigest()
+        _status_cache[key] = (True, None) if fitted == actual else (
+            False, f"calibration was fitted for other weights ({(fitted or 'none')[:12]}, not {actual[:12]}): refit it")
+    return _status_cache[key]
 
 FORMATS = [
     {
@@ -75,12 +100,17 @@ def engine_version() -> str:
 
 
 def health() -> dict:
+    ready, issue = model_status()
+    if ready and importlib.util.find_spec("torch") is None:
+        ready, issue = False, 'PyTorch is not installed (pip install "openbooks[scan]")'
     return {
         "status": "ok",
         "engine_version": engine_version(),
         "schema_version": SCHEMA_VERSION,
         "ocr_available": importlib.util.find_spec("easyocr") is not None,
-        "model_weights_present": WEIGHTS.exists() and importlib.util.find_spec("torch") is not None,
+        # true only when a --model run would load: weights, matching calibration and PyTorch all present
+        "model_weights_present": ready,
+        "model_issue": issue,
         "max_bytes": MAX_BYTES,
         "allowed_extensions": sorted(ALLOWED_EXT),
     }

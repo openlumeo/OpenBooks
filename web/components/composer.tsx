@@ -25,6 +25,7 @@ export type ComposerProps = {
   allowed: string[];
   maxBytes: number;
   modelAvailable: boolean;
+  modelIssue?: string | null;
   hasDocs: boolean;
 };
 
@@ -106,7 +107,7 @@ export function Composer(props: ComposerProps) {
     <div className="ob-dock">
       <div className="composer">
         {showParams && (
-          <ParamsPanel id={`${ids}-params`} params={params} setParams={setParams} onError={setParamError} modelAvailable={props.modelAvailable} />
+          <ParamsPanel id={`${ids}-params`} params={params} setParams={setParams} onError={setParamError} modelAvailable={props.modelAvailable} modelIssue={props.modelIssue} />
         )}
         {hasFiles && (
           <ul className="chips composer-chips" aria-label="Files to check">
@@ -236,12 +237,14 @@ function ParamsPanel({
   setParams,
   onError,
   modelAvailable,
+  modelIssue,
 }: {
   id: string;
   params: RunParams;
   setParams: (p: RunParams) => void;
   onError: (e: string | null) => void;
   modelAvailable: boolean;
+  modelIssue?: string | null;
 }) {
   const [cur, setCur] = useState(params.currency ?? "");
   const [open, setOpen] = useState(params.opening ?? "");
@@ -309,7 +312,7 @@ function ParamsPanel({
           />
           Allow derived opening balance
         </label>
-        <label className="check" title={modelAvailable ? undefined : "Needs models/roles_head.pt and PyTorch on the engine"}>
+        <label className="check" title={modelAvailable ? undefined : `Unavailable: ${modelIssue ?? "the engine has no usable model"}`}>
           <input type="checkbox" checked={!!params.model} disabled={!modelAvailable} onChange={(e) => setParams({ ...params, model: e.target.checked || undefined })} />
           Model cross-check for PDFs and scans
         </label>
