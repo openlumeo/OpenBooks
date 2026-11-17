@@ -1,0 +1,183 @@
+{
+  "fp32": {
+    "calibration": {
+      "role_temperature": 1.86,
+      "role_qhat": 0.9511018395423889,
+      "alpha": 0.01
+    },
+    "calib": {
+      "tokens": 134940,
+      "role_accuracy": 0.9427,
+      "amount_tokens": 37607,
+      "amount_role_accuracy": 0.8684,
+      "type_accuracy": 0.9982,
+      "role_ece_after_temperature": 0.0096,
+      "role_coverage": 0.991,
+      "role_singleton_rate": 0.8696,
+      "amount_singleton_rate": 0.7067,
+      "amount_singleton_wrong": 191,
+      "amount_abstain_rate": 0.2933
+    },
+    "test": {
+      "tokens": 65099,
+      "role_accuracy": 0.9557,
+      "amount_tokens": 18195,
+      "amount_role_accuracy": 0.9007,
+      "type_accuracy": 0.9989,
+      "role_ece_after_temperature": 0.0082,
+      "role_coverage": 0.9917,
+      "role_singleton_rate": 0.9021,
+      "amount_singleton_rate": 0.778,
+      "amount_singleton_wrong": 70,
+      "amount_abstain_rate": 0.222
+    },
+    "shifted": {
+      "tokens": 44186,
+      "role_accuracy": 0.8276,
+      "amount_tokens": 11685,
+      "amount_role_accuracy": 0.7692,
+      "type_accuracy": 0.9947,
+      "role_ece_after_temperature": 0.0846,
+      "role_coverage": 0.9275,
+      "role_singleton_rate": 0.7433,
+      "amount_singleton_rate": 0.4938,
+      "amount_singleton_wrong": 75,
+      "amount_abstain_rate": 0.5062
+    },
+    "family_sign": {
+      "tokens": 21940,
+      "role_accuracy": 0.9144,
+      "amount_tokens": 4831,
+      "amount_role_accuracy": 0.7632,
+      "type_accuracy": 0.999,
+      "role_ece_after_temperature": 0.0164,
+      "role_coverage": 0.9867,
+      "role_singleton_rate": 0.8081,
+      "amount_singleton_rate": 0.4767,
+      "amount_singleton_wrong": 12,
+      "amount_abstain_rate": 0.5233,
+      "trained_on": true
+    },
+    "family_branch": {
+      "tokens": 17018,
+      "role_accuracy": 0.9475,
+      "amount_tokens": 5559,
+      "amount_role_accuracy": 0.878,
+      "type_accuracy": 0.9961,
+      "role_ece_after_temperature": 0.0123,
+      "role_coverage": 0.9914,
+      "role_singleton_rate": 0.8747,
+      "amount_singleton_rate": 0.741,
+      "amount_singleton_wrong": 46,
+      "amount_abstain_rate": 0.259,
+      "trained_on": true
+    },
+    "family_skew": {
+      "tokens": 22635,
+      "role_accuracy": 0.9514,
+      "amount_tokens": 6568,
+      "amount_role_accuracy": 0.8957,
+      "type_accuracy": 0.998,
+      "role_ece_after_temperature": 0.0139,
+      "role_coverage": 0.9953,
+      "role_singleton_rate": 0.8717,
+      "amount_singleton_rate": 0.7619,
+      "amount_singleton_wrong": 20,
+      "amount_abstain_rate": 0.2381,
+      "trained_on": true
+    }
+  },
+  "int8_shipped": {
+    "calibration": {
+      "role_temperature": 1.86,
+      "role_qhat": 0.950931966304779,
+      "alpha": 0.01
+    },
+    "calib": {
+      "tokens": 134940,
+      "role_accuracy": 0.9427,
+      "amount_tokens": 37607,
+      "amount_role_accuracy": 0.8683,
+      "type_accuracy": 0.9982,
+      "role_ece_after_temperature": 0.0097,
+      "role_coverage": 0.991,
+      "role_singleton_rate": 0.8695,
+      "amount_singleton_rate": 0.7063,
+      "amount_singleton_wrong": 188,
+      "amount_abstain_rate": 0.2937
+    },
+    "test": {
+      "tokens": 65099,
+      "role_accuracy": 0.9558,
+      "amount_tokens": 18195,
+      "amount_role_accuracy": 0.9009,
+      "type_accuracy": 0.9989,
+      "role_ece_after_temperature": 0.0081,
+      "role_coverage": 0.9916,
+      "role_singleton_rate": 0.9023,
+      "amount_singleton_rate": 0.7781,
+      "amount_singleton_wrong": 71,
+      "amount_abstain_rate": 0.2219
+    },
+    "shifted": {
+      "tokens": 44186,
+      "role_accuracy": 0.8275,
+      "amount_tokens": 11685,
+      "amount_role_accuracy": 0.7693,
+      "type_accuracy": 0.9947,
+      "role_ece_after_temperature": 0.0846,
+      "role_coverage": 0.9273,
+      "role_singleton_rate": 0.7435,
+      "amount_singleton_rate": 0.4937,
+      "amount_singleton_wrong": 76,
+      "amount_abstain_rate": 0.5063
+    },
+    "family_sign": {
+      "tokens": 21940,
+      "role_accuracy": 0.9146,
+      "amount_tokens": 4831,
+      "amount_role_accuracy": 0.7636,
+      "type_accuracy": 0.999,
+      "role_ece_after_temperature": 0.017,
+      "role_coverage": 0.9866,
+      "role_singleton_rate": 0.8083,
+      "amount_singleton_rate": 0.4763,
+      "amount_singleton_wrong": 12,
+      "amount_abstain_rate": 0.5237,
+      "trained_on": true
+    },
+    "family_branch": {
+      "tokens": 17018,
+      "role_accuracy": 0.9476,
+      "amount_tokens": 5559,
+      "amount_role_accuracy": 0.8784,
+      "type_accuracy": 0.9963,
+      "role_ece_after_temperature": 0.0124,
+      "role_coverage": 0.9914,
+      "role_singleton_rate": 0.875,
+      "amount_singleton_rate": 0.7411,
+      "amount_singleton_wrong": 46,
+      "amount_abstain_rate": 0.2589,
+      "trained_on": true
+    },
+    "family_skew": {
+      "tokens": 22635,
+      "role_accuracy": 0.9514,
+      "amount_tokens": 6568,
+      "amount_role_accuracy": 0.8956,
+      "type_accuracy": 0.998,
+      "role_ece_after_temperature": 0.0138,
+      "role_coverage": 0.9952,
+      "role_singleton_rate": 0.8719,
+      "amount_singleton_rate": 0.7623,
+      "amount_singleton_wrong": 20,
+      "amount_abstain_rate": 0.2377,
+      "trained_on": true
+    }
+  },
+  "parameters": 18878602,
+  "weights_mb_int8": 19.04,
+  "epochs": 12,
+  "seconds": 254,
+  "note": "synthetic statements only (text layer + EasyOCR scans); 'shifted' = unseen font sizes, header words, date formats. Coverage guarantees need exchangeable data, so expect them to weaken on shifted/real layouts. No real statements were used or scored."
+}

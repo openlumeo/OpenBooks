@@ -30,9 +30,18 @@ Not a git repo. Verify: `OB_SLOW=1 python -m pytest -q` -> 36 passed. All data S
 - Pipeline (no --model, header parser), 12 seeds each: branch 12/12 released, sign 4/12, skew 4/12; the rest are typed PARSE_ERROR refusals, 0 wrong releases. Parser gaps shown: "+/-" indicator and separate balance Dr/Cr column ("debit/credit marker ... missing or ambiguous"); bare Dr/Cr / With. Amt. headers ("could not read one amount and one balance").
 - NOT done: train_roles.py does not yet draw families (S3: hold out one family per run for leave-one-family-out; add them as opt-in args there). Parser support for the sign/skew gaps is optional and separate from the head work.
 
+## DONE S3 (leave-one-family-out; synthetic; plain calibration alpha 0.01 on calib only; evidence docs/evidence/roles_metrics_fam_*.json)
+- Wired: `OB_FAMILIES=none|sign,skew|...` in train_roles.py trains on the listed families, scores every family's test split, writes models/fam_<tag>/ (gitignored) so shipped weights are untouched. Family data cached in data/roles_dataset_fam_1200_150.pkl (seeds 100000+). scripts/family_baseline.py reproduces the header-parser numbers. Decision taken: parser gaps left to the heads (no pdf_front rules).
+- Held-out family vs control (trained on no family), amount confident-wrong / abstain / coverage:
+  - sign held out: 12 vs 9 / 0.537 vs 0.558 / 0.883 vs 0.890. branch held out: 151 vs 147 / 0.316 vs 0.332 / 0.954 vs 0.961. skew held out: 31 vs 35 / 0.476 vs 0.477 / 0.884 vs 0.865.
+  - => Training on the other families does NOT transfer to an unseen family. Seen families improve a lot (branch wrong 147 -> 46, skew coverage 0.865 -> 0.995, abstain 0.48 -> 0.24).
+- Cost of adding families: default test confident-wrong 31 -> 71, shifted 64 -> 76. promote.py REJECTS the all-families candidate (shifted cov 0.927 < 0.98, shifted wrong 76 > 2, test wrong 71 > 0). Caveat: the candidate used plain calibration, the baseline the shift-aware one (calib + wide, alpha 0.003), so the gate is not like-for-like; weights are not promoted.
+- Stop rule: held-out abstention stayed 0.32-0.54 (not > 0.70) but held-out confident-wrong was not below control for sign/branch. Conclusion: families are learnable once seen, unseen families are not helped. Real redacted samples are the fix.
+
 ## Next session (in order)
-1. S3/S3b (GPU, one job) per the plan below: wire `family=` into train_roles.py / calibration, leave-one-family-out. Decide first whether to teach pdf_front the sign/skew gaps (rule-based) or leave them to the heads.
-2. Optional later: ReBIT AA deposit export mapper (no schema change).
+1. S3b: apply shift-aware calibration (calib + wide + family calib, alpha 0.003) to the all-families weights and re-run promote.py like-for-like; look at why default-test confident-wrong rose 31 -> 71 (family mix ratio? try fewer family windows).
+2. S4 only if a candidate passes the gate (file_level --scans, e2e --model --scans; bar 15/15, 27/27, 0 false accepts).
+3. Optional later: ReBIT AA deposit export mapper (no schema change).
 
 ## Plan (approved by user: F1, F2, F3, F4)
 S0 baseline + holdout protocol: name each family; hold whole families out of train+calib; shifted split stays untouched.
