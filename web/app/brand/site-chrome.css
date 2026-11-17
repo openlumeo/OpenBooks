@@ -1,0 +1,184 @@
+/* VERBATIM COPY of Lumeo frontend/web/app/site-chrome.css (Lumeo DESIGN.md is binding for Open Books).
+   Do not edit here. To update: re-copy from Lumeo, keeping this header.
+   Drift check: tail -n +4 this-file | diff - <lumeo>/frontend/web/app/site-chrome.css */
+/* =========================================================
+   LUMEO SITE CHROME — the shared header furniture.
+
+   Imported by BOTH route groups, alongside theme-tokens.css:
+     app/(marketing)/globals.css
+     app/(docs)/docs.css
+
+   These are the rules the shared <SiteNav> and its children need in
+   order to render as designed. They used to live in globals.css alone,
+   which meant /docs mounted the same components with none of their
+   styling: the theme toggle lost its hairline box, the CTA lost its
+   mint fill, and — because .brand-asset--* was missing — LumeoLockup
+   painted BOTH the white and the black cut at once, which is why the
+   docs header showed two logos side by side.
+
+   Moved verbatim from globals.css. Layered rules keep their @layer
+   components wrapper; the unlayered ones are unlayered on purpose and
+   the reasons are in their own comments.
+   ========================================================= */
+
+@layer components {
+  .container {
+    width: 100%;
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* =========================================================
+     Buttons — --accent fill with --on-accent text. Both flip per theme.
+     ========================================================= */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1;
+    padding: 13px 22px;
+    border-radius: 0;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background var(--dur) var(--ease),
+      border-color var(--dur) var(--ease), color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+
+  .btn-primary-landing,
+  .btn-hero-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
+
+  .btn-primary-landing:hover,
+  .btn-hero-primary:hover {
+    background: color-mix(in srgb, var(--accent) 88%, var(--accent-lift));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+      0 10px 30px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary-landing:active,
+  .btn-hero-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary-landing {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--surface-2);
+  }
+
+  .btn-secondary-landing:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    color: var(--text);
+    transform: translateY(-1px);
+  }
+
+  .btn svg {
+    transition: transform var(--dur) var(--ease);
+  }
+
+  .btn:hover svg.btn-arrow {
+    transform: translate(2px, -2px);
+  }
+
+  /* CTA dot — lavender, and subject to the one-per-viewport rule */
+  .cta-dot {
+    display: inline-block;
+    border-radius: 50%;
+    background: var(--accent-2);
+    flex-shrink: 0;
+    transition: box-shadow 0.3s var(--ease), transform 0.3s var(--ease);
+  }
+
+  .hero-cta-btn:hover .cta-dot {
+    box-shadow: 0 0 4px 1px color-mix(in srgb, var(--accent-2) 45%, transparent);
+    transform: scale(1.08);
+  }
+}
+
+/* =========================================================
+   Theme toggle — same sharp, hairline language as the nav.
+   ========================================================= */
+@layer components {
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 40px;
+    flex-shrink: 0;
+    border: 1px solid var(--hairline);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+  }
+
+  .theme-toggle:hover {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 34%, transparent);
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+  }
+
+  /* Fixed box so swapping sun/moon never shifts the nav. */
+  .theme-toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 15px;
+    width: 15px;
+  }
+}
+
+/* Kill every transition/animation while the theme swaps, so the change reads
+   as instant instead of a 150ms cross-fade through muddy mid-tones.
+   Not inside @layer components: this must beat everything. */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+  animation-duration: 0.001ms !important;
+}
+
+/* Tailwind v4 ships its own `.container` utility in @layer utilities, which
+   otherwise beats the layout container defined up in @layer components and
+   strips its centering + gutter — leaving every Section flush against the
+   viewport edge. Re-declare it unlayered (beats all @layers) so the intended
+   1280px / 24px-gutter tokens win site-wide. */
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Official brand artwork is fixed-colour raster, so it cannot follow --text the
+   way a vector mark would. Both cuts ship and CSS hides one. Deliberately
+   unlayered so no utility can win over it, and written so the DARK asset is the
+   default: dark is the brand default theme and the html element carries no
+   data-theme attribute until a visitor explicitly picks light, which means the
+   correct cut is painted on first frame with no flash. */
+.brand-asset--light {
+  display: none;
+}
+
+:root[data-theme="light"] .brand-asset--light {
+  display: block;
+}
+
+:root[data-theme="light"] .brand-asset--dark {
+  display: none;
+}

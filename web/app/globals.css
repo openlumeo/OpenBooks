@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Lumeo brand system, copied verbatim (see headers). DESIGN.md is binding. */
+@import "./brand/theme-tokens.css";
+@import "./brand/site-chrome.css";
+@import "./brand/type-scale.css";
+
+/* Open Books workspace, built only from the tokens above. */
+@import "./styles/app.css";
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-unmatched: var(--unmatched);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-body: var(--font-inter);
+  --radius-glass: var(--glass-radius);
+}

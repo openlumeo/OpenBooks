@@ -67,6 +67,19 @@ else:
     print(doc["error"]["code"], doc["error"]["message"])
 ```
 
+## Web app
+
+A conversation-style workspace (Open Books by Lumeo) lives in `web/`, backed by a small engine service in `server/`. Drop files into a thread, watch each one go through Detect, Parse, Normalise and Balance, and get one released document or a typed refusal per file, with the checks, per-field evidence and JSON on every card. With a Claude API key you can then ask questions about the released documents. Totals in answers are computed by code, never by the model.
+
+```bash
+pip install -e . -e server                 # engine + engine service (FastAPI)
+cd web && pnpm install
+cp .env.example .env.local                 # optional: ANTHROPIC_API_KEY for questions
+pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
+```
+
+The browser only talks to the Next.js server, which proxies to the engine service on loopback. History stays in the browser (IndexedDB); uploaded files are processed in a temp directory and deleted after each run. Tests: `pytest server/tests` and `cd web && pnpm test`. Design: `docs/web/design.md`.
+
 ## What you get
 
 ```jsonc

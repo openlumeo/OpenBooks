@@ -13,6 +13,7 @@ import io
 import json
 import re
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -666,8 +667,15 @@ def refusal_doc(code: str, message: str, sha: str) -> dict:
             "error": {"code": code, "message": message, "file_sha256": sha}}
 
 
-def process(path: str | Path, params: Params | None = None) -> dict:
+STAGES = ("detect", "parse", "normalise", "balance", "validate")
+
+
+def process(path: str | Path, params: Params | None = None,
+            on_stage: Callable[[str], None] | None = None) -> dict:
+    """on_stage, if given, is called with each name in STAGES once that stage has succeeded.
+    Parsers normalise as they read, so "parse" and "normalise" are reported together."""
     path, p = Path(path), params or Params()
+    stage = on_stage or (lambda _name: None)
     sha = sha256_file(path)
     try:
         raw = guard(path)
@@ -677,19 +685,24 @@ def process(path: str | Path, params: Params | None = None) -> dict:
             from .pdf_front import extract_document
 
             data, ev, fmt_name, layout, method = extract_document(path, p)
+            stage("detect")
         elif ext == ".xlsx":
             from .parsers_extra import parse_xlsx
 
             data, ev, fmt_name, layout = parse_xlsx(path, p)
+            stage("detect")
         else:
             text = decode(raw)
             fmt_name, layout, args = detect(text)
+            stage("detect")
             if fmt_name == "ofx":
                 data, ev = parse_ofx(text, p)
             elif fmt_name == "mt940":
                 data, ev = parse_mt940(text, p)
             else:
                 data, ev = run_layout(layout, args, p)
+        stage("parse")
+        stage("normalise")
         assertions = run_gate(data)
         failed = [a for a in assertions if not a["passed"]]
         if failed:
@@ -697,11 +710,13 @@ def process(path: str | Path, params: Params | None = None) -> dict:
                 f"{a['rule']} (expected {a['expected']}, got {a['computed']})" for a in failed))
         if not any(a["independent"] for a in assertions):
             raise Refusal("BALANCE_MISMATCH", "no independent balance evidence in this file")
+        stage("balance")
         doc = {"schema_version": SCHEMA_VERSION, "status": "ok",
                "file": {"sha256": sha, "name": path.name, "detected_format": fmt_name,
                         "layout_version": layout, "method": method},
                "data": data, "evidence": ev, "assertions": assertions}
         validate_output(doc)
+        stage("validate")
         return doc
     except Refusal as r:
         return refusal_doc(r.code, r.message, sha)

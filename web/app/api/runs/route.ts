@@ -1,0 +1,25 @@
+import { ENGINE_URL, engineDown, relay } from "@/lib/server/engine";
+
+export const dynamic = "force-dynamic";
+
+/** Streams the multipart upload straight to the engine and the engine's SSE straight back. */
+export async function POST(req: Request) {
+  const type = req.headers.get("content-type") ?? "";
+  if (!type.startsWith("multipart/form-data")) {
+    return Response.json({ error: "bad_request", message: "expected a multipart upload" }, { status: 415 });
+  }
+  try {
+    const upstream = await fetch(`${ENGINE_URL}/v1/runs`, {
+      method: "POST",
+      headers: { "content-type": type },
+      body: req.body,
+      signal: req.signal,
+      // Required by Node's fetch to send a streaming request body.
+      duplex: "half",
+    } as RequestInit & { duplex: "half" });
+    return relay(upstream, { "cache-control": "no-store", "x-accel-buffering": "no" });
+  } catch (err) {
+    if (req.signal.aborted) return new Response(null, { status: 499 });
+    return engineDown(err);
+  }
+}

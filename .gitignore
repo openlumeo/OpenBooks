@@ -13,6 +13,7 @@ dist/
 # Secrets and local config
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 .claude/
@@ -30,6 +31,13 @@ models/jepa_encoder.pt
 # Experimental runs (leave-one-family-out etc.); only the promoted model in models/ is tracked
 models/fam_*/
 models/*_bak*/
+
+# Web app (web/)
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
 
 # OS / editor
 .DS_Store
