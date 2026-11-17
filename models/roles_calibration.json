@@ -1,1 +1,1 @@
-{"role": {"temperature": 2.019380728929039, "qhat": 0.9976497888565063, "alpha": 0.001}, "vtype": {"temperature": 1.0769541104862101, "qhat": 0.9351925849914551, "alpha": 0.001}}
+{"role": {"temperature": 2.019380728929039, "qhat": 0.9976497888565063, "alpha": 0.001}, "vtype": {"temperature": 1.0769541104862101, "qhat": 0.9351925849914551, "alpha": 0.001}, "weights_sha256": "d101e39610b74fa3195399a9e4aed89dad2916c2ac874284b08a38b6a0d31056"}

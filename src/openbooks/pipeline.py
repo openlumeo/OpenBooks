@@ -25,7 +25,10 @@ MAX_BYTES = 20 * 1024 * 1024
 TEXT_EXT = {".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt"}
 DOC_EXT = {".pdf", ".png", ".jpg", ".jpeg"}
 ALLOWED_EXT = TEXT_EXT | DOC_EXT | {".xlsx"}
-EXPONENT = {"JPY": 0, "KRW": 0}
+# ISO 4217 minor units; every other currency is 2.
+EXPONENT = {**dict.fromkeys(("BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW", "PYG", "RWF", "UGX", "UYI", "VND", "VUV",
+                             "XAF", "XOF", "XPF"), 0),
+            **dict.fromkeys(("BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND"), 3)}
 HEADER_SCAN_ROWS = 30
 FX_TOLERANCE = Decimal("0.01")
 
@@ -48,7 +51,10 @@ class Params:
 
 
 _PLAIN = re.compile(r"\d+(\.\d+)?")
-_GROUPED = re.compile(r"\d{1,3}(,\d{2,3})*(\.\d+)?")
+# Digit grouping must be one consistent system. Mixed or ragged groups (12,345,67  1,23) are a dropped or mistyped digit,
+# not a number, so they refuse instead of being read as something else.
+_WESTERN = re.compile(r"\d{1,3}(,\d{3})+(\.\d+)?")
+_INDIAN = re.compile(r"\d{1,2}(,\d{2})*,\d{3}(\.\d+)?")
 
 
 def to_dec(raw: str, where: str, *, blank_zero: bool = False, dr_cr: bool = False) -> Decimal:
@@ -68,23 +74,35 @@ def to_dec(raw: str, where: str, *, blank_zero: bool = False, dr_cr: bool = Fals
         sign, s = -sign, s[1:].strip()
     elif s[:1] == "+":
         s = s[1:].strip()
-    ok = _GROUPED.fullmatch(s) if "," in s else _PLAIN.fullmatch(s)
+    ok = (_WESTERN.fullmatch(s) or _INDIAN.fullmatch(s)) if "," in s else _PLAIN.fullmatch(s)
     if not ok:
         raise Refusal("PARSE_ERROR", f"{where}: not a number: {raw!r}")
     return Decimal(s.replace(",", "")) * sign
 
 
-_DATE_FORMATS = ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%d-%b-%Y", "%d %b %Y", "%d %B %Y", "%d-%B-%Y", "%d/%m/%y", "%d-%m-%y")
+_DATE_FORMATS = ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%d-%b-%Y", "%d %b %Y", "%d %B %Y", "%d-%B-%Y", "%d/%m/%y", "%d-%m-%y",
+                 "%d.%m.%Y", "%d.%m.%y", "%Y/%m/%d", "%Y%m%d", "%d-%b-%y", "%d %b %y", "%d/%b/%Y", "%d/%b/%y",
+                 "%b %d, %Y", "%B %d, %Y", "%d %b, %Y")
 _TIME_TAIL = re.compile(r"[ T]\d{1,2}:\d{2}(:\d{2})?(\s?[APap][Mm])?(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$")
+YEAR_RANGE = (1970, 2100)  # outside this is an OCR or typing error, not a statement date
 
 
 def to_date(raw: str, where: str) -> str:
-    s = _TIME_TAIL.sub("", raw.strip())
+    """Day-first for numeric dates (05/01/2026 is 5 January); a first field above 12 is never read as a month.
+    Two-digit years are 20yy. A year outside YEAR_RANGE refuses."""
+    s = re.sub(r"\bSept\b", "Sep", _TIME_TAIL.sub("", raw.strip()))
     for fmt_ in _DATE_FORMATS:
+        if fmt_ == "%Y%m%d" and not (s.isdigit() and len(s) == 8):
+            continue
         try:
-            return datetime.strptime(s, fmt_).date().isoformat()
+            d = datetime.strptime(s, fmt_).date()
         except ValueError:
             continue
+        if "%y" in fmt_ and d.year < 2000:
+            d = d.replace(year=d.year + 100)
+        if not YEAR_RANGE[0] <= d.year <= YEAR_RANGE[1]:
+            raise Refusal("PARSE_ERROR", f"{where}: implausible year in date {raw!r}")
+        return d.isoformat()
     raise Refusal("PARSE_ERROR", f"{where}: unreadable date {raw!r}")
 
 
@@ -614,7 +632,11 @@ SCHEMA = {
     "properties": {
         "schema_version": {"const": SCHEMA_VERSION}, "status": {"const": "ok"},
         "file": {"type": "object", "required": ["sha256", "name", "detected_format", "layout_version", "method"],
-                 "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+                 "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                                "model": {"type": "object", "required": ["weights_sha256", "calibration_sha256"],
+                                          "additionalProperties": False,
+                                          "properties": {"weights_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                                                         "calibration_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}}},
         "data": {"type": "object", "required": ["accounts", "parties", "batches", "transactions", "claims"],
                  "properties": {"transactions": {"type": "array", "minItems": 1}}},
         "evidence": {"type": "object", "additionalProperties": _EVIDENCE},
@@ -697,9 +719,14 @@ def process(path: str | Path, params: Params | None = None) -> dict:
                 f"{a['rule']} (expected {a['expected']}, got {a['computed']})" for a in failed))
         if not any(a["independent"] for a in assertions):
             raise Refusal("BALANCE_MISMATCH", "no independent balance evidence in this file")
+        model_id = None
+        if p.model and ext in DOC_EXT:  # a --model release names the exact weights and calibration that cross-checked it
+            from .roles import RoleModel
+
+            model_id = getattr(RoleModel.load(), "identity", None)
         doc = {"schema_version": SCHEMA_VERSION, "status": "ok",
                "file": {"sha256": sha, "name": path.name, "detected_format": fmt_name,
-                        "layout_version": layout, "method": method},
+                        "layout_version": layout, "method": method, **({"model": model_id} if model_id else {})},
                "data": data, "evidence": ev, "assertions": assertions}
         validate_output(doc)
         return doc

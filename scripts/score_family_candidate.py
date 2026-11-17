@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import pickle
 import sys
@@ -32,7 +33,9 @@ def main(tag: str, alpha: float) -> None:
     cal_r, cal_t = Calibrator.fit(cat(0), cat(2), alpha), Calibrator.fit(cat(1), cat(3), alpha)
     to_json = lambda c: {"temperature": c.temperature, "qhat": None if np.isinf(c.qhat) else c.qhat, "alpha": c.alpha}  # noqa: E731
     (ROOT / "models" / f"fam_{tag}" / f"roles_calibration_shift_{alpha}.json").write_text(
-        json.dumps({"role": to_json(cal_r), "vtype": to_json(cal_t)}), encoding="utf-8")
+        json.dumps({"role": to_json(cal_r), "vtype": to_json(cal_t),
+                    "weights_sha256": hashlib.sha256((ROOT / "models" / f"fam_{tag}" / "roles_head.pt").read_bytes()).hexdigest()}),
+        encoding="utf-8")
     res = {"calibration": {"role_temperature": round(cal_r.temperature, 3), "role_qhat": cal_r.qhat, "alpha": alpha,
                            "fit_on": ["calib", "wide_train", "wide_calib"] + [f"family_{f}_calib" for f in trained]}}
     targets = {"test": splits["test"], "shifted": splits["shifted"], **{f"family_{f}": fam[f]["test"] for f in fam}}

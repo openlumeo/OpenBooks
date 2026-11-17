@@ -292,6 +292,7 @@ def main() -> None:
     torch.save({"int8_state": blob}, weights)
     cal_json = {k: {"temperature": c.temperature, "qhat": None if math.isinf(c.qhat) else c.qhat, "alpha": c.alpha}
                 for k, c in (("role", cal_r), ("vtype", cal_t))}
+    cal_json["weights_sha256"] = hashlib.sha256(weights.read_bytes()).hexdigest()  # RoleModel.load refuses a mismatch
     (out_dir / "roles_calibration.json").write_text(json.dumps(cal_json), encoding="utf-8")
     size_mb = round(weights.stat().st_size / 1e6, 2)
     window_counts = {k: len(v) for k, v in splits.items()}

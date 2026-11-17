@@ -16,7 +16,7 @@ Accounting automation fails quietly: a misread digit, a swapped debit and credit
 - Settlement `gross - fees - tax = net`, and `sum(net) = payout`.
 - At least one assertion must be *independent* evidence (a figure printed in the document), not the parser's own arithmetic.
 - Every field carries its evidence: page, bounding box, raw text and extraction method.
-- Optional ML heads may add doubt (`LOW_CONFIDENCE`). They can never cause a release.
+- Optional ML heads may add doubt (`LOW_CONFIDENCE`). They can never cause a release. Their calibration is bound to its weights by hash (a mismatch refuses), and every `--model` release names the exact weights that checked it.
 
 ## Install
 
@@ -76,6 +76,7 @@ else:
   "schema_version": "openbooks.v1",
   "status": "ok",
   "file":       { "sha256": "...", "name": "...", "detected_format": "csv", "layout_version": "bank_csv.v1", "method": "parser" },
+                // a --model release also records "model": { "weights_sha256": "...", "calibration_sha256": "..." }
   "data":       { "accounts": [...], "batches": [...], "transactions": [...] },   // Transaction, Batch, Claim, Account, Party
   "evidence":   { /* per field: page, bbox, row, raw_text, method */ },
   "assertions": [ { "id": "A1", "rule": "batch-1: opening + sum(txns) = closing",
@@ -111,7 +112,10 @@ Planned, not built: PayPal, Wise and 1099 parsers, and separately installable pa
 
 1. **Detect** the format and layout version. Unknown layouts are refused.
 2. **Parse** rows, pages and fields with a per-layout parser. PDFs and scans rebuild rows from column geometry.
-3. **Normalise** to `Decimal` money, ISO dates, currency codes and typed references. Nothing is rounded silently.
+3. **Normalise** to `Decimal` money, ISO dates, currency codes and typed references. Nothing is rounded silently:
+   - Amounts accept one consistent digit-grouping system (`1,234,567` or Indian `12,34,567`); ragged or mixed grouping (`12,345,67`, `1,23`) refuses instead of being read as another number. Dr/Cr suffixes and `(brackets)` set the sign.
+   - Numeric dates are **day-first** (`05/01/2026` is 5 January); a month above 12 refuses. Many text forms are read (`05-Jan-26`, `5 Sept 2026`, `Jan 5, 2026`, `20260105`, `05.01.2026`). Two-digit years are 20yy, and a year outside 1970 to 2100 refuses.
+   - Currency decimals follow ISO 4217 (0 for JPY or VND, 3 for KWD or BHD, else 2); extra decimals refuse, never round.
 4. **Balance checks** decide release. Ties out: one JSON. Does not: a typed refusal, no partial output.
 
 For PDFs and scans, an optional ~19M-parameter layout encoder labels each token with a column role and value type. Calibrated conformal prediction sets make it abstain unless it is sure, and constraint-aware resolution keeps only readings that tie the running balance. It is trained from scratch on synthetic data, stored as int8 (about 19 MB), and can only add refusals. Full detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -120,7 +124,7 @@ For PDFs and scans, an optional ~19M-parameter layout encoder labels each token 
 
 | Check | Result |
 |---|---|
-| Test suite (`OB_SLOW=1 python -m pytest -q`) | 63 passed at last full run |
+| Test suite (`OB_SLOW=1 python -m pytest -q`) | 130 passed at last full run |
 | Speed, text-layer PDF (one file, warm) | about 35 ms without `--model`, about 41 ms with it (the model is loaded once per process) |
 | Speed, scans | dominated by OCR: about 3 s per page on an RTX 3050 6 GB |
 | End-to-end, `--model --scans`, 69 synthetic cases | 100% decisions, 27/27 expected-ok released, 0 false accepts, 0 schema violations |
