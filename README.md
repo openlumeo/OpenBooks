@@ -108,7 +108,7 @@ A refusal is `{ "status": "refused", "error": { "code", "message" }, "file": { "
 | Trial balance, Excel workpapers | `trial_balance.v1`, `.xlsx` |
 | Bank statement PDFs and scans | text layer or OCR, column-geometry row rebuild |
 
-The PayPal, Wise and 1099-B layouts follow public descriptions of those exports and are tested on synthetic fixtures only; treat them as unverified until real redacted samples exist. Other 1099 forms have no arithmetic to prove and are not parsed. Planned, not built: separately installable packages. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The PayPal, Wise and 1099-B layouts follow public descriptions of those exports and are tested on synthetic fixtures only; treat them as unverified until real redacted samples exist. Other 1099 forms have no arithmetic to prove and are not parsed. Planned, not built: separately installable packages (Python and npm). The step-by-step build, publish and ML-completion guide is [docs/PACKAGES.md](docs/PACKAGES.md). See also [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## How it works
 
