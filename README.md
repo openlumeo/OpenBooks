@@ -102,11 +102,13 @@ A refusal is `{ "status": "refused", "error": { "code", "message" }, "file": { "
 | Bank CSV | `bank_csv.v1` |
 | OFX / QFX, MT940 | `ofx.v1`, `mt940.v1` |
 | Stripe balance export, Razorpay settlement | `stripe_balance.v1`, `razorpay_settlement.v1` |
+| PayPal activity CSV, Wise statement CSV | `paypal_activity.v1` (gross + fee = net per row), `wise_statement.v1` (running balance ties per row) |
+| Form 1099-B detail (CSV or XLSX) | `form_1099b.v1` (proceeds - cost + adjustment = gain per row, printed totals) |
 | Form 26AS (TDS), AIS, FIRA | `tds_26as.v1`, `ais.v1`, `fira.v1` |
 | Trial balance, Excel workpapers | `trial_balance.v1`, `.xlsx` |
 | Bank statement PDFs and scans | text layer or OCR, column-geometry row rebuild |
 
-Planned, not built: PayPal, Wise and 1099 parsers, and separately installable packages. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The PayPal, Wise and 1099-B layouts follow public descriptions of those exports and are tested on synthetic fixtures only; treat them as unverified until real redacted samples exist. Other 1099 forms have no arithmetic to prove and are not parsed. Planned, not built: separately installable packages. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## How it works
 
@@ -114,7 +116,7 @@ Planned, not built: PayPal, Wise and 1099 parsers, and separately installable pa
 2. **Parse** rows, pages and fields with a per-layout parser. PDFs and scans rebuild rows from column geometry.
 3. **Normalise** to `Decimal` money, ISO dates, currency codes and typed references. Nothing is rounded silently:
    - Amounts accept one consistent digit-grouping system (`1,234,567` or Indian `12,34,567`); ragged or mixed grouping (`12,345,67`, `1,23`) refuses instead of being read as another number. Dr/Cr suffixes and `(brackets)` set the sign.
-   - Numeric dates are **day-first** (`05/01/2026` is 5 January); a month above 12 refuses. Many text forms are read (`05-Jan-26`, `5 Sept 2026`, `Jan 5, 2026`, `20260105`, `05.01.2026`). Two-digit years are 20yy, and a year outside 1970 to 2100 refuses.
+   - Numeric dates: the day/month order is **proven from the file** (a field above 12 settles it; both orders in one file refuses). With no proof, bank CSVs default to day-first (Indian layouts), while PayPal and 1099-B refuse rather than guess. `--date-order dmy|mdy` overrides. Many text forms are read (`05-Jan-26`, `5 Sept 2026`, `Jan 5, 2026`, `20260105`, `05.01.2026`). Two-digit years are 20yy, and a year outside 1970 to 2100 refuses.
    - Currency decimals follow ISO 4217 (0 for JPY or VND, 3 for KWD or BHD, else 2); extra decimals refuse, never round.
 4. **Balance checks** decide release. Ties out: one JSON. Does not: a typed refusal, no partial output.
 
@@ -124,7 +126,7 @@ For PDFs and scans, an optional ~19M-parameter layout encoder labels each token 
 
 | Check | Result |
 |---|---|
-| Test suite (`OB_SLOW=1 python -m pytest -q`) | 130 passed at last full run |
+| Test suite (`OB_SLOW=1 python -m pytest -q`) | 143 passed at last full run |
 | Speed, text-layer PDF (one file, warm) | about 35 ms without `--model`, about 41 ms with it (the model is loaded once per process) |
 | Speed, scans | dominated by OCR: about 3 s per page on an RTX 3050 6 GB |
 | End-to-end, `--model --scans`, 69 synthetic cases | 100% decisions, 27/27 expected-ok released, 0 false accepts, 0 schema violations |
@@ -132,6 +134,12 @@ For PDFs and scans, an optional ~19M-parameter layout encoder labels each token 
 | Typed heads (shipped), synthetic: default test / shifted split | 0 confident-wrong amount tokens on both; shifted coverage 0.988 |
 | Typed heads on the sign / branch / skew families they were trained on | coverage about 1.0, 0 confident-wrong |
 | Unseen layout families, header parser only, 12 seeds each | branch 12/12 released; sign 4/12 and skew 4/12 with typed refusals; **0 wrong releases** |
+
+![Model accuracy by split](docs/figures/model_accuracy.png)
+
+![Role confusion matrix](docs/figures/confusion_role.png)
+
+Regenerate the figures with `python scripts/plot_model_metrics.py` (needs the cached splits that `scripts/train_roles.py` builds). The confusion matrix has an extra `abstain` column: tokens where the calibrated heads decline to decide. How to read it: there are essentially no off-diagonal errors (0 confident-wrong amount tokens on every split), but the heads commit on only about a third of amount tokens (about a fifth on the shifted split), and on debit and credit they almost always abstain, because the two columns look alike without the balance. The pipeline settles those by keeping only the readings that tie the running balance, so the heads are a safety cross-check, not the source of the numbers.
 
 Evidence files are in [docs/evidence/](docs/evidence/). Reproduce the family numbers with `python scripts/family_baseline.py`.
 

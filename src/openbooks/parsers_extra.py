@@ -180,6 +180,14 @@ def extra_gate(data: dict):
             yield from printed("total_tax_deposited", "tax_deposited")
         elif kind == "ais":
             yield from printed("total_reported_value", "reported_value")
+        elif kind == "form_1099b":
+            bad = [t for t in tx if D(t["proceeds"]) - D(t["cost_basis"]) + (D(t["adjustment"]) if "adjustment" in t else 0)
+                   != D(t["gain_loss"])]
+            yield (f"{bid}: proceeds - cost basis + adjustment = gain or loss on every row", f"{len(tx)} rows",
+                   f"{len(tx) - len(bad)} rows", len(tx) > 0)
+            yield from printed("total_proceeds", "proceeds")
+            yield from printed("total_cost_basis", "cost_basis")
+            yield from printed("total_gain_loss", "gain_loss")
         elif kind == "fira":
             bad = [t for t in tx if not fx_check(D(t["foreign_amount"]), Decimal(t["exchange_rate"]), D(t["inr_amount"]))]
             yield (f"{bid}: foreign amount x rate = INR amount on every row (within 0.01)", f"{len(tx)} rows",

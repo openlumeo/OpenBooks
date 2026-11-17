@@ -1,0 +1,168 @@
+{
+  "labels": [
+    "other",
+    "date",
+    "desc",
+    "debit",
+    "credit",
+    "balance",
+    "abstain"
+  ],
+  "stats": {
+    "test": {
+      "role accuracy": 0.9558211339651915,
+      "amount-role accuracy": 0.9008518823852707,
+      "set coverage": 0.9997234980568058,
+      "amount abstain rate": 0.6533113492717779,
+      "confident-wrong amounts": 0,
+      "amount tokens": 18195
+    },
+    "shifted": {
+      "role accuracy": 0.8274566604806952,
+      "amount-role accuracy": 0.7692768506632435,
+      "set coverage": 0.9879373557235324,
+      "amount abstain rate": 0.7988874625588361,
+      "confident-wrong amounts": 0,
+      "amount tokens": 11685
+    },
+    "family_sign": {
+      "role accuracy": 0.9146308113035552,
+      "amount-role accuracy": 0.7636100186296833,
+      "set coverage": 0.9992707383773929,
+      "amount abstain rate": 0.698820120057959,
+      "confident-wrong amounts": 0,
+      "amount tokens": 4831
+    },
+    "family_branch": {
+      "role accuracy": 0.9475849100951933,
+      "amount-role accuracy": 0.8783953948551898,
+      "set coverage": 0.9999412386884475,
+      "amount abstain rate": 0.7091203453858608,
+      "confident-wrong amounts": 0,
+      "amount tokens": 5559
+    },
+    "family_skew": {
+      "role accuracy": 0.9514468743096973,
+      "amount-role accuracy": 0.8955542021924482,
+      "set coverage": 0.9998674618952949,
+      "amount abstain rate": 0.7227466504263094,
+      "confident-wrong amounts": 0,
+      "amount tokens": 6568
+    }
+  },
+  "counts": {
+    "test": [
+      [
+        5540,
+        4,
+        4,
+        0,
+        0,
+        0,
+        9772
+      ],
+      [
+        0,
+        5340,
+        0,
+        0,
+        0,
+        0,
+        5146
+      ],
+      [
+        0,
+        0,
+        9131,
+        0,
+        0,
+        0,
+        11967
+      ],
+      [
+        0,
+        0,
+        0,
+        56,
+        0,
+        0,
+        3563
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        124,
+        0,
+        4652
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        6128,
+        3672
+      ]
+    ],
+    "shifted": [
+      [
+        2137,
+        26,
+        68,
+        0,
+        0,
+        0,
+        9974
+      ],
+      [
+        19,
+        1351,
+        16,
+        0,
+        0,
+        0,
+        6462
+      ],
+      [
+        0,
+        0,
+        3085,
+        0,
+        0,
+        0,
+        9363
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2333
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3066
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        2350,
+        3936
+      ]
+    ]
+  },
+  "note": "shipped heads + shipped calibration, synthetic splits; rows true role, columns predicted role or abstain"
+}
