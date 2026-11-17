@@ -14,6 +14,7 @@ from torch import nn
 from .encoder import D, Enc, RoleNet, column_heads
 
 CH = 12
+
 BITS = CH * 8 + 1
 
 
