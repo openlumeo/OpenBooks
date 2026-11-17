@@ -16,7 +16,7 @@ Accounting automation fails quietly: a misread digit, a swapped debit and credit
 - Settlement `gross - fees - tax = net`, and `sum(net) = payout`.
 - At least one assertion must be *independent* evidence (a figure printed in the document), not the parser's own arithmetic.
 - Every field carries its evidence: page, bounding box, raw text and extraction method.
-- Optional ML heads may add doubt (`LOW_CONFIDENCE`). They can never cause a release.
+- Optional ML heads may add doubt (`LOW_CONFIDENCE`). They can never cause a release. Their calibration is bound to its weights by hash (a mismatch refuses), and every `--model` release names the exact weights that checked it.
 
 ## Install
 
@@ -32,7 +32,8 @@ pip install -e ".[scan]"      # adds OCR for scans and the optional typed heads 
 ## Use
 
 ```bash
-# one openbooks.v1 JSON per input file, written to ./out
+# one openbooks.v1 JSON per input file, written to ./out as <sha256-of-file>.json
+# (a refusal is written the same way; exit code is 1 if any file was refused)
 openbooks run statement.csv statement.pdf --out out --currency INR
 
 # the file does not state an opening balance
@@ -45,7 +46,8 @@ openbooks run scan.png --no-ocr
 openbooks run statement.pdf --model
 
 # run every file in a folder, link payouts to bank credits, write report.json
-openbooks report ./inbox --out out
+# (same flags as run; a params.json in the folder can give per-file currency/opening/account)
+openbooks report ./inbox --out out --currency INR
 
 # link gateway payouts and FIRA remittances to bank credits
 openbooks link out/*.json --out links.json
@@ -87,6 +89,7 @@ The browser only talks to the Next.js server, which proxies to the engine servic
   "schema_version": "openbooks.v1",
   "status": "ok",
   "file":       { "sha256": "...", "name": "...", "detected_format": "csv", "layout_version": "bank_csv.v1", "method": "parser" },
+                // a --model release also records "model": { "weights_sha256": "...", "calibration_sha256": "..." }
   "data":       { "accounts": [...], "batches": [...], "transactions": [...] },   // Transaction, Batch, Claim, Account, Party
   "evidence":   { /* per field: page, bbox, row, raw_text, method */ },
   "assertions": [ { "id": "A1", "rule": "batch-1: opening + sum(txns) = closing",
@@ -112,17 +115,22 @@ A refusal is `{ "status": "refused", "error": { "code", "message" }, "file": { "
 | Bank CSV | `bank_csv.v1` |
 | OFX / QFX, MT940 | `ofx.v1`, `mt940.v1` |
 | Stripe balance export, Razorpay settlement | `stripe_balance.v1`, `razorpay_settlement.v1` |
+| PayPal activity CSV, Wise statement CSV | `paypal_activity.v1` (gross + fee = net per row), `wise_statement.v1` (running balance ties per row) |
+| Form 1099-B detail (CSV or XLSX) | `form_1099b.v1` (proceeds - cost + adjustment = gain per row, printed totals) |
 | Form 26AS (TDS), AIS, FIRA | `tds_26as.v1`, `ais.v1`, `fira.v1` |
 | Trial balance, Excel workpapers | `trial_balance.v1`, `.xlsx` |
 | Bank statement PDFs and scans | text layer or OCR, column-geometry row rebuild |
 
-Planned, not built: PayPal, Wise and 1099 parsers, and separately installable packages. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The PayPal, Wise and 1099-B layouts follow public descriptions of those exports and are tested on synthetic fixtures only; treat them as unverified until real redacted samples exist. Other 1099 forms have no arithmetic to prove and are not parsed. Planned, not built: separately installable packages (Python and npm). The step-by-step build, publish and ML-completion guide is [docs/PACKAGES.md](docs/PACKAGES.md). See also [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## How it works
 
 1. **Detect** the format and layout version. Unknown layouts are refused.
 2. **Parse** rows, pages and fields with a per-layout parser. PDFs and scans rebuild rows from column geometry.
-3. **Normalise** to `Decimal` money, ISO dates, currency codes and typed references. Nothing is rounded silently.
+3. **Normalise** to `Decimal` money, ISO dates, currency codes and typed references. Nothing is rounded silently:
+   - Amounts accept one consistent digit-grouping system (`1,234,567` or Indian `12,34,567`); ragged or mixed grouping (`12,345,67`, `1,23`) refuses instead of being read as another number. Dr/Cr suffixes and `(brackets)` set the sign.
+   - Numeric dates: the day/month order is **proven from the file** (a field above 12 settles it; both orders in one file refuses). With no proof, bank CSVs default to day-first (Indian layouts), while PayPal and 1099-B refuse rather than guess. `--date-order dmy|mdy` overrides. Many text forms are read (`05-Jan-26`, `5 Sept 2026`, `Jan 5, 2026`, `20260105`, `05.01.2026`). Two-digit years are 20yy, and a year outside 1970 to 2100 refuses.
+   - Currency decimals follow ISO 4217 (0 for JPY or VND, 3 for KWD or BHD, else 2); extra decimals refuse, never round.
 4. **Balance checks** decide release. Ties out: one JSON. Does not: a typed refusal, no partial output.
 
 For PDFs and scans, an optional ~19M-parameter layout encoder labels each token with a column role and value type. Calibrated conformal prediction sets make it abstain unless it is sure, and constraint-aware resolution keeps only readings that tie the running balance. It is trained from scratch on synthetic data, stored as int8 (about 19 MB), and can only add refusals. Full detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -131,10 +139,20 @@ For PDFs and scans, an optional ~19M-parameter layout encoder labels each token 
 
 | Check | Result |
 |---|---|
-| Test suite (`OB_SLOW=1 python -m pytest -q`) | 60 passed at last full run |
+| Test suite (`OB_SLOW=1 python -m pytest -q`) | 143 passed at last full run |
+| Speed, text-layer PDF (one file, warm) | about 35 ms without `--model`, about 41 ms with it (the model is loaded once per process) |
+| Speed, scans | dominated by OCR: about 3 s per page on an RTX 3050 6 GB |
 | End-to-end, `--model --scans`, 69 synthetic cases | 100% decisions, 27/27 expected-ok released, 0 false accepts, 0 schema violations |
 | File level, PDFs and scans | 15/15 expected-ok released, 0 false accepts (shipped calibration) |
+| Typed heads (shipped), synthetic: default test / shifted split | 0 confident-wrong amount tokens on both; shifted coverage 0.988 |
+| Typed heads on the sign / branch / skew families they were trained on | coverage about 1.0, 0 confident-wrong |
 | Unseen layout families, header parser only, 12 seeds each | branch 12/12 released; sign 4/12 and skew 4/12 with typed refusals; **0 wrong releases** |
+
+![Model accuracy by split](docs/figures/model_accuracy.png)
+
+![Role confusion matrix](docs/figures/confusion_role.png)
+
+Regenerate the figures with `python scripts/plot_model_metrics.py` (needs the cached splits that `scripts/train_roles.py` builds). The confusion matrix has an extra `abstain` column: tokens where the calibrated heads decline to decide. How to read it: there are essentially no off-diagonal errors (0 confident-wrong amount tokens on every split), but the heads commit on only about a third of amount tokens (about a fifth on the shifted split), and on debit and credit they almost always abstain, because the two columns look alike without the balance. The pipeline settles those by keeping only the readings that tie the running balance, so the heads are a safety cross-check, not the source of the numbers.
 
 Evidence files are in [docs/evidence/](docs/evidence/). Reproduce the family numbers with `python scripts/family_baseline.py`.
 
@@ -144,7 +162,7 @@ Evidence files are in [docs/evidence/](docs/evidence/). Reproduce the family num
 src/openbooks/   pipeline, parsers, PDF/scan front end, typed heads, calibration, linking, synthetic generator
 scripts/         training, calibration, promotion gate, evaluation, baselines
 tests/           pytest suite (set OB_SLOW=1 for the slow tests)
-models/          shipped int8 heads, calibration and manifest (synthetic training only)
+models/          shipped int8 heads (trained on default + sign/branch/skew synthetic layouts), calibration and manifest
 docs/            architecture, format catalog, dataset notes, evidence
 ```
 
@@ -163,7 +181,7 @@ Training knobs: `OB_SEED`, `OB_LOSS` (`ce`, `ls`, `focalN`), `OB_WIDE`, and `OB_
 ## Limitations
 
 - Synthetic data only. Real redacted samples (bank statements, 26AS, AIS, FIRA) are the next step and the real test.
-- The sign-indicator and skew statement families are currently refused by the header parser (typed refusals, no wrong releases). Training the heads on other families did not help an unseen one (leave-one-family-out, see `docs/evidence/roles_metrics_fam_*.json`), although families the heads have seen improve a lot. Real redacted samples are the intended fix.
+- The sign-indicator and skew statement families are currently refused by the header parser (typed refusals, no wrong releases). Training the heads on other families lowers abstention on an unseen one only partly (leave-one-family-out, see `docs/evidence/roles_metrics_fam_*.json`: about 0.67 to 0.83 abstention still), while families the heads have seen are handled well. Real redacted samples are the intended fix.
 - Coverage guarantees from conformal calibration assume exchangeable data and weaken on layouts unlike the calibration set.
 - Datasets used only for evaluation are never redistributed. Models shipped here are trained on synthetic data alone. See [docs/DATASETS.md](docs/DATASETS.md).
 

@@ -26,7 +26,10 @@ MAX_BYTES = 20 * 1024 * 1024
 TEXT_EXT = {".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt"}
 DOC_EXT = {".pdf", ".png", ".jpg", ".jpeg"}
 ALLOWED_EXT = TEXT_EXT | DOC_EXT | {".xlsx"}
-EXPONENT = {"JPY": 0, "KRW": 0}
+# ISO 4217 minor units; every other currency is 2.
+EXPONENT = {**dict.fromkeys(("BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW", "PYG", "RWF", "UGX", "UYI", "VND", "VUV",
+                             "XAF", "XOF", "XPF"), 0),
+            **dict.fromkeys(("BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND"), 3)}
 HEADER_SCAN_ROWS = 30
 FX_TOLERANCE = Decimal("0.01")
 
@@ -46,10 +49,14 @@ class Params:
     allow_derived_opening: bool = False
     ocr: bool = True
     model: bool = False
+    date_order: str | None = None  # "dmy" or "mdy" for numeric dates; None infers it from the file
 
 
 _PLAIN = re.compile(r"\d+(\.\d+)?")
-_GROUPED = re.compile(r"\d{1,3}(,\d{2,3})*(\.\d+)?")
+# Digit grouping must be one consistent system. Mixed or ragged groups (12,345,67  1,23) are a dropped or mistyped digit,
+# not a number, so they refuse instead of being read as something else.
+_WESTERN = re.compile(r"\d{1,3}(,\d{3})+(\.\d+)?")
+_INDIAN = re.compile(r"\d{1,2}(,\d{2})*,\d{3}(\.\d+)?")
 
 
 def to_dec(raw: str, where: str, *, blank_zero: bool = False, dr_cr: bool = False) -> Decimal:
@@ -69,23 +76,57 @@ def to_dec(raw: str, where: str, *, blank_zero: bool = False, dr_cr: bool = Fals
         sign, s = -sign, s[1:].strip()
     elif s[:1] == "+":
         s = s[1:].strip()
-    ok = _GROUPED.fullmatch(s) if "," in s else _PLAIN.fullmatch(s)
+    ok = (_WESTERN.fullmatch(s) or _INDIAN.fullmatch(s)) if "," in s else _PLAIN.fullmatch(s)
     if not ok:
         raise Refusal("PARSE_ERROR", f"{where}: not a number: {raw!r}")
     return Decimal(s.replace(",", "")) * sign
 
 
-_DATE_FORMATS = ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%d-%b-%Y", "%d %b %Y", "%d %B %Y", "%d-%B-%Y", "%d/%m/%y", "%d-%m-%y")
+_TEXT_DATE_FORMATS = ("%Y-%m-%d", "%d-%b-%Y", "%d %b %Y", "%d %B %Y", "%d-%B-%Y", "%Y/%m/%d", "%Y%m%d", "%d-%b-%y",
+                      "%d %b %y", "%d/%b/%Y", "%d/%b/%y", "%b %d, %Y", "%B %d, %Y", "%d %b, %Y")
+_NUMERIC_DATE_FORMATS = {"dmy": ("%d/%m/%Y", "%d-%m-%Y", "%d/%m/%y", "%d-%m-%y", "%d.%m.%Y", "%d.%m.%y"),
+                         "mdy": ("%m/%d/%Y", "%m-%d-%Y", "%m/%d/%y", "%m-%d-%y", "%m.%d.%Y", "%m.%d.%y")}
 _TIME_TAIL = re.compile(r"[ T]\d{1,2}:\d{2}(:\d{2})?(\s?[APap][Mm])?(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$")
+_NUMERIC_DATE = re.compile(r"^\s*(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}\b")
+YEAR_RANGE = (1970, 2100)  # outside this is an OCR or typing error, not a statement date
 
 
-def to_date(raw: str, where: str) -> str:
-    s = _TIME_TAIL.sub("", raw.strip())
-    for fmt_ in _DATE_FORMATS:
+def date_order(raws, forced: str | None = None, *, default: str | None = None, where: str = "dates") -> str:
+    """Day/month order of a file's numeric dates. A forced order wins. Otherwise any first field above 12 proves day-first
+    and any second field above 12 proves month-first; both is a mixed file and refuses. A file with no proof uses `default`,
+    or refuses when there is none: guessing 03/04 as 3 April or 4 March silently moves money between periods."""
+    if forced in ("dmy", "mdy"):
+        return forced
+    first_big = second_big = False
+    for raw in raws:
+        if m := _NUMERIC_DATE.match(raw or ""):
+            first_big |= int(m[1]) > 12
+            second_big |= int(m[2]) > 12
+    if first_big and second_big:
+        raise Refusal("PARSE_ERROR", f"{where}: both day-first and month-first dates in one file")
+    if first_big or second_big:
+        return "dmy" if first_big else "mdy"
+    if default:
+        return default
+    raise Refusal("PARSE_ERROR", f"{where}: day/month order is ambiguous; supply --date-order dmy or mdy")
+
+
+def to_date(raw: str, where: str, order: str = "dmy") -> str:
+    """Numeric dates follow `order` (default day-first: 05/01/2026 is 5 January); the other order is never tried, so a
+    month-first file cannot be read day-first by fallback. Two-digit years are 20yy. A year outside YEAR_RANGE refuses."""
+    s = re.sub(r"\bSept\b", "Sep", _TIME_TAIL.sub("", raw.strip()))
+    for fmt_ in _TEXT_DATE_FORMATS + _NUMERIC_DATE_FORMATS[order]:
+        if fmt_ == "%Y%m%d" and not (s.isdigit() and len(s) == 8):
+            continue
         try:
-            return datetime.strptime(s, fmt_).date().isoformat()
+            d = datetime.strptime(s, fmt_).date()
         except ValueError:
             continue
+        if "%y" in fmt_ and d.year < 2000:
+            d = d.replace(year=d.year + 100)
+        if not YEAR_RANGE[0] <= d.year <= YEAR_RANGE[1]:
+            raise Refusal("PARSE_ERROR", f"{where}: implausible year in date {raw!r}")
+        return d.isoformat()
     raise Refusal("PARSE_ERROR", f"{where}: unreadable date {raw!r}")
 
 
@@ -158,6 +199,9 @@ TDS_REQ = {"deductor_name", "tan", "section", "transaction_date", "amount_paid_c
 AIS_REQ = {"information_category", "information_description", "source", "reported_value"}
 FIRA_REQ = {"fira_no", "date", "currency", "foreign_amount", "exchange_rate", "inr_amount"}
 TB_REQ = {"account", "debit", "credit"}
+PAYPAL_REQ = {"date", "type", "status", "currency", "gross", "fee", "net", "transaction_id"}
+WISE_REQ = {"transferwise_id", "date", "amount", "currency", "description", "running_balance"}
+B1099_REQ = {"description", "date_acquired", "date_sold", "proceeds", "cost_basis", "gain_loss"}
 
 
 def bank_cols(hs: list[str]) -> dict[str, int]:
@@ -172,7 +216,8 @@ def find_header(rows: list[list[str]]) -> tuple[int, str, list[str]] | None:
             return i, "stripe_balance.v1", hs
         if RAZORPAY_REQ <= s:
             return i, "razorpay_settlement.v1", hs
-        for req, layout in ((TDS_REQ, "tds_26as.v1"), (AIS_REQ, "ais.v1"), (FIRA_REQ, "fira.v1")):
+        for req, layout in ((PAYPAL_REQ, "paypal_activity.v1"), (WISE_REQ, "wise_statement.v1"), (B1099_REQ, "form_1099b.v1"),
+                            (TDS_REQ, "tds_26as.v1"), (AIS_REQ, "ais.v1"), (FIRA_REQ, "fira.v1")):
             if req <= s:
                 return i, layout, hs
         if {"date", "desc", "debit", "credit", "balance"} <= set(bank_cols(hs)):
@@ -233,6 +278,7 @@ def parse_bank_csv(args, p: Params):
     cur = _currency(hs, [r for _, r in body], p)
     if p.opening is None and not p.allow_derived_opening:
         raise Refusal("PARSE_ERROR", "statement has no stated opening balance; supply --opening")
+    order = date_order([r[idx["date"]] for _, r in body], p.date_order, default="dmy", where="date column")
     recs = []
     for n, row in body:
         def g(role: str) -> str:
@@ -243,7 +289,7 @@ def parse_bank_csv(args, p: Params):
         if (deb and cre) or not (deb or cre) or deb < 0 or cre < 0:
             raise Refusal("PARSE_ERROR", f"row {n}: need exactly one positive debit or credit")
         recs.append({
-            "row": n, "date": to_date(g("date"), f"row {n}"), "dir": "credit" if cre else "debit",
+            "row": n, "date": to_date(g("date"), f"row {n}", order), "dir": "credit" if cre else "debit",
             "amt": cre or deb, "amt_raw": g("credit") if cre else g("debit"), "date_raw": g("date"),
             "bal": to_dec(g("balance"), f"row {n} balance", dr_cr=True), "bal_raw": g("balance"),
             "desc": g("desc"), "ref": g("ref") or None,
@@ -615,7 +661,11 @@ SCHEMA = {
     "properties": {
         "schema_version": {"const": SCHEMA_VERSION}, "status": {"const": "ok"},
         "file": {"type": "object", "required": ["sha256", "name", "detected_format", "layout_version", "method"],
-                 "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+                 "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                                "model": {"type": "object", "required": ["weights_sha256", "calibration_sha256"],
+                                          "additionalProperties": False,
+                                          "properties": {"weights_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                                                         "calibration_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}}},
         "data": {"type": "object", "required": ["accounts", "parties", "batches", "transactions", "claims"],
                  "properties": {"transactions": {"type": "array", "minItems": 1}}},
         "evidence": {"type": "object", "additionalProperties": _EVIDENCE},
@@ -659,6 +709,10 @@ def run_layout(layout: str, args, p: Params):
     table = {"bank_csv.v1": parse_bank_csv, "stripe_balance.v1": parse_stripe, "razorpay_settlement.v1": parse_razorpay,
              "tds_26as.v1": x.parse_tds, "ais.v1": x.parse_ais, "fira.v1": x.parse_fira,
              "trial_balance.v1": x.parse_trial_balance}
+    if layout not in table:
+        from . import parsers_more as m
+
+        table = {"paypal_activity.v1": m.parse_paypal, "wise_statement.v1": m.parse_wise, "form_1099b.v1": m.parse_1099b}
     return table[layout](args, p)
 
 
@@ -711,9 +765,14 @@ def process(path: str | Path, params: Params | None = None,
         if not any(a["independent"] for a in assertions):
             raise Refusal("BALANCE_MISMATCH", "no independent balance evidence in this file")
         stage("balance")
+        model_id = None
+        if p.model and ext in DOC_EXT:  # a --model release names the exact weights and calibration that cross-checked it
+            from .roles import RoleModel
+
+            model_id = getattr(RoleModel.load(), "identity", None)
         doc = {"schema_version": SCHEMA_VERSION, "status": "ok",
                "file": {"sha256": sha, "name": path.name, "detected_format": fmt_name,
-                        "layout_version": layout, "method": method},
+                        "layout_version": layout, "method": method, **({"model": model_id} if model_id else {})},
                "data": data, "evidence": ev, "assertions": assertions}
         validate_output(doc)
         stage("validate")
@@ -766,7 +825,8 @@ def run_report(folder: Path, out: Path, p: Params) -> int:
         seen.add(sha)
         q = per_file.get(f.name, {})
         doc = process(f, Params(q.get("currency", p.currency), Decimal(q["opening"]) if "opening" in q else p.opening,
-                                q.get("account", p.account), q.get("allow_derived_opening", p.allow_derived_opening), p.ocr, p.model))
+                                q.get("account", p.account), q.get("allow_derived_opening", p.allow_derived_opening), p.ocr, p.model,
+                                q.get("date_order", p.date_order)))
         (out / f"{doc['file']['sha256'] if doc['status'] == 'ok' else sha256_file(f)}.json").write_text(dumps(doc), encoding="utf-8")
         docs.append(doc)
         rows.append({"file": f.name, "status": doc["status"], "code": doc.get("error", {}).get("code"),
@@ -795,6 +855,7 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--opening", help="opening balance, if the file does not state one")
     r.add_argument("--account")
     r.add_argument("--allow-derived-opening", action="store_true")
+    r.add_argument("--date-order", choices=("dmy", "mdy"), help="day/month order of numeric dates; inferred from the file when omitted")
     r.add_argument("--no-ocr", action="store_true", help="refuse scans instead of running OCR")
     r.add_argument("--model", action="store_true", help="typed-head cross-check on PDFs/scans (needs models/roles_head.pt)")
     e = sub.add_parser("eval", help="run the golden set")
@@ -803,15 +864,22 @@ def main(argv: list[str] | None = None) -> int:
     lk.add_argument("files", nargs="+")
     lk.add_argument("--out", default="links.json")
     rp = sub.add_parser("report", help="run every file in a folder, link the released ones, write report.json")
-    rp.add_argument("folder")
+    rp.add_argument("folder", help="a params.json in the folder gives per-file currency/opening/account")
     rp.add_argument("--out", default="out")
+    rp.add_argument("--currency")
+    rp.add_argument("--opening", help="opening balance, if the files do not state one")
+    rp.add_argument("--account")
+    rp.add_argument("--allow-derived-opening", action="store_true")
+    rp.add_argument("--date-order", choices=("dmy", "mdy"))
     rp.add_argument("--no-ocr", action="store_true")
     rp.add_argument("--model", action="store_true")
     a = ap.parse_args(argv)
     if a.cmd == "eval":
         return run_eval(Path(a.root))
     if a.cmd == "report":
-        return run_report(Path(a.folder), Path(a.out), Params(ocr=not a.no_ocr, model=a.model))
+        return run_report(Path(a.folder), Path(a.out),
+                          Params(a.currency, Decimal(a.opening) if a.opening else None, a.account,
+                                 a.allow_derived_opening, not a.no_ocr, a.model, a.date_order))
     if a.cmd == "link":
         from .link import run_link
 
@@ -819,16 +887,15 @@ def main(argv: list[str] | None = None) -> int:
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     p = Params(a.currency, Decimal(a.opening) if a.opening else None, a.account, a.allow_derived_opening,
-               not a.no_ocr, a.model)
+               not a.no_ocr, a.model, a.date_order)
     rc = 0
     for f in a.files:
         sha = sha256_file(Path(f))
         target = out / f"{sha}.json"
-        if target.exists():
-            doc = json.loads(target.read_text(encoding="utf-8"))
-        else:
-            doc = process(f, p)
-            target.write_text(dumps(doc), encoding="utf-8")
+        # No reuse of an earlier <sha>.json: the same bytes give a different result under another --currency,
+        # --opening or --model, and a stale refusal or release must never be returned silently.
+        doc = process(f, p)
+        target.write_text(dumps(doc), encoding="utf-8")
         err = doc.get("error", {})
         sys.stdout.write(f"{Path(f).name}: {doc['status']} {err.get('code', '')} -> {target.name}\n")
         rc |= doc["status"] != "ok"

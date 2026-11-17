@@ -466,8 +466,11 @@ def extract_document(path: Path, p: Params):
     pages, method = read_words(path, p)
     preds = None
     if p.model:
-        from .roles import RoleModel
-
+        try:
+            from .roles import RoleModel
+        except ImportError as e:
+            raise Refusal("UNSUPPORTED_INPUT", f"--model needs PyTorch ({e.name or 'torch'} is missing): "
+                                               'pip install "openbooks[scan]"') from e
         model = RoleModel.load()
         if model is None:
             raise Refusal("UNSUPPORTED_INPUT", "--model needs models/roles_head.pt (run scripts/train_roles.py)")

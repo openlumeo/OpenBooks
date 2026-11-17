@@ -9,6 +9,7 @@ Weights come from scripts/train_roles.py; without models/roles_head.pt the flag 
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -90,16 +91,37 @@ class RoleModel:
     def __init__(self, net: RoleNet, role_cal: Calibrator, type_cal: Calibrator, dev):
         self.net, self.role_cal, self.type_cal, self.dev = net.eval(), role_cal, type_cal, dev
 
+    _loaded: dict = {}  # (weights, calibration, mtimes) -> model; one entry, so a retrain on disk is picked up
+
     @classmethod
     def load(cls, weights: Path = WEIGHTS, calibration: Path = CALIBRATION):
+        """Loaded once per process (about 170 ms), then reused; the net is in eval mode and holds no per-file state."""
         if not weights.exists() or not calibration.exists():
             return None
+        key = (weights, calibration, weights.stat().st_mtime_ns, calibration.stat().st_mtime_ns)
+        if key not in cls._loaded:
+            cls._loaded.clear()
+            cls._loaded[key] = cls._build(weights, calibration)
+        return cls._loaded[key]
+
+    @classmethod
+    def _build(cls, weights: Path, calibration: Path):
+        """The calibration is only valid for the weights it was fitted on, so it names them by sha256 and a mismatch
+        refuses: a retrain with an old calibration (or the reverse) must never load silently."""
+        cal = json.loads(calibration.read_text(encoding="utf-8"))
+        w_sha = hashlib.sha256(weights.read_bytes()).hexdigest()
+        if cal.get("weights_sha256") != w_sha:
+            have = cal.get("weights_sha256")
+            was = f"weights {have[:12]}" if have else "no weights hash"
+            raise Refusal("UNSUPPORTED_INPUT", f"{calibration.name} was fitted for {was}, not for {w_sha[:12]} "
+                                               f"({weights.name}): refit the calibration for these weights")
         dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         net = RoleNet(len(ROLES), len(VTYPES))
         net.load_state_dict(dequantize_state(torch.load(weights, map_location="cpu")["int8_state"]))
-        cal = json.loads(calibration.read_text(encoding="utf-8"))
         mk = lambda d: Calibrator(d["temperature"], float("inf") if d["qhat"] is None else d["qhat"], d["alpha"])  # noqa: E731
-        return cls(net.to(dev), mk(cal["role"]), mk(cal["vtype"]), dev)
+        model = cls(net.to(dev), mk(cal["role"]), mk(cal["vtype"]), dev)
+        model.identity = {"weights_sha256": w_sha, "calibration_sha256": hashlib.sha256(calibration.read_bytes()).hexdigest()}
+        return model
 
     @torch.no_grad()
     def logits(self, words) -> tuple[np.ndarray, np.ndarray]:

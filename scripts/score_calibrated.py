@@ -1,4 +1,3 @@
-"""Score shipped weights + shipped calibration on calib/test/shifted; write a promote.py-compatible candidate file (no retrain)."""
 import json
 import pickle
 import sys
