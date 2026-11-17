@@ -32,7 +32,8 @@ pip install -e ".[scan]"      # adds OCR for scans and the optional typed heads 
 ## Use
 
 ```bash
-# one openbooks.v1 JSON per input file, written to ./out
+# one openbooks.v1 JSON per input file, written to ./out as <sha256-of-file>.json
+# (a refusal is written the same way; exit code is 1 if any file was refused)
 openbooks run statement.csv statement.pdf --out out --currency INR
 
 # the file does not state an opening balance
@@ -45,7 +46,8 @@ openbooks run scan.png --no-ocr
 openbooks run statement.pdf --model
 
 # run every file in a folder, link payouts to bank credits, write report.json
-openbooks report ./inbox --out out
+# (same flags as run; a params.json in the folder can give per-file currency/opening/account)
+openbooks report ./inbox --out out --currency INR
 
 # link gateway payouts and FIRA remittances to bank credits
 openbooks link out/*.json --out links.json
@@ -118,9 +120,13 @@ For PDFs and scans, an optional ~19M-parameter layout encoder labels each token 
 
 | Check | Result |
 |---|---|
-| Test suite (`OB_SLOW=1 python -m pytest -q`) | 60 passed at last full run |
+| Test suite (`OB_SLOW=1 python -m pytest -q`) | 63 passed at last full run |
+| Speed, text-layer PDF (one file, warm) | about 35 ms without `--model`, about 41 ms with it (the model is loaded once per process) |
+| Speed, scans | dominated by OCR: about 3 s per page on an RTX 3050 6 GB |
 | End-to-end, `--model --scans`, 69 synthetic cases | 100% decisions, 27/27 expected-ok released, 0 false accepts, 0 schema violations |
 | File level, PDFs and scans | 15/15 expected-ok released, 0 false accepts (shipped calibration) |
+| Typed heads (shipped), synthetic: default test / shifted split | 0 confident-wrong amount tokens on both; shifted coverage 0.988 |
+| Typed heads on the sign / branch / skew families they were trained on | coverage about 1.0, 0 confident-wrong |
 | Unseen layout families, header parser only, 12 seeds each | branch 12/12 released; sign 4/12 and skew 4/12 with typed refusals; **0 wrong releases** |
 
 Evidence files are in [docs/evidence/](docs/evidence/). Reproduce the family numbers with `python scripts/family_baseline.py`.
@@ -131,7 +137,7 @@ Evidence files are in [docs/evidence/](docs/evidence/). Reproduce the family num
 src/openbooks/   pipeline, parsers, PDF/scan front end, typed heads, calibration, linking, synthetic generator
 scripts/         training, calibration, promotion gate, evaluation, baselines
 tests/           pytest suite (set OB_SLOW=1 for the slow tests)
-models/          shipped int8 heads, calibration and manifest (synthetic training only)
+models/          shipped int8 heads (trained on default + sign/branch/skew synthetic layouts), calibration and manifest
 docs/            architecture, format catalog, dataset notes, evidence
 ```
 

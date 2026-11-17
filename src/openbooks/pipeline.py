@@ -788,15 +788,21 @@ def main(argv: list[str] | None = None) -> int:
     lk.add_argument("files", nargs="+")
     lk.add_argument("--out", default="links.json")
     rp = sub.add_parser("report", help="run every file in a folder, link the released ones, write report.json")
-    rp.add_argument("folder")
+    rp.add_argument("folder", help="a params.json in the folder gives per-file currency/opening/account")
     rp.add_argument("--out", default="out")
+    rp.add_argument("--currency")
+    rp.add_argument("--opening", help="opening balance, if the files do not state one")
+    rp.add_argument("--account")
+    rp.add_argument("--allow-derived-opening", action="store_true")
     rp.add_argument("--no-ocr", action="store_true")
     rp.add_argument("--model", action="store_true")
     a = ap.parse_args(argv)
     if a.cmd == "eval":
         return run_eval(Path(a.root))
     if a.cmd == "report":
-        return run_report(Path(a.folder), Path(a.out), Params(ocr=not a.no_ocr, model=a.model))
+        return run_report(Path(a.folder), Path(a.out),
+                          Params(a.currency, Decimal(a.opening) if a.opening else None, a.account,
+                                 a.allow_derived_opening, not a.no_ocr, a.model))
     if a.cmd == "link":
         from .link import run_link
 
@@ -809,11 +815,10 @@ def main(argv: list[str] | None = None) -> int:
     for f in a.files:
         sha = sha256_file(Path(f))
         target = out / f"{sha}.json"
-        if target.exists():
-            doc = json.loads(target.read_text(encoding="utf-8"))
-        else:
-            doc = process(f, p)
-            target.write_text(dumps(doc), encoding="utf-8")
+        # No reuse of an earlier <sha>.json: the same bytes give a different result under another --currency,
+        # --opening or --model, and a stale refusal or release must never be returned silently.
+        doc = process(f, p)
+        target.write_text(dumps(doc), encoding="utf-8")
         err = doc.get("error", {})
         sys.stdout.write(f"{Path(f).name}: {doc['status']} {err.get('code', '')} -> {target.name}\n")
         rc |= doc["status"] != "ok"

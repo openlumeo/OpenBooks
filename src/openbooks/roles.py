@@ -90,10 +90,21 @@ class RoleModel:
     def __init__(self, net: RoleNet, role_cal: Calibrator, type_cal: Calibrator, dev):
         self.net, self.role_cal, self.type_cal, self.dev = net.eval(), role_cal, type_cal, dev
 
+    _loaded: dict = {}  # (weights, calibration, mtimes) -> model; one entry, so a retrain on disk is picked up
+
     @classmethod
     def load(cls, weights: Path = WEIGHTS, calibration: Path = CALIBRATION):
+        """Loaded once per process (about 170 ms), then reused; the net is in eval mode and holds no per-file state."""
         if not weights.exists() or not calibration.exists():
             return None
+        key = (weights, calibration, weights.stat().st_mtime_ns, calibration.stat().st_mtime_ns)
+        if key not in cls._loaded:
+            cls._loaded.clear()
+            cls._loaded[key] = cls._build(weights, calibration)
+        return cls._loaded[key]
+
+    @classmethod
+    def _build(cls, weights: Path, calibration: Path):
         dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         net = RoleNet(len(ROLES), len(VTYPES))
         net.load_state_dict(dequantize_state(torch.load(weights, map_location="cpu")["int8_state"]))

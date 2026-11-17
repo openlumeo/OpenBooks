@@ -48,8 +48,10 @@ Not a git repo. Verify: `OB_SLOW=1 python -m pytest -q` -> 36 passed. All data S
 - Abstention on unseen families is still 0.67-0.83: too high to call solved. Real redacted samples remain the real test.
 
 ## Next session (in order)
-1. Decide on promoting the all-families candidate at alpha 0.001: copy models/fam_sign+branch+skew/roles_head.pt and roles_calibration_shift_0.001.json to models/ (as roles_calibration.json), regenerate roles_manifest.json (hashes, families_in_training, metrics_file), rerun tests. Shipped files are backed up at C:/tmp/ob/shipped_backup (scratch; copy elsewhere if needed).
-2. Try fewer/more family windows and a lower alpha sweep only if abstention matters more than the 0.001 setting.
+1. PROMOTED (done): models/roles_head.pt, roles_calibration.json (alpha 0.001) and roles_manifest.json are the all-families candidate; docs/evidence/roles_metrics_calibrated.json is the new baseline (old one: shipped weights, alpha 0.003, in git history). Old shipped weights are backed up at C:/tmp/ob/shipped_backup (scratch; copy elsewhere if you want to keep them). Re-verified after promotion: pytest 63 passed, e2e --model --scans 69 cases / 27 of 27 released / 0 false accepts, family_baseline unchanged (header parser).
+2. CLI polish done: `run` no longer returns a stale <sha>.json under different flags; `report` takes --currency/--opening/--account/--allow-derived-opening; `--model` without torch refuses with an install hint; RoleModel.load is cached per process (model path 270 ms -> 41 ms per PDF). tests/test_cli.py.
+3. Biggest remaining throughput cost is OCR (about 3 s/page on the RTX 3050); no change made to the tuned OCR path.
+4. Try fewer/more family windows only if abstention on unseen families (0.67-0.83) matters more than the 0.001 setting.
 3. Optional later: ReBIT AA deposit export mapper (no schema change).
 
 ## Plan (approved by user: F1, F2, F3, F4)
