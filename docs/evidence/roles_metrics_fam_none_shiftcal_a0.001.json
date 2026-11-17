@@ -1,0 +1,83 @@
+{
+  "int8_shipped": {
+    "calibration": {
+      "role_temperature": 2.064,
+      "role_qhat": 0.9979448318481445,
+      "alpha": 0.001,
+      "fit_on": [
+        "calib",
+        "wide_train",
+        "wide_calib"
+      ]
+    },
+    "test": {
+      "tokens": 65099,
+      "role_accuracy": 0.9485,
+      "amount_tokens": 18195,
+      "amount_role_accuracy": 0.8947,
+      "type_accuracy": 0.9988,
+      "role_ece_after_temperature": 0.0154,
+      "role_coverage": 1.0,
+      "role_singleton_rate": 0.1239,
+      "amount_singleton_rate": 0.1865,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.8135
+    },
+    "shifted": {
+      "tokens": 44186,
+      "role_accuracy": 0.8207,
+      "amount_tokens": 11685,
+      "amount_role_accuracy": 0.7735,
+      "type_accuracy": 0.9955,
+      "role_ece_after_temperature": 0.0659,
+      "role_coverage": 0.9945,
+      "role_singleton_rate": 0.0332,
+      "amount_singleton_rate": 0.0668,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.9332
+    },
+    "family_sign": {
+      "tokens": 21940,
+      "role_accuracy": 0.7955,
+      "amount_tokens": 4831,
+      "amount_role_accuracy": 0.7419,
+      "type_accuracy": 0.9986,
+      "role_ece_after_temperature": 0.1133,
+      "role_coverage": 0.9702,
+      "role_singleton_rate": 0.0666,
+      "amount_singleton_rate": 0.1159,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.8841,
+      "trained_on": false
+    },
+    "family_branch": {
+      "tokens": 17018,
+      "role_accuracy": 0.8715,
+      "amount_tokens": 5559,
+      "amount_role_accuracy": 0.8014,
+      "type_accuracy": 0.991,
+      "role_ece_after_temperature": 0.0395,
+      "role_coverage": 0.9987,
+      "role_singleton_rate": 0.0802,
+      "amount_singleton_rate": 0.1284,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.8716,
+      "trained_on": false
+    },
+    "family_skew": {
+      "tokens": 22635,
+      "role_accuracy": 0.6956,
+      "amount_tokens": 6568,
+      "amount_role_accuracy": 0.7879,
+      "type_accuracy": 0.8278,
+      "role_ece_after_temperature": 0.1434,
+      "role_coverage": 0.9841,
+      "role_singleton_rate": 0.0324,
+      "amount_singleton_rate": 0.1046,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.8954,
+      "trained_on": false
+    }
+  },
+  "note": "candidate models/fam_none, shift-aware calibration, SYNTHETIC"
+}

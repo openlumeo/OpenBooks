@@ -38,9 +38,18 @@ Not a git repo. Verify: `OB_SLOW=1 python -m pytest -q` -> 36 passed. All data S
 - Cost of adding families: default test confident-wrong 31 -> 71, shifted 64 -> 76. promote.py REJECTS the all-families candidate (shifted cov 0.927 < 0.98, shifted wrong 76 > 2, test wrong 71 > 0). Caveat: the candidate used plain calibration, the baseline the shift-aware one (calib + wide, alpha 0.003), so the gate is not like-for-like; weights are not promoted.
 - Stop rule: held-out abstention stayed 0.32-0.54 (not > 0.70) but held-out confident-wrong was not below control for sign/branch. Conclusion: families are learnable once seen, unseen families are not helped. Real redacted samples are the fix.
 
+## DONE S3b (shift-aware calibration, like-for-like; scripts/score_family_candidate.py <tag> [alpha]; evidence docs/evidence/roles_metrics_fam_<tag>_shiftcal_a<alpha>.json)
+- Calibration = calib + wide + the calib windows of the trained families. This CORRECTS the S3 read above: the default-test regression (31 -> 71 wrong) was the plain calibration, not the weights.
+- All-families candidate (models/fam_sign+branch+skew, gitignored, NOT promoted):
+  - alpha 0.001: shifted cov 0.9879, shifted wrong 0, test wrong 0, test amount acc 0.9009 (shipped 0.8946), test abstain 0.653 (shipped 0.642). promote.py: PROMOTE. Seen families: cov ~1.0, 0 wrong, abstain 0.70-0.72.
+  - alpha 0.003: REJECT (shifted cov 0.9706, wrong 4, test wrong 3). Use 0.001.
+- Held-out family (alpha 0.001) control (no family training) -> leave-one-family-out: sign abstain 0.884 -> 0.671, branch 0.872 -> 0.702, skew 0.895 -> 0.825; confident-wrong 0 -> 0 / 0 -> 3 / 0 -> 0; coverage sign 0.970 -> 0.963, branch 0.999 -> 0.996, skew 0.984 -> 0.986. So other families DO reduce abstention on an unseen one (partly because their windows are in the calibration set), at a small coverage cost.
+- S4 with the candidate staged in models/ (restored afterwards): OB_SLOW pytest 60 passed; e2e --model --scans 69 cases, 100% decisions, 27/27 released, 0 false accepts, 0 schema violations; file_level --scans 15/15 released, 0 false accepts. These cases contain no family layouts, so S4 shows no regression, not a gain.
+- Abstention on unseen families is still 0.67-0.83: too high to call solved. Real redacted samples remain the real test.
+
 ## Next session (in order)
-1. S3b: apply shift-aware calibration (calib + wide + family calib, alpha 0.003) to the all-families weights and re-run promote.py like-for-like; look at why default-test confident-wrong rose 31 -> 71 (family mix ratio? try fewer family windows).
-2. S4 only if a candidate passes the gate (file_level --scans, e2e --model --scans; bar 15/15, 27/27, 0 false accepts).
+1. Decide on promoting the all-families candidate at alpha 0.001: copy models/fam_sign+branch+skew/roles_head.pt and roles_calibration_shift_0.001.json to models/ (as roles_calibration.json), regenerate roles_manifest.json (hashes, families_in_training, metrics_file), rerun tests. Shipped files are backed up at C:/tmp/ob/shipped_backup (scratch; copy elsewhere if needed).
+2. Try fewer/more family windows and a lower alpha sweep only if abstention matters more than the 0.001 setting.
 3. Optional later: ReBIT AA deposit export mapper (no schema change).
 
 ## Plan (approved by user: F1, F2, F3, F4)

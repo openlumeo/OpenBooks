@@ -1,0 +1,86 @@
+{
+  "int8_shipped": {
+    "calibration": {
+      "role_temperature": 2.019,
+      "role_qhat": 0.9976497888565063,
+      "alpha": 0.001,
+      "fit_on": [
+        "calib",
+        "wide_train",
+        "wide_calib",
+        "family_sign_calib",
+        "family_branch_calib",
+        "family_skew_calib"
+      ]
+    },
+    "test": {
+      "tokens": 65099,
+      "role_accuracy": 0.9558,
+      "amount_tokens": 18195,
+      "amount_role_accuracy": 0.9009,
+      "type_accuracy": 0.9989,
+      "role_ece_after_temperature": 0.0098,
+      "role_coverage": 0.9997,
+      "role_singleton_rate": 0.4044,
+      "amount_singleton_rate": 0.3467,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.6533
+    },
+    "shifted": {
+      "tokens": 44186,
+      "role_accuracy": 0.8275,
+      "amount_tokens": 11685,
+      "amount_role_accuracy": 0.7693,
+      "type_accuracy": 0.9947,
+      "role_ece_after_temperature": 0.0753,
+      "role_coverage": 0.9879,
+      "role_singleton_rate": 0.2049,
+      "amount_singleton_rate": 0.2011,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.7989
+    },
+    "family_sign": {
+      "tokens": 21940,
+      "role_accuracy": 0.9146,
+      "amount_tokens": 4831,
+      "amount_role_accuracy": 0.7636,
+      "type_accuracy": 0.999,
+      "role_ece_after_temperature": 0.0112,
+      "role_coverage": 0.9993,
+      "role_singleton_rate": 0.3686,
+      "amount_singleton_rate": 0.3012,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.6988,
+      "trained_on": true
+    },
+    "family_branch": {
+      "tokens": 17018,
+      "role_accuracy": 0.9476,
+      "amount_tokens": 5559,
+      "amount_role_accuracy": 0.8784,
+      "type_accuracy": 0.9963,
+      "role_ece_after_temperature": 0.0131,
+      "role_coverage": 0.9999,
+      "role_singleton_rate": 0.3534,
+      "amount_singleton_rate": 0.2909,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.7091,
+      "trained_on": true
+    },
+    "family_skew": {
+      "tokens": 22635,
+      "role_accuracy": 0.9514,
+      "amount_tokens": 6568,
+      "amount_role_accuracy": 0.8956,
+      "type_accuracy": 0.998,
+      "role_ece_after_temperature": 0.0156,
+      "role_coverage": 0.9999,
+      "role_singleton_rate": 0.297,
+      "amount_singleton_rate": 0.2773,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.7227,
+      "trained_on": true
+    }
+  },
+  "note": "candidate models/fam_sign+branch+skew, shift-aware calibration, SYNTHETIC"
+}

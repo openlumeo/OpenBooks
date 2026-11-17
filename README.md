@@ -150,7 +150,7 @@ Training knobs: `OB_SEED`, `OB_LOSS` (`ce`, `ls`, `focalN`), `OB_WIDE`, and `OB_
 ## Limitations
 
 - Synthetic data only. Real redacted samples (bank statements, 26AS, AIS, FIRA) are the next step and the real test.
-- The sign-indicator and skew statement families are currently refused by the header parser (typed refusals, no wrong releases). Training the heads on other families did not help an unseen one (leave-one-family-out, see `docs/evidence/roles_metrics_fam_*.json`), although families the heads have seen improve a lot. Real redacted samples are the intended fix.
+- The sign-indicator and skew statement families are currently refused by the header parser (typed refusals, no wrong releases). Training the heads on other families lowers abstention on an unseen one only partly (leave-one-family-out, see `docs/evidence/roles_metrics_fam_*.json`: about 0.67 to 0.83 abstention still), while families the heads have seen are handled well. Real redacted samples are the intended fix.
 - Coverage guarantees from conformal calibration assume exchangeable data and weaken on layouts unlike the calibration set.
 - Datasets used only for evaluation are never redistributed. Models shipped here are trained on synthetic data alone. See [docs/DATASETS.md](docs/DATASETS.md).
 
