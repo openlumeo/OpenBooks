@@ -2,11 +2,24 @@
   "name": "@openbooks/doctor",
   "version": "0.1.0",
   "description": "Open Books doctor wrapper: typed access to the Python engine, restricted to the doctor layouts",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist", "README.md"],
-  "engines": { "node": ">=20" },
-  "dependencies": { "@openbooks/core": "workspace:*" }
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@openbooks/core": "workspace:*"
+  }
 }

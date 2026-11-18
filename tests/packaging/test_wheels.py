@@ -21,7 +21,7 @@ CORE_FILES = {"__init__.py", "__main__.py", "_version.py", "builders.py", "cli.p
 GATEWAYS_FILES = {"__init__.py", "_version.py", "parsers.py", "py.typed"}
 TAX_FILES = GATEWAYS_FILES | {"gates.py"}
 STATEMENTS_FILES = {"__init__.py", "_version.py", "assets.py", "calibration.py", "encoder.py", "frontend.py", "gates.py", "labels.py",
-                    "parsers.py", "pdf_front.py", "roles.py", "py.typed", "data/roles_head.pt", "data/roles_calibration.json",
+                    "parsers.py", "pdf_backend.py", "pdf_front.py", "roles.py", "py.typed", "data/roles_head.pt", "data/roles_calibration.json",
                     "data/roles_model_card.json"}
 DOCTOR_FILES = {"__init__.py", "__main__.py", "_version.py", "checks.py", "cli.py", "py.typed"}
 META_FILES = {"pipeline.py"}
@@ -175,3 +175,13 @@ def run_machine(py: str, tmp: Path, *files_and_text: str):
         paths.append(str(tmp / name))
     return subprocess.run([py, "-m", "openbooks_core", "run", *paths, "--out", str(tmp / "o"), "--currency", "INR", "--opening", "1000",
                            "--machine"], capture_output=True, text=True)
+
+
+def test_every_public_wheel_ships_the_apache_licence_and_declares_it(wheels):
+    here = ROOT / "tools" / "public" / "LICENSE"
+    master = (here if here.exists() else ROOT / "LICENSE").read_text(encoding="utf-8").splitlines()  # the private repo, or the export
+    for dist in PUBLIC:
+        z = zipfile.ZipFile(wheels[dist])
+        lic = [n for n in z.namelist() if n.endswith("LICENSE") and ".dist-info/" in n]
+        assert lic and z.read(lic[0]).decode("utf-8").splitlines() == master, dist
+        assert "License-Expression: Apache-2.0" in metadata(wheels[dist]), dist

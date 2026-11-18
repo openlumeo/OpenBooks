@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.21"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
@@ -8,6 +8,8 @@ dynamic = ["version"]
 description = "Open Books providers for tax and ledger documents: Form 26AS, AIS, FIRA, Form 1099-B, trial balance"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 dependencies = ["openbooks-core[xlsx]>=0.1.0,<0.2"]
 
 [project.entry-points."openbooks.layouts"]
@@ -31,4 +33,4 @@ path = "src/openbooks_tax/_version.py"
 packages = ["src/openbooks_tax"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/openbooks_tax", "README.md", "pyproject.toml"]
+include = ["LICENSE", "src/openbooks_tax", "README.md", "pyproject.toml"]

@@ -120,7 +120,7 @@ def test_a_provider_that_fails_to_import_is_a_plugin_error_not_a_verdict():
         reg.layout_parser("bank_csv.v1")
 
 
-HEAVY = ("torch", "fitz", "pymupdf", "openpyxl", "easyocr", "numpy", "scipy")
+HEAVY = ("torch", "fitz", "pymupdf", "pypdfium2", "openpyxl", "easyocr", "numpy", "scipy")
 
 
 def _heavy_modules_loaded_after(code: str) -> list[str]:

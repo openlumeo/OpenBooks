@@ -2,14 +2,26 @@
   "name": "openbooks",
   "version": "0.1.0",
   "description": "Open Books command line: financial documents in, one proven JSON per file out (or a typed refusal). Needs the Python engine: pip install openbooks",
+  "license": "Apache-2.0",
   "type": "module",
-  "bin": { "openbooks": "./dist/cli.js" },
+  "bin": {
+    "openbooks": "./dist/cli.js"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "README.md"],
-  "engines": { "node": ">=20" },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
-    "@openbooks/core": "workspace:*", "@openbooks/statements": "workspace:*", "@openbooks/gateways": "workspace:*",
-    "@openbooks/tax": "workspace:*", "@openbooks/doctor": "workspace:*", "commander": "^14.0.0"
+    "@openbooks/core": "workspace:*",
+    "@openbooks/statements": "workspace:*",
+    "@openbooks/gateways": "workspace:*",
+    "@openbooks/tax": "workspace:*",
+    "@openbooks/doctor": "workspace:*",
+    "commander": "^14.0.0"
   }
 }

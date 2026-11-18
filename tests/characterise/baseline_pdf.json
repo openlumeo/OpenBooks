@@ -1,0 +1,442 @@
+{
+ "golden/bad_pdf_amount_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "a53faf396d1c4ab436d60bd289736763a9feccdbb66de11827c1b96faf5090f2",
+  "status": "refused"
+ },
+ "golden/bad_pdf_amount_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "a53faf396d1c4ab436d60bd289736763a9feccdbb66de11827c1b96faf5090f2",
+  "status": "refused"
+ },
+ "golden/bad_pdf_amount_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "a53faf396d1c4ab436d60bd289736763a9feccdbb66de11827c1b96faf5090f2",
+  "status": "refused"
+ },
+ "golden/bad_pdf_amount_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "a53faf396d1c4ab436d60bd289736763a9feccdbb66de11827c1b96faf5090f2",
+  "status": "refused"
+ },
+ "golden/bad_pdf_balance_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "7396f8066dc41c18d0e5eae9e7eee3a9756a5b5230661d09e7aa830424690981",
+  "status": "refused"
+ },
+ "golden/bad_pdf_balance_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "7396f8066dc41c18d0e5eae9e7eee3a9756a5b5230661d09e7aa830424690981",
+  "status": "refused"
+ },
+ "golden/bad_pdf_balance_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "7396f8066dc41c18d0e5eae9e7eee3a9756a5b5230661d09e7aa830424690981",
+  "status": "refused"
+ },
+ "golden/bad_pdf_balance_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "7396f8066dc41c18d0e5eae9e7eee3a9756a5b5230661d09e7aa830424690981",
+  "status": "refused"
+ },
+ "golden/bad_pdf_failed_row_moves_balance|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "97d984f47b7896595bed16aea0044e7e085069a22343aabc4800f171d32849ae",
+  "status": "refused"
+ },
+ "golden/bad_pdf_failed_row_moves_balance|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "97d984f47b7896595bed16aea0044e7e085069a22343aabc4800f171d32849ae",
+  "status": "refused"
+ },
+ "golden/bad_pdf_failed_row_moves_balance|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "97d984f47b7896595bed16aea0044e7e085069a22343aabc4800f171d32849ae",
+  "status": "refused"
+ },
+ "golden/bad_pdf_failed_row_moves_balance|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "97d984f47b7896595bed16aea0044e7e085069a22343aabc4800f171d32849ae",
+  "status": "refused"
+ },
+ "golden/bad_pdf_garbage|default": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "0ec72f9099f0eaa3981118eb4566d7e12e9bfa7a37b8475187084b2f2c5bd370",
+  "status": "refused"
+ },
+ "golden/bad_pdf_garbage|derived": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "0ec72f9099f0eaa3981118eb4566d7e12e9bfa7a37b8475187084b2f2c5bd370",
+  "status": "refused"
+ },
+ "golden/bad_pdf_garbage|mdy": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "0ec72f9099f0eaa3981118eb4566d7e12e9bfa7a37b8475187084b2f2c5bd370",
+  "status": "refused"
+ },
+ "golden/bad_pdf_garbage|usd": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "0ec72f9099f0eaa3981118eb4566d7e12e9bfa7a37b8475187084b2f2c5bd370",
+  "status": "refused"
+ },
+ "golden/bad_pdf_impossible_date|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "d35c498094639e086e8c6801267da7bac77dccd36bc3b58746b90751714f3273",
+  "status": "refused"
+ },
+ "golden/bad_pdf_impossible_date|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "d35c498094639e086e8c6801267da7bac77dccd36bc3b58746b90751714f3273",
+  "status": "refused"
+ },
+ "golden/bad_pdf_impossible_date|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d35c498094639e086e8c6801267da7bac77dccd36bc3b58746b90751714f3273",
+  "status": "refused"
+ },
+ "golden/bad_pdf_impossible_date|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "d35c498094639e086e8c6801267da7bac77dccd36bc3b58746b90751714f3273",
+  "status": "refused"
+ },
+ "golden/bad_pdf_no_opening|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "aa1f6c5c6bfad69f9f6f81f7c7a63a28c038c10e0d705142a5b8eaf4a6536730",
+  "status": "refused"
+ },
+ "golden/bad_pdf_no_opening|derived": {
+  "code": null,
+  "sha256": "7285d96a4bdbcf97f6dc9c5fae472f568bef179fc3e94d46025e071f7008d8eb",
+  "status": "ok"
+ },
+ "golden/bad_pdf_no_opening|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "aa1f6c5c6bfad69f9f6f81f7c7a63a28c038c10e0d705142a5b8eaf4a6536730",
+  "status": "refused"
+ },
+ "golden/bad_pdf_no_opening|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "aa1f6c5c6bfad69f9f6f81f7c7a63a28c038c10e0d705142a5b8eaf4a6536730",
+  "status": "refused"
+ },
+ "golden/bad_pdf_not_a_statement|default": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "056863dbd176a48eb0926f58ed72cd707d40a3015fbe817428db9dbd87c6cb63",
+  "status": "refused"
+ },
+ "golden/bad_pdf_not_a_statement|derived": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "056863dbd176a48eb0926f58ed72cd707d40a3015fbe817428db9dbd87c6cb63",
+  "status": "refused"
+ },
+ "golden/bad_pdf_not_a_statement|mdy": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "056863dbd176a48eb0926f58ed72cd707d40a3015fbe817428db9dbd87c6cb63",
+  "status": "refused"
+ },
+ "golden/bad_pdf_not_a_statement|usd": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "056863dbd176a48eb0926f58ed72cd707d40a3015fbe817428db9dbd87c6cb63",
+  "status": "refused"
+ },
+ "golden/bad_pdf_opening_conflict|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "d8ee1ffb90a306ae773e4406c77593d509c365fbe8afb6e8171dbf8adbf94cfa",
+  "status": "refused"
+ },
+ "golden/bad_pdf_opening_conflict|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "d8ee1ffb90a306ae773e4406c77593d509c365fbe8afb6e8171dbf8adbf94cfa",
+  "status": "refused"
+ },
+ "golden/bad_pdf_opening_conflict|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d8ee1ffb90a306ae773e4406c77593d509c365fbe8afb6e8171dbf8adbf94cfa",
+  "status": "refused"
+ },
+ "golden/bad_pdf_opening_conflict|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "d8ee1ffb90a306ae773e4406c77593d509c365fbe8afb6e8171dbf8adbf94cfa",
+  "status": "refused"
+ },
+ "golden/bad_pdf_printed_closing_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "04b30e3076da711fdb8fb8ea314e6863c20d9338b92440f2346a8503ddfe8519",
+  "status": "refused"
+ },
+ "golden/bad_pdf_printed_closing_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "04b30e3076da711fdb8fb8ea314e6863c20d9338b92440f2346a8503ddfe8519",
+  "status": "refused"
+ },
+ "golden/bad_pdf_printed_closing_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "04b30e3076da711fdb8fb8ea314e6863c20d9338b92440f2346a8503ddfe8519",
+  "status": "refused"
+ },
+ "golden/bad_pdf_printed_closing_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "04b30e3076da711fdb8fb8ea314e6863c20d9338b92440f2346a8503ddfe8519",
+  "status": "refused"
+ },
+ "golden/bad_pdf_single_wrong_marker|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "473a9357b271440bc48132152bde3fc5bfca07d47e7eab03735dd8fbca178938",
+  "status": "refused"
+ },
+ "golden/bad_pdf_single_wrong_marker|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "473a9357b271440bc48132152bde3fc5bfca07d47e7eab03735dd8fbca178938",
+  "status": "refused"
+ },
+ "golden/bad_pdf_single_wrong_marker|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "473a9357b271440bc48132152bde3fc5bfca07d47e7eab03735dd8fbca178938",
+  "status": "refused"
+ },
+ "golden/bad_pdf_single_wrong_marker|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "473a9357b271440bc48132152bde3fc5bfca07d47e7eab03735dd8fbca178938",
+  "status": "refused"
+ },
+ "golden/ok_pdf_failed_rows|default": {
+  "code": null,
+  "sha256": "b0c698ed8027f7ccc64819eb7b5789ee625fb60a082667ac2b203c29ce4d635f",
+  "status": "ok"
+ },
+ "golden/ok_pdf_failed_rows|derived": {
+  "code": null,
+  "sha256": "b0c698ed8027f7ccc64819eb7b5789ee625fb60a082667ac2b203c29ce4d635f",
+  "status": "ok"
+ },
+ "golden/ok_pdf_failed_rows|mdy": {
+  "code": null,
+  "sha256": "d219923077fe11444ac5c8883970523bad2ecb4b0e3ac42c810b9a76961bd783",
+  "status": "ok"
+ },
+ "golden/ok_pdf_failed_rows|usd": {
+  "code": null,
+  "sha256": "b0c698ed8027f7ccc64819eb7b5789ee625fb60a082667ac2b203c29ce4d635f",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_0|default": {
+  "code": null,
+  "sha256": "ab31900c7a522721faa4a452102ec7c74aaaa9bc3d83926129f8bd56df749114",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_0|derived": {
+  "code": null,
+  "sha256": "ab31900c7a522721faa4a452102ec7c74aaaa9bc3d83926129f8bd56df749114",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_0|mdy": {
+  "code": null,
+  "sha256": "904e6a3314588c5e7318647a72ee486604ec91b0d58932eb7590d0a44565a962",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_0|usd": {
+  "code": null,
+  "sha256": "ab31900c7a522721faa4a452102ec7c74aaaa9bc3d83926129f8bd56df749114",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_1|default": {
+  "code": null,
+  "sha256": "f6b451ad544a4638b89721004c84593e3060120f8cb3a3afc7d8819c8a91b903",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_1|derived": {
+  "code": null,
+  "sha256": "f6b451ad544a4638b89721004c84593e3060120f8cb3a3afc7d8819c8a91b903",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_1|mdy": {
+  "code": null,
+  "sha256": "4a8b67e351836063d99da51701e1e7abe616d62cf1f42d1e4ee7fa3f6a001a88",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_1|usd": {
+  "code": null,
+  "sha256": "f6b451ad544a4638b89721004c84593e3060120f8cb3a3afc7d8819c8a91b903",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_2|default": {
+  "code": null,
+  "sha256": "5775a63aa72865b05e199d0270493c130ed46d1caaabcd9c9f5c9fd7f1d83716",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_2|derived": {
+  "code": null,
+  "sha256": "5775a63aa72865b05e199d0270493c130ed46d1caaabcd9c9f5c9fd7f1d83716",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_2|mdy": {
+  "code": null,
+  "sha256": "f4575bdf1de4af239419963282601b3de38a42e88f81acc49507378767f52017",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_2|usd": {
+  "code": null,
+  "sha256": "5775a63aa72865b05e199d0270493c130ed46d1caaabcd9c9f5c9fd7f1d83716",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_3|default": {
+  "code": null,
+  "sha256": "17eb7a207a3597401610595652560656039f657fc5094a2e772451b90f112eb4",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_3|derived": {
+  "code": null,
+  "sha256": "17eb7a207a3597401610595652560656039f657fc5094a2e772451b90f112eb4",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_3|mdy": {
+  "code": null,
+  "sha256": "23323f33ac87c5dc86ad1eba2c62d2b3f25b3ec407b606f2b89fb40d834cb2b3",
+  "status": "ok"
+ },
+ "golden/ok_pdf_layout_3|usd": {
+  "code": null,
+  "sha256": "17eb7a207a3597401610595652560656039f657fc5094a2e772451b90f112eb4",
+  "status": "ok"
+ },
+ "golden/ok_pdf_multipage|default": {
+  "code": null,
+  "sha256": "076d025ade772a8dec88dbe1cb7e36453407f1f316919ed5cac2d46e715430c5",
+  "status": "ok"
+ },
+ "golden/ok_pdf_multipage|derived": {
+  "code": null,
+  "sha256": "076d025ade772a8dec88dbe1cb7e36453407f1f316919ed5cac2d46e715430c5",
+  "status": "ok"
+ },
+ "golden/ok_pdf_multipage|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "27382121dfb18521e0f1ffc4387a278125e8531b45483713e5c1ad16bd1acd0e",
+  "status": "refused"
+ },
+ "golden/ok_pdf_multipage|usd": {
+  "code": null,
+  "sha256": "076d025ade772a8dec88dbe1cb7e36453407f1f316919ed5cac2d46e715430c5",
+  "status": "ok"
+ },
+ "golden/ok_pdf_no_printed_closing|default": {
+  "code": null,
+  "sha256": "e0ce27a456229085a1b3ff45e90e29bb7965d036129209833a7e239de4492985",
+  "status": "ok"
+ },
+ "golden/ok_pdf_no_printed_closing|derived": {
+  "code": null,
+  "sha256": "e0ce27a456229085a1b3ff45e90e29bb7965d036129209833a7e239de4492985",
+  "status": "ok"
+ },
+ "golden/ok_pdf_no_printed_closing|mdy": {
+  "code": null,
+  "sha256": "1583ecf27749fa76d06c17d57bd28e03964bc94796cdbd79cc63ba62fc54c807",
+  "status": "ok"
+ },
+ "golden/ok_pdf_no_printed_closing|usd": {
+  "code": null,
+  "sha256": "e0ce27a456229085a1b3ff45e90e29bb7965d036129209833a7e239de4492985",
+  "status": "ok"
+ },
+ "golden/ok_pdf_opening_supplied|default": {
+  "code": null,
+  "sha256": "2befd1b02ea9c7f67aef204f98a59acbdd5d97b523d41579518f469d214538f1",
+  "status": "ok"
+ },
+ "golden/ok_pdf_opening_supplied|derived": {
+  "code": null,
+  "sha256": "2befd1b02ea9c7f67aef204f98a59acbdd5d97b523d41579518f469d214538f1",
+  "status": "ok"
+ },
+ "golden/ok_pdf_opening_supplied|mdy": {
+  "code": null,
+  "sha256": "d3e9dc283a3eb0ebc3b9a80d523eb68c5524e9a97555a9b182530bc37b95e88e",
+  "status": "ok"
+ },
+ "golden/ok_pdf_opening_supplied|usd": {
+  "code": null,
+  "sha256": "2befd1b02ea9c7f67aef204f98a59acbdd5d97b523d41579518f469d214538f1",
+  "status": "ok"
+ },
+ "golden/ok_pdf_rs_prefix_watermark|default": {
+  "code": null,
+  "sha256": "fcd502bab4753578a746a4276f19d6e3c38ee735e51b94dfbe5830f82f4a140b",
+  "status": "ok"
+ },
+ "golden/ok_pdf_rs_prefix_watermark|derived": {
+  "code": null,
+  "sha256": "fcd502bab4753578a746a4276f19d6e3c38ee735e51b94dfbe5830f82f4a140b",
+  "status": "ok"
+ },
+ "golden/ok_pdf_rs_prefix_watermark|mdy": {
+  "code": null,
+  "sha256": "924989d7302895d3c099a6111a7644a8cb8b06c4b313d520c5716c570d0b0ddd",
+  "status": "ok"
+ },
+ "golden/ok_pdf_rs_prefix_watermark|usd": {
+  "code": null,
+  "sha256": "fcd502bab4753578a746a4276f19d6e3c38ee735e51b94dfbe5830f82f4a140b",
+  "status": "ok"
+ },
+ "golden/ok_pdf_single_amount_crdr|default": {
+  "code": null,
+  "sha256": "a4f8a7b2aa47126cabec77840a82235f353e0c0521f3415f3747b0f8e1809e7b",
+  "status": "ok"
+ },
+ "golden/ok_pdf_single_amount_crdr|derived": {
+  "code": null,
+  "sha256": "a4f8a7b2aa47126cabec77840a82235f353e0c0521f3415f3747b0f8e1809e7b",
+  "status": "ok"
+ },
+ "golden/ok_pdf_single_amount_crdr|mdy": {
+  "code": null,
+  "sha256": "e5d1c0d1c4ea8d5f5b0c49084258f451c2f2cb11ff9663bfdb54a63801214828",
+  "status": "ok"
+ },
+ "golden/ok_pdf_single_amount_crdr|usd": {
+  "code": null,
+  "sha256": "a4f8a7b2aa47126cabec77840a82235f353e0c0521f3415f3747b0f8e1809e7b",
+  "status": "ok"
+ },
+ "golden/ok_pdf_text|default": {
+  "code": null,
+  "sha256": "6587626f25c592f9b2b440fca28eb37d81f62b5e2905ecd2191b7a754cd950fa",
+  "status": "ok"
+ },
+ "golden/ok_pdf_text|derived": {
+  "code": null,
+  "sha256": "6587626f25c592f9b2b440fca28eb37d81f62b5e2905ecd2191b7a754cd950fa",
+  "status": "ok"
+ },
+ "golden/ok_pdf_text|mdy": {
+  "code": null,
+  "sha256": "0e7dbbad6b07752e2c8ff157178732ac405f162ad5087264b5864c5d2f203d3e",
+  "status": "ok"
+ },
+ "golden/ok_pdf_text|usd": {
+  "code": null,
+  "sha256": "6587626f25c592f9b2b440fca28eb37d81f62b5e2905ecd2191b7a754cd950fa",
+  "status": "ok"
+ },
+ "golden/ok_pdf_wrapped_description_above|default": {
+  "code": null,
+  "sha256": "504aef41b1572e103357ccf86fc600ead967fda892a0a6a342dd8f1b562e5ed6",
+  "status": "ok"
+ },
+ "golden/ok_pdf_wrapped_description_above|derived": {
+  "code": null,
+  "sha256": "504aef41b1572e103357ccf86fc600ead967fda892a0a6a342dd8f1b562e5ed6",
+  "status": "ok"
+ },
+ "golden/ok_pdf_wrapped_description_above|mdy": {
+  "code": null,
+  "sha256": "4de0df5a145606efdae1bf815406927b995d1a6f755566e3fd775b7f26a178d7",
+  "status": "ok"
+ },
+ "golden/ok_pdf_wrapped_description_above|usd": {
+  "code": null,
+  "sha256": "504aef41b1572e103357ccf86fc600ead967fda892a0a6a342dd8f1b562e5ed6",
+  "status": "ok"
+ }
+}

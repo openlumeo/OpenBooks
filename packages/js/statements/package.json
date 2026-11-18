@@ -2,11 +2,24 @@
   "name": "@openbooks/statements",
   "version": "0.1.0",
   "description": "Open Books statements wrapper: typed access to the Python engine, restricted to the statements layouts",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist", "README.md"],
-  "engines": { "node": ">=20" },
-  "dependencies": { "@openbooks/core": "workspace:*" }
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@openbooks/core": "workspace:*"
+  }
 }

@@ -1,8 +1,7 @@
 """Layout encoder shared by the typed heads: hashed word and shape embeddings plus 2D box embeddings.
 
-Release-one size: about 19M parameters (budget 25M, target ~20M; int8 at rest is about 1 MB per million). Trained from
-scratch on synthetic statements only. The 50M encoder from scripts/train_jepa.py was pretrained on CORD (CC BY-SA), is
-internal-only, and is deliberately NOT loadable here.
+Release-one size: about 19M parameters (budget 25M; int8 at rest is about 1 MB per million). Trained from scratch on
+synthetic statements only. Nothing here loads a pretrained checkpoint.
 """
 from __future__ import annotations
 

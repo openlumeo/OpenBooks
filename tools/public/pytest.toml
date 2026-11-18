@@ -1,0 +1,3 @@
+# Workspace configuration only. The distributions live under packages/py/*.
+[tool.pytest.ini_options]
+testpaths = ["tests"]

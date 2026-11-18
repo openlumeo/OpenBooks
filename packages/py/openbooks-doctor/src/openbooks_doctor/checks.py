@@ -116,16 +116,16 @@ def check_registry(registry=None) -> tuple[list[Check], object | None]:
 
 def check_pdf() -> Check:
     if _dist_version("openbooks-statements") is None:
-        return Check("pdf.pymupdf", SKIP, "openbooks-statements is not installed")
-    if importlib.util.find_spec("fitz") is None:
-        return Check("pdf.pymupdf", WARN, "PyMuPDF is not installed: PDF and image statements cannot be read",
+        return Check("pdf.backend", SKIP, "openbooks-statements is not installed")
+    if importlib.util.find_spec("pypdfium2") is None:
+        return Check("pdf.backend", WARN, "pypdfium2 is not installed: PDF statements cannot be read",
                      "pip install 'openbooks-statements[pdf]'")
     try:
-        import fitz  # noqa: F401
+        import pypdfium2
     except Exception as e:  # noqa: BLE001 - installed but its native library cannot load (e.g. blocked by a security policy)
-        return Check("pdf.pymupdf", FAIL, f"PyMuPDF is installed but does not load: {type(e).__name__}: {e}",
-                     "reinstall PyMuPDF; if a security policy blocks it, PDF statements cannot be read here")
-    return Check("pdf.pymupdf", PASS, "PyMuPDF imports")
+        return Check("pdf.backend", FAIL, f"pypdfium2 is installed but does not load: {type(e).__name__}: {e}",
+                     "reinstall pypdfium2; if a security policy blocks it, PDF statements cannot be read here")
+    return Check("pdf.backend", PASS, f"pypdfium2 {pypdfium2.version.PYPDFIUM_INFO}")
 
 
 def check_scan(deep: bool) -> list[Check]:

@@ -1,0 +1,70 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: >
+          python -m pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax
+          -e packages/py/openbooks-statements -e packages/py/openbooks-doctor -e packages/py/openbooks pytest hypothesis
+      - run: python -m pytest -q packages/py/openbooks-core/tests packages/py/openbooks-gateways/tests packages/py/openbooks-tax/tests packages/py/openbooks-statements/tests packages/py/openbooks-doctor/tests tests/test_cli_machine.py tests/test_model_card.py
+
+  packaging:
+    runs-on: ubuntu-latest
+    env:
+      OB_PACKAGING: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: >
+          python -m pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax
+          -e packages/py/openbooks-statements -e packages/py/openbooks-doctor -e packages/py/openbooks pytest build
+      - run: python -m pytest -q tests/packaging
+
+  js:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ["20", "22"]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: packages/js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e ../py/openbooks-core -e ../py/openbooks-gateways -e ../py/openbooks-tax -e ../py/openbooks-statements -e ../py/openbooks-doctor
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @openbooks/core run check-generated
+      - run: pnpm exec tsc -b
+      - run: pnpm exec vitest run
+        env:
+          OPENBOOKS_PYTHON: python
