@@ -1,6 +1,7 @@
 """The PDF and image reader (pypdfium2 / Pillow) and the statements the engine builds from it, on hand-made files.
 
 Every file here is built byte by byte (pdfmaker.py), so each expectation is about something the test itself put in the file."""
+import importlib.util
 import json
 
 import pytest
@@ -206,16 +207,19 @@ def test_the_input_file_is_never_modified(tmp_path):
 
 # ---- images -------------------------------------------------------------------------------------------------------------
 
-PIL = pytest.importorskip("PIL.Image")
+needs_pil = pytest.mark.skipif(importlib.util.find_spec("PIL") is None, reason="images need Pillow (openbooks-statements[scan])")
 
 
 def _png(tmp_path, size=(200, 100), dpi=None, fmt="PNG", name="s.png"):
     f = tmp_path / name
+    from PIL import Image
+
     kw = {"dpi": dpi} if dpi else {}
-    PIL.new("RGB", size, "white").save(f, fmt, **kw)
+    Image.new("RGB", size, "white").save(f, fmt, **kw)
     return f
 
 
+@needs_pil
 def test_an_image_is_one_page_with_no_text_layer(tmp_path):
     doc = open_document(_png(tmp_path), image=True)
     try:
@@ -227,6 +231,7 @@ def test_an_image_is_one_page_with_no_text_layer(tmp_path):
         doc.close()
 
 
+@needs_pil
 def test_an_images_size_in_points_follows_its_dpi(tmp_path):
     doc = open_document(_png(tmp_path, size=(1200, 1800), dpi=(300, 300)), image=True)
     try:
@@ -236,12 +241,14 @@ def test_an_images_size_in_points_follows_its_dpi(tmp_path):
         doc.close()
 
 
+@needs_pil
 @pytest.mark.parametrize("fmt,name", [("PNG", "a.png"), ("JPEG", "a.jpg"), ("JPEG", "a.jpeg")])
 def test_png_and_jpeg_are_both_read_and_refused_when_ocr_is_off(tmp_path, fmt, name):
     doc = process(_png(tmp_path, fmt=fmt, name=name), Params(currency="INR", ocr=False))
     assert doc["status"] == "refused" and "OCR is off" in doc["error"]["message"]
 
 
+@needs_pil
 @pytest.mark.parametrize("payload", [b"", b"\x89PNG\r\n\x1a\n", b"\xff\xd8\xff", b"GIF89a" + b"0" * 100, b"\x00" * 500])
 def test_corrupt_images_are_refused_as_unsupported_input(tmp_path, payload):
     f = tmp_path / "bad.png"
@@ -250,6 +257,7 @@ def test_corrupt_images_are_refused_as_unsupported_input(tmp_path, payload):
     assert doc["status"] == "refused" and doc["error"]["code"] == "UNSUPPORTED_INPUT" and not doc["error"].get("internal")
 
 
+@needs_pil
 def test_a_truncated_png_is_refused(tmp_path):
     f = _png(tmp_path, size=(400, 400))
     f.write_bytes(f.read_bytes()[:60])

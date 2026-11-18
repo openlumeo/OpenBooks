@@ -10,7 +10,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from ..builders import TOTAL_LABELS
-from ..errors import Refusal
+from ..errors import EngineFault, Refusal
 from ..params import Params
 from ..registry import Registry, default_registry, find_header
 
@@ -69,7 +69,10 @@ def _formula_scan(path: Path, title: str, header_row: int) -> bool:
 def parse_xlsx(path: Path, p: Params, registry: Registry | None = None):
     import zipfile
 
-    import openpyxl
+    try:
+        import openpyxl
+    except ImportError as e:
+        raise EngineFault("reading .xlsx needs openpyxl: pip install 'openbooks-core[xlsx]'") from e
 
     try:
         with zipfile.ZipFile(path) as z:  # declared sizes only: nothing is decompressed to find out

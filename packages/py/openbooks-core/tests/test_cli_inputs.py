@@ -1,11 +1,15 @@
 """What the command line does with wrong, missing, hostile and odd input. Exit codes are the contract:
 0 released | 1 refused | 2 a bad flag or argument | 3 the engine could not run (including an input it cannot open)."""
+import importlib.util
 import json
 
 import pytest
 
 from openbooks_core.cli import main
 
+needs_a_provider = pytest.mark.skipif(importlib.util.find_spec("openbooks_statements") is None,
+                                      reason="releasing a bank statement needs openbooks-statements; the core-only job skips these")
+needs_xlsx = pytest.mark.skipif(importlib.util.find_spec("openpyxl") is None, reason="needs openpyxl (openbooks-core[xlsx])")
 GOOD = "Date,Description,Debit,Credit,Balance\n02/01/2026,Pay,100.00,,900.00\n03/01/2026,Dep,,50.00,950.00\n"
 RUN = ["--currency", "INR", "--opening", "1000.00"]
 
@@ -82,6 +86,7 @@ def test_a_currency_must_be_a_three_letter_code(good, bad, capsys):
     assert "--currency" in capsys.readouterr().err
 
 
+@needs_a_provider
 @pytest.mark.parametrize("given", ["inr", "Inr", " INR "])
 def test_a_currency_is_normalised_to_upper_case(good, given, tmp_path, capsys):
     out = tmp_path / "o"
@@ -118,6 +123,7 @@ def test_report_of_a_folder_with_nothing_to_read_is_exit_2_not_a_clean_zero_of_z
     assert not (tmp_path / "o").exists()
 
 
+@needs_a_provider
 def test_report_exit_code_follows_the_documented_contract(good, tmp_path, capsys):
     folder = tmp_path / "in"
     folder.mkdir()
@@ -146,6 +152,7 @@ def test_report_with_a_bad_opening_in_params_json_is_a_usage_error(tmp_path, cap
     assert code(["report", str(folder), "--out", str(tmp_path / "o")], capsys)[0] == 2
 
 
+@needs_a_provider
 def test_report_lists_a_repeated_file_as_a_duplicate_once(tmp_path, capsys):
     folder = tmp_path / "in"
     folder.mkdir()
@@ -211,6 +218,9 @@ HOSTILE = {
 
 @pytest.mark.parametrize("name", sorted(HOSTILE))
 def test_hostile_files_are_refused_with_a_typed_code_and_never_crash(tmp_path, name, capsys):
+    needs = {".xlsx": "openpyxl", ".pdf": "pypdfium2", ".png": "PIL"}.get(name[name.rfind("."):])
+    if needs and importlib.util.find_spec(needs) is None:
+        pytest.skip(f"needs {needs}; without it the file is an engine problem with an install hint, which has its own test")
     f = tmp_path / name
     f.write_bytes(HOSTILE[name])
     rc, out, err = code(["run", str(f), *RUN, "--out", str(tmp_path / "o"), "--machine"], capsys)
@@ -233,12 +243,14 @@ def test_a_file_over_the_size_limit_is_refused_without_being_read(tmp_path, caps
     assert rc == 1 and json.loads(out.splitlines()[0])["code"] == "UNSUPPORTED_INPUT"
 
 
+@needs_a_provider
 def test_an_upper_case_extension_is_read_like_a_lower_case_one(tmp_path, capsys):
     f = tmp_path / "STATEMENT.CSV"
     f.write_text(GOOD, encoding="utf-8")
     assert code(["run", str(f), *RUN, "--out", str(tmp_path / "o")], capsys)[0] == 0
 
 
+@needs_a_provider
 def test_paths_with_spaces_and_unicode_work(tmp_path, capsys):
     d = tmp_path / "my statements é ₹"
     d.mkdir()
@@ -280,6 +292,7 @@ def test_the_output_name_is_the_hash_of_the_input_and_differs_per_content(good, 
     assert len(list(out.glob("*.json"))) == 2
 
 
+@needs_a_provider
 def test_a_refusal_and_a_release_in_one_batch_exit_1_but_both_are_written(good, tmp_path, capsys):
     bad = tmp_path / "bad.csv"
     bad.write_text(GOOD.replace("900.00", "901.00"), encoding="utf-8")
@@ -303,3 +316,13 @@ def test_engine_info_lists_every_known_layout_and_the_contract(capsys):
     ids = {x["id"] for x in info["known_layouts"]}
     assert ids == {"stripe_balance.v1", "razorpay_settlement.v1", "paypal_activity.v1", "wise_statement.v1", "form_1099b.v1", "tds_26as.v1",
                    "ais.v1", "fira.v1", "bank_csv.v1", "trial_balance.v1", "ofx.v1", "mt940.v1"}, ids
+
+
+def test_a_workbook_without_openpyxl_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch, capsys):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "openpyxl", None)  # makes `import openpyxl` raise ImportError
+    f = tmp_path / "book.xlsx"
+    f.write_bytes(b"PK not really")
+    rc, _, err = code(["run", str(f), "--out", str(tmp_path / "o")], capsys)
+    assert rc == 3 and "openbooks-core[xlsx]" in err and "Traceback" not in err
