@@ -6,6 +6,7 @@ build-backend = "hatchling.build"
 name = "openbooks"
 version = "0.1.0"
 description = "Open Books: financial documents in, one proven JSON per file out (or a typed refusal). Meta package."
+readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
