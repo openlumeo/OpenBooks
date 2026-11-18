@@ -57,8 +57,8 @@ def _write(root: Path, name: str, content: str | bytes, ext: str = "csv") -> Pat
 
 
 def _golden(root: Path, which: str) -> list[Case]:
-    from openbooks import golden, golden_docs
-    from openbooks.golden import build
+    from openbooks_lab import golden_docs
+    from openbooks_lab.golden import build
 
     gdir = root / "_golden"
     if which == "main":

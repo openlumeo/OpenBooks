@@ -25,14 +25,15 @@ import torch.nn.functional as F
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from openbooks.calibration import Calibrator, ece  # noqa: E402
-from openbooks.encoder import RoleNet, dequantize_state, h_shape, h_word, n_params, quantize_state, row_features, windows  # noqa: E402
-from openbooks.encoder import NB, column_heads  # noqa: E402
-from openbooks.golden_docs import _pdf_rows  # noqa: E402
-from openbooks.pdf_front import read_words  # noqa: E402
+from openbooks_lab.calibration_fit import ece, fit_calibrator  # noqa: E402
+from openbooks_statements.calibration import Calibrator  # noqa: E402
+from openbooks_statements.encoder import RoleNet, dequantize_state, h_shape, h_word, n_params, quantize_state, row_features, windows  # noqa: E402
+from openbooks_statements.encoder import NB, column_heads  # noqa: E402
+from openbooks_lab.golden_docs import _pdf_rows  # noqa: E402
+from openbooks_statements.pdf_front import read_words  # noqa: E402
 from openbooks.pipeline import Params  # noqa: E402
-from openbooks.roles import AMOUNT, VTYPES, vtype_of  # noqa: E402
-from openbooks.synth import (FAMILIES, NOISY_SCAN, ROLES, SKEW_MERCHANTS, label_words, merchant_rows, random_layout,  # noqa: E402
+from openbooks_statements.roles import AMOUNT, VTYPES, vtype_of  # noqa: E402
+from openbooks_lab.synth import (FAMILIES, NOISY_SCAN, ROLES, SKEW_MERCHANTS, label_words, merchant_rows, random_layout,  # noqa: E402
                              render, to_scan, with_failed_rows)
 
 RID, TID = {r: i for i, r in enumerate(ROLES)}, {t: i for i, t in enumerate(VTYPES)}
@@ -268,7 +269,7 @@ def main() -> None:
 
     def evaluate(model) -> tuple[dict, Calibrator, Calibrator]:
         cl = logits_of(model, splits["calib"], dev)
-        cal_r, cal_t = Calibrator.fit(cl[0], cl[2], ALPHA), Calibrator.fit(cl[1], cl[3], ALPHA)
+        cal_r, cal_t = fit_calibrator(cl[0], cl[2], ALPHA), fit_calibrator(cl[1], cl[3], ALPHA)
         res = {"calibration": {"role_temperature": round(cal_r.temperature, 3), "role_qhat": cal_r.qhat, "alpha": ALPHA}}
         for name in ("calib", "test", "shifted"):
             lg = cl if name == "calib" else logits_of(model, splits[name], dev)

@@ -492,7 +492,7 @@ def extract_document(path: Path, p: Params):
                                                'pip install "openbooks[scan]"') from e
         model = RoleModel.load()
         if model is None:
-            raise Refusal("UNSUPPORTED_INPUT", "--model needs models/roles_head.pt (run scripts/train_roles.py)")
+            raise Refusal("UNSUPPORTED_INPUT", "--model needs the model assets (roles_head.pt and roles_calibration.json): reinstall openbooks-statements, or set OPENBOOKS_MODELS_DIR")
         preds = model.predict(pages)
     data, ev, assigned, full_method = extract_statement(pages, p, method, preds)
     if preds is not None:

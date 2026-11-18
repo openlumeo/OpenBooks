@@ -25,8 +25,9 @@ Requires Python 3.11 or newer.
 ```bash
 git clone https://github.com/Sagexd08/OpenBooks.git
 cd OpenBooks
-pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e packages/py/openbooks   # core + parsers: CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
-pip install -e "packages/py/openbooks[scan]"                          # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
+pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax \n            -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks   # CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
+pip install -e "packages/py/openbooks-statements[scan]"                    # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
+pip install -e packages/py/openbooks-lab                                   # private: golden-set builders, synthetic data, training, matching (needed for tests and the web app)
 ```
 
 ## Use
@@ -74,7 +75,7 @@ else:
 A conversation-style workspace (Open Books by Lumeo) lives in `web/`, backed by a small engine service in `server/`. Drop files into a thread, watch each one go through Detect, Parse, Normalise and Balance, and get one released document or a typed refusal per file, with the checks, per-field evidence and JSON on every card. With a Claude API key you can then ask questions about the released documents. Totals in answers are computed by code, never by the model.
 
 ```bash
-pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e packages/py/openbooks -e server   # engine + engine service (FastAPI)
+pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" \n            -e packages/py/openbooks-lab -e packages/py/openbooks -e server   # engine + engine service (FastAPI)
 cd web && pnpm install
 cp .env.example .env.local                 # optional: ANTHROPIC_API_KEY for questions
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
@@ -162,7 +163,9 @@ Evidence files are in [docs/evidence/](docs/evidence/). Reproduce the family num
 packages/py/openbooks-core/   the openbooks.v1 contract, normalisation, gates, layout registry, CLI (depends only on jsonschema)
 packages/py/openbooks-gateways/   Stripe, Razorpay, PayPal, Wise (depends only on core)
 packages/py/openbooks-tax/        26AS, AIS, FIRA, 1099-B, trial balance (depends only on core; experimental layouts)
-packages/py/openbooks/        remaining parsers, PDF/scan front end, typed heads, linking, `openbooks.pipeline` compatibility facade (interim: splits into statements/gateways/tax)
+packages/py/openbooks-statements/   bank CSV, OFX, MT940 (pure Python); [pdf] PDFs; [scan] OCR and the typed heads with their weights
+packages/py/openbooks/        meta package: installs the stack and keeps `openbooks.pipeline` importable
+packages/py/openbooks-lab/    PRIVATE, never published: synthetic data, golden-set builders, calibration fitting, payout matching
 scripts/         training, calibration, promotion gate, evaluation, baselines
 tests/           pytest suite (set OB_SLOW=1 for the slow tests)
 models/          shipped int8 heads (trained on default + sign/branch/skew synthetic layouts), calibration and manifest

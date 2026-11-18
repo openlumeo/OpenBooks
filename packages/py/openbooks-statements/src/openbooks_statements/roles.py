@@ -5,7 +5,7 @@ Two jobs, both optional (--model):
     LOW_CONFIDENCE. This can only add refusals.
  2. header-less fallback: when no header line is found the model assigns debit/credit/balance to amounts. A token
     whose conformal set is not exactly one role abstains. The balance gate still has the last word.
-Weights come from scripts/train_roles.py; without models/roles_head.pt the flag is refused, never ignored.
+The weights ship in this distribution (data/roles_head.pt); without them the flag is refused, never ignored.
 """
 from __future__ import annotations
 
@@ -22,11 +22,10 @@ from openbooks_core.errors import Refusal
 
 from .calibration import Calibrator
 from .encoder import RoleNet, dequantize_state, tensors, windows
-from .paths import MODELS_DIR
-from .synth import ROLES
+from .assets import MODELS_DIR
+from .labels import ROLES, VTYPES
 
 WEIGHTS, CALIBRATION = MODELS_DIR / "roles_head.pt", MODELS_DIR / "roles_calibration.json"
-VTYPES = ["text", "date", "money", "code"]
 AMOUNT = ("debit", "credit", "balance")
 _MONEY = re.compile(r"^\(?-?\d[\d,]*\.\d{2}\)?(?:Dr|Cr|DR|CR)?$")
 _DATE = re.compile(r"^(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}[ -][A-Za-z]{3}[ -]\d{2,4})$")
@@ -117,7 +116,7 @@ class RoleModel:
                                                f"({weights.name}): refit the calibration for these weights")
         dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         net = RoleNet(len(ROLES), len(VTYPES))
-        net.load_state_dict(dequantize_state(torch.load(weights, map_location="cpu")["int8_state"]))
+        net.load_state_dict(dequantize_state(torch.load(weights, map_location="cpu", weights_only=True)["int8_state"]))
         mk = lambda d: Calibrator(d["temperature"], float("inf") if d["qhat"] is None else d["qhat"], d["alpha"])  # noqa: E731
         model = cls(net.to(dev), mk(cal["role"]), mk(cal["vtype"]), dev)
         model.identity = {"weights_sha256": w_sha, "calibration_sha256": hashlib.sha256(calibration.read_bytes()).hexdigest()}

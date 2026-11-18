@@ -1,5 +1,5 @@
 """OCR repair of amounts whose decimal point was dropped (Courier-style fonts)."""
-from openbooks.pdf_front import Word, _join_split_amounts
+from openbooks_statements.pdf_front import Word, _join_split_amounts
 
 
 def line(*texts, y=10.0, gap=3.0, w=20.0):

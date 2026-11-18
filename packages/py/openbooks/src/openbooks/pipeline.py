@@ -24,7 +24,7 @@ from openbooks_core.report import run_report
 from openbooks_core.schema import SCHEMA_VERSION, load_schema, refusal_doc, validate_output
 
 from openbooks_gateways.parsers import parse_razorpay, parse_stripe
-from .parsers_statements import parse_bank_csv, parse_mt940, parse_ofx
+from openbooks_statements.parsers import parse_bank_csv, parse_mt940, parse_ofx
 from openbooks_tax.parsers import FX_TOLERANCE, fx_check
 
 SCHEMA = load_schema()

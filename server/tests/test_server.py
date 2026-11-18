@@ -45,7 +45,7 @@ def engine_layouts() -> set[str]:
     import inspect
     import re
 
-    from openbooks import pdf_front
+    from openbooks_statements import pdf_front
     from openbooks_core import registry
 
     src = "".join(inspect.getsource(m) for m in (registry, pdf_front))

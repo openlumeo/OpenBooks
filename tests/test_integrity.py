@@ -7,9 +7,9 @@ import pytest
 
 pytest.importorskip("torch")
 
-from openbooks.golden import build  # noqa: E402
+from openbooks_lab.golden import build  # noqa: E402
 from openbooks.pipeline import Params, Refusal, process, validate_output  # noqa: E402
-from openbooks.roles import CALIBRATION, WEIGHTS, RoleModel  # noqa: E402
+from openbooks_statements.roles import CALIBRATION, WEIGHTS, RoleModel  # noqa: E402
 
 pytestmark = pytest.mark.skipif(not (WEIGHTS.exists() and CALIBRATION.exists()), reason="typed heads not trained yet")
 

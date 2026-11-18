@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Open Books providers for payment gateway exports: Stripe, Razorpay, PayPal, Wise"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["openbooks-core>=0.1.0,<0.2"]
+dependencies = ["openbooks-core[xlsx]>=0.1.0,<0.2"]
 
 [project.entry-points."openbooks.layouts"]
 "stripe_balance.v1" = "openbooks_gateways.parsers:parse_stripe"

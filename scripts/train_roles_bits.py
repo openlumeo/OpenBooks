@@ -21,11 +21,12 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import train_roles as tr  # noqa: E402
-from openbooks.bitenc import BITS, BitRoleNet, gather_head_bits, head_index, token_bits  # noqa: E402
-from openbooks.calibration import Calibrator  # noqa: E402
-from openbooks.encoder import n_params, row_features, windows  # noqa: E402
-from openbooks.roles import VTYPES  # noqa: E402
-from openbooks.synth import ROLES  # noqa: E402
+from openbooks_lab.bitenc import BITS, BitRoleNet, gather_head_bits, head_index, token_bits  # noqa: E402
+from openbooks_lab.calibration_fit import fit_calibrator  # noqa: E402
+from openbooks_statements.calibration import Calibrator  # noqa: E402
+from openbooks_statements.encoder import n_params, row_features, windows  # noqa: E402
+from openbooks_statements.roles import VTYPES  # noqa: E402
+from openbooks_lab.synth import ROLES  # noqa: E402
 
 ROOT = tr.ROOT
 _items_of = tr.items_of
@@ -131,7 +132,7 @@ def main() -> None:
     print({k: len(v) for k, v in splits.items()}, f"windows, ready in {time.time() - t0:.0f}s", flush=True)
     net, curve = train(splits["train"], splits["calib"], dev, epochs, seed=1)
     cl, _ = logits_of(net, splits["calib"], dev)
-    cal_r, cal_t = Calibrator.fit(cl[0], cl[2], tr.ALPHA), Calibrator.fit(cl[1], cl[3], tr.ALPHA)
+    cal_r, cal_t = fit_calibrator(cl[0], cl[2], tr.ALPHA), fit_calibrator(cl[1], cl[3], tr.ALPHA)
     res = {"calibration": {"role_temperature": round(cal_r.temperature, 3), "role_qhat": cal_r.qhat, "alpha": tr.ALPHA}}
     for name in ("calib", "test", "shifted"):
         lg = cl if name == "calib" else logits_of(net, splits[name], dev)[0]

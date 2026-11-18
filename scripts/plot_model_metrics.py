@@ -22,8 +22,8 @@ import torch  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import train_roles as tr  # noqa: E402
-from openbooks.calibration import Calibrator  # noqa: E402
-from openbooks.encoder import RoleNet, dequantize_state  # noqa: E402
+from openbooks_statements.calibration import Calibrator  # noqa: E402
+from openbooks_statements.encoder import RoleNet, dequantize_state  # noqa: E402
 
 SPLITS = ("test", "shifted", "family_sign", "family_branch", "family_skew")
 TITLES = {"test": "test", "shifted": "shifted (unseen fonts, headers, dates)", "family_sign": "family: sign column",

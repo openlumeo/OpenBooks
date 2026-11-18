@@ -3,9 +3,9 @@ from decimal import Decimal
 
 import pytest
 
-from openbooks.pdf_front import Word
+from openbooks_statements.pdf_front import Word
 from openbooks.pipeline import Refusal
-from openbooks.roles import Pred, Predictions
+from openbooks_statements.roles import Pred, Predictions
 
 AMT, BAL = Word("100.00", 0, 0, 1, 1, 1), Word("1,100.00", 2, 0, 3, 1, 1)
 value = lambda w: Decimal(w.text.replace(",", ""))  # noqa: E731

@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Open Books providers for tax and ledger documents: Form 26AS, AIS, FIRA, Form 1099-B, trial balance"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["openbooks-core>=0.1.0,<0.2"]
+dependencies = ["openbooks-core[xlsx]>=0.1.0,<0.2"]
 
 [project.entry-points."openbooks.layouts"]
 "form_1099b.v1" = "openbooks_tax.parsers:parse_1099b"

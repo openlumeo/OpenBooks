@@ -15,7 +15,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from openbooks import pipeline
-from openbooks.paths import MODELS_DIR
+from openbooks_statements.assets import MODELS_DIR
 from openbooks.pipeline import ALLOWED_EXT, MAX_BYTES, SCHEMA_VERSION
 
 # Same location openbooks.roles uses. openbooks.paths has no torch import, so the service starts without the [scan] extra.
@@ -144,7 +144,7 @@ class Samples:
         with self._lock:
             if self._root is not None:
                 return
-            from openbooks.golden import build
+            from openbooks_lab.golden import build
 
             root = Path(tempfile.mkdtemp(prefix="openbooks-samples-"))
             build(root)

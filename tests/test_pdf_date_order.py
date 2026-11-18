@@ -2,10 +2,10 @@
 order, and with no proof the default is day-first. Before this, PDF dates ignored --date-order entirely."""
 import random
 
-from openbooks.golden import OPEN
-from openbooks.golden_docs import _clean_layout, _pdf_rows
+from openbooks_lab.golden import OPEN
+from openbooks_lab.golden_docs import _clean_layout, _pdf_rows
 from openbooks.pipeline import Params, process
-from openbooks.synth import render
+from openbooks_lab.synth import render
 
 
 def _pdf(tmp_path, n_rows: int, date_fmt: str) -> tuple:

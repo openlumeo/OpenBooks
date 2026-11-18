@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 import fitz
 
-ROLES = ["other", "date", "desc", "debit", "credit", "balance"]
+from openbooks_statements.labels import ROLES  # noqa: E402,F401
 FONTS = ["helv", "tiro", "cour"]
 HEAD_WORDS = {"date": ["Date", "Txn Date", "Transaction Date"], "desc": ["Description", "Narration", "Particulars", "Transaction Details"],
               "debit": ["Debit", "Withdrawal", "Withdrawals", "Debit Amount", "Withdrawal Amt."],

@@ -17,10 +17,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from openbooks import pdf_front  # noqa: E402
-from openbooks.golden_docs import _pdf_rows  # noqa: E402
+from openbooks_statements import pdf_front  # noqa: E402
+from openbooks_lab.golden_docs import _pdf_rows  # noqa: E402
 from openbooks.pipeline import Params, process  # noqa: E402
-from openbooks.synth import random_layout, render, to_scan  # noqa: E402
+from openbooks_lab.synth import random_layout, render, to_scan  # noqa: E402
 
 THRESHOLDS = (0.0, 0.3, 0.5, 0.6, 0.7, 0.8, 0.9)
 

@@ -8,9 +8,9 @@ from decimal import Decimal
 import fitz
 import pytest
 
-from openbooks.golden_docs import _pdf_rows
+from openbooks_lab.golden_docs import _pdf_rows
 from openbooks.pipeline import Params, process
-from openbooks.synth import FAMILIES, NOISY_SCAN, SHIFT_HEAD, SKEW_MERCHANTS, merchant_rows, random_layout, render, to_scan
+from openbooks_lab.synth import FAMILIES, NOISY_SCAN, SHIFT_HEAD, SKEW_MERCHANTS, merchant_rows, random_layout, render, to_scan
 
 SEEDS = range(12)
 

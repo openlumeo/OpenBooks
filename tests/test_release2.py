@@ -3,9 +3,10 @@ import os
 import numpy as np
 import pytest
 
-from openbooks.calibration import Calibrator, conformal_threshold, ece, fit_temperature, prediction_set, softmax
-from openbooks.link import link
-from openbooks.pdf_front import _ocr_fix
+from openbooks_lab.calibration_fit import conformal_threshold, ece, fit_calibrator, fit_temperature
+from openbooks_statements.calibration import Calibrator, prediction_set, softmax
+from openbooks_lab.link import link
+from openbooks_statements.pdf_front import _ocr_fix
 
 
 def _src(sha, amount, day, cur="INR"):
@@ -45,7 +46,7 @@ def test_link_many_to_one_by_exact_sum():
 def test_link_end_to_end_razorpay_payout_to_bank_credit(tmp_path):
     from decimal import Decimal
 
-    from openbooks.golden import RZP_HEAD, RZP_OK
+    from openbooks_lab.golden import RZP_HEAD, RZP_OK
     from openbooks.pipeline import Params, process
 
     rz, bank = tmp_path / "rz.csv", tmp_path / "bank.csv"
@@ -82,7 +83,7 @@ def test_conformal_sets_cover_at_least_one_minus_alpha_on_exchangeable_data():
     y = rng.integers(0, k, n)
     logits = rng.normal(0, 1, (n, k))
     logits[np.arange(n), y] += 2.0
-    cal = Calibrator.fit(logits[:3000], y[:3000], alpha=0.1)
+    cal = fit_calibrator(logits[:3000], y[:3000], alpha=0.1)
     sets = cal.sets(logits[3000:])
     cover = np.mean([y[3000 + i] in s for i, s in enumerate(sets)])
     assert cover >= 0.88
@@ -96,7 +97,7 @@ def test_conformal_threshold_is_infinite_when_too_few_samples():
 
 @pytest.mark.skipif(not os.environ.get("OB_SLOW"), reason="OCR cases are slow; set OB_SLOW=1")
 def test_scan_golden_cases_zero_false_accepts(tmp_path, capsys):
-    from openbooks.golden import build
+    from openbooks_lab.golden import build
     from openbooks.pipeline import run_eval
 
     build(tmp_path, n_random=0, scans=True)
@@ -108,9 +109,9 @@ def test_pdf_fuzz_one_cent_tamper_is_never_accepted(tmp_path):
     import random
     from decimal import Decimal
 
-    from openbooks.golden_docs import _pdf_rows
+    from openbooks_lab.golden_docs import _pdf_rows
     from openbooks.pipeline import Params, process
-    from openbooks.synth import random_layout, render
+    from openbooks_lab.synth import random_layout, render
 
     rng, path, accepted_clean = random.Random(77), tmp_path / "f.pdf", 0
     for k in range(60):

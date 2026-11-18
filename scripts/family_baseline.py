@@ -16,9 +16,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from openbooks.golden_docs import _pdf_rows  # noqa: E402
+from openbooks_lab.golden_docs import _pdf_rows  # noqa: E402
 from openbooks.pipeline import Params, process  # noqa: E402
-from openbooks.synth import FAMILIES, SKEW_MERCHANTS, merchant_rows, random_layout, render  # noqa: E402
+from openbooks_lab.synth import FAMILIES, SKEW_MERCHANTS, merchant_rows, random_layout, render  # noqa: E402
 
 
 def build(family: str, seed: int):

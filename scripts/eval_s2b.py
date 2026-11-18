@@ -15,11 +15,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from openbooks import roles  # noqa: E402
-from openbooks.golden import OPEN  # noqa: E402
-from openbooks.golden_docs import _pdf_rows  # noqa: E402
+from openbooks_statements import roles  # noqa: E402
+from openbooks_lab.golden import OPEN  # noqa: E402
+from openbooks_lab.golden_docs import _pdf_rows  # noqa: E402
 from openbooks.pipeline import Params, Refusal, process  # noqa: E402
-from openbooks.synth import random_layout, render  # noqa: E402
+from openbooks_lab.synth import random_layout, render  # noqa: E402
 
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 60
 NEW_RESOLVE = roles.Predictions.resolve

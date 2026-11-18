@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
-from openbooks.link import link
+from openbooks_lab.link import link
 
 from .catalog import Samples, formats, health
 from .runs import MAX_FILES, Run, parse_params
