@@ -82,7 +82,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: a2875c9
+          ref: a2875c9989ad0fceecddb147836008dfba151d2f
       - name: Use the current harness against the old engine
         run: git checkout ${{ github.sha }} -- tests/characterise
       - uses: actions/setup-python@v5
