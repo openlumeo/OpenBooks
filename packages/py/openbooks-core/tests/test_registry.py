@@ -96,6 +96,16 @@ def test_a_batch_kind_nobody_checks_is_refused_not_released():
     assert run_gate(data, [("mystery", lambda b, tx: [("r", "1", "1", True)])])[0]["passed"]
 
 
+def test_an_entry_point_from_the_importlib_metadata_backport_is_still_loaded():
+    class BackportEntryPoint:
+        name, group, value = "bank_csv.v1", "openbooks.layouts", "pkg:parser"
+
+        def load(self):
+            return lambda args, params: "parsed"
+
+    assert R._load(BackportEntryPoint(), "bank_csv.v1")(None, None) == "parsed"
+
+
 def test_registry_rejects_ids_core_does_not_know():
     with pytest.raises(PluginLoadError):
         R.Registry(layouts={"made_up.v1": lambda a, p: None})

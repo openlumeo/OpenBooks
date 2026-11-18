@@ -162,8 +162,12 @@ def _entry_points(group: str, *, unique_names: bool = True) -> list[EntryPoint]:
     return out
 
 
+def _is_entry_point(x: Any) -> bool:
+    return isinstance(x, EntryPoint) or all(hasattr(x, a) for a in ("load", "value", "group", "name"))
+
+
 def _load(x: Any, what: str) -> Any:
-    if isinstance(x, EntryPoint):
+    if _is_entry_point(x):
         try:
             return x.load()
         except Exception as e:  # noqa: BLE001 - a provider that cannot load is a broken install, never a verdict on the file
