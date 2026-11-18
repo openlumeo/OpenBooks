@@ -94,12 +94,16 @@ describe.skipIf(!realPython)("with the real engine", () => {
   it.each(hostile)("refuses %s as a typed refusal, not a crash", async (_what, name, content) => {
     const p = join(work, name);
     writeFileSync(p, content);
-    const r = await runFile(p, opts);
-    expect(r.kind).toBe("refused");
-    if (r.kind === "refused") {
-      expect(["UNKNOWN_LAYOUT", "PARSE_ERROR", "UNSUPPORTED_INPUT"]).toContain(r.code);
-      expect(r.internal).toBe(false);
+    // A PDF or image needs an optional library. Where it is installed the file is a typed refusal; where it is not, the engine says
+    // so as an engine fault that names the extra to install. Neither is ever a crash, an internal refusal or a release.
+    const r = await runFile(p, opts).catch((e: unknown) => e);
+    if (r instanceof EngineError) {
+      expect(r.kind).toBe("engine_fault");
+      expect(r.message).toMatch(/openbooks-statements\[(pdf|scan)\]/);
+      return;
     }
+    expect(r).toMatchObject({ kind: "refused", internal: false });
+    expect(["UNKNOWN_LAYOUT", "PARSE_ERROR", "UNSUPPORTED_INPUT"]).toContain((r as { code: string }).code);
   });
 
   it("accepts a lower-case currency code and reads the same statement", async () => {

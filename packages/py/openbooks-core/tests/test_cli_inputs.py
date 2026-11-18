@@ -326,3 +326,4 @@ def test_a_workbook_without_openpyxl_is_an_engine_problem_with_an_install_hint(t
     f.write_bytes(b"PK not really")
     rc, _, err = code(["run", str(f), "--out", str(tmp_path / "o")], capsys)
     assert rc == 3 and "openbooks-core[xlsx]" in err and "Traceback" not in err
+    assert "EngineFault: EngineFault" not in err  # one prefix, not the fault wrapped in itself

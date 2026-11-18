@@ -70,7 +70,9 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
     except Refusal as r:
         return refusal_doc(r.code, r.message, sha)
     except Exception as e:
-        if strict and isinstance(e, (EngineFault, ImportError, MemoryError, OSError)):
+        if strict and isinstance(e, EngineFault):
+            raise  # already says what is wrong and how to fix it: do not wrap it in a second "EngineFault:" prefix
+        if strict and isinstance(e, (ImportError, MemoryError, OSError)):
             raise EngineFault(f"{type(e).__name__}: {e}") from e
         return refusal_doc("PARSE_ERROR", f"unexpected {type(e).__name__}: {e}", sha, internal=True)
 
