@@ -19,6 +19,9 @@ _WESTERN = re.compile(r"\d{1,3}(,\d{3})+(\.\d+)?")
 _INDIAN = re.compile(r"\d{1,2}(,\d{2})*,\d{3}(\.\d+)?")
 
 
+MAX_AMOUNT_DIGITS = 18
+
+
 def to_dec(raw: str, where: str, *, blank_zero: bool = False, dr_cr: bool = False) -> Decimal:
     s = raw.strip()
     if not s:
@@ -39,6 +42,10 @@ def to_dec(raw: str, where: str, *, blank_zero: bool = False, dr_cr: bool = Fals
     ok = (_WESTERN.fullmatch(s) or _INDIAN.fullmatch(s)) if "," in s else _PLAIN.fullmatch(s)
     if not ok:
         raise Refusal("PARSE_ERROR", f"{where}: not a number: {raw!r}")
+    digits = sum(c.isdigit() for c in s)
+    if digits > MAX_AMOUNT_DIGITS:
+        # Decimal arithmetic silently rounds to 28 significant digits; an amount this long could make a wrong total look equal.
+        raise Refusal("PARSE_ERROR", f"{where}: amount has more than {MAX_AMOUNT_DIGITS} digits: {raw.strip()[:40]!r}")
     return Decimal(s.replace(",", "")) * sign
 
 
@@ -91,6 +98,8 @@ def to_date(raw: str, where: str, order: str = "dmy") -> str:
 
 
 def fmt(d: Decimal, cur: str) -> str:
+    if not d.is_finite() or d.adjusted() >= MAX_AMOUNT_DIGITS:  # every parser's amounts pass through here on the way into a document
+        raise Refusal("PARSE_ERROR", f"amount is not a finite number with at most {MAX_AMOUNT_DIGITS} integer digits")
     q = Decimal(1).scaleb(-EXPONENT.get(cur, 2))
     if d != d.quantize(q):
         raise Refusal("PARSE_ERROR", f"{d} has more decimals than {cur} allows")

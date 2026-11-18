@@ -15,6 +15,7 @@ from ..params import Params
 from ..registry import Registry, default_registry, find_header
 
 MAX_SHEETS, MAX_ROWS = 20, 100_000
+MAX_UNCOMPRESSED_BYTES = 200 * 1024 * 1024  # a workbook is a zip: a few KB can claim to hold gigabytes
 
 
 def _to_str(v) -> str:
@@ -66,8 +67,17 @@ def _formula_scan(path: Path, title: str, header_row: int) -> bool:
 
 
 def parse_xlsx(path: Path, p: Params, registry: Registry | None = None):
+    import zipfile
+
     import openpyxl
 
+    try:
+        with zipfile.ZipFile(path) as z:  # declared sizes only: nothing is decompressed to find out
+            declared = sum(i.file_size for i in z.infolist())
+    except Exception:
+        raise Refusal("UNSUPPORTED_INPUT", "unreadable workbook") from None
+    if declared > MAX_UNCOMPRESSED_BYTES:
+        raise Refusal("UNSUPPORTED_INPUT", f"workbook expands to more than {MAX_UNCOMPRESSED_BYTES // (1024 * 1024)} MB")
     try:
         wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
     except Exception:

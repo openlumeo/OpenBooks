@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -38,12 +39,38 @@ def _add_params(p: argparse.ArgumentParser) -> None:
     p.add_argument("--model", action="store_true", help="typed-head cross-check on PDFs/scans (needs the model assets)")
 
 
+_PLAIN_NUMBER = re.compile(r"[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)")  # ASCII digits only: Decimal() would also take Arabic-Indic ones
+_CURRENCY = re.compile(r"[A-Za-z]{3}")
+
+
 def _params(ap: argparse.ArgumentParser, a: argparse.Namespace) -> Params:
-    try:
-        opening = Decimal(a.opening) if a.opening else None
-    except InvalidOperation:
-        ap.error(f"--opening must be a plain number like 1000.00, got {a.opening!r}")
-    return Params(a.currency, opening, a.account, a.allow_derived_opening, not a.no_ocr, a.model, a.date_order)
+    opening = None
+    if a.opening is not None:
+        # Decimal() also accepts "NaN", "Infinity" and "1e400"; an opening balance is a plain number, nothing else.
+        if not _PLAIN_NUMBER.fullmatch(a.opening.strip()):
+            ap.error(f"--opening must be a plain number like 1000.00, got {a.opening!r}")
+        opening = Decimal(a.opening.strip())
+    currency = a.currency
+    if currency is not None:
+        if not _CURRENCY.fullmatch(currency.strip()):
+            ap.error(f"--currency must be a three-letter code like INR, got {a.currency!r}")
+        currency = currency.strip().upper()
+    return Params(currency, opening, a.account, a.allow_derived_opening, not a.no_ocr, a.model, a.date_order)
+
+
+def _usage(message: str) -> int:
+    sys.stderr.write(f"openbooks: {message}\n")
+    return EXIT_USAGE
+
+
+def _unreadable(problems: list[str]) -> int:
+    """An input the engine cannot open is exit 3 (never a refusal: nothing was judged), reported before anything is processed."""
+    sys.stderr.write(f"openbooks: engine error: {'; '.join(problems)}\n")
+    return EXIT_ENGINE
+
+
+def _missing_files(files: list[str]) -> list[str]:
+    return [f"cannot read {f}: " + ("is a directory" if Path(f).is_dir() else "no such file") for f in files if not Path(f).is_file()]
 
 
 def engine_info() -> dict:
@@ -63,6 +90,9 @@ def _has_frontend(reg, name: str) -> bool:
 
 
 def _run(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
+    # Every path is checked before anything is read or written, so a batch is never half-processed because its last file name had a typo.
+    if problems := _missing_files(a.files):
+        return _unreadable(problems)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     p = _params(ap, a)
@@ -132,16 +162,26 @@ def main(argv: list[str] | None = None) -> int:
             sys.stdout.write(json.dumps(engine_info(), indent=2, sort_keys=True) + "\n")
             return EXIT_OK
         if a.cmd == "eval":
+            if not Path(a.root).is_dir():
+                return _unreadable([f"cannot read {a.root}: not a folder of golden cases"])
             return run_eval(Path(a.root))
         if a.cmd == "report":
+            if not Path(a.folder).is_dir():
+                return _unreadable([f"cannot read {a.folder}: not a folder"])
             return run_report(Path(a.folder), Path(a.out), _params(ap, a))
         if a.cmd == "link":
             linker = default_registry().linker()
             if linker is None:
-                sys.stderr.write("openbooks link: no linker is installed (matching is not part of the open packages)\n")
-                return EXIT_USAGE
-            return linker.run_link(a.files, a.out)
+                return _usage("link: no linker is installed (matching is not part of the open packages)")
+            if problems := _missing_files(a.files):
+                return _unreadable(problems)
+            try:
+                return linker.run_link(a.files, a.out)
+            except json.JSONDecodeError as e:
+                return _usage(f"link takes openbooks.v1 JSON documents (the files `run` wrote), not statements: {e}")
         return _run(ap, a)
+    except (json.JSONDecodeError, InvalidOperation) as e:  # a hand-written params.json or expected.json that is not valid
+        return _usage(f"input file is malformed ({type(e).__name__}: {e})")
     except (EngineFault, OSError, MemoryError) as e:
         sys.stderr.write(f"openbooks: engine error: {type(e).__name__}: {e}\n")
         return EXIT_ENGINE

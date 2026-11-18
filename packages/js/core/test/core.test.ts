@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, writeFileSync, mkdtempSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -74,6 +74,64 @@ describe.skipIf(!realPython)("with the real engine", () => {
     const before = leftovers();
     await runFile(file("f.csv", BANK), opts);
     expect(leftovers()).toBe(before);
+  });
+
+  // Hostile and odd files are refusals (values), never exceptions and never "internal" crashes of the engine.
+  const bytes = (n: number, k: number) => Buffer.from(Array.from({ length: n }, (_, i) => (i * k) % 256));
+  const hostile: Array<[string, string, Buffer | string]> = [
+    ["an empty file", "h1.csv", ""],
+    ["one byte", "h2.csv", "x"],
+    ["a NUL byte", "h3.csv", "Date,Narration\u0000,Deposit Amt\n"],
+    ["random bytes", "h4.csv", bytes(4096, 37)],
+    ["only newlines", "h5.csv", "\n".repeat(5000)],
+    ["a two-megabyte line", "h6.csv", "Date," + "a".repeat(2_000_000) + "\n"],
+    ["a header and nothing else", "h7.csv", "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n"],
+    ["a PDF that is not one", "h8.pdf", bytes(2048, 13)],
+    ["a workbook that is not one", "h9.xlsx", bytes(2048, 7)],
+    ["a PNG that is not one", "h10.png", bytes(2048, 11)],
+    ["an unsupported type", "h11.docx", "PK"],
+  ];
+  it.each(hostile)("refuses %s as a typed refusal, not a crash", async (_what, name, content) => {
+    const p = join(work, name);
+    writeFileSync(p, content);
+    const r = await runFile(p, opts);
+    expect(r.kind).toBe("refused");
+    if (r.kind === "refused") {
+      expect(["UNKNOWN_LAYOUT", "PARSE_ERROR", "UNSUPPORTED_INPUT"]).toContain(r.code);
+      expect(r.internal).toBe(false);
+    }
+  });
+
+  it("accepts a lower-case currency code and reads the same statement", async () => {
+    const r = await runFile(file("lc.csv", BANK), { ...opts, currency: "inr" });
+    expect(r.kind).toBe("released");
+    if (isReleased(r)) expect(r.document.data.transactions[0].amount?.currency).toBe("INR");
+  });
+
+  it("keeps the order and the outcome of every file when a bad one is in the middle", async () => {
+    const rs = await runFiles([file("m1.csv", BANK), file("m2.csv", "\u0000junk"), file("m3.csv", BANK.replace("1005.00", "1005.01")), file("m4.csv", BANK)], opts);
+    expect(rs.map((r) => (r.kind === "released" ? "ok" : r.code))).toEqual(["ok", "UNSUPPORTED_INPUT", "BALANCE_MISMATCH", "ok"]);
+  });
+
+  it("gives the same document for the same file every time", async () => {
+    const p = file("same.csv", BANK);
+    const [a, b, c] = await Promise.all([runFile(p, opts), runFile(p, opts), runFile(p, opts)]);
+    expect(JSON.stringify((a as any).document)).toBe(JSON.stringify((b as any).document));
+    expect(JSON.stringify((b as any).document)).toBe(JSON.stringify((c as any).document));
+  });
+
+  it("copes with many files at once", async () => {
+    const paths = Array.from({ length: 12 }, (_, i) => file(`bulk${i}.csv`, i % 4 === 3 ? BANK.replace("1005.00", "1005.01") : BANK));
+    const rs = await runFiles(paths, opts);
+    expect(rs.filter((r) => r.kind === "released")).toHaveLength(9);
+    expect(rs.filter((r) => r.kind === "refused")).toHaveLength(3);
+  });
+
+  it("does not modify the input file", async () => {
+    const p = file("untouched.csv", BANK);
+    const before = [readFileSync(p, "utf8"), statSync(p).mtimeMs];
+    await runFile(p, opts);
+    expect([readFileSync(p, "utf8"), statSync(p).mtimeMs]).toEqual(before);
   });
 });
 

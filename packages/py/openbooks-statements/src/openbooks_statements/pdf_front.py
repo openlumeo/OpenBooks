@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from openbooks_core.builders import statement_doc
-from openbooks_core.errors import Refusal
+from openbooks_core.errors import EngineFault, Refusal
 from openbooks_core.normalise import date_order, to_date, to_dec
 from openbooks_core.params import Params
 
@@ -72,8 +72,11 @@ _READER = None
 def _ocr_page(page, number: int) -> list[Word]:
     global _READER
     if _READER is None:
-        import easyocr
-        import torch
+        try:
+            import easyocr
+            import torch
+        except ImportError as e:
+            raise EngineFault("this page has no text layer, so it needs OCR: pip install 'openbooks-statements[scan]' (or run with --no-ocr to refuse scans)") from e
 
         _READER = easyocr.Reader(["en"], gpu=torch.cuda.is_available(), verbose=False)
     pw, ph = page.width, page.height
