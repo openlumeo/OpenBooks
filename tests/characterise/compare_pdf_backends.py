@@ -61,6 +61,22 @@ def strip_geometry(doc: dict) -> dict:
     return d
 
 
+def paths(a, b, where=""):
+    """Where two JSON values differ, as (path, old, new), at most a handful."""
+    if type(a) is not type(b):
+        return [(where, a, b)]
+    if isinstance(a, dict):
+        out = []
+        for k in sorted(set(a) | set(b)):
+            out += paths(a.get(k), b.get(k), f"{where}/{k}")
+        return out
+    if isinstance(a, list):
+        if len(a) != len(b):
+            return [(where + "[len]", len(a), len(b))]
+        return [d for i, (x, y) in enumerate(zip(a, b)) for d in paths(x, y, f"{where}[{i}]")]
+    return [] if a == b else [(where, a, b)]
+
+
 def main() -> int:
     root = Path(sys.argv[1])
     new_read = new.read_words
@@ -84,6 +100,8 @@ def main() -> int:
             what = [k for k in ("status", "error", "file", "data", "evidence", "assertions") if a.get(k) != b.get(k)]
             differences.append(f"{case.name}: old={old_doc['status']}/{old_doc.get('error', {}).get('code')} "
                                f"new={new_doc['status']}/{new_doc.get('error', {}).get('code')} differs in {what}")
+            for path, x, y in paths(a, b)[:6]:
+                differences.append(f"    {path}: old={str(x)[:90]!r} new={str(y)[:90]!r}")
     for line in differences:
         print("DIFF", line)
     print(f"compared {compared} text-layer PDFs, {len(differences)} differences")
