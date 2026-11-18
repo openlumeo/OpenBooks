@@ -10,6 +10,10 @@ on:
         description: "Record tests/characterise/baseline_pdf.json from the pre-refactor commit and upload it as an artifact"
         type: boolean
         default: false
+      export_pdf_fixtures:
+        description: "Write the golden PDFs and scans and upload them as an artifact (test material for the PDF backend)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -17,7 +21,7 @@ permissions:
 jobs:
   core:
     # openbooks-core alone: only jsonschema is installed, so this proves Core does not lean on any provider.
-    if: ${{ !inputs.record_pdf_baseline }}
+    if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}
     strategy:
       fail-fast: false
       matrix:
@@ -34,7 +38,7 @@ jobs:
 
   providers:
     # The three providers on top of core, with no PyMuPDF, PyTorch or NumPy installed.
-    if: ${{ !inputs.record_pdf_baseline }}
+    if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}
     strategy:
       fail-fast: false
       matrix:
@@ -49,7 +53,7 @@ jobs:
       - run: python -m pytest -q packages/py/openbooks-core/tests packages/py/openbooks-gateways/tests packages/py/openbooks-tax/tests packages/py/openbooks-statements/tests packages/py/openbooks-doctor/tests
 
   full:
-    if: ${{ !inputs.record_pdf_baseline }}
+    if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}
     strategy:
       fail-fast: false
       matrix:
@@ -98,7 +102,7 @@ jobs:
 
   js:
     # The npm packages against the real engine. Python needs the engine installed; pnpm needs the committed lockfile.
-    if: ${{ !inputs.record_pdf_baseline }}
+    if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}
     strategy:
       fail-fast: false
       matrix:
@@ -134,3 +138,19 @@ jobs:
           for p in core statements gateways tax doctor cli; do (cd $p && pnpm pack --pack-destination ../../../tarballs); done
           ls ../../tarballs
         shell: bash
+
+  export-pdf-fixtures:
+    # Manual. Builds the golden set with PyMuPDF (private lab code) and uploads it.
+    if: ${{ inputs.export_pdf_fixtures }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks-lab pytest
+      - run: python tests/characterise/export_fixtures.py golden_fixtures
+      - uses: actions/upload-artifact@v4
+        with:
+          name: golden_fixtures
+          path: golden_fixtures
