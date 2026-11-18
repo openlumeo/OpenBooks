@@ -128,6 +128,13 @@ describe("queryTransactions", () => {
     expect(r).toMatchObject({ count: 3, truncated: true, sums: { INR: "500.3" } });
     expect(r.rows).toHaveLength(1);
   });
+  it("splits count and sums by direction so credits and debits never need hand arithmetic", () => {
+    const r = queryTransactions(docs, { file: "a.csv" });
+    expect(r.by_direction).toEqual({
+      debit: { count: 2, sums: { INR: "0.3" } },
+      credit: { count: 1, sums: { INR: "500" } },
+    });
+  });
   it("returns evidence, and explains refused files", () => {
     expect(getEvidence(docs, "a.csv", "txn-00001", "amount")).toHaveProperty(["txn-00001.amount", "raw_text"], "0.10");
     expect(getEvidence(docs, "c.csv", "txn-00001")).toEqual({ error: "c.csv was refused (BALANCE_MISMATCH); it has no evidence" });

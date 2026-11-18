@@ -103,7 +103,7 @@ export function AnswerView({ turn, onStop }: { turn: AnswerTurn; onStop: () => v
   return (
     <section className="turn" aria-label="Answer">
       <div className="turn-agent-head">
-        <Who label="Open Books · Claude" at={turn.at} />
+        <Who label="Open Books" at={turn.at} />
         {turn.state === "streaming" && (
           <button type="button" className="btn btn-ghost btn-xs" onClick={onStop}>
             <Square size={12} /> Stop

@@ -1,3 +1,4 @@
+import { MAX_UPLOAD_BYTES, rejectOversize } from "@/lib/guards";
 import { ENGINE_URL, engineDown, relay } from "@/lib/server/engine";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +9,8 @@ export async function POST(req: Request) {
   if (!type.startsWith("multipart/form-data")) {
     return Response.json({ error: "bad_request", message: "expected a multipart upload" }, { status: 415 });
   }
+  const tooBig = rejectOversize(req, MAX_UPLOAD_BYTES);
+  if (tooBig) return tooBig;
   try {
     const upstream = await fetch(`${ENGINE_URL}/v1/runs`, {
       method: "POST",

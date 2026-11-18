@@ -56,6 +56,7 @@ export type QueryResult = {
   count: number;
   /** exact decimal strings, one per currency */
   sums: Record<string, string>;
+  by_direction: Record<string, { count: number; sums: Record<string, string> }>;
   rows: QueryRow[];
   truncated: boolean;
   skipped_refused: string[];
@@ -71,6 +72,7 @@ export function queryTransactions(docs: DocRef[], f: TxnFilter): QueryResult {
   const min = f.min_amount !== undefined ? new Decimal(f.min_amount) : undefined;
   const max = f.max_amount !== undefined ? new Decimal(f.max_amount) : undefined;
   const sums = new Map<string, Decimal>();
+  const byDirection = new Map<string, { count: number; sums: Map<string, Decimal> }>();
   const rows: QueryRow[] = [];
   let count = 0;
   for (const { file, doc } of released(docs, f.file)) {
@@ -92,6 +94,10 @@ export function queryTransactions(docs: DocRef[], f: TxnFilter): QueryResult {
       }
       count++;
       if (amt) sums.set(amt.currency, (sums.get(amt.currency) ?? new Decimal(0)).plus(amt.amount));
+      const bucket = byDirection.get(t.direction ?? "none") ?? { count: 0, sums: new Map<string, Decimal>() };
+      bucket.count++;
+      if (amt) bucket.sums.set(amt.currency, (bucket.sums.get(amt.currency) ?? new Decimal(0)).plus(amt.amount));
+      byDirection.set(t.direction ?? "none", bucket);
       if (rows.length < limit) {
         rows.push({
           file, id: t.id, date: t.date, direction: t.direction, kind: t.kind,
@@ -104,6 +110,9 @@ export function queryTransactions(docs: DocRef[], f: TxnFilter): QueryResult {
   return {
     count,
     sums: Object.fromEntries([...sums].map(([c, d]) => [c, d.toFixed()])),
+    by_direction: Object.fromEntries(
+      [...byDirection].map(([dir, b]) => [dir, { count: b.count, sums: Object.fromEntries([...b.sums].map(([c, d]) => [c, d.toFixed()])) }]),
+    ),
     rows,
     truncated: count > rows.length,
     skipped_refused: docs.filter((d) => d.doc.status === "refused" && (!f.file || d.file === f.file)).map((d) => d.file),

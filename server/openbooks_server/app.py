@@ -121,8 +121,9 @@ async def post_runs(
     def work() -> None:
         try:
             run.execute(base, per_file, emit)
-        except Exception as e:  # the engine turns parse failures into refusals; this is a service fault
-            emit("run.error", {"message": f"{type(e).__name__}: {e}"})
+        except Exception as e:
+            log.exception("run failed")
+            emit("run.error", {"message": f"The engine failed on this run ({type(e).__name__}). Details are in the server log."})
         finally:
             loop.call_soon_threadsafe(queue.put_nowait, None)
 
