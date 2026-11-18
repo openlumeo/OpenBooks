@@ -9,7 +9,7 @@ description = "Open Books: financial documents in, one proven JSON per file out 
 requires-python = ">=3.11"
 # Installs the whole open stack and keeps `openbooks.pipeline` importable. It contains no parsers of its own.
 dependencies = ["openbooks-core[xlsx]==0.1.0", "openbooks-statements[pdf]==0.1.0", "openbooks-gateways==0.1.0",
-                "openbooks-tax==0.1.0"]
+                "openbooks-tax==0.1.0", "openbooks-doctor==0.1.0"]
 
 [project.optional-dependencies]
 scan = ["openbooks-statements[scan]==0.1.0"]  # OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)

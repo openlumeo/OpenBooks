@@ -21,7 +21,7 @@ from .grade import run_eval
 from .output import write_atomic
 from .params import Params
 from .process import dumps, process
-from .registry import LAYOUT_API_VERSION, default_registry
+from .registry import LAYOUT_API_VERSION, _entry_points, default_registry
 from .report import run_report
 from .schema import SCHEMA_VERSION
 
@@ -88,6 +88,22 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     return rc
 
 
+def _plugin_commands(sub) -> dict:
+    """Subcommands contributed by installed packages (entry-point group openbooks.commands, name = the subcommand).
+    A command object has `help`, `add_arguments(parser)` and `run(args) -> int`. A command that fails to load is reported
+    on stderr and skipped; it must not take the rest of the CLI down."""
+    out: dict = {}
+    for ep in _entry_points("commands"):
+        try:
+            cmd = ep.load()
+            cmd.add_arguments(sub.add_parser(ep.name, help=cmd.help))
+        except Exception as e:  # noqa: BLE001
+            sys.stderr.write(f"openbooks: the {ep.name!r} command could not be loaded ({type(e).__name__}: {e})\n")
+            continue
+        out[ep.name] = cmd
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="openbooks")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -106,8 +122,11 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--out", default="out")
     _add_params(rp)
     sub.add_parser("engine-info", help="print the engine version, contract version and installed layouts as JSON")
+    plugins = _plugin_commands(sub)
     a = ap.parse_args(argv)
     try:
+        if a.cmd in plugins:
+            return plugins[a.cmd].run(a)
         if a.cmd == "engine-info":
             sys.stdout.write(json.dumps(engine_info(), indent=2, sort_keys=True) + "\n")
             return EXIT_OK

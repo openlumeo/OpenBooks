@@ -164,6 +164,7 @@ packages/py/openbooks-core/   the openbooks.v1 contract, normalisation, gates, l
 packages/py/openbooks-gateways/   Stripe, Razorpay, PayPal, Wise (depends only on core)
 packages/py/openbooks-tax/        26AS, AIS, FIRA, 1099-B, trial balance (depends only on core; experimental layouts)
 packages/py/openbooks-statements/   bank CSV, OFX, MT940 (pure Python); [pdf] PDFs; [scan] OCR and the typed heads with their weights
+packages/py/openbooks-doctor/   `openbooks doctor`: dependency, provider, model-integrity and self-test checks (human or --json, exit codes 0/1/2/3)
 packages/py/openbooks/        meta package: installs the stack and keeps `openbooks.pipeline` importable
 packages/py/openbooks-lab/    PRIVATE, never published: synthetic data, golden-set builders, calibration fitting, payout matching
 scripts/         training, calibration, promotion gate, evaluation, baselines

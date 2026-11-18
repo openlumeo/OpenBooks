@@ -13,7 +13,7 @@ import pytest
 pytestmark = pytest.mark.skipif(os.environ.get("OB_PACKAGING") != "1", reason="set OB_PACKAGING=1 to build and inspect wheels")
 
 ROOT = Path(__file__).resolve().parents[2]
-PUBLIC = ("openbooks-core", "openbooks-gateways", "openbooks-tax", "openbooks-statements", "openbooks")
+PUBLIC = ("openbooks-core", "openbooks-gateways", "openbooks-tax", "openbooks-statements", "openbooks-doctor", "openbooks")
 CORE_FILES = {"__init__.py", "__main__.py", "_version.py", "builders.py", "cli.py", "errors.py", "evidence.py", "frontends/__init__.py",
               "frontends/xlsx.py", "gates.py", "grade.py", "guard.py", "normalise.py", "output.py", "params.py", "process.py",
               "py.typed", "registry.py", "report.py", "schema.py", "schema/openbooks.v1.refusal.schema.json",
@@ -23,6 +23,7 @@ TAX_FILES = GATEWAYS_FILES | {"gates.py"}
 STATEMENTS_FILES = {"__init__.py", "_version.py", "assets.py", "calibration.py", "encoder.py", "frontend.py", "gates.py", "labels.py",
                     "parsers.py", "pdf_front.py", "roles.py", "py.typed", "data/roles_head.pt", "data/roles_calibration.json",
                     "data/roles_model_card.json"}
+DOCTOR_FILES = {"__init__.py", "__main__.py", "_version.py", "checks.py", "cli.py", "py.typed"}
 META_FILES = {"pipeline.py"}
 PRIVATE_NAMES = (b"openbooks_lab", b"lumeo_", b"lumeo-openbooks", b"jepa_encoder")
 
@@ -59,6 +60,7 @@ def entry_points_text(wheel: Path) -> str:
                                                ("openbooks-gateways", "openbooks_gateways", GATEWAYS_FILES),
                                                ("openbooks-tax", "openbooks_tax", TAX_FILES),
                                                ("openbooks-statements", "openbooks_statements", STATEMENTS_FILES),
+                                               ("openbooks-doctor", "openbooks_doctor", DOCTOR_FILES),
                                                ("openbooks", "openbooks", META_FILES)])
 def test_each_wheel_contains_exactly_the_allowed_files(wheels, dist, module, files):
     assert names(wheels[dist], module + "/") == files
@@ -68,8 +70,9 @@ def test_dependency_direction(wheels):
     assert [r.split(">")[0] for r in requires(wheels["openbooks-core"])] == ["jsonschema"]
     for dist in ("openbooks-gateways", "openbooks-tax", "openbooks-statements"):
         assert len(requires(wheels[dist])) == 1 and requires(wheels[dist])[0].startswith("openbooks-core[xlsx]"), dist
+    assert len(requires(wheels["openbooks-doctor"])) == 1 and requires(wheels["openbooks-doctor"])[0].startswith("openbooks-core")
     meta = " ".join(requires(wheels["openbooks"]))
-    for dep in ("openbooks-core", "openbooks-gateways", "openbooks-tax", "openbooks-statements"):
+    for dep in ("openbooks-core", "openbooks-gateways", "openbooks-tax", "openbooks-statements", "openbooks-doctor"):
         assert dep in meta
 
 
