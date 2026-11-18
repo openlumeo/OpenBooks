@@ -125,7 +125,7 @@ packages/py/openbooks-core/src/openbooks_core/
   normalise.py, builders.py, gates.py, schema.py, process.py, cli.py   normalisation, shared builders, balance gates, contract, pipeline, CLI
 packages/py/openbooks/src/openbooks/
   pipeline.py        compatibility facade over openbooks_core
-  parsers_statements.py, parsers_gateways.py, parsers_tax.py   the parsers (bank CSV/OFX/MT940; Stripe/Razorpay/PayPal/Wise; 26AS/AIS/FIRA/1099-B/trial balance)
+  parsers_statements.py, parsers_tax.py   the parsers (bank CSV/OFX/MT940; 26AS/AIS/FIRA/1099-B/trial balance); gateways live in packages/py/openbooks-gateways
   gates_tax.py, gates_statements.py   per-kind gates
   pdf_front.py       PDF and scan front end (text layer, OCR, column geometry)
   roles.py           typed heads at inference time, constraint-aware resolution

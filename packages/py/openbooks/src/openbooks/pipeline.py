@@ -23,7 +23,7 @@ from openbooks_core.registry import detect as _detect
 from openbooks_core.report import run_report
 from openbooks_core.schema import SCHEMA_VERSION, load_schema, refusal_doc, validate_output
 
-from .parsers_gateways import parse_razorpay, parse_stripe
+from openbooks_gateways.parsers import parse_razorpay, parse_stripe
 from .parsers_statements import parse_bank_csv, parse_mt940, parse_ofx
 from .parsers_tax import FX_TOLERANCE, fx_check
 

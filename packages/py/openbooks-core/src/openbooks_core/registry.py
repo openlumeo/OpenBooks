@@ -215,8 +215,11 @@ class Registry:
             return _load(self._frontends[name], f"frontend {name}")
         raise ProviderMissing("a PDF or image statement", FRONTEND_DISTRIBUTION[name])
 
-    def gates(self) -> list[tuple[str, Gate]]:
-        return [(name.split(":")[0], _load(g, f"gate {name}")) for name, g in sorted(self._gates, key=lambda x: x[0])]
+    def gates(self, kinds: Iterable[str] | None = None) -> list[tuple[str, Gate]]:
+        """Gates for these batch kinds (all if None). Only the gates a document needs are imported."""
+        want = None if kinds is None else set(kinds)
+        return [(name.split(":")[0], _load(g, f"gate {name}")) for name, g in sorted(self._gates, key=lambda x: x[0])
+                if want is None or name.split(":")[0] in want]
 
     def linker(self) -> Any | None:
         return _load(self._linkers["default"], "linker") if "default" in self._linkers else None

@@ -1,13 +1,17 @@
-"""Payment gateway parsers: Stripe, Razorpay, PayPal, Wise. Moved verbatim; become openbooks-gateways.
-"""
+"""Payment gateway parsers: Stripe, Razorpay, PayPal and Wise. Each reads one export into the canonical settlement or
+statement batch; the balance proofs live in openbooks-core. PayPal and Wise follow public descriptions of the exports,
+not real files, so they are experimental until real redacted samples exist."""
 from __future__ import annotations
 
-from openbooks_core.builders import (D, body_rows as _body, cell_getter as _cell, currency_of as _currency, empty_data as _empty_data,
-                                     finish_batch as _finish, money_fields as _money_fields, settlement_batch as _settlement,
-                                     split_total as _split_total, stated_totals as _stated_totals, statement_doc)
+from openbooks_core.builders import body_rows as _body
+from openbooks_core.builders import cell_getter as _cell
+from openbooks_core.builders import currency_of as _currency
+from openbooks_core.builders import empty_data as _empty_data
+from openbooks_core.builders import settlement_batch as _settlement
+from openbooks_core.builders import statement_doc
 from openbooks_core.errors import Refusal
 from openbooks_core.evidence import evidence
-from openbooks_core.normalise import date_order, fmt, money, to_date, to_dec
+from openbooks_core.normalise import date_order, money, to_date, to_dec
 from openbooks_core.params import Params
 
 

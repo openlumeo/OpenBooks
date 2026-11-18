@@ -50,12 +50,12 @@ jobs:
       - name: CPU PyTorch on Linux (the default wheel is CUDA and several GB)
         if: runner.os == 'Linux'
         run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - run: python -m pip install -e packages/py/openbooks-core -e "packages/py/openbooks[scan]" -e server pytest hypothesis httpx build
+      - run: python -m pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e "packages/py/openbooks[scan]" -e server pytest hypothesis httpx build
       - name: Behaviour is frozen (868 results; the pdf section runs where PyMuPDF imports)
         run: |
           python tests/characterise/run.py verify --section main
           python tests/characterise/run.py verify --section pdf
-      - run: python -m pytest -q tests packages/py/openbooks-core/tests server/tests
+      - run: python -m pytest -q tests packages/py/openbooks-core/tests packages/py/openbooks-gateways/tests server/tests
 
   record-pdf-baseline:
     # Manual. The PDF/scan part of the characterisation baseline needs PyMuPDF, so it is recorded here, on the commit

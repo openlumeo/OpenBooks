@@ -49,7 +49,7 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
                 data, ev = reg.run_layout(layout, det.args, p)
         stage("parse")
         stage("normalise")
-        assertions = run_gate(data, reg.gates())
+        assertions = run_gate(data, reg.gates({b["kind"] for b in data["batches"]}))
         failed = [a for a in assertions if not a["passed"]]
         if failed:
             raise Refusal("BALANCE_MISMATCH", "; ".join(
