@@ -153,6 +153,7 @@ jobs:
       - name: Old (PyMuPDF) versus new (pypdfium2) PDF reading on the same files
         run: python -m pip install pymupdf && python tests/characterise/compare_pdf_backends.py golden_fixtures
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: golden_fixtures
           path: golden_fixtures
