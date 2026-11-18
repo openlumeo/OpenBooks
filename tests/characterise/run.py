@@ -42,7 +42,7 @@ def run_case(case: Case, variant: str) -> dict:
             ev.pop("confidence", None)
         # A wrapped description line sits midway between two rows; which row it joins was float noise in the old reader. Compare the
         # words each document holds, not their split between neighbouring rows (compare_pdf_backends.py checks the same thing).
-        txs = doc.get("data", {}).get("transactions") or []
+        txs = (doc.get("data") or {}).get("transactions") or []
         if txs:
             doc["data"]["description_words"] = sorted(w for t in txs for w in str(t.get("description") or "").split())
             for t in txs:
