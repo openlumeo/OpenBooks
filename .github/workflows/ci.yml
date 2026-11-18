@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install -e packages/py/openbooks-core pytest
+      - run: python -m pip install -e packages/py/openbooks-core pytest hypothesis
       - run: python -m pytest -q packages/py/openbooks-core/tests
 
   full:
