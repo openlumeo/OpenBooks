@@ -19,7 +19,7 @@ and their calibration ship inside the wheel under `openbooks_statements/data/`, 
 weights it was fitted on: a mismatch refuses to load. A released document records both hashes in `file.model`.
 `OPENBOOKS_MODELS_DIR` overrides the location. Weights are loaded with `torch.load(..., weights_only=True)` (PyTorch 2.6 or newer).
 
-All figures for the heads are on synthetic data; see the repository's `docs/evidence`.
+All figures for the heads are on synthetic data. No accuracy claim has been measured on real client documents.
 
 ## Not here
 

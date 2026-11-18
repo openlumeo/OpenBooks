@@ -9,7 +9,7 @@ import os
 from importlib import resources
 from pathlib import Path
 
-WEIGHTS_NAME, CALIBRATION_NAME, MANIFEST_NAME = "roles_head.pt", "roles_calibration.json", "roles_manifest.json"
+WEIGHTS_NAME, CALIBRATION_NAME = "roles_head.pt", "roles_calibration.json"
 
 
 def models_dir() -> Path:
@@ -20,7 +20,7 @@ def models_dir() -> Path:
     if (packaged / WEIGHTS_NAME).exists():
         return packaged
     for parent in Path(__file__).resolve().parents:
-        if (parent / "models" / MANIFEST_NAME).exists():
+        if (parent / "models" / WEIGHTS_NAME).exists():
             return parent / "models"
     return packaged  # absent: load() reports that there are no weights
 

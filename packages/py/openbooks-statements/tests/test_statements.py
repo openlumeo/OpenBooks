@@ -124,7 +124,7 @@ def test_processing_a_csv_needs_neither_pymupdf_nor_torch(tmp_path):
     f.write_text(BANK, encoding="utf-8")
     code = ("import sys\nfrom decimal import Decimal\nfrom openbooks_core import process, Params\n"
             f"assert process({str(f)!r}, Params(currency='INR', opening=Decimal('1000')))['status'] == 'ok'\n"
-            "print(sorted(m for m in ('torch', 'fitz', 'pymupdf', 'easyocr', 'scipy', 'openbooks_lab', 'openbooks_gateways', 'openbooks_tax') if m in sys.modules))\n")
+            "print(sorted(m for m in ('torch', 'fitz', 'pymupdf', 'easyocr', 'scipy', 'openbooks_gateways', 'openbooks_tax') if m in sys.modules))\n")
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.strip().splitlines()[-1]
     assert out == "[]", out
 

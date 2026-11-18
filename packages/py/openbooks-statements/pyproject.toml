@@ -36,8 +36,7 @@ path = "src/openbooks_statements/_version.py"
 packages = ["src/openbooks_statements"]
 
 # The weights and their calibration travel together in one wheel so the hash binding can never see a mismatched pair.
-# Source of truth stays models/ at the repo root (the training side promotes into it). Only the public model card ships,
-# never the training manifest, and jepa_encoder.pt is never included.
+# Source of truth stays models/ at the repo root. Only the weights, their calibration and the model card ship.
 [tool.hatch.build.targets.wheel.force-include]
 "../../../models/roles_head.pt" = "openbooks_statements/data/roles_head.pt"
 "../../../models/roles_calibration.json" = "openbooks_statements/data/roles_calibration.json"
