@@ -15,11 +15,11 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from openbooks import pipeline
+from openbooks.paths import MODELS_DIR
 from openbooks.pipeline import ALLOWED_EXT, MAX_BYTES, SCHEMA_VERSION
 
-# Same location openbooks.roles uses (repo/models). Not imported from there: that module needs torch at
-# import time, and the service must start without the optional [scan] extra.
-WEIGHTS = Path(pipeline.__file__).resolve().parents[2] / "models" / "roles_head.pt"
+# Same location openbooks.roles uses. openbooks.paths has no torch import, so the service starts without the [scan] extra.
+WEIGHTS = MODELS_DIR / "roles_head.pt"
 CALIBRATION = WEIGHTS.with_name("roles_calibration.json")
 
 _status_cache: dict = {}

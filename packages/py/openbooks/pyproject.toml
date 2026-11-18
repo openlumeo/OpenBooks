@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openbooks"
+version = "0.1.0"
+description = "Open Books: financial documents in, one proven JSON per file out (or a typed refusal). Meta package."
+requires-python = ">=3.11"
+# Interim: until the provider packages are split out, this distribution carries every parser and the PDF/OCR path.
+dependencies = ["openbooks-core==0.1.0", "openpyxl", "pymupdf", "numpy", "scipy"]
+
+[project.optional-dependencies]
+scan = ["easyocr", "torch>=2.6", "pillow"]  # OCR for scans and the typed heads (--model)
+
+[project.entry-points."openbooks.layouts"]
+"bank_csv.v1" = "openbooks.parsers_statements:parse_bank_csv"
+"stripe_balance.v1" = "openbooks.parsers_gateways:parse_stripe"
+"razorpay_settlement.v1" = "openbooks.parsers_gateways:parse_razorpay"
+"paypal_activity.v1" = "openbooks.parsers_gateways:parse_paypal"
+"wise_statement.v1" = "openbooks.parsers_gateways:parse_wise"
+"form_1099b.v1" = "openbooks.parsers_tax:parse_1099b"
+"tds_26as.v1" = "openbooks.parsers_tax:parse_tds"
+"ais.v1" = "openbooks.parsers_tax:parse_ais"
+"fira.v1" = "openbooks.parsers_tax:parse_fira"
+"trial_balance.v1" = "openbooks.parsers_tax:parse_trial_balance"
+
+[project.entry-points."openbooks.sniffers"]
+"ofx.v1" = "openbooks.parsers_statements:parse_ofx"
+"mt940.v1" = "openbooks.parsers_statements:parse_mt940"
+
+[project.entry-points."openbooks.frontends"]
+document = "openbooks.frontend_document:FRONTEND"
+
+[project.entry-points."openbooks.gates"]
+tax_statement = "openbooks.gates_tax:tax_statement"
+ais = "openbooks.gates_tax:ais"
+form_1099b = "openbooks.gates_tax:form_1099b"
+fira = "openbooks.gates_tax:fira"
+trial_balance = "openbooks.gates_tax:trial_balance"
+"statement:ocr_dates" = "openbooks.gates_statements:ocr_dates"
+
+[project.entry-points."openbooks.linkers"]
+default = "openbooks.link"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/openbooks"]

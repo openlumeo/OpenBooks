@@ -11,7 +11,10 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from .pipeline import Params, Refusal, date_order, statement_doc, to_date, to_dec
+from openbooks_core.builders import statement_doc
+from openbooks_core.errors import Refusal
+from openbooks_core.normalise import date_order, to_date, to_dec
+from openbooks_core.params import Params
 
 MAX_PAGES, MAX_WORDS_PER_PAGE = 60, 20_000
 OCR_DPI, OCR_MAX_PX = 200, 3200

@@ -20,7 +20,6 @@ import numpy as np  # noqa: E402
 import torch  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 import train_roles as tr  # noqa: E402
 from openbooks.calibration import Calibrator  # noqa: E402

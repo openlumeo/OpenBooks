@@ -6,7 +6,6 @@ from pathlib import Path
 import torch
 
 ROOT = Path("C:/Desktop/openbooks")
-sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 import train_roles as tr  # noqa: E402
 from openbooks.calibration import Calibrator  # noqa: E402

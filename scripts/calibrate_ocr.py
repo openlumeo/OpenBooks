@@ -16,7 +16,6 @@ from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
 from openbooks import pdf_front  # noqa: E402
 from openbooks.golden_docs import _pdf_rows  # noqa: E402

@@ -14,7 +14,6 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
 from openbooks.pdf_front import read_words  # noqa: E402
 from openbooks.pipeline import Params  # noqa: E402

@@ -1,22 +1,4 @@
-[project]
-name = "openbooks"
-version = "0.1.0"
-requires-python = ">=3.11"
-dependencies = ["jsonschema", "openpyxl", "pymupdf", "numpy", "scipy"]
-
-[project.optional-dependencies]
-scan = ["easyocr", "torch", "pillow"]  # OCR for scans and the typed heads (--model)
-
-[project.scripts]
-openbooks = "openbooks.pipeline:main"
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
+# Workspace configuration only. The distributions live under packages/py/*; install them editable for development:
+#   pip install -e packages/py/openbooks-core -e packages/py/openbooks
 [tool.pytest.ini_options]
-pythonpath = ["src"]
 testpaths = ["tests"]

@@ -17,7 +17,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE.parent.parent / "src"))
+pass
 
 from corpus import PARAM_VARIANTS, Case, build_corpus, have_fitz  # noqa: E402
 

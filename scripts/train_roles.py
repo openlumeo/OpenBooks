@@ -24,7 +24,6 @@ import torch
 import torch.nn.functional as F
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
 from openbooks.calibration import Calibrator, ece  # noqa: E402
 from openbooks.encoder import RoleNet, dequantize_state, h_shape, h_word, n_params, quantize_state, row_features, windows  # noqa: E402

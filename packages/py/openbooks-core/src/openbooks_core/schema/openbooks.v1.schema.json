@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openbooks:schema:v1:output",
+  "title": "Open Books output document (status ok)",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "file",
+    "data",
+    "evidence",
+    "assertions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "openbooks.v1"
+    },
+    "status": {
+      "const": "ok"
+    },
+    "file": {
+      "type": "object",
+      "required": [
+        "sha256",
+        "name",
+        "detected_format",
+        "layout_version",
+        "method"
+      ],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "model": {
+          "type": "object",
+          "required": [
+            "weights_sha256",
+            "calibration_sha256"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "weights_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "calibration_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "accounts",
+        "parties",
+        "batches",
+        "transactions",
+        "claims"
+      ],
+      "properties": {
+        "transactions": {
+          "type": "array",
+          "minItems": 1
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "page",
+          "bbox",
+          "row",
+          "raw_text",
+          "method"
+        ],
+        "properties": {
+          "page": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "bbox": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "number"
+            },
+            "minItems": 4,
+            "maxItems": 4
+          },
+          "row": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "raw_text": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "pattern": "^(parser|pdf_text|ocr)(\\+model)?$"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "if": {
+          "properties": {
+            "method": {
+              "not": {
+                "const": "parser"
+              }
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "page": {
+              "type": "integer"
+            },
+            "bbox": {
+              "type": "array"
+            }
+          }
+        }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "rule",
+          "expected",
+          "computed",
+          "passed",
+          "independent"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          },
+          "expected": {
+            "type": "string"
+          },
+          "computed": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "independent": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "money": {
+      "type": "object",
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    }
+  }
+}

@@ -18,14 +18,14 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from openbooks_core.errors import Refusal
 
 from .calibration import Calibrator
 from .encoder import RoleNet, dequantize_state, tensors, windows
-from .pipeline import Refusal
+from .paths import MODELS_DIR
 from .synth import ROLES
 
-ROOT = Path(__file__).resolve().parents[2]
-WEIGHTS, CALIBRATION = ROOT / "models" / "roles_head.pt", ROOT / "models" / "roles_calibration.json"
+WEIGHTS, CALIBRATION = MODELS_DIR / "roles_head.pt", MODELS_DIR / "roles_calibration.json"
 VTYPES = ["text", "date", "money", "code"]
 AMOUNT = ("debit", "credit", "balance")
 _MONEY = re.compile(r"^\(?-?\d[\d,]*\.\d{2}\)?(?:Dr|Cr|DR|CR)?$")
