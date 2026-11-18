@@ -69,7 +69,7 @@ class PdfPage:
                 if cur and this_obj != obj:
                     flush()
                 obj = this_obj
-                l, b, r, t = tp.get_charbox(i)
+                l, b, r, t = tp.get_charbox(i, loose=True)
                 x0, x1 = l - self._left, r - self._left
                 y0, y1 = self._top - t, self._top - b
                 if not cur:

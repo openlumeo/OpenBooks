@@ -96,6 +96,8 @@ def main() -> int:
         new_doc = process(src, params)
         compared += 1
         a, b = strip_geometry(old_doc), strip_geometry(new_doc)
+        if old_doc["status"] == "refused" and old_doc["error"].get("internal") and new_doc["status"] == "refused"                 and new_doc["error"]["code"] == "UNSUPPORTED_INPUT":
+            continue  # intended: a file the old reader crashed on is now refused as unreadable, with a typed code
         if a != b:
             what = [k for k in ("status", "error", "file", "data", "evidence", "assertions") if a.get(k) != b.get(k)]
             differences.append(f"{case.name}: old={old_doc['status']}/{old_doc.get('error', {}).get('code')} "
