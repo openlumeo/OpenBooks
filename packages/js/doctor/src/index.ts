@@ -1,4 +1,4 @@
-import { EngineError, findEngine, runProcess, type DiscoverOptions } from "@openbooks/core";
+import { EngineError, findEngine, runProcess, type DiscoverOptions } from "@lumeo_hq/openbooks-core";
 
 export type DoctorStatus = "pass" | "warn" | "fail" | "skip";
 

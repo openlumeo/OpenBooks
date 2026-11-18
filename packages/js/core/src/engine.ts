@@ -135,7 +135,7 @@ export async function runFiles(files: readonly string[], opts: RunOptions = {}):
         else validateRefusal(doc);
       } catch (e) {
         throw new EngineError("bad_output", `${(e as Error).message}. The installed engine and this package may be different versions.`,
-          "install matching versions of @openbooks/core and openbooks-core", { cause: e });
+          "install matching versions of @lumeo_hq/openbooks-core and openbooks-core", { cause: e });
       }
       results.push(toResult(line, doc as OpenBooksDocument | OpenBooksRefusal, expectSha, opts.accept));
     }

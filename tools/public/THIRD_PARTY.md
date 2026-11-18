@@ -12,7 +12,7 @@ Open Books depends on, but does not bundle, the following. Check each licence fo
 | python-bidi (via EasyOCR) | text direction | statements `[scan]` | LGPL |
 | PyTorch, torchvision | OCR and the typed heads | statements `[scan]` | BSD-style |
 | NumPy | arrays | statements `[scan]` | BSD-3-Clause |
-| Ajv | schema validation in JS | `@openbooks/core` | MIT |
+| Ajv | schema validation in JS | `@lumeo_hq/openbooks-core` | MIT |
 | Commander | CLI | `openbooks` | MIT |
 
 **Copyleft.** Open Books itself and its required and `[pdf]` dependencies are permissive. The one copyleft dependency is

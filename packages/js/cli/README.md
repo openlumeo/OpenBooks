@@ -1,7 +1,7 @@
 # openbooks
 
 ```bash
-pip install openbooks && npm install -g openbooks
+pip install openbooks && npm install -g @lumeo_hq/openbooks
 openbooks run statement.csv --currency INR --opening 1000.00
 openbooks gateways run stripe.csv          # only gateway layouts; anything else is refused
 openbooks doctor

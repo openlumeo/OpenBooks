@@ -1,5 +1,5 @@
 {
-  "name": "@openbooks/doctor",
+  "name": "@lumeo_hq/openbooks-doctor",
   "version": "0.1.0",
   "description": "Open Books doctor wrapper: typed access to the Python engine, restricted to the doctor layouts",
   "license": "Apache-2.0",
@@ -20,6 +20,6 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@openbooks/core": "workspace:*"
+    "@lumeo_hq/openbooks-core": "workspace:*"
   }
 }

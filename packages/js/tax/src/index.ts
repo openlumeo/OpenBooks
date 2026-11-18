@@ -1,7 +1,7 @@
-import { runFile as coreRunFile, runFiles as coreRunFiles, type RunOptions, type RunResult } from "@openbooks/core";
+import { runFile as coreRunFile, runFiles as coreRunFiles, type RunOptions, type RunResult } from "@lumeo_hq/openbooks-core";
 
-export type { RunOptions, RunResult, Released, Refused } from "@openbooks/core";
-export { isReleased, EngineError } from "@openbooks/core";
+export type { RunOptions, RunResult, Released, Refused } from "@lumeo_hq/openbooks-core";
+export { isReleased, EngineError } from "@lumeo_hq/openbooks-core";
 
 /** The layouts this package reads. A file that proves out under any other layout comes back refused (UNKNOWN_LAYOUT). */
 export const LAYOUTS = ["tds_26as.v1", "ais.v1", "fira.v1", "form_1099b.v1", "trial_balance.v1"] as const;

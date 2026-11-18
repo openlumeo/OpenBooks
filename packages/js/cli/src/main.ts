@@ -1,11 +1,11 @@
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Command, CommanderError } from "commander";
-import { EngineError, findEngine, runFiles, type RunOptions, type RunResult } from "@openbooks/core";
-import * as gateways from "@openbooks/gateways";
-import * as statements from "@openbooks/statements";
-import * as tax from "@openbooks/tax";
-import { runDoctor } from "@openbooks/doctor";
+import { EngineError, findEngine, runFiles, type RunOptions, type RunResult } from "@lumeo_hq/openbooks-core";
+import * as gateways from "@lumeo_hq/openbooks-gateways";
+import * as statements from "@lumeo_hq/openbooks-statements";
+import * as tax from "@lumeo_hq/openbooks-tax";
+import { runDoctor } from "@lumeo_hq/openbooks-doctor";
 
 /** Exit codes match the Python CLI: 0 all released, 1 something was refused, 2 usage, 3 the engine could not run. */
 export const EXIT = { ok: 0, refused: 1, usage: 2, engine: 3 } as const;

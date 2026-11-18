@@ -85,7 +85,7 @@ async function discover(opts: DiscoverOptions): Promise<Engine> {
       throw new EngineError("engine_version",
         `the installed engine (openbooks-core ${r.info.version}) speaks ${r.info.schema_version}, layout API ${r.info.layout_api}; ` +
         `this package needs ${SUPPORTED_SCHEMA_VERSION}, layout API ${SUPPORTED_LAYOUT_API}`,
-        "install matching versions of @openbooks/core and openbooks-core");
+        "install matching versions of @lumeo_hq/openbooks-core and openbooks-core");
     }
     return r;
   }
