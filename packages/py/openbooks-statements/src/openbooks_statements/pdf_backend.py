@@ -55,8 +55,22 @@ class PdfPage:
                 cur.clear()
                 box.clear()
 
+            high = 0  # pdfium reports UTF-16 code units: a character outside the BMP (an emoji in a payee name) is two of them
             for i in range(n):
                 code = raw.FPDFText_GetUnicode(ptr, i)
+                if 0xDC00 <= code <= 0xDFFF and high:
+                    code, high = 0x10000 + ((high - 0xD800) << 10) + (code - 0xDC00), 0
+                    if cur:
+                        cur[-1] = chr(code)  # replaces the high half appended at the previous index
+                        l, b, r, t = tp.get_charbox(i, loose=True)
+                        box[0], box[1] = min(box[0], l - self._left), min(box[1], self._top - t)
+                        box[2], box[3] = max(box[2], r - self._left), max(box[3], self._top - b)
+                    continue
+                high = 0
+                if 0xD800 <= code <= 0xDBFF:
+                    high = code
+                if 0xD800 <= code <= 0xDFFF:
+                    code = 0xFFFD  # kept only if a low half follows; a lone half is never passed on (it cannot be encoded)
                 ch = chr(code) if code else " "
                 if ch.isspace() or code == 0:
                     flush()

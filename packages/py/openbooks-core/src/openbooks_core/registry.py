@@ -137,7 +137,10 @@ def detect(text: str) -> Detected:
         if sn.matches(text):
             return Detected(sn.format, sn.id, None)
     for delim in (",", ";", "\t"):
-        rows = list(csv.reader(io.StringIO(text), delimiter=delim))
+        try:
+            rows = list(csv.reader(io.StringIO(text), delimiter=delim))
+        except csv.Error as e:  # e.g. one field larger than the csv module's 128 KB limit: not a statement, and said so plainly
+            raise Refusal("PARSE_ERROR", f"the file is not readable as a table ({e})") from None
         hit = find_header(rows)
         if hit:
             return Detected("csv", hit[1], (rows, hit[0], hit[2]))

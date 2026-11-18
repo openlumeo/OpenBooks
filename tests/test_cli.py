@@ -33,7 +33,7 @@ def test_report_accepts_the_same_flags_as_run(pdf, tmp_path):
     folder = tmp_path / "inbox"
     folder.mkdir()
     (folder / "a.pdf").write_bytes(pdf.read_bytes())
-    assert main(["report", str(folder), "--out", str(tmp_path / "r1")]) == 0
+    assert main(["report", str(folder), "--out", str(tmp_path / "r1")]) == 1  # a refusal is exit 1, as for `run`
     assert json.loads((tmp_path / "r1" / "report.json").read_text())["released"] == 0
     assert main(["report", str(folder), "--currency", "INR", "--out", str(tmp_path / "r2")]) == 0
     assert json.loads((tmp_path / "r2" / "report.json").read_text())["released"] == 1
