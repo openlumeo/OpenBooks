@@ -32,13 +32,17 @@ def model_status(weights: Path = WEIGHTS, calibration: Path = CALIBRATION) -> tu
         return False, "no model weights (models/roles_head.pt)"
     if not calibration.exists():
         return False, "no calibration (models/roles_calibration.json)"
-    key = (str(weights), str(calibration), weights.stat().st_mtime_ns, calibration.stat().st_mtime_ns)
+    import hashlib
+
+    # The calibration is small, so its content is part of the key; the weights are large, so their size and mtime are.
+    # (Keying both on mtime alone served a stale answer when a file was rewritten within one timestamp tick.)
+    cal_bytes = calibration.read_bytes()
+    st = weights.stat()
+    key = (str(weights), str(calibration), st.st_size, st.st_mtime_ns, hashlib.sha256(cal_bytes).hexdigest())
     if key not in _status_cache:
         _status_cache.clear()
-        import hashlib
-
         try:
-            fitted = json.loads(calibration.read_text(encoding="utf-8")).get("weights_sha256")
+            fitted = json.loads(cal_bytes.decode("utf-8")).get("weights_sha256")
         except (OSError, ValueError):
             fitted = None
         actual = hashlib.sha256(weights.read_bytes()).hexdigest()

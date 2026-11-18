@@ -8,7 +8,7 @@ from pathlib import Path
 from .evidence import sha256_file
 from .gates import run_gate
 from .guard import DOC_EXT, decode, guard
-from .errors import Refusal
+from .errors import EngineFault, Refusal
 from .frontends.xlsx import parse_xlsx
 from .params import Params
 from .registry import Registry, default_registry, detect
@@ -18,10 +18,12 @@ STAGES = ("detect", "parse", "normalise", "balance", "validate")
 
 
 def process(path: str | Path, params: Params | None = None, on_stage: Callable[[str], None] | None = None,
-            *, registry: Registry | None = None) -> dict:
+            *, registry: Registry | None = None, strict: bool = False) -> dict:
     """on_stage, if given, is called with each name in STAGES once that stage has succeeded.
     Parsers normalise as they read, so "parse" and "normalise" are reported together.
-    registry is for tests (a view with some providers removed); normally the installed providers are used."""
+    registry is for tests (a view with some providers removed); normally the installed providers are used.
+    strict=True (the CLI) raises EngineFault for environment problems (missing library, unreadable file, out of memory)
+    instead of reporting them as a document refusal. Default False keeps the 0.1 behaviour for API callers."""
     path, p = Path(path), params or Params()
     stage = on_stage or (lambda _name: None)
     sha = sha256_file(path)
@@ -68,7 +70,9 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
     except Refusal as r:
         return refusal_doc(r.code, r.message, sha)
     except Exception as e:
-        return refusal_doc("PARSE_ERROR", f"unexpected {type(e).__name__}: {e}", sha)
+        if strict and isinstance(e, (EngineFault, ImportError, MemoryError, OSError)):
+            raise EngineFault(f"{type(e).__name__}: {e}") from e
+        return refusal_doc("PARSE_ERROR", f"unexpected {type(e).__name__}: {e}", sha, internal=True)
 
 
 def dumps(doc: dict) -> str:

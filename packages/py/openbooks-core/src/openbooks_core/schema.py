@@ -52,6 +52,9 @@ def validate_output(doc: dict) -> None:
         raise Refusal("OUTPUT_INVALID", "assertions incomplete")
 
 
-def refusal_doc(code: str, message: str, sha: str) -> dict:
-    return {"schema_version": SCHEMA_VERSION, "status": "refused", "data": None,
-            "error": {"code": code, "message": message, "file_sha256": sha}}
+def refusal_doc(code: str, message: str, sha: str, *, internal: bool = False) -> dict:
+    """internal=True marks a refusal caused by an unexpected engine exception, not by something readable in the document."""
+    error = {"code": code, "message": message, "file_sha256": sha}
+    if internal:
+        error["internal"] = True
+    return {"schema_version": SCHEMA_VERSION, "status": "refused", "data": None, "error": error}

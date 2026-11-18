@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "openbooks-core"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Open Books core: the openbooks.v1 contract, Decimal normalisation, balance gates and the layout registry"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,6 +12,9 @@ dependencies = ["jsonschema>=4.18"]
 
 [project.scripts]
 openbooks = "openbooks_core.cli:main"
+
+[tool.hatch.version]
+path = "src/openbooks_core/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/openbooks_core"]

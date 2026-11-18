@@ -1,17 +1,91 @@
-"""Command line: openbooks run | report | link | eval. Arguments, exit codes and output paths are unchanged from 0.1."""
+"""Command line: openbooks run | report | link | eval | engine-info.
+
+Exit codes:  0 every file released | 1 at least one file refused (a valid financial outcome) | 2 usage error or
+nothing to do | 3 engine fault (broken install, unreadable input, out of memory). Code 3 never comes with a refusal
+document, so a wrapper can tell "this document cannot be proven" from "the engine could not run".
+
+`run --machine` prints one JSON object per line on stdout (one per file, then an `engine` line) and nothing else.
+"""
 from __future__ import annotations
 
 import argparse
+import json
 import sys
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
+from . import __version__
+from .errors import EngineFault
 from .evidence import sha256_file
 from .grade import run_eval
+from .output import write_atomic
 from .params import Params
 from .process import dumps, process
-from .registry import default_registry
+from .registry import LAYOUT_API_VERSION, default_registry
 from .report import run_report
+from .schema import SCHEMA_VERSION
+
+EXIT_OK, EXIT_REFUSED, EXIT_USAGE, EXIT_ENGINE = 0, 1, 2, 3
+
+
+def _add_params(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--currency")
+    p.add_argument("--opening", help="opening balance, if the file does not state one")
+    p.add_argument("--account")
+    p.add_argument("--allow-derived-opening", action="store_true")
+    p.add_argument("--date-order", choices=("dmy", "mdy"), help="day/month order of numeric dates; inferred from the file when omitted")
+    p.add_argument("--no-ocr", action="store_true", help="refuse scans instead of running OCR")
+    p.add_argument("--model", action="store_true", help="typed-head cross-check on PDFs/scans (needs the model assets)")
+
+
+def _params(ap: argparse.ArgumentParser, a: argparse.Namespace) -> Params:
+    try:
+        opening = Decimal(a.opening) if a.opening else None
+    except InvalidOperation:
+        ap.error(f"--opening must be a plain number like 1000.00, got {a.opening!r}")
+    return Params(a.currency, opening, a.account, a.allow_derived_opening, not a.no_ocr, a.model, a.date_order)
+
+
+def engine_info() -> dict:
+    reg = default_registry()
+    return {"name": "openbooks-core", "version": __version__, "schema_version": SCHEMA_VERSION, "layout_api": LAYOUT_API_VERSION,
+            "python": sys.version.split()[0], "layouts": sorted(reg.installed_layouts()),
+            "frontends": sorted(n for n in ("document",) if _has_frontend(reg, n)), "linker": reg.linker() is not None}
+
+
+def _has_frontend(reg, name: str) -> bool:
+    try:
+        reg.frontend(name)
+    except Exception:  # noqa: BLE001 - a missing or broken frontend is reported as absent here; doctor explains why
+        return False
+    return True
+
+
+def _run(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    p = _params(ap, a)
+    rc = EXIT_OK
+    for f in a.files:
+        sha = sha256_file(Path(f))
+        target = out / f"{sha}.json"
+        # No reuse of an earlier <sha>.json: the same bytes give a different result under another --currency,
+        # --opening or --model, and a stale refusal or release must never be returned silently.
+        doc = process(f, p, strict=True)
+        write_atomic(target, dumps(doc))
+        err = doc.get("error", {})
+        if a.machine:
+            line = {"file": Path(f).name, "status": doc["status"], "code": err.get("code"), "output": str(target)}
+            if err.get("internal"):
+                line["internal"] = True
+            sys.stdout.write(json.dumps(line, sort_keys=True) + "\n")
+        else:
+            sys.stdout.write(f"{Path(f).name}: {doc['status']} {err.get('code', '')} -> {target.name}\n")
+        if doc["status"] != "ok":
+            rc = EXIT_REFUSED
+    if a.machine:
+        sys.stdout.write(json.dumps({"engine": engine_info()}, sort_keys=True) + "\n")
+    return rc
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -20,57 +94,37 @@ def main(argv: list[str] | None = None) -> int:
     r = sub.add_parser("run", help="write one openbooks.v1 JSON per input file")
     r.add_argument("files", nargs="+")
     r.add_argument("--out", default="out")
-    r.add_argument("--currency")
-    r.add_argument("--opening", help="opening balance, if the file does not state one")
-    r.add_argument("--account")
-    r.add_argument("--allow-derived-opening", action="store_true")
-    r.add_argument("--date-order", choices=("dmy", "mdy"), help="day/month order of numeric dates; inferred from the file when omitted")
-    r.add_argument("--no-ocr", action="store_true", help="refuse scans instead of running OCR")
-    r.add_argument("--model", action="store_true", help="typed-head cross-check on PDFs/scans (needs models/roles_head.pt)")
+    r.add_argument("--machine", action="store_true", help="print one JSON object per line on stdout (for wrappers)")
+    _add_params(r)
     e = sub.add_parser("eval", help="run the golden set")
     e.add_argument("root")
-    lk = sub.add_parser("link", help="link settlement payouts and FIRA credits to bank credits")
+    lk = sub.add_parser("link", help="link settlement payouts and FIRA credits to bank credits (needs a linker)")
     lk.add_argument("files", nargs="+")
     lk.add_argument("--out", default="links.json")
     rp = sub.add_parser("report", help="run every file in a folder, link the released ones, write report.json")
     rp.add_argument("folder", help="a params.json in the folder gives per-file currency/opening/account")
     rp.add_argument("--out", default="out")
-    rp.add_argument("--currency")
-    rp.add_argument("--opening", help="opening balance, if the files do not state one")
-    rp.add_argument("--account")
-    rp.add_argument("--allow-derived-opening", action="store_true")
-    rp.add_argument("--date-order", choices=("dmy", "mdy"))
-    rp.add_argument("--no-ocr", action="store_true")
-    rp.add_argument("--model", action="store_true")
+    _add_params(rp)
+    sub.add_parser("engine-info", help="print the engine version, contract version and installed layouts as JSON")
     a = ap.parse_args(argv)
-    if a.cmd == "eval":
-        return run_eval(Path(a.root))
-    if a.cmd == "report":
-        return run_report(Path(a.folder), Path(a.out),
-                          Params(a.currency, Decimal(a.opening) if a.opening else None, a.account,
-                                 a.allow_derived_opening, not a.no_ocr, a.model, a.date_order))
-    if a.cmd == "link":
-        linker = default_registry().linker()
-        if linker is None:
-            sys.stderr.write("openbooks link: no linker is installed (matching is not part of the open packages)\n")
-            return 2
-        return linker.run_link(a.files, a.out)
-    out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
-    p = Params(a.currency, Decimal(a.opening) if a.opening else None, a.account, a.allow_derived_opening,
-               not a.no_ocr, a.model, a.date_order)
-    rc = 0
-    for f in a.files:
-        sha = sha256_file(Path(f))
-        target = out / f"{sha}.json"
-        # No reuse of an earlier <sha>.json: the same bytes give a different result under another --currency,
-        # --opening or --model, and a stale refusal or release must never be returned silently.
-        doc = process(f, p)
-        target.write_text(dumps(doc), encoding="utf-8")
-        err = doc.get("error", {})
-        sys.stdout.write(f"{Path(f).name}: {doc['status']} {err.get('code', '')} -> {target.name}\n")
-        rc |= doc["status"] != "ok"
-    return rc
+    try:
+        if a.cmd == "engine-info":
+            sys.stdout.write(json.dumps(engine_info(), indent=2, sort_keys=True) + "\n")
+            return EXIT_OK
+        if a.cmd == "eval":
+            return run_eval(Path(a.root))
+        if a.cmd == "report":
+            return run_report(Path(a.folder), Path(a.out), _params(ap, a))
+        if a.cmd == "link":
+            linker = default_registry().linker()
+            if linker is None:
+                sys.stderr.write("openbooks link: no linker is installed (matching is not part of the open packages)\n")
+                return EXIT_USAGE
+            return linker.run_link(a.files, a.out)
+        return _run(ap, a)
+    except (EngineFault, OSError, MemoryError) as e:
+        sys.stderr.write(f"openbooks: engine error: {type(e).__name__}: {e}\n")
+        return EXIT_ENGINE
 
 
 if __name__ == "__main__":

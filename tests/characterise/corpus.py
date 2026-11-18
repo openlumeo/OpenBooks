@@ -4,7 +4,7 @@ refactor did not change what the engine does. Correctness is the job of the exis
 
 Two sections:
   main  built without PDF generation, so it is identical on every machine (no PyMuPDF needed).
-  pdf   the golden PDFs and scans; only built where PyMuPDF imports. Recorded and verified in CI.
+  pdf   the golden text-layer PDFs; only built where PyMuPDF imports. Recorded and verified in CI.
 """
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ def _golden(root: Path, which: str) -> list[Case]:
             golden_docs.build_pdfs = saved
     else:
         gdir.mkdir(parents=True, exist_ok=True)
-        golden_docs.build_pdfs(gdir, random.Random(7), True)
+        golden_docs.build_pdfs(gdir, random.Random(7), False)  # text-layer PDFs only: OCR output is not reproducible across platforms
     import json
 
     out = []

@@ -1,0 +1,81 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      record_pdf_baseline:
+        description: "Record tests/characterise/baseline_pdf.json from the pre-refactor commit and upload it as an artifact"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    # openbooks-core alone: only jsonschema is installed, so this proves Core does not lean on any provider.
+    if: ${{ !inputs.record_pdf_baseline }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e packages/py/openbooks-core pytest
+      - run: python -m pytest -q packages/py/openbooks-core/tests
+
+  full:
+    if: ${{ !inputs.record_pdf_baseline }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      OB_SLOW: "1"
+      OB_PACKAGING: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: CPU PyTorch on Linux (the default wheel is CUDA and several GB)
+        if: runner.os == 'Linux'
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -e packages/py/openbooks-core -e "packages/py/openbooks[scan]" -e server pytest hypothesis httpx build
+      - name: Behaviour is frozen (868 results; the pdf section runs where PyMuPDF imports)
+        run: |
+          python tests/characterise/run.py verify --section main
+          python tests/characterise/run.py verify --section pdf
+      - run: python -m pytest -q tests packages/py/openbooks-core/tests server/tests
+
+  record-pdf-baseline:
+    # Manual. The PDF/scan part of the characterisation baseline needs PyMuPDF, so it is recorded here, on the commit
+    # BEFORE the package split, and committed afterwards. Never record it from the refactored code.
+    if: ${{ inputs.record_pdf_baseline }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: a2875c9
+      - name: Use the current harness against the old engine
+        run: git checkout ${{ github.sha }} -- tests/characterise
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -e ".[scan]" pytest
+      - run: python tests/characterise/run.py record --section pdf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: baseline_pdf
+          path: tests/characterise/baseline_pdf.json
