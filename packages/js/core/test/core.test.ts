@@ -15,7 +15,11 @@ const BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2
 const STRIPE = "balance_transaction_id,created,currency,gross,fee,net\nt1,2026-01-15 10:00:00,usd,100.00,3.20,96.80\n";
 const work = mkdtempSync(join(tmpdir(), "ob-js-test-"));
 const file = (name: string, text: string) => { const p = join(work, name); writeFileSync(p, text); return p; };
-const leftovers = () => readdirSync(tmpdir()).filter((n) => n.startsWith("openbooks-")).length;
+// The engine wrapper creates its scratch directory under os.tmpdir(). Point that at a directory only this test file uses, so
+// "nothing left behind" is checked exactly and cannot be disturbed by other test files running in parallel.
+const scratch = mkdtempSync(join(tmpdir(), "ob-scratch-"));
+for (const k of ["TMPDIR", "TMP", "TEMP"]) process.env[k] = scratch;
+const leftovers = () => readdirSync(scratch).length;
 
 afterEach(() => { delete process.env.FAKE_MODE; clearEngineCache(); });
 
