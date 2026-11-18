@@ -1,0 +1,18 @@
+{
+  "name": "@openbooks/core",
+  "version": "0.1.0",
+  "description": "Typed wrapper around the Open Books Python engine: run a financial document, get an openbooks.v1 document or a typed refusal. No parsing happens in JavaScript.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" }, "./schema/*": "./schema/*" },
+  "files": ["dist", "schema", "README.md"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "sync-schema": "node scripts/sync-schema.mjs",
+    "generate": "node scripts/generate-types.mjs",
+    "check-generated": "node scripts/sync-schema.mjs --check && node scripts/generate-types.mjs --check"
+  },
+  "dependencies": { "ajv": "^8.17.1" },
+  "devDependencies": { "json-schema-to-typescript": "^15.0.4" }
+}

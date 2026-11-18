@@ -1,0 +1,136 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      record_pdf_baseline:
+        description: "Record tests/characterise/baseline_pdf.json from the pre-refactor commit and upload it as an artifact"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    # openbooks-core alone: only jsonschema is installed, so this proves Core does not lean on any provider.
+    if: ${{ !inputs.record_pdf_baseline }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e packages/py/openbooks-core pytest hypothesis
+      - run: python -m pytest -q packages/py/openbooks-core/tests
+
+  providers:
+    # The three providers on top of core, with no PyMuPDF, PyTorch or NumPy installed.
+    if: ${{ !inputs.record_pdf_baseline }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e packages/py/openbooks-statements -e packages/py/openbooks-doctor pytest hypothesis
+      - run: python -m pytest -q packages/py/openbooks-core/tests packages/py/openbooks-gateways/tests packages/py/openbooks-tax/tests packages/py/openbooks-statements/tests packages/py/openbooks-doctor/tests
+
+  full:
+    if: ${{ !inputs.record_pdf_baseline }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      OB_SLOW: "1"
+      OB_PACKAGING: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: CPU PyTorch on Linux (the default wheel is CUDA and several GB)
+        if: runner.os == 'Linux'
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[scan]" -e packages/py/openbooks-doctor -e packages/py/openbooks-lab -e packages/py/openbooks -e server pytest hypothesis httpx build
+      - name: Behaviour is frozen (868 results; the pdf section runs where PyMuPDF imports)
+        run: |
+          python tests/characterise/run.py verify --section main
+          python tests/characterise/run.py verify --section pdf
+      - run: python -m pytest -q tests packages/py/openbooks-core/tests packages/py/openbooks-gateways/tests packages/py/openbooks-tax/tests packages/py/openbooks-statements/tests packages/py/openbooks-doctor/tests server/tests
+
+  record-pdf-baseline:
+    # Manual. The PDF/scan part of the characterisation baseline needs PyMuPDF, so it is recorded here, on the commit
+    # BEFORE the package split, and committed afterwards. Never record it from the refactored code.
+    if: ${{ inputs.record_pdf_baseline }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: a2875c9989ad0fceecddb147836008dfba151d2f
+      - name: Use the current harness against the old engine
+        run: git checkout ${{ github.sha }} -- tests/characterise
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -e ".[scan]" pytest
+      - run: python tests/characterise/run.py record --section pdf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: baseline_pdf
+          path: tests/characterise/baseline_pdf.json
+
+  js:
+    # The npm packages against the real engine. Python needs the engine installed; pnpm needs the committed lockfile.
+    if: ${{ !inputs.record_pdf_baseline }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ["20", "22"]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: packages/js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e ../py/openbooks-core -e ../py/openbooks-gateways -e ../py/openbooks-tax -e ../py/openbooks-statements -e ../py/openbooks-doctor
+        # no PyMuPDF or PyTorch: the wrappers' tests use CSV inputs only
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: pnpm install --frozen-lockfile
+      - name: Generated types and schema copies are not stale
+        run: pnpm --filter @openbooks/core run check-generated
+      - run: pnpm exec tsc -b
+      - run: pnpm exec vitest run
+        env:
+          OPENBOOKS_PYTHON: python
+      - name: What would be published
+        run: |
+          mkdir ../../tarballs
+          for p in core statements gateways tax doctor cli; do (cd $p && pnpm pack --pack-destination ../../../tarballs); done
+          ls ../../tarballs
+        shell: bash

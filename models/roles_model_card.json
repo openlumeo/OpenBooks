@@ -1,0 +1,13 @@
+{
+  "model": "RoleNet (typed heads: column role + value type) over a LayoutLM-style encoder",
+  "parameters": 18878602,
+  "weights_mb_int8_at_rest": 19.04,
+  "weights_sha256": "d101e39610b74fa3195399a9e4aed89dad2916c2ac874284b08a38b6a0d31056",
+  "initialisation": "random; no pretrained weights",
+  "training_data": "synthetic statements only; no third-party dataset and no real client document",
+  "calibration": {
+    "method": "temperature scaling + split conformal",
+    "alpha": 0.001
+  },
+  "role": "cross-check only: the heads can add refusals, never cause a release"
+}

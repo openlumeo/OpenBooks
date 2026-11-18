@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from openbooks.golden import build
+from openbooks_lab.golden import build
 from openbooks.pipeline import Params, process
 
 PARAMS = Params(currency="INR", opening=Decimal("1000.00"))

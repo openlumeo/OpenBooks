@@ -8,7 +8,7 @@ Open Books turns financial files into **one proven JSON document per file**, or 
 
 | Rule | Meaning |
 |---|---|
-| One file in, one JSON out | Output schema is `openbooks.v1` (`SCHEMA` and `validate_output` in `src/openbooks/pipeline.py`). |
+| One file in, one JSON out | Output schema is `openbooks.v1` (`openbooks_core/schema/*.json` and `validate_output` in `openbooks_core.schema`; `openbooks.pipeline` re-exports them). |
 | Proven or refused | A file is released only if every assertion passes and at least one assertion is independent evidence. Otherwise it is refused with a typed code. |
 | Money is `Decimal` end to end | Nothing is rounded silently; amounts are formatted with the currency exponent. |
 | Evidence for every field | Each field carries page, bbox, raw text and method (`parser`, `pdf_text`, `ocr`, optionally `+model`). |
@@ -120,16 +120,24 @@ All training and test data is synthetic. No real statements are used or scored.
 ## 6. Repository map
 
 ```
-src/openbooks/
-  pipeline.py        detect, parse (CSV/OFX/MT940/gateways), normalise, balance gate, schema, CLI
-  parsers_extra.py   26AS, AIS, FIRA, trial balance, XLSX
+packages/py/openbooks-core/src/openbooks_core/
+  registry.py        known layouts and detection order, entry-point provider discovery
+  normalise.py, builders.py, gates.py, schema.py, process.py, cli.py   normalisation, shared builders, balance gates, contract, pipeline, CLI
+packages/py/openbooks/src/openbooks/pipeline.py   compatibility facade over openbooks_core (the meta package has no other code)
+packages/py/openbooks-gateways/, openbooks-tax/   Stripe/Razorpay/PayPal/Wise; 26AS/AIS/FIRA/1099-B/trial balance, with their gates
+packages/py/openbooks-statements/src/openbooks_statements/
+  parsers.py         bank CSV, OFX, MT940
+  gates.py           the OCR date-order gate
   pdf_front.py       PDF and scan front end (text layer, OCR, column geometry)
   roles.py           typed heads at inference time, constraint-aware resolution
   encoder.py         layout encoder and int8 quantisation
-  calibration.py     temperature scaling, conformal sets, ECE
-  link.py            payout / remittance to bank-credit linking
+  calibration.py     temperature scaling and conformal sets at inference
+  assets.py, labels.py   where the weights are, and the label names (no torch import)
+packages/py/openbooks-lab/src/openbooks_lab/   (private)
+  link.py            payout / remittance to bank-credit linking (registered as the optional linker)
   synth.py           synthetic statement renderer, layout families, scan noise
   golden.py, golden_docs.py   golden sets and tampered twins
+  calibration_fit.py temperature fitting and conformal thresholds
   bitenc.py          experimental byte-level word embedding
 scripts/             training, calibration, promotion gate, evaluation, baselines
 tests/               pytest suite (OB_SLOW=1 enables the slow tests)

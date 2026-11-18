@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openbooks-statements"
+dynamic = ["version"]
+description = "Open Books providers for bank statements: bank CSV, OFX, MT940, PDF and scans (OCR), optional typed-head cross-check"
+readme = "README.md"
+requires-python = ">=3.11"
+# The base install is pure Python: bank CSV, OFX and MT940. PDF and scans are extras so the PyMuPDF (AGPL) and PyTorch
+# dependencies are opt-in.
+dependencies = ["openbooks-core[xlsx]>=0.1.0,<0.2"]
+
+[project.optional-dependencies]
+pdf = ["pymupdf"]
+scan = ["openbooks-statements[pdf]", "easyocr", "torch>=2.6", "pillow", "numpy"]
+
+[project.entry-points."openbooks.layouts"]
+"bank_csv.v1" = "openbooks_statements.parsers:parse_bank_csv"
+
+[project.entry-points."openbooks.sniffers"]
+"ofx.v1" = "openbooks_statements.parsers:parse_ofx"
+"mt940.v1" = "openbooks_statements.parsers:parse_mt940"
+
+[project.entry-points."openbooks.frontends"]
+document = "openbooks_statements.frontend:FRONTEND"
+
+[project.entry-points."openbooks.gates"]
+"statement:ocr_dates" = "openbooks_statements.gates:ocr_dates"
+
+[tool.hatch.version]
+path = "src/openbooks_statements/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/openbooks_statements"]
+
+# The weights and their calibration travel together in one wheel so the hash binding can never see a mismatched pair.
+# Source of truth stays models/ at the repo root (the training side promotes into it). Only the public model card ships,
+# never the training manifest, and jepa_encoder.pt is never included.
+[tool.hatch.build.targets.wheel.force-include]
+"../../../models/roles_head.pt" = "openbooks_statements/data/roles_head.pt"
+"../../../models/roles_calibration.json" = "openbooks_statements/data/roles_calibration.json"
+"../../../models/roles_model_card.json" = "openbooks_statements/data/roles_model_card.json"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/openbooks_statements", "README.md", "pyproject.toml"]

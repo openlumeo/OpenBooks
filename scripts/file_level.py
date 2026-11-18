@@ -12,9 +12,8 @@ from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
-from openbooks.golden import build  # noqa: E402
+from openbooks_lab.golden import build  # noqa: E402
 from openbooks.pipeline import Params, process  # noqa: E402
 
 DOC_SUFFIXES = (".pdf", ".png", ".jpg", ".jpeg")

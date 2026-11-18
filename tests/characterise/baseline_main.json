@@ -1,0 +1,4342 @@
+{
+ "delim/semicolon|default": {
+  "code": null,
+  "sha256": "38a004f6e2d33f7326cda51e00cd2f43457da3850b60f66fb2d7318a3a51da9e",
+  "status": "ok"
+ },
+ "delim/semicolon|derived": {
+  "code": null,
+  "sha256": "38a004f6e2d33f7326cda51e00cd2f43457da3850b60f66fb2d7318a3a51da9e",
+  "status": "ok"
+ },
+ "delim/semicolon|mdy": {
+  "code": null,
+  "sha256": "ba18793245a1c16bd583b9068b08c63f51639b30cb3554d5e486d6086f89b98d",
+  "status": "ok"
+ },
+ "delim/semicolon|usd": {
+  "code": null,
+  "sha256": "38a004f6e2d33f7326cda51e00cd2f43457da3850b60f66fb2d7318a3a51da9e",
+  "status": "ok"
+ },
+ "delim/tab|default": {
+  "code": null,
+  "sha256": "f7c9bf859db58e1db8db2978196287a64e7b3d86af519c1c2678c89fd2dc41ab",
+  "status": "ok"
+ },
+ "delim/tab|derived": {
+  "code": null,
+  "sha256": "f7c9bf859db58e1db8db2978196287a64e7b3d86af519c1c2678c89fd2dc41ab",
+  "status": "ok"
+ },
+ "delim/tab|mdy": {
+  "code": null,
+  "sha256": "b92fb41ec7210b5fc7833172e83874cc74e13fa509dfa37614ab04ad89006426",
+  "status": "ok"
+ },
+ "delim/tab|usd": {
+  "code": null,
+  "sha256": "f7c9bf859db58e1db8db2978196287a64e7b3d86af519c1c2678c89fd2dc41ab",
+  "status": "ok"
+ },
+ "extra/b1099_tamper|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "932aa62d9081c2c118f7c82b2b33cbfc06568f328030579e76ccf813bde8ec16",
+  "status": "refused"
+ },
+ "extra/b1099_tamper|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "91ed7fab0d6cdbbbcc579d2d10dc6516697615b25829dbc7e60342d50a42f4a9",
+  "status": "refused"
+ },
+ "extra/b1099_tamper|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "932aa62d9081c2c118f7c82b2b33cbfc06568f328030579e76ccf813bde8ec16",
+  "status": "refused"
+ },
+ "extra/b1099_tamper|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "932aa62d9081c2c118f7c82b2b33cbfc06568f328030579e76ccf813bde8ec16",
+  "status": "refused"
+ },
+ "extra/b1099|default": {
+  "code": null,
+  "sha256": "7008976b3822b1b3e2699ee109758e0f24710572873150558b163eca6f6242cc",
+  "status": "ok"
+ },
+ "extra/b1099|derived": {
+  "code": null,
+  "sha256": "92a80b4814a0eb146a304f4b3fc0f69001a690cc06758b9452afaaa2fe316aff",
+  "status": "ok"
+ },
+ "extra/b1099|mdy": {
+  "code": null,
+  "sha256": "7008976b3822b1b3e2699ee109758e0f24710572873150558b163eca6f6242cc",
+  "status": "ok"
+ },
+ "extra/b1099|usd": {
+  "code": null,
+  "sha256": "7008976b3822b1b3e2699ee109758e0f24710572873150558b163eca6f6242cc",
+  "status": "ok"
+ },
+ "extra/paypal_tamper0|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "69f399e034cf8838cc3502bd84d5b4d4c554c649ae16e19e1f9e0df3ce2f7fbe",
+  "status": "refused"
+ },
+ "extra/paypal_tamper0|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "69f399e034cf8838cc3502bd84d5b4d4c554c649ae16e19e1f9e0df3ce2f7fbe",
+  "status": "refused"
+ },
+ "extra/paypal_tamper0|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "69f399e034cf8838cc3502bd84d5b4d4c554c649ae16e19e1f9e0df3ce2f7fbe",
+  "status": "refused"
+ },
+ "extra/paypal_tamper0|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "69f399e034cf8838cc3502bd84d5b4d4c554c649ae16e19e1f9e0df3ce2f7fbe",
+  "status": "refused"
+ },
+ "extra/paypal_tamper1|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ea216a4a1c1f24c39235217256dec698fae0d825bbab56c1bcc1b6b572209a52",
+  "status": "refused"
+ },
+ "extra/paypal_tamper1|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ea216a4a1c1f24c39235217256dec698fae0d825bbab56c1bcc1b6b572209a52",
+  "status": "refused"
+ },
+ "extra/paypal_tamper1|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ea216a4a1c1f24c39235217256dec698fae0d825bbab56c1bcc1b6b572209a52",
+  "status": "refused"
+ },
+ "extra/paypal_tamper1|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ea216a4a1c1f24c39235217256dec698fae0d825bbab56c1bcc1b6b572209a52",
+  "status": "refused"
+ },
+ "extra/paypal_tamper2|default": {
+  "code": null,
+  "sha256": "cb057326966155add2adcd43188654be68e37d4263c172c937533c38f8f2aec1",
+  "status": "ok"
+ },
+ "extra/paypal_tamper2|derived": {
+  "code": null,
+  "sha256": "cb057326966155add2adcd43188654be68e37d4263c172c937533c38f8f2aec1",
+  "status": "ok"
+ },
+ "extra/paypal_tamper2|mdy": {
+  "code": null,
+  "sha256": "cb057326966155add2adcd43188654be68e37d4263c172c937533c38f8f2aec1",
+  "status": "ok"
+ },
+ "extra/paypal_tamper2|usd": {
+  "code": null,
+  "sha256": "cb057326966155add2adcd43188654be68e37d4263c172c937533c38f8f2aec1",
+  "status": "ok"
+ },
+ "extra/paypal|default": {
+  "code": null,
+  "sha256": "ea5b3ef941285baded77d627a5933c78243f2f11d95f1639fc6f3a21c0ad222f",
+  "status": "ok"
+ },
+ "extra/paypal|derived": {
+  "code": null,
+  "sha256": "ea5b3ef941285baded77d627a5933c78243f2f11d95f1639fc6f3a21c0ad222f",
+  "status": "ok"
+ },
+ "extra/paypal|mdy": {
+  "code": null,
+  "sha256": "ea5b3ef941285baded77d627a5933c78243f2f11d95f1639fc6f3a21c0ad222f",
+  "status": "ok"
+ },
+ "extra/paypal|usd": {
+  "code": null,
+  "sha256": "ea5b3ef941285baded77d627a5933c78243f2f11d95f1639fc6f3a21c0ad222f",
+  "status": "ok"
+ },
+ "extra/wise_tamper|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "d9173179d4d65a91a64a547c558eb1d676492f74259399500a79023be8b247ff",
+  "status": "refused"
+ },
+ "extra/wise_tamper|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "e9c8eb17e3fd1b55a0da7b9be39d9fe1f32589cda687d233dca656bb3f0971f2",
+  "status": "refused"
+ },
+ "extra/wise_tamper|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d9173179d4d65a91a64a547c558eb1d676492f74259399500a79023be8b247ff",
+  "status": "refused"
+ },
+ "extra/wise_tamper|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "d9173179d4d65a91a64a547c558eb1d676492f74259399500a79023be8b247ff",
+  "status": "refused"
+ },
+ "extra/wise|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "32a0121f2b957ef8ce9409acb11f30da2d0c8fcbca8b7eb8d7cdd53bbc6073b9",
+  "status": "refused"
+ },
+ "extra/wise|derived": {
+  "code": null,
+  "sha256": "9f8640e3c5bc5cc53687f9c0d67ea22be044e53e2efdc0c5f09b4166c19bec6d",
+  "status": "ok"
+ },
+ "extra/wise|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "32a0121f2b957ef8ce9409acb11f30da2d0c8fcbca8b7eb8d7cdd53bbc6073b9",
+  "status": "refused"
+ },
+ "extra/wise|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "32a0121f2b957ef8ce9409acb11f30da2d0c8fcbca8b7eb8d7cdd53bbc6073b9",
+  "status": "refused"
+ },
+ "golden/bad_ais_total_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ec930152967437e27f26b10afd892591dc136faee292ec15928eca3c56f4c1e7",
+  "status": "refused"
+ },
+ "golden/bad_ais_total_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ec930152967437e27f26b10afd892591dc136faee292ec15928eca3c56f4c1e7",
+  "status": "refused"
+ },
+ "golden/bad_ais_total_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ec930152967437e27f26b10afd892591dc136faee292ec15928eca3c56f4c1e7",
+  "status": "refused"
+ },
+ "golden/bad_ais_total_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "f658e384b021733a4cd3895e3a5f21e495789642aabaea31d5652061bb88391a",
+  "status": "refused"
+ },
+ "golden/bad_bank_balance_break|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "65b18b549252c4d8a9a4f49e170211a5de5989b7d385355bc723c96f831baec0",
+  "status": "refused"
+ },
+ "golden/bad_bank_balance_break|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "65b18b549252c4d8a9a4f49e170211a5de5989b7d385355bc723c96f831baec0",
+  "status": "refused"
+ },
+ "golden/bad_bank_balance_break|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "65b18b549252c4d8a9a4f49e170211a5de5989b7d385355bc723c96f831baec0",
+  "status": "refused"
+ },
+ "golden/bad_bank_balance_break|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "65b18b549252c4d8a9a4f49e170211a5de5989b7d385355bc723c96f831baec0",
+  "status": "refused"
+ },
+ "golden/bad_bank_european_amount|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "2c754b157c745c9a523f8f8ba2d6ebf4c3f02509435914e35dc10178e83d06aa",
+  "status": "refused"
+ },
+ "golden/bad_bank_european_amount|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "2c754b157c745c9a523f8f8ba2d6ebf4c3f02509435914e35dc10178e83d06aa",
+  "status": "refused"
+ },
+ "golden/bad_bank_european_amount|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "2c754b157c745c9a523f8f8ba2d6ebf4c3f02509435914e35dc10178e83d06aa",
+  "status": "refused"
+ },
+ "golden/bad_bank_european_amount|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "2c754b157c745c9a523f8f8ba2d6ebf4c3f02509435914e35dc10178e83d06aa",
+  "status": "refused"
+ },
+ "golden/bad_bank_first_row_amount|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "edbd631d5628f1a22983f84c78fef43d60a0414f4d0f70669f8c0f89fdd9b779",
+  "status": "refused"
+ },
+ "golden/bad_bank_first_row_amount|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "edbd631d5628f1a22983f84c78fef43d60a0414f4d0f70669f8c0f89fdd9b779",
+  "status": "refused"
+ },
+ "golden/bad_bank_first_row_amount|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "edbd631d5628f1a22983f84c78fef43d60a0414f4d0f70669f8c0f89fdd9b779",
+  "status": "refused"
+ },
+ "golden/bad_bank_first_row_amount|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "edbd631d5628f1a22983f84c78fef43d60a0414f4d0f70669f8c0f89fdd9b779",
+  "status": "refused"
+ },
+ "golden/bad_bank_impossible_date|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "71d3d8105dcd5e7919ef4001d18a2944db3bb3a6151cd5afe08ab4d1b4bf1fd7",
+  "status": "refused"
+ },
+ "golden/bad_bank_impossible_date|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "71d3d8105dcd5e7919ef4001d18a2944db3bb3a6151cd5afe08ab4d1b4bf1fd7",
+  "status": "refused"
+ },
+ "golden/bad_bank_impossible_date|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "71d3d8105dcd5e7919ef4001d18a2944db3bb3a6151cd5afe08ab4d1b4bf1fd7",
+  "status": "refused"
+ },
+ "golden/bad_bank_impossible_date|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "71d3d8105dcd5e7919ef4001d18a2944db3bb3a6151cd5afe08ab4d1b4bf1fd7",
+  "status": "refused"
+ },
+ "golden/bad_bank_memo_injection|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "fc6da0410f20532df1081348ae79da7d5c86345596b8f5095dd0fda4762f4f79",
+  "status": "refused"
+ },
+ "golden/bad_bank_memo_injection|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "fc6da0410f20532df1081348ae79da7d5c86345596b8f5095dd0fda4762f4f79",
+  "status": "refused"
+ },
+ "golden/bad_bank_memo_injection|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "fc6da0410f20532df1081348ae79da7d5c86345596b8f5095dd0fda4762f4f79",
+  "status": "refused"
+ },
+ "golden/bad_bank_memo_injection|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "fc6da0410f20532df1081348ae79da7d5c86345596b8f5095dd0fda4762f4f79",
+  "status": "refused"
+ },
+ "golden/bad_bank_no_currency|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "57f90493e124f47c2d29fe1347cea9a5a40b951131c6f789ec8bae5baca72488",
+  "status": "refused"
+ },
+ "golden/bad_bank_no_currency|derived": {
+  "code": null,
+  "sha256": "2021b98ce1d1b71c24c68b6d54af0c863b79f06e463fe3c2cf155978aff7ab5b",
+  "status": "ok"
+ },
+ "golden/bad_bank_no_currency|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "57f90493e124f47c2d29fe1347cea9a5a40b951131c6f789ec8bae5baca72488",
+  "status": "refused"
+ },
+ "golden/bad_bank_no_currency|usd": {
+  "code": null,
+  "sha256": "59a285a400a0cdb17bdf241b4fda3e3b5295922418c4e1beaccffa4367afe162",
+  "status": "ok"
+ },
+ "golden/bad_bank_no_opening|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "8999119bf92b0441cc1cc733b87df04a86ac86bcefefb320a25cc58297f9cbef",
+  "status": "refused"
+ },
+ "golden/bad_bank_no_opening|derived": {
+  "code": null,
+  "sha256": "a35bd534ee2de19335935f55614bc2509908a593fdf3b313aa6d6ce0e1b8efd7",
+  "status": "ok"
+ },
+ "golden/bad_bank_no_opening|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "8999119bf92b0441cc1cc733b87df04a86ac86bcefefb320a25cc58297f9cbef",
+  "status": "refused"
+ },
+ "golden/bad_bank_no_opening|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "8999119bf92b0441cc1cc733b87df04a86ac86bcefefb320a25cc58297f9cbef",
+  "status": "refused"
+ },
+ "golden/bad_bank_xlsx_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4d095ff246b9dd91d4d98e06179fc039962f011a42abb15f342fb8ca3b24a58d",
+  "status": "refused"
+ },
+ "golden/bad_bank_xlsx_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4d095ff246b9dd91d4d98e06179fc039962f011a42abb15f342fb8ca3b24a58d",
+  "status": "refused"
+ },
+ "golden/bad_bank_xlsx_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4d095ff246b9dd91d4d98e06179fc039962f011a42abb15f342fb8ca3b24a58d",
+  "status": "refused"
+ },
+ "golden/bad_bank_xlsx_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4d095ff246b9dd91d4d98e06179fc039962f011a42abb15f342fb8ca3b24a58d",
+  "status": "refused"
+ },
+ "golden/bad_fira_cent_vs_total|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "6cf6986ea9ae7b65ba918199360d7f27edce6fdaf7a98bbb8c94f8cd3a5780be",
+  "status": "refused"
+ },
+ "golden/bad_fira_cent_vs_total|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "6cf6986ea9ae7b65ba918199360d7f27edce6fdaf7a98bbb8c94f8cd3a5780be",
+  "status": "refused"
+ },
+ "golden/bad_fira_cent_vs_total|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "6cf6986ea9ae7b65ba918199360d7f27edce6fdaf7a98bbb8c94f8cd3a5780be",
+  "status": "refused"
+ },
+ "golden/bad_fira_cent_vs_total|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "6cf6986ea9ae7b65ba918199360d7f27edce6fdaf7a98bbb8c94f8cd3a5780be",
+  "status": "refused"
+ },
+ "golden/bad_fira_fx_mismatch|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3b714d6b4295556a917a5eaf1aa489314c5dc532acfc23bb432e84066099d64a",
+  "status": "refused"
+ },
+ "golden/bad_fira_fx_mismatch|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3b714d6b4295556a917a5eaf1aa489314c5dc532acfc23bb432e84066099d64a",
+  "status": "refused"
+ },
+ "golden/bad_fira_fx_mismatch|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3b714d6b4295556a917a5eaf1aa489314c5dc532acfc23bb432e84066099d64a",
+  "status": "refused"
+ },
+ "golden/bad_fira_fx_mismatch|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3b714d6b4295556a917a5eaf1aa489314c5dc532acfc23bb432e84066099d64a",
+  "status": "refused"
+ },
+ "golden/bad_fira_net_charges|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "dec49f587ba456c72877d9ca6dffa2dca3c526c28822d0d173317fbfc43f7294",
+  "status": "refused"
+ },
+ "golden/bad_fira_net_charges|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "dec49f587ba456c72877d9ca6dffa2dca3c526c28822d0d173317fbfc43f7294",
+  "status": "refused"
+ },
+ "golden/bad_fira_net_charges|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "dec49f587ba456c72877d9ca6dffa2dca3c526c28822d0d173317fbfc43f7294",
+  "status": "refused"
+ },
+ "golden/bad_fira_net_charges|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "dec49f587ba456c72877d9ca6dffa2dca3c526c28822d0d173317fbfc43f7294",
+  "status": "refused"
+ },
+ "golden/bad_mt940_closing|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "c1f376cdf2b9f250d56eccf77cd300cbe100db1a6976e5b4861ca0d500f79399",
+  "status": "refused"
+ },
+ "golden/bad_mt940_closing|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "c1f376cdf2b9f250d56eccf77cd300cbe100db1a6976e5b4861ca0d500f79399",
+  "status": "refused"
+ },
+ "golden/bad_mt940_closing|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "c1f376cdf2b9f250d56eccf77cd300cbe100db1a6976e5b4861ca0d500f79399",
+  "status": "refused"
+ },
+ "golden/bad_mt940_closing|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "c1f376cdf2b9f250d56eccf77cd300cbe100db1a6976e5b4861ca0d500f79399",
+  "status": "refused"
+ },
+ "golden/bad_mt940_memo_injection|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "8b2aa3853e5c6bf49dcc1cb639e7806a85bb554370b5f45a8a4cc276cc2feff5",
+  "status": "refused"
+ },
+ "golden/bad_mt940_memo_injection|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "8b2aa3853e5c6bf49dcc1cb639e7806a85bb554370b5f45a8a4cc276cc2feff5",
+  "status": "refused"
+ },
+ "golden/bad_mt940_memo_injection|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "8b2aa3853e5c6bf49dcc1cb639e7806a85bb554370b5f45a8a4cc276cc2feff5",
+  "status": "refused"
+ },
+ "golden/bad_mt940_memo_injection|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "8b2aa3853e5c6bf49dcc1cb639e7806a85bb554370b5f45a8a4cc276cc2feff5",
+  "status": "refused"
+ },
+ "golden/bad_mt940_no_closing|default": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "4d1f304a7b57517bcf590630cdd53949d281a3a3a456b917b3bd7b60757d9345",
+  "status": "refused"
+ },
+ "golden/bad_mt940_no_closing|derived": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "4d1f304a7b57517bcf590630cdd53949d281a3a3a456b917b3bd7b60757d9345",
+  "status": "refused"
+ },
+ "golden/bad_mt940_no_closing|mdy": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "4d1f304a7b57517bcf590630cdd53949d281a3a3a456b917b3bd7b60757d9345",
+  "status": "refused"
+ },
+ "golden/bad_mt940_no_closing|usd": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "4d1f304a7b57517bcf590630cdd53949d281a3a3a456b917b3bd7b60757d9345",
+  "status": "refused"
+ },
+ "golden/bad_ofx_no_opening|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "2283f9fd9e5a00a505faea6f7d932971a46851f2894a4906bc66a399fe530e6e",
+  "status": "refused"
+ },
+ "golden/bad_ofx_no_opening|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "2283f9fd9e5a00a505faea6f7d932971a46851f2894a4906bc66a399fe530e6e",
+  "status": "refused"
+ },
+ "golden/bad_ofx_no_opening|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "2283f9fd9e5a00a505faea6f7d932971a46851f2894a4906bc66a399fe530e6e",
+  "status": "refused"
+ },
+ "golden/bad_ofx_no_opening|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "2283f9fd9e5a00a505faea6f7d932971a46851f2894a4906bc66a399fe530e6e",
+  "status": "refused"
+ },
+ "golden/bad_ofx_wrong_opening|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0a31037792d4fbe0ac9a90566b94f16d439c35c98384f68782775b25bf08c596",
+  "status": "refused"
+ },
+ "golden/bad_ofx_wrong_opening|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0a31037792d4fbe0ac9a90566b94f16d439c35c98384f68782775b25bf08c596",
+  "status": "refused"
+ },
+ "golden/bad_ofx_wrong_opening|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0a31037792d4fbe0ac9a90566b94f16d439c35c98384f68782775b25bf08c596",
+  "status": "refused"
+ },
+ "golden/bad_ofx_wrong_opening|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0a31037792d4fbe0ac9a90566b94f16d439c35c98384f68782775b25bf08c596",
+  "status": "refused"
+ },
+ "golden/bad_razorpay_settlement|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4accc01355757f101c90e8ef97c936c1b695487261420d0dca1ce36f01d5f531",
+  "status": "refused"
+ },
+ "golden/bad_razorpay_settlement|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4accc01355757f101c90e8ef97c936c1b695487261420d0dca1ce36f01d5f531",
+  "status": "refused"
+ },
+ "golden/bad_razorpay_settlement|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4accc01355757f101c90e8ef97c936c1b695487261420d0dca1ce36f01d5f531",
+  "status": "refused"
+ },
+ "golden/bad_razorpay_settlement|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4accc01355757f101c90e8ef97c936c1b695487261420d0dca1ce36f01d5f531",
+  "status": "refused"
+ },
+ "golden/bad_stripe_payout|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "f0ca1b6e9dfa0af46904207160c889fc5d79f2fc33ee9532d9b56b31451bc1f2",
+  "status": "refused"
+ },
+ "golden/bad_stripe_payout|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "f0ca1b6e9dfa0af46904207160c889fc5d79f2fc33ee9532d9b56b31451bc1f2",
+  "status": "refused"
+ },
+ "golden/bad_stripe_payout|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "f0ca1b6e9dfa0af46904207160c889fc5d79f2fc33ee9532d9b56b31451bc1f2",
+  "status": "refused"
+ },
+ "golden/bad_stripe_payout|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "f0ca1b6e9dfa0af46904207160c889fc5d79f2fc33ee9532d9b56b31451bc1f2",
+  "status": "refused"
+ },
+ "golden/bad_stripe_row_net|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "cb16a75737a8913f80911fa708b144a0ee93efbb8a37d3ce2eb317935fd4b396",
+  "status": "refused"
+ },
+ "golden/bad_stripe_row_net|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "cb16a75737a8913f80911fa708b144a0ee93efbb8a37d3ce2eb317935fd4b396",
+  "status": "refused"
+ },
+ "golden/bad_stripe_row_net|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "cb16a75737a8913f80911fa708b144a0ee93efbb8a37d3ce2eb317935fd4b396",
+  "status": "refused"
+ },
+ "golden/bad_stripe_row_net|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "cb16a75737a8913f80911fa708b144a0ee93efbb8a37d3ce2eb317935fd4b396",
+  "status": "refused"
+ },
+ "golden/bad_tb_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0058767e568e997753e36757e6767bec65c77435b82cc4e3a04a456d5a85f766",
+  "status": "refused"
+ },
+ "golden/bad_tb_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0058767e568e997753e36757e6767bec65c77435b82cc4e3a04a456d5a85f766",
+  "status": "refused"
+ },
+ "golden/bad_tb_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0058767e568e997753e36757e6767bec65c77435b82cc4e3a04a456d5a85f766",
+  "status": "refused"
+ },
+ "golden/bad_tb_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0058767e568e997753e36757e6767bec65c77435b82cc4e3a04a456d5a85f766",
+  "status": "refused"
+ },
+ "golden/bad_tb_xlsx_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "36f84b8e071d15e36bdd4ad55a0b811716fefccc19187b953428abecf1f1e510",
+  "status": "refused"
+ },
+ "golden/bad_tb_xlsx_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "36f84b8e071d15e36bdd4ad55a0b811716fefccc19187b953428abecf1f1e510",
+  "status": "refused"
+ },
+ "golden/bad_tb_xlsx_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "36f84b8e071d15e36bdd4ad55a0b811716fefccc19187b953428abecf1f1e510",
+  "status": "refused"
+ },
+ "golden/bad_tb_xlsx_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "36f84b8e071d15e36bdd4ad55a0b811716fefccc19187b953428abecf1f1e510",
+  "status": "refused"
+ },
+ "golden/bad_tb_xlsx_formula|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "d244da3d3e0ca1cc2bec626f567d95fb12f8cacf8ed2b94d48c60967c6c891b2",
+  "status": "refused"
+ },
+ "golden/bad_tb_xlsx_formula|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "d244da3d3e0ca1cc2bec626f567d95fb12f8cacf8ed2b94d48c60967c6c891b2",
+  "status": "refused"
+ },
+ "golden/bad_tb_xlsx_formula|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d244da3d3e0ca1cc2bec626f567d95fb12f8cacf8ed2b94d48c60967c6c891b2",
+  "status": "refused"
+ },
+ "golden/bad_tb_xlsx_formula|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "d244da3d3e0ca1cc2bec626f567d95fb12f8cacf8ed2b94d48c60967c6c891b2",
+  "status": "refused"
+ },
+ "golden/bad_tds_bad_date|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "ab97a8519d090abac75bba91635693ba6f9e7486b7daf3d7dbee52e90d7334dc",
+  "status": "refused"
+ },
+ "golden/bad_tds_bad_date|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "ab97a8519d090abac75bba91635693ba6f9e7486b7daf3d7dbee52e90d7334dc",
+  "status": "refused"
+ },
+ "golden/bad_tds_bad_date|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "ab97a8519d090abac75bba91635693ba6f9e7486b7daf3d7dbee52e90d7334dc",
+  "status": "refused"
+ },
+ "golden/bad_tds_bad_date|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "ab97a8519d090abac75bba91635693ba6f9e7486b7daf3d7dbee52e90d7334dc",
+  "status": "refused"
+ },
+ "golden/bad_tds_no_total|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "5f64e5a6783f443ca67813132e520ac451938feac2c82ce3094e479ae4be05a8",
+  "status": "refused"
+ },
+ "golden/bad_tds_no_total|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "5f64e5a6783f443ca67813132e520ac451938feac2c82ce3094e479ae4be05a8",
+  "status": "refused"
+ },
+ "golden/bad_tds_no_total|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "5f64e5a6783f443ca67813132e520ac451938feac2c82ce3094e479ae4be05a8",
+  "status": "refused"
+ },
+ "golden/bad_tds_no_total|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "5f64e5a6783f443ca67813132e520ac451938feac2c82ce3094e479ae4be05a8",
+  "status": "refused"
+ },
+ "golden/bad_tds_row_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "da1617f5bd909c915a303688167b469ad34c3f0bef729fc6e59e01e671ca7c61",
+  "status": "refused"
+ },
+ "golden/bad_tds_row_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "da1617f5bd909c915a303688167b469ad34c3f0bef729fc6e59e01e671ca7c61",
+  "status": "refused"
+ },
+ "golden/bad_tds_row_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "da1617f5bd909c915a303688167b469ad34c3f0bef729fc6e59e01e671ca7c61",
+  "status": "refused"
+ },
+ "golden/bad_tds_row_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "7703224b3c39f11712f3404b08422c17d522f4774f73bc359b089ca581f0f8e3",
+  "status": "refused"
+ },
+ "golden/bad_tds_total_cent|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "355f8a49124d58995af5ed084b2ec355f771f26089a659a5062d16644f774184",
+  "status": "refused"
+ },
+ "golden/bad_tds_total_cent|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "355f8a49124d58995af5ed084b2ec355f771f26089a659a5062d16644f774184",
+  "status": "refused"
+ },
+ "golden/bad_tds_total_cent|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "355f8a49124d58995af5ed084b2ec355f771f26089a659a5062d16644f774184",
+  "status": "refused"
+ },
+ "golden/bad_tds_total_cent|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "6dad576ad04df5b89911fc794b5f4c9531c41aa9af96223685dfc5e4795f5cc3",
+  "status": "refused"
+ },
+ "golden/bad_unknown_csv_layout|default": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "b586757f151bbe34b99fe1c26ca9b9a3b7603e3fc38c7944cb73a60b0fe216fc",
+  "status": "refused"
+ },
+ "golden/bad_unknown_csv_layout|derived": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "b586757f151bbe34b99fe1c26ca9b9a3b7603e3fc38c7944cb73a60b0fe216fc",
+  "status": "refused"
+ },
+ "golden/bad_unknown_csv_layout|mdy": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "b586757f151bbe34b99fe1c26ca9b9a3b7603e3fc38c7944cb73a60b0fe216fc",
+  "status": "refused"
+ },
+ "golden/bad_unknown_csv_layout|usd": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "b586757f151bbe34b99fe1c26ca9b9a3b7603e3fc38c7944cb73a60b0fe216fc",
+  "status": "refused"
+ },
+ "golden/bad_unsupported_xlsm|default": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "55c2c122fbfdd67cecbc3654c15b2debe233a3bcc6708a7cb699add63b275985",
+  "status": "refused"
+ },
+ "golden/bad_unsupported_xlsm|derived": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "55c2c122fbfdd67cecbc3654c15b2debe233a3bcc6708a7cb699add63b275985",
+  "status": "refused"
+ },
+ "golden/bad_unsupported_xlsm|mdy": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "55c2c122fbfdd67cecbc3654c15b2debe233a3bcc6708a7cb699add63b275985",
+  "status": "refused"
+ },
+ "golden/bad_unsupported_xlsm|usd": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "55c2c122fbfdd67cecbc3654c15b2debe233a3bcc6708a7cb699add63b275985",
+  "status": "refused"
+ },
+ "golden/bad_xlsx_garbage|default": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "fac9ecce486a72798a1c9450a47e0bf8340af83a46f4a8d3ea941a487fd7bfad",
+  "status": "refused"
+ },
+ "golden/bad_xlsx_garbage|derived": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "fac9ecce486a72798a1c9450a47e0bf8340af83a46f4a8d3ea941a487fd7bfad",
+  "status": "refused"
+ },
+ "golden/bad_xlsx_garbage|mdy": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "fac9ecce486a72798a1c9450a47e0bf8340af83a46f4a8d3ea941a487fd7bfad",
+  "status": "refused"
+ },
+ "golden/bad_xlsx_garbage|usd": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "fac9ecce486a72798a1c9450a47e0bf8340af83a46f4a8d3ea941a487fd7bfad",
+  "status": "refused"
+ },
+ "golden/ok_ais|default": {
+  "code": null,
+  "sha256": "9cc7d0301a72e8c46f0ec3ff961d0e8f33e2083972e2e08ca4d25996729b759a",
+  "status": "ok"
+ },
+ "golden/ok_ais|derived": {
+  "code": null,
+  "sha256": "9cc7d0301a72e8c46f0ec3ff961d0e8f33e2083972e2e08ca4d25996729b759a",
+  "status": "ok"
+ },
+ "golden/ok_ais|mdy": {
+  "code": null,
+  "sha256": "9cc7d0301a72e8c46f0ec3ff961d0e8f33e2083972e2e08ca4d25996729b759a",
+  "status": "ok"
+ },
+ "golden/ok_ais|usd": {
+  "code": null,
+  "sha256": "b9244fb1021375ecbe20823cbba5f16706b707cec0ecbd7c71eb6c83cc5f59ea",
+  "status": "ok"
+ },
+ "golden/ok_bank_csv_newest_first|default": {
+  "code": null,
+  "sha256": "8bed5382008f93622d3e798c4b52b1b5694a63f7a1535e2ad3a9b20151039f8b",
+  "status": "ok"
+ },
+ "golden/ok_bank_csv_newest_first|derived": {
+  "code": null,
+  "sha256": "8bed5382008f93622d3e798c4b52b1b5694a63f7a1535e2ad3a9b20151039f8b",
+  "status": "ok"
+ },
+ "golden/ok_bank_csv_newest_first|mdy": {
+  "code": null,
+  "sha256": "88d4ce893fc993c343c9b456a907b40dd94d099535841dc2b673724c1f8fa62f",
+  "status": "ok"
+ },
+ "golden/ok_bank_csv_newest_first|usd": {
+  "code": null,
+  "sha256": "8bed5382008f93622d3e798c4b52b1b5694a63f7a1535e2ad3a9b20151039f8b",
+  "status": "ok"
+ },
+ "golden/ok_bank_csv|default": {
+  "code": null,
+  "sha256": "2021b98ce1d1b71c24c68b6d54af0c863b79f06e463fe3c2cf155978aff7ab5b",
+  "status": "ok"
+ },
+ "golden/ok_bank_csv|derived": {
+  "code": null,
+  "sha256": "2021b98ce1d1b71c24c68b6d54af0c863b79f06e463fe3c2cf155978aff7ab5b",
+  "status": "ok"
+ },
+ "golden/ok_bank_csv|mdy": {
+  "code": null,
+  "sha256": "75d7b568d5dc6a36229704406f6328e2ba38e3c95aa082ac6a40709f696048b7",
+  "status": "ok"
+ },
+ "golden/ok_bank_csv|usd": {
+  "code": null,
+  "sha256": "2021b98ce1d1b71c24c68b6d54af0c863b79f06e463fe3c2cf155978aff7ab5b",
+  "status": "ok"
+ },
+ "golden/ok_bank_xlsx|default": {
+  "code": null,
+  "sha256": "d0c2227bbc7226d11b8cce5411aa6cf88b94847d76a16400e57968366fa3f91e",
+  "status": "ok"
+ },
+ "golden/ok_bank_xlsx|derived": {
+  "code": null,
+  "sha256": "d0c2227bbc7226d11b8cce5411aa6cf88b94847d76a16400e57968366fa3f91e",
+  "status": "ok"
+ },
+ "golden/ok_bank_xlsx|mdy": {
+  "code": null,
+  "sha256": "2d17ed792fc3fd4b8ff7dddd9abf705abaff228ae20b6b246515523af088d728",
+  "status": "ok"
+ },
+ "golden/ok_bank_xlsx|usd": {
+  "code": null,
+  "sha256": "d0c2227bbc7226d11b8cce5411aa6cf88b94847d76a16400e57968366fa3f91e",
+  "status": "ok"
+ },
+ "golden/ok_fira|default": {
+  "code": null,
+  "sha256": "0402a124075a6bd4679cdb1e35505c482f3872772c116d89d0413121359c1c55",
+  "status": "ok"
+ },
+ "golden/ok_fira|derived": {
+  "code": null,
+  "sha256": "0402a124075a6bd4679cdb1e35505c482f3872772c116d89d0413121359c1c55",
+  "status": "ok"
+ },
+ "golden/ok_fira|mdy": {
+  "code": null,
+  "sha256": "0402a124075a6bd4679cdb1e35505c482f3872772c116d89d0413121359c1c55",
+  "status": "ok"
+ },
+ "golden/ok_fira|usd": {
+  "code": null,
+  "sha256": "0402a124075a6bd4679cdb1e35505c482f3872772c116d89d0413121359c1c55",
+  "status": "ok"
+ },
+ "golden/ok_mt940|default": {
+  "code": null,
+  "sha256": "5358a95e3c9b95fc4803276253513d4b5aa81cfa38319c71e239975083acedbe",
+  "status": "ok"
+ },
+ "golden/ok_mt940|derived": {
+  "code": null,
+  "sha256": "5358a95e3c9b95fc4803276253513d4b5aa81cfa38319c71e239975083acedbe",
+  "status": "ok"
+ },
+ "golden/ok_mt940|mdy": {
+  "code": null,
+  "sha256": "5358a95e3c9b95fc4803276253513d4b5aa81cfa38319c71e239975083acedbe",
+  "status": "ok"
+ },
+ "golden/ok_mt940|usd": {
+  "code": null,
+  "sha256": "5358a95e3c9b95fc4803276253513d4b5aa81cfa38319c71e239975083acedbe",
+  "status": "ok"
+ },
+ "golden/ok_ofx|default": {
+  "code": null,
+  "sha256": "bd72bc61136179ee79ee6d3cecbfe8c16b76afdfbcaf436031a2813ce9789e3f",
+  "status": "ok"
+ },
+ "golden/ok_ofx|derived": {
+  "code": null,
+  "sha256": "bd72bc61136179ee79ee6d3cecbfe8c16b76afdfbcaf436031a2813ce9789e3f",
+  "status": "ok"
+ },
+ "golden/ok_ofx|mdy": {
+  "code": null,
+  "sha256": "bd72bc61136179ee79ee6d3cecbfe8c16b76afdfbcaf436031a2813ce9789e3f",
+  "status": "ok"
+ },
+ "golden/ok_ofx|usd": {
+  "code": null,
+  "sha256": "bd72bc61136179ee79ee6d3cecbfe8c16b76afdfbcaf436031a2813ce9789e3f",
+  "status": "ok"
+ },
+ "golden/ok_razorpay|default": {
+  "code": null,
+  "sha256": "052fd11f4ccd85925779b99db067c63fa600eb5c20b03ff619ab64a2cdab0fac",
+  "status": "ok"
+ },
+ "golden/ok_razorpay|derived": {
+  "code": null,
+  "sha256": "052fd11f4ccd85925779b99db067c63fa600eb5c20b03ff619ab64a2cdab0fac",
+  "status": "ok"
+ },
+ "golden/ok_razorpay|mdy": {
+  "code": null,
+  "sha256": "052fd11f4ccd85925779b99db067c63fa600eb5c20b03ff619ab64a2cdab0fac",
+  "status": "ok"
+ },
+ "golden/ok_razorpay|usd": {
+  "code": null,
+  "sha256": "052fd11f4ccd85925779b99db067c63fa600eb5c20b03ff619ab64a2cdab0fac",
+  "status": "ok"
+ },
+ "golden/ok_stripe|default": {
+  "code": null,
+  "sha256": "19b9cb3721065ede4ef40bff267949f17ac5fabf42460c7a097e2dcbe1835b0c",
+  "status": "ok"
+ },
+ "golden/ok_stripe|derived": {
+  "code": null,
+  "sha256": "19b9cb3721065ede4ef40bff267949f17ac5fabf42460c7a097e2dcbe1835b0c",
+  "status": "ok"
+ },
+ "golden/ok_stripe|mdy": {
+  "code": null,
+  "sha256": "19b9cb3721065ede4ef40bff267949f17ac5fabf42460c7a097e2dcbe1835b0c",
+  "status": "ok"
+ },
+ "golden/ok_stripe|usd": {
+  "code": null,
+  "sha256": "19b9cb3721065ede4ef40bff267949f17ac5fabf42460c7a097e2dcbe1835b0c",
+  "status": "ok"
+ },
+ "golden/ok_tb_csv|default": {
+  "code": null,
+  "sha256": "d5f0b48a3cd0e0fba84855f9522b8d284f0c72e42e28e8bcee53956cfa796c30",
+  "status": "ok"
+ },
+ "golden/ok_tb_csv|derived": {
+  "code": null,
+  "sha256": "d5f0b48a3cd0e0fba84855f9522b8d284f0c72e42e28e8bcee53956cfa796c30",
+  "status": "ok"
+ },
+ "golden/ok_tb_csv|mdy": {
+  "code": null,
+  "sha256": "d5f0b48a3cd0e0fba84855f9522b8d284f0c72e42e28e8bcee53956cfa796c30",
+  "status": "ok"
+ },
+ "golden/ok_tb_csv|usd": {
+  "code": null,
+  "sha256": "d5f0b48a3cd0e0fba84855f9522b8d284f0c72e42e28e8bcee53956cfa796c30",
+  "status": "ok"
+ },
+ "golden/ok_tb_xlsx|default": {
+  "code": null,
+  "sha256": "0b0e38b28f59d8bcce900a34e726ceef44b004281e36e3b66a7bf35f534ae980",
+  "status": "ok"
+ },
+ "golden/ok_tb_xlsx|derived": {
+  "code": null,
+  "sha256": "0b0e38b28f59d8bcce900a34e726ceef44b004281e36e3b66a7bf35f534ae980",
+  "status": "ok"
+ },
+ "golden/ok_tb_xlsx|mdy": {
+  "code": null,
+  "sha256": "0b0e38b28f59d8bcce900a34e726ceef44b004281e36e3b66a7bf35f534ae980",
+  "status": "ok"
+ },
+ "golden/ok_tb_xlsx|usd": {
+  "code": null,
+  "sha256": "0b0e38b28f59d8bcce900a34e726ceef44b004281e36e3b66a7bf35f534ae980",
+  "status": "ok"
+ },
+ "golden/ok_tds|default": {
+  "code": null,
+  "sha256": "0b0a38590467b2009f30df07b27a4beec8b693cc9a5fec81080105d5f974b9cb",
+  "status": "ok"
+ },
+ "golden/ok_tds|derived": {
+  "code": null,
+  "sha256": "0b0a38590467b2009f30df07b27a4beec8b693cc9a5fec81080105d5f974b9cb",
+  "status": "ok"
+ },
+ "golden/ok_tds|mdy": {
+  "code": null,
+  "sha256": "0b0a38590467b2009f30df07b27a4beec8b693cc9a5fec81080105d5f974b9cb",
+  "status": "ok"
+ },
+ "golden/ok_tds|usd": {
+  "code": null,
+  "sha256": "a7503b6e89f98e6a9b4eb038f9fd04eabfd6eb4f70d1cdf84d57d9ce59786858",
+  "status": "ok"
+ },
+ "golden/rand_bad_0|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3912144399f31c27e3470cfff9fbd5c106ddc14adb69de8019fbba2ce4e3a106",
+  "status": "refused"
+ },
+ "golden/rand_bad_0|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3912144399f31c27e3470cfff9fbd5c106ddc14adb69de8019fbba2ce4e3a106",
+  "status": "refused"
+ },
+ "golden/rand_bad_0|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7ca70566ac26cf8f69266b6bcf40b8532e253efd0f87c4072aae4683f04d33df",
+  "status": "refused"
+ },
+ "golden/rand_bad_0|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3912144399f31c27e3470cfff9fbd5c106ddc14adb69de8019fbba2ce4e3a106",
+  "status": "refused"
+ },
+ "golden/rand_bad_10|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ab2ec54ed951e05dae4d0b2114a62b10da60fa514b9fa1f520eead4e9d161c8a",
+  "status": "refused"
+ },
+ "golden/rand_bad_10|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ab2ec54ed951e05dae4d0b2114a62b10da60fa514b9fa1f520eead4e9d161c8a",
+  "status": "refused"
+ },
+ "golden/rand_bad_10|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d71ab9566e925755d9885896c5eeefcded5826cb045ff9a968f07857547efb3f",
+  "status": "refused"
+ },
+ "golden/rand_bad_10|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "ab2ec54ed951e05dae4d0b2114a62b10da60fa514b9fa1f520eead4e9d161c8a",
+  "status": "refused"
+ },
+ "golden/rand_bad_11|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3673783edc3a0685a896de2da9741a225598e287f5dff0fe630320366214f7a9",
+  "status": "refused"
+ },
+ "golden/rand_bad_11|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3673783edc3a0685a896de2da9741a225598e287f5dff0fe630320366214f7a9",
+  "status": "refused"
+ },
+ "golden/rand_bad_11|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3673783edc3a0685a896de2da9741a225598e287f5dff0fe630320366214f7a9",
+  "status": "refused"
+ },
+ "golden/rand_bad_11|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3673783edc3a0685a896de2da9741a225598e287f5dff0fe630320366214f7a9",
+  "status": "refused"
+ },
+ "golden/rand_bad_1|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "9b8ba63dbdff851cb69b0291c9aa1eee720e9c5a5301f60cd2ef9376d60a5929",
+  "status": "refused"
+ },
+ "golden/rand_bad_1|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "9b8ba63dbdff851cb69b0291c9aa1eee720e9c5a5301f60cd2ef9376d60a5929",
+  "status": "refused"
+ },
+ "golden/rand_bad_1|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "e54d537f10bcd9a357e32a90faba2de5aa4b2362193b62f906da35d2eb640167",
+  "status": "refused"
+ },
+ "golden/rand_bad_1|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "9b8ba63dbdff851cb69b0291c9aa1eee720e9c5a5301f60cd2ef9376d60a5929",
+  "status": "refused"
+ },
+ "golden/rand_bad_2|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "1186b947a5811684ece6298da65b34cc922eb2c05b5006595e58103736385a66",
+  "status": "refused"
+ },
+ "golden/rand_bad_2|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "1186b947a5811684ece6298da65b34cc922eb2c05b5006595e58103736385a66",
+  "status": "refused"
+ },
+ "golden/rand_bad_2|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "1186b947a5811684ece6298da65b34cc922eb2c05b5006595e58103736385a66",
+  "status": "refused"
+ },
+ "golden/rand_bad_2|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "1186b947a5811684ece6298da65b34cc922eb2c05b5006595e58103736385a66",
+  "status": "refused"
+ },
+ "golden/rand_bad_3|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "e9c537475dc96eb16e361628abbf9b955ac48550f1bc5b20fe182a34066861a9",
+  "status": "refused"
+ },
+ "golden/rand_bad_3|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "e9c537475dc96eb16e361628abbf9b955ac48550f1bc5b20fe182a34066861a9",
+  "status": "refused"
+ },
+ "golden/rand_bad_3|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "64bd030ec6c5a1fdcb0933e0eb988e78d9bfc971793d6dbdad94ab84cea2f03f",
+  "status": "refused"
+ },
+ "golden/rand_bad_3|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "e9c537475dc96eb16e361628abbf9b955ac48550f1bc5b20fe182a34066861a9",
+  "status": "refused"
+ },
+ "golden/rand_bad_4|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4d640ced64968d2bfe0108e3a46c47e5d598d43efa7263e5584bdd37f6810339",
+  "status": "refused"
+ },
+ "golden/rand_bad_4|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4d640ced64968d2bfe0108e3a46c47e5d598d43efa7263e5584bdd37f6810339",
+  "status": "refused"
+ },
+ "golden/rand_bad_4|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d505acc3638399968783eb39f98c803b135b9da9b98da03b4861d50c04565a80",
+  "status": "refused"
+ },
+ "golden/rand_bad_4|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "4d640ced64968d2bfe0108e3a46c47e5d598d43efa7263e5584bdd37f6810339",
+  "status": "refused"
+ },
+ "golden/rand_bad_5|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "368b878fba49508c1dd96179a84981dd08dae50475b1eb1dcc260749bbb3cff0",
+  "status": "refused"
+ },
+ "golden/rand_bad_5|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "368b878fba49508c1dd96179a84981dd08dae50475b1eb1dcc260749bbb3cff0",
+  "status": "refused"
+ },
+ "golden/rand_bad_5|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "368b878fba49508c1dd96179a84981dd08dae50475b1eb1dcc260749bbb3cff0",
+  "status": "refused"
+ },
+ "golden/rand_bad_5|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "368b878fba49508c1dd96179a84981dd08dae50475b1eb1dcc260749bbb3cff0",
+  "status": "refused"
+ },
+ "golden/rand_bad_6|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "b184746fa37f9523a9cf1af984219a487df494bc2a7b16baae12f82282f33ed9",
+  "status": "refused"
+ },
+ "golden/rand_bad_6|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "b184746fa37f9523a9cf1af984219a487df494bc2a7b16baae12f82282f33ed9",
+  "status": "refused"
+ },
+ "golden/rand_bad_6|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "b184746fa37f9523a9cf1af984219a487df494bc2a7b16baae12f82282f33ed9",
+  "status": "refused"
+ },
+ "golden/rand_bad_6|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "b184746fa37f9523a9cf1af984219a487df494bc2a7b16baae12f82282f33ed9",
+  "status": "refused"
+ },
+ "golden/rand_bad_7|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3bd424f6bb2d0723ffdc8021555c7a0d45cef55f03732215d9ed15d10823f733",
+  "status": "refused"
+ },
+ "golden/rand_bad_7|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3bd424f6bb2d0723ffdc8021555c7a0d45cef55f03732215d9ed15d10823f733",
+  "status": "refused"
+ },
+ "golden/rand_bad_7|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "bc9e8f48da0a960529bbbd9a2f9ff46a00bc66226978ec8c01e0afec0e92e84b",
+  "status": "refused"
+ },
+ "golden/rand_bad_7|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3bd424f6bb2d0723ffdc8021555c7a0d45cef55f03732215d9ed15d10823f733",
+  "status": "refused"
+ },
+ "golden/rand_bad_8|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "05a0bb5cf55e1d322eadd53affed05901aafeeb530736d50394f892cffafeed8",
+  "status": "refused"
+ },
+ "golden/rand_bad_8|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "05a0bb5cf55e1d322eadd53affed05901aafeeb530736d50394f892cffafeed8",
+  "status": "refused"
+ },
+ "golden/rand_bad_8|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "1e0cdafbe685ceecd246ebccc5eb0c82c52a1a77d2b3119b61e6d775747bdf6a",
+  "status": "refused"
+ },
+ "golden/rand_bad_8|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "05a0bb5cf55e1d322eadd53affed05901aafeeb530736d50394f892cffafeed8",
+  "status": "refused"
+ },
+ "golden/rand_bad_9|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "dc6575cc0a496869ed3bcc65df280098c58e023067649ea8149980d1b235e933",
+  "status": "refused"
+ },
+ "golden/rand_bad_9|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "dc6575cc0a496869ed3bcc65df280098c58e023067649ea8149980d1b235e933",
+  "status": "refused"
+ },
+ "golden/rand_bad_9|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "dc6575cc0a496869ed3bcc65df280098c58e023067649ea8149980d1b235e933",
+  "status": "refused"
+ },
+ "golden/rand_bad_9|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "dc6575cc0a496869ed3bcc65df280098c58e023067649ea8149980d1b235e933",
+  "status": "refused"
+ },
+ "golden/rand_ok_0|default": {
+  "code": null,
+  "sha256": "c1a4ea44457720077d272c414127ea3aa9d85b9dbd91f254f71bd2626d4b62b0",
+  "status": "ok"
+ },
+ "golden/rand_ok_0|derived": {
+  "code": null,
+  "sha256": "c1a4ea44457720077d272c414127ea3aa9d85b9dbd91f254f71bd2626d4b62b0",
+  "status": "ok"
+ },
+ "golden/rand_ok_0|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "a717229fd5f94cb8eaa87401fda4caea7dbdfbaedb3fc4b89606ae1ba54b3dc0",
+  "status": "refused"
+ },
+ "golden/rand_ok_0|usd": {
+  "code": null,
+  "sha256": "c1a4ea44457720077d272c414127ea3aa9d85b9dbd91f254f71bd2626d4b62b0",
+  "status": "ok"
+ },
+ "golden/rand_ok_10|default": {
+  "code": null,
+  "sha256": "57b16c9aa36e6867dc935ba7ad1d19950567d21a2b46853d73122369d84ab619",
+  "status": "ok"
+ },
+ "golden/rand_ok_10|derived": {
+  "code": null,
+  "sha256": "57b16c9aa36e6867dc935ba7ad1d19950567d21a2b46853d73122369d84ab619",
+  "status": "ok"
+ },
+ "golden/rand_ok_10|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "152fb2dce1f7150a1cf4c0a03674eff8109fba626b2bf7264543d3197d1a4264",
+  "status": "refused"
+ },
+ "golden/rand_ok_10|usd": {
+  "code": null,
+  "sha256": "57b16c9aa36e6867dc935ba7ad1d19950567d21a2b46853d73122369d84ab619",
+  "status": "ok"
+ },
+ "golden/rand_ok_11|default": {
+  "code": null,
+  "sha256": "2674897dcdabd32c1f73c69de5d9a314c43583de638b461f5827def4fa1c1b99",
+  "status": "ok"
+ },
+ "golden/rand_ok_11|derived": {
+  "code": null,
+  "sha256": "2674897dcdabd32c1f73c69de5d9a314c43583de638b461f5827def4fa1c1b99",
+  "status": "ok"
+ },
+ "golden/rand_ok_11|mdy": {
+  "code": null,
+  "sha256": "94785b10aae5dbbde98a45959db35a8b3f0fbd967f21054071a76cf64386f5ff",
+  "status": "ok"
+ },
+ "golden/rand_ok_11|usd": {
+  "code": null,
+  "sha256": "2674897dcdabd32c1f73c69de5d9a314c43583de638b461f5827def4fa1c1b99",
+  "status": "ok"
+ },
+ "golden/rand_ok_1|default": {
+  "code": null,
+  "sha256": "89e4ef506fe48db199cb5b25968d884e324e272d3a699c4a7c7aec1d54702241",
+  "status": "ok"
+ },
+ "golden/rand_ok_1|derived": {
+  "code": null,
+  "sha256": "89e4ef506fe48db199cb5b25968d884e324e272d3a699c4a7c7aec1d54702241",
+  "status": "ok"
+ },
+ "golden/rand_ok_1|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "ed1d3e08e236c1089e93c55dec0757af2393fc99150412d28c1294ed639e2c7b",
+  "status": "refused"
+ },
+ "golden/rand_ok_1|usd": {
+  "code": null,
+  "sha256": "89e4ef506fe48db199cb5b25968d884e324e272d3a699c4a7c7aec1d54702241",
+  "status": "ok"
+ },
+ "golden/rand_ok_2|default": {
+  "code": null,
+  "sha256": "e61f6a01142711799841a5550752e670f22159d0d92218034823404a2e3132dc",
+  "status": "ok"
+ },
+ "golden/rand_ok_2|derived": {
+  "code": null,
+  "sha256": "e61f6a01142711799841a5550752e670f22159d0d92218034823404a2e3132dc",
+  "status": "ok"
+ },
+ "golden/rand_ok_2|mdy": {
+  "code": null,
+  "sha256": "778bb4e7b92640287a97508abec52e3cabf085f04af712ea758c173cfda4fb6d",
+  "status": "ok"
+ },
+ "golden/rand_ok_2|usd": {
+  "code": null,
+  "sha256": "e61f6a01142711799841a5550752e670f22159d0d92218034823404a2e3132dc",
+  "status": "ok"
+ },
+ "golden/rand_ok_3|default": {
+  "code": null,
+  "sha256": "d63077137ce986e4f4a4b4b64b50f4c197ae4ef476a735a3224b6fa62c16490c",
+  "status": "ok"
+ },
+ "golden/rand_ok_3|derived": {
+  "code": null,
+  "sha256": "d63077137ce986e4f4a4b4b64b50f4c197ae4ef476a735a3224b6fa62c16490c",
+  "status": "ok"
+ },
+ "golden/rand_ok_3|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7f420e67ee23af9f9ba76a676716c8c8ea9bf632ffc9f041c4b1adb2ac36285f",
+  "status": "refused"
+ },
+ "golden/rand_ok_3|usd": {
+  "code": null,
+  "sha256": "d63077137ce986e4f4a4b4b64b50f4c197ae4ef476a735a3224b6fa62c16490c",
+  "status": "ok"
+ },
+ "golden/rand_ok_4|default": {
+  "code": null,
+  "sha256": "90c74801bf5fa9bc5c6b99dc1e18fc6178588a7d72b38d4782e0bb170a946714",
+  "status": "ok"
+ },
+ "golden/rand_ok_4|derived": {
+  "code": null,
+  "sha256": "90c74801bf5fa9bc5c6b99dc1e18fc6178588a7d72b38d4782e0bb170a946714",
+  "status": "ok"
+ },
+ "golden/rand_ok_4|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "3eeca0d96133d3815aa2a1c68cdae7980965de383f9aec618997f3d6143ef930",
+  "status": "refused"
+ },
+ "golden/rand_ok_4|usd": {
+  "code": null,
+  "sha256": "90c74801bf5fa9bc5c6b99dc1e18fc6178588a7d72b38d4782e0bb170a946714",
+  "status": "ok"
+ },
+ "golden/rand_ok_5|default": {
+  "code": null,
+  "sha256": "e3a4a08c12e97079a7edbd85e089640beb339b017b09a62be0053b173729bbd8",
+  "status": "ok"
+ },
+ "golden/rand_ok_5|derived": {
+  "code": null,
+  "sha256": "e3a4a08c12e97079a7edbd85e089640beb339b017b09a62be0053b173729bbd8",
+  "status": "ok"
+ },
+ "golden/rand_ok_5|mdy": {
+  "code": null,
+  "sha256": "28417121d96efbcd001a57f005c2a9e9bc64fe8f16fd5af6f679510cc32d66c1",
+  "status": "ok"
+ },
+ "golden/rand_ok_5|usd": {
+  "code": null,
+  "sha256": "e3a4a08c12e97079a7edbd85e089640beb339b017b09a62be0053b173729bbd8",
+  "status": "ok"
+ },
+ "golden/rand_ok_6|default": {
+  "code": null,
+  "sha256": "48a695495a63451a82c553dfb7f2b80f600549fd61c33fd211aed7367041516d",
+  "status": "ok"
+ },
+ "golden/rand_ok_6|derived": {
+  "code": null,
+  "sha256": "48a695495a63451a82c553dfb7f2b80f600549fd61c33fd211aed7367041516d",
+  "status": "ok"
+ },
+ "golden/rand_ok_6|mdy": {
+  "code": null,
+  "sha256": "86a6579bae553be9c99d0da2a76568fb0d37bb69a8c7a6e64cc4efbc3a7d71ba",
+  "status": "ok"
+ },
+ "golden/rand_ok_6|usd": {
+  "code": null,
+  "sha256": "48a695495a63451a82c553dfb7f2b80f600549fd61c33fd211aed7367041516d",
+  "status": "ok"
+ },
+ "golden/rand_ok_7|default": {
+  "code": null,
+  "sha256": "14efbbabe8149026c590fa51e792b234c313e77fc69e9e913e836e17910557cb",
+  "status": "ok"
+ },
+ "golden/rand_ok_7|derived": {
+  "code": null,
+  "sha256": "14efbbabe8149026c590fa51e792b234c313e77fc69e9e913e836e17910557cb",
+  "status": "ok"
+ },
+ "golden/rand_ok_7|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "9b4342976efdb9c44fcfc3d2579f1ef09574e77c93625009594a902c789cebcf",
+  "status": "refused"
+ },
+ "golden/rand_ok_7|usd": {
+  "code": null,
+  "sha256": "14efbbabe8149026c590fa51e792b234c313e77fc69e9e913e836e17910557cb",
+  "status": "ok"
+ },
+ "golden/rand_ok_8|default": {
+  "code": null,
+  "sha256": "18c0059359f1256bb170d0c49ff595ccaab938aeb0ab239e3133e6f48afe3699",
+  "status": "ok"
+ },
+ "golden/rand_ok_8|derived": {
+  "code": null,
+  "sha256": "18c0059359f1256bb170d0c49ff595ccaab938aeb0ab239e3133e6f48afe3699",
+  "status": "ok"
+ },
+ "golden/rand_ok_8|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "1984f878fac7bbc986e4fe18a9cfd77ddf18751dfbed29cab9e426bd311098f3",
+  "status": "refused"
+ },
+ "golden/rand_ok_8|usd": {
+  "code": null,
+  "sha256": "18c0059359f1256bb170d0c49ff595ccaab938aeb0ab239e3133e6f48afe3699",
+  "status": "ok"
+ },
+ "golden/rand_ok_9|default": {
+  "code": null,
+  "sha256": "741f40b44274d7af7bafbcd925d4eda71d57b6e53245838fc1514449f26c7e87",
+  "status": "ok"
+ },
+ "golden/rand_ok_9|derived": {
+  "code": null,
+  "sha256": "741f40b44274d7af7bafbcd925d4eda71d57b6e53245838fc1514449f26c7e87",
+  "status": "ok"
+ },
+ "golden/rand_ok_9|mdy": {
+  "code": null,
+  "sha256": "3e5aaefe8b3956d970bff7c31ea695b1311b6cd6b761bf91b48f432dc51aef2e",
+  "status": "ok"
+ },
+ "golden/rand_ok_9|usd": {
+  "code": null,
+  "sha256": "741f40b44274d7af7bafbcd925d4eda71d57b6e53245838fc1514449f26c7e87",
+  "status": "ok"
+ },
+ "input/bad_ext|default": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "acdde1fd7ea708058533491de95dd5b9ecd6d5629ffce3aaf87de6be80023c52",
+  "status": "refused"
+ },
+ "input/bad_ext|derived": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "acdde1fd7ea708058533491de95dd5b9ecd6d5629ffce3aaf87de6be80023c52",
+  "status": "refused"
+ },
+ "input/bad_ext|mdy": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "acdde1fd7ea708058533491de95dd5b9ecd6d5629ffce3aaf87de6be80023c52",
+  "status": "refused"
+ },
+ "input/bad_ext|usd": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "acdde1fd7ea708058533491de95dd5b9ecd6d5629ffce3aaf87de6be80023c52",
+  "status": "refused"
+ },
+ "input/bom|default": {
+  "code": null,
+  "sha256": "bdef8bbf31dd5ddda68eef3810db2302b567b40445383468b0664220a4a789e0",
+  "status": "ok"
+ },
+ "input/bom|derived": {
+  "code": null,
+  "sha256": "bdef8bbf31dd5ddda68eef3810db2302b567b40445383468b0664220a4a789e0",
+  "status": "ok"
+ },
+ "input/bom|mdy": {
+  "code": null,
+  "sha256": "a3281e1029c97a25912ba51213294cedbf134e7e1b9327b4d88899a45af8847b",
+  "status": "ok"
+ },
+ "input/bom|usd": {
+  "code": null,
+  "sha256": "bdef8bbf31dd5ddda68eef3810db2302b567b40445383468b0664220a4a789e0",
+  "status": "ok"
+ },
+ "input/cp1252|default": {
+  "code": null,
+  "sha256": "2021b98ce1d1b71c24c68b6d54af0c863b79f06e463fe3c2cf155978aff7ab5b",
+  "status": "ok"
+ },
+ "input/cp1252|derived": {
+  "code": null,
+  "sha256": "2021b98ce1d1b71c24c68b6d54af0c863b79f06e463fe3c2cf155978aff7ab5b",
+  "status": "ok"
+ },
+ "input/cp1252|mdy": {
+  "code": null,
+  "sha256": "75d7b568d5dc6a36229704406f6328e2ba38e3c95aa082ac6a40709f696048b7",
+  "status": "ok"
+ },
+ "input/cp1252|usd": {
+  "code": null,
+  "sha256": "2021b98ce1d1b71c24c68b6d54af0c863b79f06e463fe3c2cf155978aff7ab5b",
+  "status": "ok"
+ },
+ "input/crlf|default": {
+  "code": null,
+  "sha256": "eb82fd150be2e6fb3aca3764ace89dc57123abd936ee92181e0c634b64c01f34",
+  "status": "ok"
+ },
+ "input/crlf|derived": {
+  "code": null,
+  "sha256": "eb82fd150be2e6fb3aca3764ace89dc57123abd936ee92181e0c634b64c01f34",
+  "status": "ok"
+ },
+ "input/crlf|mdy": {
+  "code": null,
+  "sha256": "f8b336c1771141ea296ae2227c848f8d450fe42d5f536ec651fbcf4f9377daab",
+  "status": "ok"
+ },
+ "input/crlf|usd": {
+  "code": null,
+  "sha256": "eb82fd150be2e6fb3aca3764ace89dc57123abd936ee92181e0c634b64c01f34",
+  "status": "ok"
+ },
+ "input/empty|default": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "01bc788d340775b51a14a5e35b0ac07565b8d94451933ac428c3a47bc5bf8b90",
+  "status": "refused"
+ },
+ "input/empty|derived": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "01bc788d340775b51a14a5e35b0ac07565b8d94451933ac428c3a47bc5bf8b90",
+  "status": "refused"
+ },
+ "input/empty|mdy": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "01bc788d340775b51a14a5e35b0ac07565b8d94451933ac428c3a47bc5bf8b90",
+  "status": "refused"
+ },
+ "input/empty|usd": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "01bc788d340775b51a14a5e35b0ac07565b8d94451933ac428c3a47bc5bf8b90",
+  "status": "refused"
+ },
+ "input/nul|default": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "98d79b893c39879940b7287f8b6b200efff44d796d1328b0541e542b272f4c48",
+  "status": "refused"
+ },
+ "input/nul|derived": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "98d79b893c39879940b7287f8b6b200efff44d796d1328b0541e542b272f4c48",
+  "status": "refused"
+ },
+ "input/nul|mdy": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "98d79b893c39879940b7287f8b6b200efff44d796d1328b0541e542b272f4c48",
+  "status": "refused"
+ },
+ "input/nul|usd": {
+  "code": "UNSUPPORTED_INPUT",
+  "sha256": "98d79b893c39879940b7287f8b6b200efff44d796d1328b0541e542b272f4c48",
+  "status": "refused"
+ },
+ "input/only_header|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "2454a369b625f399769f2f7e61974369e89b905a21147ad8aa15427eec6bd9db",
+  "status": "refused"
+ },
+ "input/only_header|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "2454a369b625f399769f2f7e61974369e89b905a21147ad8aa15427eec6bd9db",
+  "status": "refused"
+ },
+ "input/only_header|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "2454a369b625f399769f2f7e61974369e89b905a21147ad8aa15427eec6bd9db",
+  "status": "refused"
+ },
+ "input/only_header|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "2454a369b625f399769f2f7e61974369e89b905a21147ad8aa15427eec6bd9db",
+  "status": "refused"
+ },
+ "input/short_row|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "29f11b25cf7a3b053c172da5f1d783dc446ea5eb3504c2f48f7f228fa333a7fd",
+  "status": "refused"
+ },
+ "input/short_row|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "29f11b25cf7a3b053c172da5f1d783dc446ea5eb3504c2f48f7f228fa333a7fd",
+  "status": "refused"
+ },
+ "input/short_row|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "29f11b25cf7a3b053c172da5f1d783dc446ea5eb3504c2f48f7f228fa333a7fd",
+  "status": "refused"
+ },
+ "input/short_row|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "29f11b25cf7a3b053c172da5f1d783dc446ea5eb3504c2f48f7f228fa333a7fd",
+  "status": "refused"
+ },
+ "mutate/r1c3_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "185a2953b2820b03bb342e4bb812b15b20f8ad0eaf7e877afbb33b4b3295038a",
+  "status": "refused"
+ },
+ "mutate/r1c3_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "185a2953b2820b03bb342e4bb812b15b20f8ad0eaf7e877afbb33b4b3295038a",
+  "status": "refused"
+ },
+ "mutate/r1c3_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "185a2953b2820b03bb342e4bb812b15b20f8ad0eaf7e877afbb33b4b3295038a",
+  "status": "refused"
+ },
+ "mutate/r1c3_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "185a2953b2820b03bb342e4bb812b15b20f8ad0eaf7e877afbb33b4b3295038a",
+  "status": "refused"
+ },
+ "mutate/r1c3_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "1a8d127a0e0f5002acad51bff90f3ec73e5497df7db7b9e7565960b870511b79",
+  "status": "refused"
+ },
+ "mutate/r1c3_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "1a8d127a0e0f5002acad51bff90f3ec73e5497df7db7b9e7565960b870511b79",
+  "status": "refused"
+ },
+ "mutate/r1c3_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "1a8d127a0e0f5002acad51bff90f3ec73e5497df7db7b9e7565960b870511b79",
+  "status": "refused"
+ },
+ "mutate/r1c3_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "1a8d127a0e0f5002acad51bff90f3ec73e5497df7db7b9e7565960b870511b79",
+  "status": "refused"
+ },
+ "mutate/r1c3_neg|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "f388e4734093c393354c2a9713ad1f66680d79639b1cd8da6b541bdbf16b4e38",
+  "status": "refused"
+ },
+ "mutate/r1c3_neg|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f388e4734093c393354c2a9713ad1f66680d79639b1cd8da6b541bdbf16b4e38",
+  "status": "refused"
+ },
+ "mutate/r1c3_neg|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "f388e4734093c393354c2a9713ad1f66680d79639b1cd8da6b541bdbf16b4e38",
+  "status": "refused"
+ },
+ "mutate/r1c3_neg|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "f388e4734093c393354c2a9713ad1f66680d79639b1cd8da6b541bdbf16b4e38",
+  "status": "refused"
+ },
+ "mutate/r1c3_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "f387b2f7c53a7a3b630f67c77283a6f2d9123a72be4c0580fce1fe8e1569448e",
+  "status": "refused"
+ },
+ "mutate/r1c3_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f387b2f7c53a7a3b630f67c77283a6f2d9123a72be4c0580fce1fe8e1569448e",
+  "status": "refused"
+ },
+ "mutate/r1c3_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "f387b2f7c53a7a3b630f67c77283a6f2d9123a72be4c0580fce1fe8e1569448e",
+  "status": "refused"
+ },
+ "mutate/r1c3_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "f387b2f7c53a7a3b630f67c77283a6f2d9123a72be4c0580fce1fe8e1569448e",
+  "status": "refused"
+ },
+ "mutate/r1c4_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "01b530262873bdb2652830c8ea631e79c44e6f938879af8a96751847c74c373a",
+  "status": "refused"
+ },
+ "mutate/r1c4_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "01b530262873bdb2652830c8ea631e79c44e6f938879af8a96751847c74c373a",
+  "status": "refused"
+ },
+ "mutate/r1c4_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "01b530262873bdb2652830c8ea631e79c44e6f938879af8a96751847c74c373a",
+  "status": "refused"
+ },
+ "mutate/r1c4_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "01b530262873bdb2652830c8ea631e79c44e6f938879af8a96751847c74c373a",
+  "status": "refused"
+ },
+ "mutate/r1c4_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "787cc12de9d9345756a70930a797bdb6dcc0bf21972fe1c091bf986a66ea1762",
+  "status": "refused"
+ },
+ "mutate/r1c4_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "787cc12de9d9345756a70930a797bdb6dcc0bf21972fe1c091bf986a66ea1762",
+  "status": "refused"
+ },
+ "mutate/r1c4_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "787cc12de9d9345756a70930a797bdb6dcc0bf21972fe1c091bf986a66ea1762",
+  "status": "refused"
+ },
+ "mutate/r1c4_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "787cc12de9d9345756a70930a797bdb6dcc0bf21972fe1c091bf986a66ea1762",
+  "status": "refused"
+ },
+ "mutate/r1c4_neg|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "59bb5c9f1a43200f336d7ce0f65a98d0508637a772d3fe274b6da818e13ccaa0",
+  "status": "refused"
+ },
+ "mutate/r1c4_neg|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "59bb5c9f1a43200f336d7ce0f65a98d0508637a772d3fe274b6da818e13ccaa0",
+  "status": "refused"
+ },
+ "mutate/r1c4_neg|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "59bb5c9f1a43200f336d7ce0f65a98d0508637a772d3fe274b6da818e13ccaa0",
+  "status": "refused"
+ },
+ "mutate/r1c4_neg|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "59bb5c9f1a43200f336d7ce0f65a98d0508637a772d3fe274b6da818e13ccaa0",
+  "status": "refused"
+ },
+ "mutate/r1c4_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "5d0bf7a51bee02e696d96afd59c8f6c5fb4b92aac9e1881334f657e9c55daf6c",
+  "status": "refused"
+ },
+ "mutate/r1c4_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "5d0bf7a51bee02e696d96afd59c8f6c5fb4b92aac9e1881334f657e9c55daf6c",
+  "status": "refused"
+ },
+ "mutate/r1c4_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "5d0bf7a51bee02e696d96afd59c8f6c5fb4b92aac9e1881334f657e9c55daf6c",
+  "status": "refused"
+ },
+ "mutate/r1c4_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "5d0bf7a51bee02e696d96afd59c8f6c5fb4b92aac9e1881334f657e9c55daf6c",
+  "status": "refused"
+ },
+ "mutate/r2c2_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "5a23e68d8bd578715fd526266a2ff9ec6b72d27aaf93d7009f0da28d7e50a6ff",
+  "status": "refused"
+ },
+ "mutate/r2c2_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "5a23e68d8bd578715fd526266a2ff9ec6b72d27aaf93d7009f0da28d7e50a6ff",
+  "status": "refused"
+ },
+ "mutate/r2c2_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "5a23e68d8bd578715fd526266a2ff9ec6b72d27aaf93d7009f0da28d7e50a6ff",
+  "status": "refused"
+ },
+ "mutate/r2c2_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "5a23e68d8bd578715fd526266a2ff9ec6b72d27aaf93d7009f0da28d7e50a6ff",
+  "status": "refused"
+ },
+ "mutate/r2c2_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d60289cb3008bbe8e9d340aa56874609a06daf94096b341f00ad8e28441af80",
+  "status": "refused"
+ },
+ "mutate/r2c2_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d60289cb3008bbe8e9d340aa56874609a06daf94096b341f00ad8e28441af80",
+  "status": "refused"
+ },
+ "mutate/r2c2_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d60289cb3008bbe8e9d340aa56874609a06daf94096b341f00ad8e28441af80",
+  "status": "refused"
+ },
+ "mutate/r2c2_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d60289cb3008bbe8e9d340aa56874609a06daf94096b341f00ad8e28441af80",
+  "status": "refused"
+ },
+ "mutate/r2c2_neg|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "67f83274f4e7dd5e51017439ce0fcb2733d9409fdbfdf16da6a3825f6c022060",
+  "status": "refused"
+ },
+ "mutate/r2c2_neg|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "67f83274f4e7dd5e51017439ce0fcb2733d9409fdbfdf16da6a3825f6c022060",
+  "status": "refused"
+ },
+ "mutate/r2c2_neg|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "67f83274f4e7dd5e51017439ce0fcb2733d9409fdbfdf16da6a3825f6c022060",
+  "status": "refused"
+ },
+ "mutate/r2c2_neg|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "67f83274f4e7dd5e51017439ce0fcb2733d9409fdbfdf16da6a3825f6c022060",
+  "status": "refused"
+ },
+ "mutate/r2c2_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "60de27817cd7bac512dacdec530d6ffbe38cd356710a408153eabe11d04f585c",
+  "status": "refused"
+ },
+ "mutate/r2c2_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "60de27817cd7bac512dacdec530d6ffbe38cd356710a408153eabe11d04f585c",
+  "status": "refused"
+ },
+ "mutate/r2c2_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "60de27817cd7bac512dacdec530d6ffbe38cd356710a408153eabe11d04f585c",
+  "status": "refused"
+ },
+ "mutate/r2c2_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "60de27817cd7bac512dacdec530d6ffbe38cd356710a408153eabe11d04f585c",
+  "status": "refused"
+ },
+ "mutate/r2c4_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "4e7ec45fd94d0619623345040cb30632622cd31060bc19975d3d9c82481e8abf",
+  "status": "refused"
+ },
+ "mutate/r2c4_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "4e7ec45fd94d0619623345040cb30632622cd31060bc19975d3d9c82481e8abf",
+  "status": "refused"
+ },
+ "mutate/r2c4_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "4e7ec45fd94d0619623345040cb30632622cd31060bc19975d3d9c82481e8abf",
+  "status": "refused"
+ },
+ "mutate/r2c4_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "4e7ec45fd94d0619623345040cb30632622cd31060bc19975d3d9c82481e8abf",
+  "status": "refused"
+ },
+ "mutate/r2c4_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "42e0d322ec1f9904d72a822fdcbdaffcac598f2dddb674535d16ed1facb1984b",
+  "status": "refused"
+ },
+ "mutate/r2c4_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "42e0d322ec1f9904d72a822fdcbdaffcac598f2dddb674535d16ed1facb1984b",
+  "status": "refused"
+ },
+ "mutate/r2c4_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "42e0d322ec1f9904d72a822fdcbdaffcac598f2dddb674535d16ed1facb1984b",
+  "status": "refused"
+ },
+ "mutate/r2c4_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "42e0d322ec1f9904d72a822fdcbdaffcac598f2dddb674535d16ed1facb1984b",
+  "status": "refused"
+ },
+ "mutate/r2c4_neg|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "d14068ce33788502c08691445d19091618f0b35b9cfb92154e21ab9239779524",
+  "status": "refused"
+ },
+ "mutate/r2c4_neg|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "d14068ce33788502c08691445d19091618f0b35b9cfb92154e21ab9239779524",
+  "status": "refused"
+ },
+ "mutate/r2c4_neg|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "d14068ce33788502c08691445d19091618f0b35b9cfb92154e21ab9239779524",
+  "status": "refused"
+ },
+ "mutate/r2c4_neg|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "d14068ce33788502c08691445d19091618f0b35b9cfb92154e21ab9239779524",
+  "status": "refused"
+ },
+ "mutate/r2c4_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "93107f9a314404c4519de15c78419e7551911358604965f6b4a4eb98a910d618",
+  "status": "refused"
+ },
+ "mutate/r2c4_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "93107f9a314404c4519de15c78419e7551911358604965f6b4a4eb98a910d618",
+  "status": "refused"
+ },
+ "mutate/r2c4_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "93107f9a314404c4519de15c78419e7551911358604965f6b4a4eb98a910d618",
+  "status": "refused"
+ },
+ "mutate/r2c4_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "93107f9a314404c4519de15c78419e7551911358604965f6b4a4eb98a910d618",
+  "status": "refused"
+ },
+ "mutate/r3c2_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "ae732eccfe14258902c0141f198e452cef6cc291a49185a21b09d8da6df75fb5",
+  "status": "refused"
+ },
+ "mutate/r3c2_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "ae732eccfe14258902c0141f198e452cef6cc291a49185a21b09d8da6df75fb5",
+  "status": "refused"
+ },
+ "mutate/r3c2_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "ae732eccfe14258902c0141f198e452cef6cc291a49185a21b09d8da6df75fb5",
+  "status": "refused"
+ },
+ "mutate/r3c2_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "ae732eccfe14258902c0141f198e452cef6cc291a49185a21b09d8da6df75fb5",
+  "status": "refused"
+ },
+ "mutate/r3c2_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "aebeb40a1b8817e5dbd913d1582213876245492c1ad9c8718831d580108eecd5",
+  "status": "refused"
+ },
+ "mutate/r3c2_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "aebeb40a1b8817e5dbd913d1582213876245492c1ad9c8718831d580108eecd5",
+  "status": "refused"
+ },
+ "mutate/r3c2_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "aebeb40a1b8817e5dbd913d1582213876245492c1ad9c8718831d580108eecd5",
+  "status": "refused"
+ },
+ "mutate/r3c2_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "aebeb40a1b8817e5dbd913d1582213876245492c1ad9c8718831d580108eecd5",
+  "status": "refused"
+ },
+ "mutate/r3c2_neg|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "326ab8cefc0463ba573da767adb0bf4f9ca6447242b4fce2a1faa993799cd8af",
+  "status": "refused"
+ },
+ "mutate/r3c2_neg|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "326ab8cefc0463ba573da767adb0bf4f9ca6447242b4fce2a1faa993799cd8af",
+  "status": "refused"
+ },
+ "mutate/r3c2_neg|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "326ab8cefc0463ba573da767adb0bf4f9ca6447242b4fce2a1faa993799cd8af",
+  "status": "refused"
+ },
+ "mutate/r3c2_neg|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "326ab8cefc0463ba573da767adb0bf4f9ca6447242b4fce2a1faa993799cd8af",
+  "status": "refused"
+ },
+ "mutate/r3c2_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "4a71b8806b0de96f02f30783ae206f2a0873591c6b8221ddd2a6616fe208a52e",
+  "status": "refused"
+ },
+ "mutate/r3c2_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "4a71b8806b0de96f02f30783ae206f2a0873591c6b8221ddd2a6616fe208a52e",
+  "status": "refused"
+ },
+ "mutate/r3c2_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "4a71b8806b0de96f02f30783ae206f2a0873591c6b8221ddd2a6616fe208a52e",
+  "status": "refused"
+ },
+ "mutate/r3c2_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "4a71b8806b0de96f02f30783ae206f2a0873591c6b8221ddd2a6616fe208a52e",
+  "status": "refused"
+ },
+ "mutate/r3c4_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "1e088348e0d0ed0e63db8af396cf468800a3396d3afcf61b8671c7b6c7001adb",
+  "status": "refused"
+ },
+ "mutate/r3c4_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "1e088348e0d0ed0e63db8af396cf468800a3396d3afcf61b8671c7b6c7001adb",
+  "status": "refused"
+ },
+ "mutate/r3c4_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "1e088348e0d0ed0e63db8af396cf468800a3396d3afcf61b8671c7b6c7001adb",
+  "status": "refused"
+ },
+ "mutate/r3c4_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "1e088348e0d0ed0e63db8af396cf468800a3396d3afcf61b8671c7b6c7001adb",
+  "status": "refused"
+ },
+ "mutate/r3c4_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "108a8a3c63b0d3066d3fcef064a1bcacd2a82c993b417809989177d86a4b3952",
+  "status": "refused"
+ },
+ "mutate/r3c4_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "108a8a3c63b0d3066d3fcef064a1bcacd2a82c993b417809989177d86a4b3952",
+  "status": "refused"
+ },
+ "mutate/r3c4_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "108a8a3c63b0d3066d3fcef064a1bcacd2a82c993b417809989177d86a4b3952",
+  "status": "refused"
+ },
+ "mutate/r3c4_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "108a8a3c63b0d3066d3fcef064a1bcacd2a82c993b417809989177d86a4b3952",
+  "status": "refused"
+ },
+ "mutate/r3c4_neg|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3621e4da4c0d2016a7b63be661789bacdbaea89a32673dbf88707383186af342",
+  "status": "refused"
+ },
+ "mutate/r3c4_neg|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3621e4da4c0d2016a7b63be661789bacdbaea89a32673dbf88707383186af342",
+  "status": "refused"
+ },
+ "mutate/r3c4_neg|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3621e4da4c0d2016a7b63be661789bacdbaea89a32673dbf88707383186af342",
+  "status": "refused"
+ },
+ "mutate/r3c4_neg|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "3621e4da4c0d2016a7b63be661789bacdbaea89a32673dbf88707383186af342",
+  "status": "refused"
+ },
+ "mutate/r3c4_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "df32b38865a97d5d732ba6bcb76a2d3b43cfd098775d3c2eec25b0eacd65ef9b",
+  "status": "refused"
+ },
+ "mutate/r3c4_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "df32b38865a97d5d732ba6bcb76a2d3b43cfd098775d3c2eec25b0eacd65ef9b",
+  "status": "refused"
+ },
+ "mutate/r3c4_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "df32b38865a97d5d732ba6bcb76a2d3b43cfd098775d3c2eec25b0eacd65ef9b",
+  "status": "refused"
+ },
+ "mutate/r3c4_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "df32b38865a97d5d732ba6bcb76a2d3b43cfd098775d3c2eec25b0eacd65ef9b",
+  "status": "refused"
+ },
+ "mutate/r4c3_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "6f35b2293770b98a8ee4c74f5201ae17e78d0dbe9d290b93c84ce59a1e44b1e8",
+  "status": "refused"
+ },
+ "mutate/r4c3_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "6f35b2293770b98a8ee4c74f5201ae17e78d0dbe9d290b93c84ce59a1e44b1e8",
+  "status": "refused"
+ },
+ "mutate/r4c3_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "6f35b2293770b98a8ee4c74f5201ae17e78d0dbe9d290b93c84ce59a1e44b1e8",
+  "status": "refused"
+ },
+ "mutate/r4c3_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "6f35b2293770b98a8ee4c74f5201ae17e78d0dbe9d290b93c84ce59a1e44b1e8",
+  "status": "refused"
+ },
+ "mutate/r4c3_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "33e0a99a7f4d1ff663d7f1c9b0c3866a9dce7b0a4ab6aa0a87cd4943eacf432f",
+  "status": "refused"
+ },
+ "mutate/r4c3_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "33e0a99a7f4d1ff663d7f1c9b0c3866a9dce7b0a4ab6aa0a87cd4943eacf432f",
+  "status": "refused"
+ },
+ "mutate/r4c3_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "33e0a99a7f4d1ff663d7f1c9b0c3866a9dce7b0a4ab6aa0a87cd4943eacf432f",
+  "status": "refused"
+ },
+ "mutate/r4c3_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "33e0a99a7f4d1ff663d7f1c9b0c3866a9dce7b0a4ab6aa0a87cd4943eacf432f",
+  "status": "refused"
+ },
+ "mutate/r4c3_neg|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "208be279094dd2bd4584bec2f02710a3272437da152eb465f4ab402ac56fbd79",
+  "status": "refused"
+ },
+ "mutate/r4c3_neg|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "208be279094dd2bd4584bec2f02710a3272437da152eb465f4ab402ac56fbd79",
+  "status": "refused"
+ },
+ "mutate/r4c3_neg|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "208be279094dd2bd4584bec2f02710a3272437da152eb465f4ab402ac56fbd79",
+  "status": "refused"
+ },
+ "mutate/r4c3_neg|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "208be279094dd2bd4584bec2f02710a3272437da152eb465f4ab402ac56fbd79",
+  "status": "refused"
+ },
+ "mutate/r4c3_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "1265a5132b607f930aa7c284fb25823a91ca4226d1a0fcd4e1dec19d9936060e",
+  "status": "refused"
+ },
+ "mutate/r4c3_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "1265a5132b607f930aa7c284fb25823a91ca4226d1a0fcd4e1dec19d9936060e",
+  "status": "refused"
+ },
+ "mutate/r4c3_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "1265a5132b607f930aa7c284fb25823a91ca4226d1a0fcd4e1dec19d9936060e",
+  "status": "refused"
+ },
+ "mutate/r4c3_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "1265a5132b607f930aa7c284fb25823a91ca4226d1a0fcd4e1dec19d9936060e",
+  "status": "refused"
+ },
+ "mutate/r4c4_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "c593b8189fb2868aede9cab8fa9861f991083521e40ff8024561c3770650a36d",
+  "status": "refused"
+ },
+ "mutate/r4c4_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "c593b8189fb2868aede9cab8fa9861f991083521e40ff8024561c3770650a36d",
+  "status": "refused"
+ },
+ "mutate/r4c4_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "c593b8189fb2868aede9cab8fa9861f991083521e40ff8024561c3770650a36d",
+  "status": "refused"
+ },
+ "mutate/r4c4_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "c593b8189fb2868aede9cab8fa9861f991083521e40ff8024561c3770650a36d",
+  "status": "refused"
+ },
+ "mutate/r4c4_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "6a575997d3833f356b3033e4c8d774766fe185065aeb3a949e4b26f00964525d",
+  "status": "refused"
+ },
+ "mutate/r4c4_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "6a575997d3833f356b3033e4c8d774766fe185065aeb3a949e4b26f00964525d",
+  "status": "refused"
+ },
+ "mutate/r4c4_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "6a575997d3833f356b3033e4c8d774766fe185065aeb3a949e4b26f00964525d",
+  "status": "refused"
+ },
+ "mutate/r4c4_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "6a575997d3833f356b3033e4c8d774766fe185065aeb3a949e4b26f00964525d",
+  "status": "refused"
+ },
+ "mutate/r4c4_neg|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "00602632ee00beb57a560ed60572dd082d3dfa24250f751f0db1d9024323b223",
+  "status": "refused"
+ },
+ "mutate/r4c4_neg|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "00602632ee00beb57a560ed60572dd082d3dfa24250f751f0db1d9024323b223",
+  "status": "refused"
+ },
+ "mutate/r4c4_neg|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "00602632ee00beb57a560ed60572dd082d3dfa24250f751f0db1d9024323b223",
+  "status": "refused"
+ },
+ "mutate/r4c4_neg|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "00602632ee00beb57a560ed60572dd082d3dfa24250f751f0db1d9024323b223",
+  "status": "refused"
+ },
+ "mutate/r4c4_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "84ebd516e0ad5b06599972ce150a97a1a62a1c14628894628ad97eb1230de46a",
+  "status": "refused"
+ },
+ "mutate/r4c4_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "84ebd516e0ad5b06599972ce150a97a1a62a1c14628894628ad97eb1230de46a",
+  "status": "refused"
+ },
+ "mutate/r4c4_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "84ebd516e0ad5b06599972ce150a97a1a62a1c14628894628ad97eb1230de46a",
+  "status": "refused"
+ },
+ "mutate/r4c4_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "84ebd516e0ad5b06599972ce150a97a1a62a1c14628894628ad97eb1230de46a",
+  "status": "refused"
+ },
+ "mutate/r5c2_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "f3316d395b1728ef0418cd629427061a19cae0cc11a63b9e99a728ae9acd7105",
+  "status": "refused"
+ },
+ "mutate/r5c2_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f3316d395b1728ef0418cd629427061a19cae0cc11a63b9e99a728ae9acd7105",
+  "status": "refused"
+ },
+ "mutate/r5c2_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "f3316d395b1728ef0418cd629427061a19cae0cc11a63b9e99a728ae9acd7105",
+  "status": "refused"
+ },
+ "mutate/r5c2_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "f3316d395b1728ef0418cd629427061a19cae0cc11a63b9e99a728ae9acd7105",
+  "status": "refused"
+ },
+ "mutate/r5c2_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "e292088c76cfa4ba8db35503b8f4f244916606eebcb622ee00b28fecf0ab7398",
+  "status": "refused"
+ },
+ "mutate/r5c2_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "e292088c76cfa4ba8db35503b8f4f244916606eebcb622ee00b28fecf0ab7398",
+  "status": "refused"
+ },
+ "mutate/r5c2_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "e292088c76cfa4ba8db35503b8f4f244916606eebcb622ee00b28fecf0ab7398",
+  "status": "refused"
+ },
+ "mutate/r5c2_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "e292088c76cfa4ba8db35503b8f4f244916606eebcb622ee00b28fecf0ab7398",
+  "status": "refused"
+ },
+ "mutate/r5c2_neg|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "21878b0e8377b28055f691fa0e33690d6d3e166549f454a256f139bb13b2f545",
+  "status": "refused"
+ },
+ "mutate/r5c2_neg|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "21878b0e8377b28055f691fa0e33690d6d3e166549f454a256f139bb13b2f545",
+  "status": "refused"
+ },
+ "mutate/r5c2_neg|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "21878b0e8377b28055f691fa0e33690d6d3e166549f454a256f139bb13b2f545",
+  "status": "refused"
+ },
+ "mutate/r5c2_neg|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "21878b0e8377b28055f691fa0e33690d6d3e166549f454a256f139bb13b2f545",
+  "status": "refused"
+ },
+ "mutate/r5c2_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "d0796c2ee34b521dadd1ae22fe84d6d76c4c02f9210541790153a45f7ee05da6",
+  "status": "refused"
+ },
+ "mutate/r5c2_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "d0796c2ee34b521dadd1ae22fe84d6d76c4c02f9210541790153a45f7ee05da6",
+  "status": "refused"
+ },
+ "mutate/r5c2_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d0796c2ee34b521dadd1ae22fe84d6d76c4c02f9210541790153a45f7ee05da6",
+  "status": "refused"
+ },
+ "mutate/r5c2_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "d0796c2ee34b521dadd1ae22fe84d6d76c4c02f9210541790153a45f7ee05da6",
+  "status": "refused"
+ },
+ "mutate/r5c4_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "53459808d027724cfb0cb13d91bf53441b499720d04cd08bf49c49d5b1ea5642",
+  "status": "refused"
+ },
+ "mutate/r5c4_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "53459808d027724cfb0cb13d91bf53441b499720d04cd08bf49c49d5b1ea5642",
+  "status": "refused"
+ },
+ "mutate/r5c4_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "53459808d027724cfb0cb13d91bf53441b499720d04cd08bf49c49d5b1ea5642",
+  "status": "refused"
+ },
+ "mutate/r5c4_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "53459808d027724cfb0cb13d91bf53441b499720d04cd08bf49c49d5b1ea5642",
+  "status": "refused"
+ },
+ "mutate/r5c4_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "b0d9bcd06531878daa4c04d498afce882babede925e5c9f0a2ad4a4b9c143c50",
+  "status": "refused"
+ },
+ "mutate/r5c4_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "b0d9bcd06531878daa4c04d498afce882babede925e5c9f0a2ad4a4b9c143c50",
+  "status": "refused"
+ },
+ "mutate/r5c4_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "b0d9bcd06531878daa4c04d498afce882babede925e5c9f0a2ad4a4b9c143c50",
+  "status": "refused"
+ },
+ "mutate/r5c4_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "b0d9bcd06531878daa4c04d498afce882babede925e5c9f0a2ad4a4b9c143c50",
+  "status": "refused"
+ },
+ "mutate/r5c4_neg|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "af6bcac80d308c8c8cf0c13ddab0595dfc8dad63384b5af26c06b62a2572c118",
+  "status": "refused"
+ },
+ "mutate/r5c4_neg|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "af6bcac80d308c8c8cf0c13ddab0595dfc8dad63384b5af26c06b62a2572c118",
+  "status": "refused"
+ },
+ "mutate/r5c4_neg|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "af6bcac80d308c8c8cf0c13ddab0595dfc8dad63384b5af26c06b62a2572c118",
+  "status": "refused"
+ },
+ "mutate/r5c4_neg|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "af6bcac80d308c8c8cf0c13ddab0595dfc8dad63384b5af26c06b62a2572c118",
+  "status": "refused"
+ },
+ "mutate/r5c4_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d1dbcae1ed0d32a5fc43127379389c1a43ab283659010e0b34ff419c1375c88",
+  "status": "refused"
+ },
+ "mutate/r5c4_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d1dbcae1ed0d32a5fc43127379389c1a43ab283659010e0b34ff419c1375c88",
+  "status": "refused"
+ },
+ "mutate/r5c4_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d1dbcae1ed0d32a5fc43127379389c1a43ab283659010e0b34ff419c1375c88",
+  "status": "refused"
+ },
+ "mutate/r5c4_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d1dbcae1ed0d32a5fc43127379389c1a43ab283659010e0b34ff419c1375c88",
+  "status": "refused"
+ },
+ "mutate/r6c3_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "5e8ea79c7def2b3d1a62a4577505ef5905c0cb7fc895e083f0c61188197856c3",
+  "status": "refused"
+ },
+ "mutate/r6c3_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "5e8ea79c7def2b3d1a62a4577505ef5905c0cb7fc895e083f0c61188197856c3",
+  "status": "refused"
+ },
+ "mutate/r6c3_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "5e8ea79c7def2b3d1a62a4577505ef5905c0cb7fc895e083f0c61188197856c3",
+  "status": "refused"
+ },
+ "mutate/r6c3_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "5e8ea79c7def2b3d1a62a4577505ef5905c0cb7fc895e083f0c61188197856c3",
+  "status": "refused"
+ },
+ "mutate/r6c3_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "df40cfe6e42bd53d83ae1388f89215f185b7303c198e1d90b8b4fd47280dddf0",
+  "status": "refused"
+ },
+ "mutate/r6c3_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "df40cfe6e42bd53d83ae1388f89215f185b7303c198e1d90b8b4fd47280dddf0",
+  "status": "refused"
+ },
+ "mutate/r6c3_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "df40cfe6e42bd53d83ae1388f89215f185b7303c198e1d90b8b4fd47280dddf0",
+  "status": "refused"
+ },
+ "mutate/r6c3_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "df40cfe6e42bd53d83ae1388f89215f185b7303c198e1d90b8b4fd47280dddf0",
+  "status": "refused"
+ },
+ "mutate/r6c3_neg|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "8f579aa19ea2d961bbe25210c05bf3da21d808b280489dc26711abfb65cad927",
+  "status": "refused"
+ },
+ "mutate/r6c3_neg|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "8f579aa19ea2d961bbe25210c05bf3da21d808b280489dc26711abfb65cad927",
+  "status": "refused"
+ },
+ "mutate/r6c3_neg|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "8f579aa19ea2d961bbe25210c05bf3da21d808b280489dc26711abfb65cad927",
+  "status": "refused"
+ },
+ "mutate/r6c3_neg|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "8f579aa19ea2d961bbe25210c05bf3da21d808b280489dc26711abfb65cad927",
+  "status": "refused"
+ },
+ "mutate/r6c3_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "542d335b437769ccf60d80708deb75cf0cb700e50f7419de4b7232ec7f92166d",
+  "status": "refused"
+ },
+ "mutate/r6c3_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "542d335b437769ccf60d80708deb75cf0cb700e50f7419de4b7232ec7f92166d",
+  "status": "refused"
+ },
+ "mutate/r6c3_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "542d335b437769ccf60d80708deb75cf0cb700e50f7419de4b7232ec7f92166d",
+  "status": "refused"
+ },
+ "mutate/r6c3_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "542d335b437769ccf60d80708deb75cf0cb700e50f7419de4b7232ec7f92166d",
+  "status": "refused"
+ },
+ "mutate/r6c4_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "9937e80eab66e422a7311c12ce0de51c3b05ac577c24cb65a8b92d5602e31377",
+  "status": "refused"
+ },
+ "mutate/r6c4_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "9937e80eab66e422a7311c12ce0de51c3b05ac577c24cb65a8b92d5602e31377",
+  "status": "refused"
+ },
+ "mutate/r6c4_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "9937e80eab66e422a7311c12ce0de51c3b05ac577c24cb65a8b92d5602e31377",
+  "status": "refused"
+ },
+ "mutate/r6c4_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "9937e80eab66e422a7311c12ce0de51c3b05ac577c24cb65a8b92d5602e31377",
+  "status": "refused"
+ },
+ "mutate/r6c4_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "cf83a9279a19ce9c7e865b0a963eec9c224297d80506a4baf7acd49a36e260ff",
+  "status": "refused"
+ },
+ "mutate/r6c4_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "cf83a9279a19ce9c7e865b0a963eec9c224297d80506a4baf7acd49a36e260ff",
+  "status": "refused"
+ },
+ "mutate/r6c4_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "cf83a9279a19ce9c7e865b0a963eec9c224297d80506a4baf7acd49a36e260ff",
+  "status": "refused"
+ },
+ "mutate/r6c4_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "cf83a9279a19ce9c7e865b0a963eec9c224297d80506a4baf7acd49a36e260ff",
+  "status": "refused"
+ },
+ "mutate/r6c4_neg|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0d1f8a5af48179cb3a90f5f8993287e6e78ab5ef176ce6edcd071319af519777",
+  "status": "refused"
+ },
+ "mutate/r6c4_neg|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0d1f8a5af48179cb3a90f5f8993287e6e78ab5ef176ce6edcd071319af519777",
+  "status": "refused"
+ },
+ "mutate/r6c4_neg|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0d1f8a5af48179cb3a90f5f8993287e6e78ab5ef176ce6edcd071319af519777",
+  "status": "refused"
+ },
+ "mutate/r6c4_neg|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "0d1f8a5af48179cb3a90f5f8993287e6e78ab5ef176ce6edcd071319af519777",
+  "status": "refused"
+ },
+ "mutate/r6c4_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "cb0471dff388442535be1db28504a68b509fc7e5e5752a224fd9a2a96eabe51e",
+  "status": "refused"
+ },
+ "mutate/r6c4_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "cb0471dff388442535be1db28504a68b509fc7e5e5752a224fd9a2a96eabe51e",
+  "status": "refused"
+ },
+ "mutate/r6c4_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "cb0471dff388442535be1db28504a68b509fc7e5e5752a224fd9a2a96eabe51e",
+  "status": "refused"
+ },
+ "mutate/r6c4_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "cb0471dff388442535be1db28504a68b509fc7e5e5752a224fd9a2a96eabe51e",
+  "status": "refused"
+ },
+ "mutate/r7c3_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "1b20507f8b60a7b9ce2c6469d72f5748195a2354775e25109ef8a4c7cb533cc3",
+  "status": "refused"
+ },
+ "mutate/r7c3_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "1b20507f8b60a7b9ce2c6469d72f5748195a2354775e25109ef8a4c7cb533cc3",
+  "status": "refused"
+ },
+ "mutate/r7c3_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "1b20507f8b60a7b9ce2c6469d72f5748195a2354775e25109ef8a4c7cb533cc3",
+  "status": "refused"
+ },
+ "mutate/r7c3_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "1b20507f8b60a7b9ce2c6469d72f5748195a2354775e25109ef8a4c7cb533cc3",
+  "status": "refused"
+ },
+ "mutate/r7c3_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "b31db697e57601cdc872e7f5c6ef342f1e9230485a390f5547ef598fd96474d8",
+  "status": "refused"
+ },
+ "mutate/r7c3_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "b31db697e57601cdc872e7f5c6ef342f1e9230485a390f5547ef598fd96474d8",
+  "status": "refused"
+ },
+ "mutate/r7c3_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "b31db697e57601cdc872e7f5c6ef342f1e9230485a390f5547ef598fd96474d8",
+  "status": "refused"
+ },
+ "mutate/r7c3_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "b31db697e57601cdc872e7f5c6ef342f1e9230485a390f5547ef598fd96474d8",
+  "status": "refused"
+ },
+ "mutate/r7c3_neg|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "0c027b76159251c10ecb2a0b4fc01514e0a5ba070dc5fd14decfff219e9a59f8",
+  "status": "refused"
+ },
+ "mutate/r7c3_neg|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "0c027b76159251c10ecb2a0b4fc01514e0a5ba070dc5fd14decfff219e9a59f8",
+  "status": "refused"
+ },
+ "mutate/r7c3_neg|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "0c027b76159251c10ecb2a0b4fc01514e0a5ba070dc5fd14decfff219e9a59f8",
+  "status": "refused"
+ },
+ "mutate/r7c3_neg|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "0c027b76159251c10ecb2a0b4fc01514e0a5ba070dc5fd14decfff219e9a59f8",
+  "status": "refused"
+ },
+ "mutate/r7c3_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "1eeb28662a69b546bfb5ecefb29b8759c0b472acedd5435dae151e65c23ac50c",
+  "status": "refused"
+ },
+ "mutate/r7c3_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "1eeb28662a69b546bfb5ecefb29b8759c0b472acedd5435dae151e65c23ac50c",
+  "status": "refused"
+ },
+ "mutate/r7c3_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "1eeb28662a69b546bfb5ecefb29b8759c0b472acedd5435dae151e65c23ac50c",
+  "status": "refused"
+ },
+ "mutate/r7c3_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "1eeb28662a69b546bfb5ecefb29b8759c0b472acedd5435dae151e65c23ac50c",
+  "status": "refused"
+ },
+ "mutate/r7c4_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "ca70985c6eaed408b9c16163f58d2f0a25c28b75a4370d1f77f8106f3be5cabc",
+  "status": "refused"
+ },
+ "mutate/r7c4_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "ca70985c6eaed408b9c16163f58d2f0a25c28b75a4370d1f77f8106f3be5cabc",
+  "status": "refused"
+ },
+ "mutate/r7c4_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "ca70985c6eaed408b9c16163f58d2f0a25c28b75a4370d1f77f8106f3be5cabc",
+  "status": "refused"
+ },
+ "mutate/r7c4_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "ca70985c6eaed408b9c16163f58d2f0a25c28b75a4370d1f77f8106f3be5cabc",
+  "status": "refused"
+ },
+ "mutate/r7c4_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "a7eaa156751bcf18be4a06217dcfd4933684b2e24fb2befa63f965c47995befe",
+  "status": "refused"
+ },
+ "mutate/r7c4_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "a7eaa156751bcf18be4a06217dcfd4933684b2e24fb2befa63f965c47995befe",
+  "status": "refused"
+ },
+ "mutate/r7c4_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "a7eaa156751bcf18be4a06217dcfd4933684b2e24fb2befa63f965c47995befe",
+  "status": "refused"
+ },
+ "mutate/r7c4_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "a7eaa156751bcf18be4a06217dcfd4933684b2e24fb2befa63f965c47995befe",
+  "status": "refused"
+ },
+ "mutate/r7c4_neg|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "734cdde90af0228c20dbcc12d1aef6f2985058718849333ec7cab8b1f782a60b",
+  "status": "refused"
+ },
+ "mutate/r7c4_neg|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "734cdde90af0228c20dbcc12d1aef6f2985058718849333ec7cab8b1f782a60b",
+  "status": "refused"
+ },
+ "mutate/r7c4_neg|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "734cdde90af0228c20dbcc12d1aef6f2985058718849333ec7cab8b1f782a60b",
+  "status": "refused"
+ },
+ "mutate/r7c4_neg|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "734cdde90af0228c20dbcc12d1aef6f2985058718849333ec7cab8b1f782a60b",
+  "status": "refused"
+ },
+ "mutate/r7c4_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "f582b4460a39bd6bcd6a33da273a0545275335364a0866f7d2e4044b522a2d56",
+  "status": "refused"
+ },
+ "mutate/r7c4_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f582b4460a39bd6bcd6a33da273a0545275335364a0866f7d2e4044b522a2d56",
+  "status": "refused"
+ },
+ "mutate/r7c4_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "f582b4460a39bd6bcd6a33da273a0545275335364a0866f7d2e4044b522a2d56",
+  "status": "refused"
+ },
+ "mutate/r7c4_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "f582b4460a39bd6bcd6a33da273a0545275335364a0866f7d2e4044b522a2d56",
+  "status": "refused"
+ },
+ "mutate/r8c3_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "510deb985ef622c9d34921c41fd433a70ce44a5146044fa9abdeac7b8b886bae",
+  "status": "refused"
+ },
+ "mutate/r8c3_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "510deb985ef622c9d34921c41fd433a70ce44a5146044fa9abdeac7b8b886bae",
+  "status": "refused"
+ },
+ "mutate/r8c3_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "510deb985ef622c9d34921c41fd433a70ce44a5146044fa9abdeac7b8b886bae",
+  "status": "refused"
+ },
+ "mutate/r8c3_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "510deb985ef622c9d34921c41fd433a70ce44a5146044fa9abdeac7b8b886bae",
+  "status": "refused"
+ },
+ "mutate/r8c3_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "148d7ab35c05c58f6cf428b4da17017aceebd9613ef8d209f3d337d47d255a39",
+  "status": "refused"
+ },
+ "mutate/r8c3_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "148d7ab35c05c58f6cf428b4da17017aceebd9613ef8d209f3d337d47d255a39",
+  "status": "refused"
+ },
+ "mutate/r8c3_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "148d7ab35c05c58f6cf428b4da17017aceebd9613ef8d209f3d337d47d255a39",
+  "status": "refused"
+ },
+ "mutate/r8c3_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "148d7ab35c05c58f6cf428b4da17017aceebd9613ef8d209f3d337d47d255a39",
+  "status": "refused"
+ },
+ "mutate/r8c3_neg|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "68aa3c74ba4b9015460b0ea93704af070a3881b36eeb0649706dbee0d95c3a47",
+  "status": "refused"
+ },
+ "mutate/r8c3_neg|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "68aa3c74ba4b9015460b0ea93704af070a3881b36eeb0649706dbee0d95c3a47",
+  "status": "refused"
+ },
+ "mutate/r8c3_neg|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "68aa3c74ba4b9015460b0ea93704af070a3881b36eeb0649706dbee0d95c3a47",
+  "status": "refused"
+ },
+ "mutate/r8c3_neg|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "68aa3c74ba4b9015460b0ea93704af070a3881b36eeb0649706dbee0d95c3a47",
+  "status": "refused"
+ },
+ "mutate/r8c3_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "13b0a63bb442aa1e34f0d8a5c331862350d1c8f724396754347308e1f0371c1e",
+  "status": "refused"
+ },
+ "mutate/r8c3_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "13b0a63bb442aa1e34f0d8a5c331862350d1c8f724396754347308e1f0371c1e",
+  "status": "refused"
+ },
+ "mutate/r8c3_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "13b0a63bb442aa1e34f0d8a5c331862350d1c8f724396754347308e1f0371c1e",
+  "status": "refused"
+ },
+ "mutate/r8c3_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "13b0a63bb442aa1e34f0d8a5c331862350d1c8f724396754347308e1f0371c1e",
+  "status": "refused"
+ },
+ "mutate/r8c4_blank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "182c10f853fa81efb6d133e4bb9c0688ad10af43d08a10c8450c1905bdccb134",
+  "status": "refused"
+ },
+ "mutate/r8c4_blank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "182c10f853fa81efb6d133e4bb9c0688ad10af43d08a10c8450c1905bdccb134",
+  "status": "refused"
+ },
+ "mutate/r8c4_blank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "182c10f853fa81efb6d133e4bb9c0688ad10af43d08a10c8450c1905bdccb134",
+  "status": "refused"
+ },
+ "mutate/r8c4_blank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "182c10f853fa81efb6d133e4bb9c0688ad10af43d08a10c8450c1905bdccb134",
+  "status": "refused"
+ },
+ "mutate/r8c4_comma|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7e071752f91dd7284f83a5df4d429c871c78449bca4f7d257b4da70f2eae5d00",
+  "status": "refused"
+ },
+ "mutate/r8c4_comma|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "7e071752f91dd7284f83a5df4d429c871c78449bca4f7d257b4da70f2eae5d00",
+  "status": "refused"
+ },
+ "mutate/r8c4_comma|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7e071752f91dd7284f83a5df4d429c871c78449bca4f7d257b4da70f2eae5d00",
+  "status": "refused"
+ },
+ "mutate/r8c4_comma|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7e071752f91dd7284f83a5df4d429c871c78449bca4f7d257b4da70f2eae5d00",
+  "status": "refused"
+ },
+ "mutate/r8c4_neg|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "a2e1d47f9557fead5d9d6f946db01688b593de8e82aedd27bd4aa07039e6a9c3",
+  "status": "refused"
+ },
+ "mutate/r8c4_neg|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "a2e1d47f9557fead5d9d6f946db01688b593de8e82aedd27bd4aa07039e6a9c3",
+  "status": "refused"
+ },
+ "mutate/r8c4_neg|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "a2e1d47f9557fead5d9d6f946db01688b593de8e82aedd27bd4aa07039e6a9c3",
+  "status": "refused"
+ },
+ "mutate/r8c4_neg|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "a2e1d47f9557fead5d9d6f946db01688b593de8e82aedd27bd4aa07039e6a9c3",
+  "status": "refused"
+ },
+ "mutate/r8c4_plus|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "5f18e4ffd81e2e62cba55eca9cb6b5501691ce299a4111950c9e3913d8e43971",
+  "status": "refused"
+ },
+ "mutate/r8c4_plus|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "5f18e4ffd81e2e62cba55eca9cb6b5501691ce299a4111950c9e3913d8e43971",
+  "status": "refused"
+ },
+ "mutate/r8c4_plus|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "5f18e4ffd81e2e62cba55eca9cb6b5501691ce299a4111950c9e3913d8e43971",
+  "status": "refused"
+ },
+ "mutate/r8c4_plus|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "5f18e4ffd81e2e62cba55eca9cb6b5501691ce299a4111950c9e3913d8e43971",
+  "status": "refused"
+ },
+ "precedence/header_beyond_scan_window|default": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "bd27956ff99028ccdb7e1b8181264c6a9adbf924b589c7b8a5eb5b36294c9639",
+  "status": "refused"
+ },
+ "precedence/header_beyond_scan_window|derived": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "bd27956ff99028ccdb7e1b8181264c6a9adbf924b589c7b8a5eb5b36294c9639",
+  "status": "refused"
+ },
+ "precedence/header_beyond_scan_window|mdy": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "bd27956ff99028ccdb7e1b8181264c6a9adbf924b589c7b8a5eb5b36294c9639",
+  "status": "refused"
+ },
+ "precedence/header_beyond_scan_window|usd": {
+  "code": "UNKNOWN_LAYOUT",
+  "sha256": "bd27956ff99028ccdb7e1b8181264c6a9adbf924b589c7b8a5eb5b36294c9639",
+  "status": "refused"
+ },
+ "precedence/preamble_bank|default": {
+  "code": null,
+  "sha256": "6763839bbdd84988909cf354fbf4f71db0546f455028eb786cbf189acba3fd7b",
+  "status": "ok"
+ },
+ "precedence/preamble_bank|derived": {
+  "code": null,
+  "sha256": "6763839bbdd84988909cf354fbf4f71db0546f455028eb786cbf189acba3fd7b",
+  "status": "ok"
+ },
+ "precedence/preamble_bank|mdy": {
+  "code": null,
+  "sha256": "6763839bbdd84988909cf354fbf4f71db0546f455028eb786cbf189acba3fd7b",
+  "status": "ok"
+ },
+ "precedence/preamble_bank|usd": {
+  "code": null,
+  "sha256": "6763839bbdd84988909cf354fbf4f71db0546f455028eb786cbf189acba3fd7b",
+  "status": "ok"
+ },
+ "precedence/rows_bank_then_stripe|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7fc57efeb6295bed03a1c7aac7c14967e719c737970f05b0b7c020bbf12b3663",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_stripe|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "783634fc1a23ee460385c422a462497117f01f66d98fdeffb6c4029ebb079c9f",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_stripe|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7fc57efeb6295bed03a1c7aac7c14967e719c737970f05b0b7c020bbf12b3663",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_stripe|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7522648ca0188e2bb6ffd2a0c3b5c27575ee59662362453d9c22a5d59f6bc6ee",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "549282ea9ed7738b44ecc6331f0e35f950c8e673e12314e472931af488df0b38",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "549282ea9ed7738b44ecc6331f0e35f950c8e673e12314e472931af488df0b38",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "549282ea9ed7738b44ecc6331f0e35f950c8e673e12314e472931af488df0b38",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "549282ea9ed7738b44ecc6331f0e35f950c8e673e12314e472931af488df0b38",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "dde247cc4051e439cf9ed71e9e1e1e1ee71c89983575bb472c821a8b614d59e8",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "cb3ddf775dd0fac52e81a354b8b736a755d4ca98c10b4ae3d8e4fb6ea42a42a4",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "dde247cc4051e439cf9ed71e9e1e1e1ee71c89983575bb472c821a8b614d59e8",
+  "status": "refused"
+ },
+ "precedence/rows_bank_then_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "6b60a0b93943ef02287f976f11f95f0e16fefc5cf3334ca2e7c117192c9f0273",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "6cd7ff87d8e306095c9d66fe8b32a10a79fd0b84f8436e1e5bcdebf4576c2f70",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "6cd7ff87d8e306095c9d66fe8b32a10a79fd0b84f8436e1e5bcdebf4576c2f70",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "6cd7ff87d8e306095c9d66fe8b32a10a79fd0b84f8436e1e5bcdebf4576c2f70",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "6cd7ff87d8e306095c9d66fe8b32a10a79fd0b84f8436e1e5bcdebf4576c2f70",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "0b57729137a96597c186648b9caf229cc29e6d6e36758ecd642fcacb8b5050cb",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "0b57729137a96597c186648b9caf229cc29e6d6e36758ecd642fcacb8b5050cb",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "0b57729137a96597c186648b9caf229cc29e6d6e36758ecd642fcacb8b5050cb",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "0b57729137a96597c186648b9caf229cc29e6d6e36758ecd642fcacb8b5050cb",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "d73526f5f35ff2cb81ac345f705032b799642298dca4d173ece667ac197d6e85",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "d73526f5f35ff2cb81ac345f705032b799642298dca4d173ece667ac197d6e85",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d73526f5f35ff2cb81ac345f705032b799642298dca4d173ece667ac197d6e85",
+  "status": "refused"
+ },
+ "precedence/rows_stripe_then_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "d73526f5f35ff2cb81ac345f705032b799642298dca4d173ece667ac197d6e85",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "8b20969c969b647524a26c87d16e33a3503b3574b4cb994747af9f80361da711",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "c62ae1388a9a9b131dbf714c9756834476a19f4d8d0003822ec3a6c54b0acceb",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "8b20969c969b647524a26c87d16e33a3503b3574b4cb994747af9f80361da711",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "c62ae1388a9a9b131dbf714c9756834476a19f4d8d0003822ec3a6c54b0acceb",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_stripe|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "21f604e05732cbf8008dcea2dd7c43e50190198af1416befe7cd82fca2005bd1",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_stripe|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "d4a6a477badc5f851769be70c9c44c2ab59f1b49a877ed76425c1b31aed39586",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_stripe|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "21f604e05732cbf8008dcea2dd7c43e50190198af1416befe7cd82fca2005bd1",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_stripe|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "d4a6a477badc5f851769be70c9c44c2ab59f1b49a877ed76425c1b31aed39586",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "17cea7c92d6bcfc86edd5acf8013291fe8a98106b59f9c61160eac7fdefd36c4",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "aac85f9d265a89e3e997e223646613f8fa37315888708c2f08d5b21318c93d61",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "17cea7c92d6bcfc86edd5acf8013291fe8a98106b59f9c61160eac7fdefd36c4",
+  "status": "refused"
+ },
+ "precedence/rows_tb_then_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "aac85f9d265a89e3e997e223646613f8fa37315888708c2f08d5b21318c93d61",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "ba200a0d8a7a2bafdf3a04bd41f214fdcf39d47d680c859c989e55310bb049ae",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "ba200a0d8a7a2bafdf3a04bd41f214fdcf39d47d680c859c989e55310bb049ae",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "ba200a0d8a7a2bafdf3a04bd41f214fdcf39d47d680c859c989e55310bb049ae",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "ba200a0d8a7a2bafdf3a04bd41f214fdcf39d47d680c859c989e55310bb049ae",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_stripe|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "4e55ae5fc7874b59a5675160d9577e3e15a3c633153087561358ce3741e1e516",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_stripe|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "4e55ae5fc7874b59a5675160d9577e3e15a3c633153087561358ce3741e1e516",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_stripe|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "4e55ae5fc7874b59a5675160d9577e3e15a3c633153087561358ce3741e1e516",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_stripe|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "4e55ae5fc7874b59a5675160d9577e3e15a3c633153087561358ce3741e1e516",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "ae36ec7fb5cde54230c832b5b193dd756e7299ed0042b098de98bf638c6463cf",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "ae36ec7fb5cde54230c832b5b193dd756e7299ed0042b098de98bf638c6463cf",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "ae36ec7fb5cde54230c832b5b193dd756e7299ed0042b098de98bf638c6463cf",
+  "status": "refused"
+ },
+ "precedence/rows_tds_then_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "ae36ec7fb5cde54230c832b5b193dd756e7299ed0042b098de98bf638c6463cf",
+  "status": "refused"
+ },
+ "precedence/single_ais|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "53d2f57382376c8918e41fcee26006b8e3900153443fd7a55e1642ef488e6139",
+  "status": "refused"
+ },
+ "precedence/single_ais|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "53d2f57382376c8918e41fcee26006b8e3900153443fd7a55e1642ef488e6139",
+  "status": "refused"
+ },
+ "precedence/single_ais|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "53d2f57382376c8918e41fcee26006b8e3900153443fd7a55e1642ef488e6139",
+  "status": "refused"
+ },
+ "precedence/single_ais|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "53d2f57382376c8918e41fcee26006b8e3900153443fd7a55e1642ef488e6139",
+  "status": "refused"
+ },
+ "precedence/single_b1099|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "61cb2cc107972c67b8bdc90ebafbf3242c42577609f9d86ec09ffe7844c324ae",
+  "status": "refused"
+ },
+ "precedence/single_b1099|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "61cb2cc107972c67b8bdc90ebafbf3242c42577609f9d86ec09ffe7844c324ae",
+  "status": "refused"
+ },
+ "precedence/single_b1099|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "ba7d280825dc52eb8e8b7c816b8a9b05f540390c33348a2ee127af2bd544f560",
+  "status": "refused"
+ },
+ "precedence/single_b1099|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "61cb2cc107972c67b8bdc90ebafbf3242c42577609f9d86ec09ffe7844c324ae",
+  "status": "refused"
+ },
+ "precedence/single_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "4ce5330dcfec570c7189d79558531657a5a9ac6f64dc993fee87825465eb5763",
+  "status": "refused"
+ },
+ "precedence/single_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "dd1cee7eb84e157f0def25cf4ca47b43e5859fafc9568d925cd12e12d5e8bd54",
+  "status": "refused"
+ },
+ "precedence/single_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "4ce5330dcfec570c7189d79558531657a5a9ac6f64dc993fee87825465eb5763",
+  "status": "refused"
+ },
+ "precedence/single_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "e42aefeb9817ed6c6a92985a9e00ac10b9377a6ea09358981d5777a5a9965547",
+  "status": "refused"
+ },
+ "precedence/single_fira|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7a8126c52f66c71bc26cbd41b83d64ed2f3600004bdc6a716f5571ae660ffe89",
+  "status": "refused"
+ },
+ "precedence/single_fira|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "7a8126c52f66c71bc26cbd41b83d64ed2f3600004bdc6a716f5571ae660ffe89",
+  "status": "refused"
+ },
+ "precedence/single_fira|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7a8126c52f66c71bc26cbd41b83d64ed2f3600004bdc6a716f5571ae660ffe89",
+  "status": "refused"
+ },
+ "precedence/single_fira|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7a8126c52f66c71bc26cbd41b83d64ed2f3600004bdc6a716f5571ae660ffe89",
+  "status": "refused"
+ },
+ "precedence/single_paypal|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "c341fafbc84bf79680001aa9d720f3f8f629015442385bbf273c08f9e121cabd",
+  "status": "refused"
+ },
+ "precedence/single_paypal|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "c341fafbc84bf79680001aa9d720f3f8f629015442385bbf273c08f9e121cabd",
+  "status": "refused"
+ },
+ "precedence/single_paypal|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "c341fafbc84bf79680001aa9d720f3f8f629015442385bbf273c08f9e121cabd",
+  "status": "refused"
+ },
+ "precedence/single_paypal|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "c341fafbc84bf79680001aa9d720f3f8f629015442385bbf273c08f9e121cabd",
+  "status": "refused"
+ },
+ "precedence/single_razorpay|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "09566461bff7e3db2717d8319132116ee29765445061a64f5bc5f1193c8cf0d8",
+  "status": "refused"
+ },
+ "precedence/single_razorpay|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "8df40e5ca4acf4c83363c9a1b83c41da5de9525cae73ec3b9116fe7df99ad090",
+  "status": "refused"
+ },
+ "precedence/single_razorpay|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "09566461bff7e3db2717d8319132116ee29765445061a64f5bc5f1193c8cf0d8",
+  "status": "refused"
+ },
+ "precedence/single_razorpay|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "8df40e5ca4acf4c83363c9a1b83c41da5de9525cae73ec3b9116fe7df99ad090",
+  "status": "refused"
+ },
+ "precedence/single_stripe|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "b1868b314c987140a83719598ee02eb0a2f9a1495fe89ff0431bf1a7a50ec4f5",
+  "status": "refused"
+ },
+ "precedence/single_stripe|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "b1868b314c987140a83719598ee02eb0a2f9a1495fe89ff0431bf1a7a50ec4f5",
+  "status": "refused"
+ },
+ "precedence/single_stripe|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "b1868b314c987140a83719598ee02eb0a2f9a1495fe89ff0431bf1a7a50ec4f5",
+  "status": "refused"
+ },
+ "precedence/single_stripe|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "b1868b314c987140a83719598ee02eb0a2f9a1495fe89ff0431bf1a7a50ec4f5",
+  "status": "refused"
+ },
+ "precedence/single_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "6c77c8bbd5a17773aef7626988f8534a484d54fb516486c215bdc8a533561e56",
+  "status": "refused"
+ },
+ "precedence/single_tb|derived": {
+  "code": null,
+  "sha256": "6beb3df57a4536fb36a73e3a1fd001093f7d96d8db766413f9e84d0b7d0103e2",
+  "status": "ok"
+ },
+ "precedence/single_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "6c77c8bbd5a17773aef7626988f8534a484d54fb516486c215bdc8a533561e56",
+  "status": "refused"
+ },
+ "precedence/single_tb|usd": {
+  "code": null,
+  "sha256": "b337f5a09da0602496f1839386d54736ad0637f1bab1259eeaf6ecdcb96de4cd",
+  "status": "ok"
+ },
+ "precedence/single_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7667134755d6786dd9be63206deb2ab6f8a79f130aa6bfef59e6533fd1c86fff",
+  "status": "refused"
+ },
+ "precedence/single_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "7667134755d6786dd9be63206deb2ab6f8a79f130aa6bfef59e6533fd1c86fff",
+  "status": "refused"
+ },
+ "precedence/single_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7667134755d6786dd9be63206deb2ab6f8a79f130aa6bfef59e6533fd1c86fff",
+  "status": "refused"
+ },
+ "precedence/single_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7667134755d6786dd9be63206deb2ab6f8a79f130aa6bfef59e6533fd1c86fff",
+  "status": "refused"
+ },
+ "precedence/single_wise|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "2b00b821734c9cb007eba1a04bef5d9ddfb98e6ca5d60afd58f7bb72ad3a5d42",
+  "status": "refused"
+ },
+ "precedence/single_wise|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f080fbc7bec0b1082f35e83e2823e4427b0269b205d6afc55ab5d940b7bd2f38",
+  "status": "refused"
+ },
+ "precedence/single_wise|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "2b00b821734c9cb007eba1a04bef5d9ddfb98e6ca5d60afd58f7bb72ad3a5d42",
+  "status": "refused"
+ },
+ "precedence/single_wise|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "2b00b821734c9cb007eba1a04bef5d9ddfb98e6ca5d60afd58f7bb72ad3a5d42",
+  "status": "refused"
+ },
+ "precedence/union_ais_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "f035c4ee1bbe1bb5277454c8cccd20a60e6e78d842184a908456152617871850",
+  "status": "refused"
+ },
+ "precedence/union_ais_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f035c4ee1bbe1bb5277454c8cccd20a60e6e78d842184a908456152617871850",
+  "status": "refused"
+ },
+ "precedence/union_ais_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "f035c4ee1bbe1bb5277454c8cccd20a60e6e78d842184a908456152617871850",
+  "status": "refused"
+ },
+ "precedence/union_ais_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "f035c4ee1bbe1bb5277454c8cccd20a60e6e78d842184a908456152617871850",
+  "status": "refused"
+ },
+ "precedence/union_ais_fira|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "79724de79f1cefd904319bb555e462715cc4640a10fc42eb8d43d1de9ef0be0d",
+  "status": "refused"
+ },
+ "precedence/union_ais_fira|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "79724de79f1cefd904319bb555e462715cc4640a10fc42eb8d43d1de9ef0be0d",
+  "status": "refused"
+ },
+ "precedence/union_ais_fira|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "79724de79f1cefd904319bb555e462715cc4640a10fc42eb8d43d1de9ef0be0d",
+  "status": "refused"
+ },
+ "precedence/union_ais_fira|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "79724de79f1cefd904319bb555e462715cc4640a10fc42eb8d43d1de9ef0be0d",
+  "status": "refused"
+ },
+ "precedence/union_ais_tb|default": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "272fd6ef891edf768a435517530713041c1a141085ce73128389e0708e7e96f5",
+  "status": "refused"
+ },
+ "precedence/union_ais_tb|derived": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "272fd6ef891edf768a435517530713041c1a141085ce73128389e0708e7e96f5",
+  "status": "refused"
+ },
+ "precedence/union_ais_tb|mdy": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "272fd6ef891edf768a435517530713041c1a141085ce73128389e0708e7e96f5",
+  "status": "refused"
+ },
+ "precedence/union_ais_tb|usd": {
+  "code": "BALANCE_MISMATCH",
+  "sha256": "272fd6ef891edf768a435517530713041c1a141085ce73128389e0708e7e96f5",
+  "status": "refused"
+ },
+ "precedence/union_b1099_ais|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "62adfe900170d44d8aa6fb0329fd76d64a2cf2fb6c89cd912bb0615bf8074758",
+  "status": "refused"
+ },
+ "precedence/union_b1099_ais|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "62adfe900170d44d8aa6fb0329fd76d64a2cf2fb6c89cd912bb0615bf8074758",
+  "status": "refused"
+ },
+ "precedence/union_b1099_ais|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "70c2f407e65197d64b371cad8175335bc6981e9389c3a6760602475bbb908414",
+  "status": "refused"
+ },
+ "precedence/union_b1099_ais|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "62adfe900170d44d8aa6fb0329fd76d64a2cf2fb6c89cd912bb0615bf8074758",
+  "status": "refused"
+ },
+ "precedence/union_b1099_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "1f097088c7ac85102045fd705c70757dcf2b41e0617f56e7c94d823921c11b66",
+  "status": "refused"
+ },
+ "precedence/union_b1099_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "1f097088c7ac85102045fd705c70757dcf2b41e0617f56e7c94d823921c11b66",
+  "status": "refused"
+ },
+ "precedence/union_b1099_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "0a38922a854f2f178c46968bdcdae24967abbc46ccd81a48d17074fbb5bc63bf",
+  "status": "refused"
+ },
+ "precedence/union_b1099_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "1f097088c7ac85102045fd705c70757dcf2b41e0617f56e7c94d823921c11b66",
+  "status": "refused"
+ },
+ "precedence/union_b1099_fira|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "05e2ae26c3489155c433a50418447b74a64c3db76369dd58b2526d8ff6e7c6d1",
+  "status": "refused"
+ },
+ "precedence/union_b1099_fira|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "05e2ae26c3489155c433a50418447b74a64c3db76369dd58b2526d8ff6e7c6d1",
+  "status": "refused"
+ },
+ "precedence/union_b1099_fira|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "74dd9e73a04f7fbb2d499ebdcb16e46aa05e6bfc62dc70befcfe6f5df19f3b5f",
+  "status": "refused"
+ },
+ "precedence/union_b1099_fira|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "05e2ae26c3489155c433a50418447b74a64c3db76369dd58b2526d8ff6e7c6d1",
+  "status": "refused"
+ },
+ "precedence/union_b1099_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "c8a296a1fae88fc998c7acac5cfcb0e9d9182a6c83ad163a1cc593bd5eaa9a58",
+  "status": "refused"
+ },
+ "precedence/union_b1099_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "c8a296a1fae88fc998c7acac5cfcb0e9d9182a6c83ad163a1cc593bd5eaa9a58",
+  "status": "refused"
+ },
+ "precedence/union_b1099_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d2d3054040328fbae46c73a2f029796f19a129dec89e57394aa5f0818b9c212e",
+  "status": "refused"
+ },
+ "precedence/union_b1099_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "c8a296a1fae88fc998c7acac5cfcb0e9d9182a6c83ad163a1cc593bd5eaa9a58",
+  "status": "refused"
+ },
+ "precedence/union_b1099_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "bf6c13c3a4b68b3c8b4056e022e2cc9da4667dacf73d2bcd30137976f26bfe3f",
+  "status": "refused"
+ },
+ "precedence/union_b1099_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "bf6c13c3a4b68b3c8b4056e022e2cc9da4667dacf73d2bcd30137976f26bfe3f",
+  "status": "refused"
+ },
+ "precedence/union_b1099_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "3dd2bc4e8d456b0401b73ff0456f64b4acc437bec0bec2179f693d7f029d20a8",
+  "status": "refused"
+ },
+ "precedence/union_b1099_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "bf6c13c3a4b68b3c8b4056e022e2cc9da4667dacf73d2bcd30137976f26bfe3f",
+  "status": "refused"
+ },
+ "precedence/union_bank_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "9440c53f8c8f23d8ba827752d3fcae9e92bb67f24a8079ff5816ae2ab4613c70",
+  "status": "refused"
+ },
+ "precedence/union_bank_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "5c3b1fa271eefaf716e7be77edcc291be5ffdddb43ba8cfead4cfbc01c49c86c",
+  "status": "refused"
+ },
+ "precedence/union_bank_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "9440c53f8c8f23d8ba827752d3fcae9e92bb67f24a8079ff5816ae2ab4613c70",
+  "status": "refused"
+ },
+ "precedence/union_bank_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "1455c663444afc2d982adeb60793454847aac4329f8c445de985a36b9ad916b5",
+  "status": "refused"
+ },
+ "precedence/union_fira_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "81f6f69264082672ad3470108fa7d11b060717efc3141f3bf6f80d5f6c0bf4f4",
+  "status": "refused"
+ },
+ "precedence/union_fira_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "81f6f69264082672ad3470108fa7d11b060717efc3141f3bf6f80d5f6c0bf4f4",
+  "status": "refused"
+ },
+ "precedence/union_fira_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "81f6f69264082672ad3470108fa7d11b060717efc3141f3bf6f80d5f6c0bf4f4",
+  "status": "refused"
+ },
+ "precedence/union_fira_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "81f6f69264082672ad3470108fa7d11b060717efc3141f3bf6f80d5f6c0bf4f4",
+  "status": "refused"
+ },
+ "precedence/union_fira_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "17a580987ee3f5674e3290cf17386311af4d96fdbee0c0463344660e34dc2b0d",
+  "status": "refused"
+ },
+ "precedence/union_fira_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "17a580987ee3f5674e3290cf17386311af4d96fdbee0c0463344660e34dc2b0d",
+  "status": "refused"
+ },
+ "precedence/union_fira_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "17a580987ee3f5674e3290cf17386311af4d96fdbee0c0463344660e34dc2b0d",
+  "status": "refused"
+ },
+ "precedence/union_fira_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "17a580987ee3f5674e3290cf17386311af4d96fdbee0c0463344660e34dc2b0d",
+  "status": "refused"
+ },
+ "precedence/union_paypal_ais|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "0ecfc51ac8a72549a3179f7600327bff3533dc2ce5dd96008a90a453cf7f11e8",
+  "status": "refused"
+ },
+ "precedence/union_paypal_ais|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "0ecfc51ac8a72549a3179f7600327bff3533dc2ce5dd96008a90a453cf7f11e8",
+  "status": "refused"
+ },
+ "precedence/union_paypal_ais|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "0ecfc51ac8a72549a3179f7600327bff3533dc2ce5dd96008a90a453cf7f11e8",
+  "status": "refused"
+ },
+ "precedence/union_paypal_ais|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "0ecfc51ac8a72549a3179f7600327bff3533dc2ce5dd96008a90a453cf7f11e8",
+  "status": "refused"
+ },
+ "precedence/union_paypal_b1099|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "4d6f114cd1d91427a90f41da6e05f9f9b6f7a7b47505464579b375322186fa13",
+  "status": "refused"
+ },
+ "precedence/union_paypal_b1099|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "4d6f114cd1d91427a90f41da6e05f9f9b6f7a7b47505464579b375322186fa13",
+  "status": "refused"
+ },
+ "precedence/union_paypal_b1099|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "4d6f114cd1d91427a90f41da6e05f9f9b6f7a7b47505464579b375322186fa13",
+  "status": "refused"
+ },
+ "precedence/union_paypal_b1099|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "4d6f114cd1d91427a90f41da6e05f9f9b6f7a7b47505464579b375322186fa13",
+  "status": "refused"
+ },
+ "precedence/union_paypal_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7a4eb6e29553d82c150a1186524760493dc154d9142e6b91ede0518e2ced8439",
+  "status": "refused"
+ },
+ "precedence/union_paypal_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "7a4eb6e29553d82c150a1186524760493dc154d9142e6b91ede0518e2ced8439",
+  "status": "refused"
+ },
+ "precedence/union_paypal_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7a4eb6e29553d82c150a1186524760493dc154d9142e6b91ede0518e2ced8439",
+  "status": "refused"
+ },
+ "precedence/union_paypal_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7a4eb6e29553d82c150a1186524760493dc154d9142e6b91ede0518e2ced8439",
+  "status": "refused"
+ },
+ "precedence/union_paypal_fira|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "8856100213417f41ff69fdb0752b2865e77cee30a41b92c375dbe12be07d3df9",
+  "status": "refused"
+ },
+ "precedence/union_paypal_fira|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "8856100213417f41ff69fdb0752b2865e77cee30a41b92c375dbe12be07d3df9",
+  "status": "refused"
+ },
+ "precedence/union_paypal_fira|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "8856100213417f41ff69fdb0752b2865e77cee30a41b92c375dbe12be07d3df9",
+  "status": "refused"
+ },
+ "precedence/union_paypal_fira|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "8856100213417f41ff69fdb0752b2865e77cee30a41b92c375dbe12be07d3df9",
+  "status": "refused"
+ },
+ "precedence/union_paypal_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "2244bceb966d7b59879c598c469b350910546f6525631b6af3054a080db71837",
+  "status": "refused"
+ },
+ "precedence/union_paypal_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "2244bceb966d7b59879c598c469b350910546f6525631b6af3054a080db71837",
+  "status": "refused"
+ },
+ "precedence/union_paypal_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "2244bceb966d7b59879c598c469b350910546f6525631b6af3054a080db71837",
+  "status": "refused"
+ },
+ "precedence/union_paypal_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "2244bceb966d7b59879c598c469b350910546f6525631b6af3054a080db71837",
+  "status": "refused"
+ },
+ "precedence/union_paypal_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "11aa9a9ae90b1a51420944a085991c9996b5c2a6520e70f583345bcdaf97b88e",
+  "status": "refused"
+ },
+ "precedence/union_paypal_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "11aa9a9ae90b1a51420944a085991c9996b5c2a6520e70f583345bcdaf97b88e",
+  "status": "refused"
+ },
+ "precedence/union_paypal_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "11aa9a9ae90b1a51420944a085991c9996b5c2a6520e70f583345bcdaf97b88e",
+  "status": "refused"
+ },
+ "precedence/union_paypal_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "11aa9a9ae90b1a51420944a085991c9996b5c2a6520e70f583345bcdaf97b88e",
+  "status": "refused"
+ },
+ "precedence/union_paypal_wise|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "f7517a21e63440aec329759ac21f6a53531f2c5a19d842f93c85487ac403f945",
+  "status": "refused"
+ },
+ "precedence/union_paypal_wise|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f7517a21e63440aec329759ac21f6a53531f2c5a19d842f93c85487ac403f945",
+  "status": "refused"
+ },
+ "precedence/union_paypal_wise|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "f7517a21e63440aec329759ac21f6a53531f2c5a19d842f93c85487ac403f945",
+  "status": "refused"
+ },
+ "precedence/union_paypal_wise|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "f7517a21e63440aec329759ac21f6a53531f2c5a19d842f93c85487ac403f945",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_ais|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "2fd0ff4b504313e8b29d5965c6598ae74970323b13d0825eeab87589c4909528",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_ais|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "452577164a55360fa5833e319cd02c4cab9afa82b65eeb7e11cfc7943e644661",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_ais|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "2fd0ff4b504313e8b29d5965c6598ae74970323b13d0825eeab87589c4909528",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_ais|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "452577164a55360fa5833e319cd02c4cab9afa82b65eeb7e11cfc7943e644661",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_b1099|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "779bf072c57130c37e64126ea2e3f78ed70772e610eef8fdb640c8641584196e",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_b1099|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "dde6a0ca0dd92ffd8169812e731721b21a1d6bc7dc011682d256d34531152eb0",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_b1099|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "779bf072c57130c37e64126ea2e3f78ed70772e610eef8fdb640c8641584196e",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_b1099|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "dde6a0ca0dd92ffd8169812e731721b21a1d6bc7dc011682d256d34531152eb0",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "1c02a046e44e6547a7456be09d6b0bf0f63b98d68233bf5822f417b10fd58bea",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "55577d692c42db4e45fc8f053bce8608b5bca609d58ce915ccdcbb132b009ef1",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "1c02a046e44e6547a7456be09d6b0bf0f63b98d68233bf5822f417b10fd58bea",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "55577d692c42db4e45fc8f053bce8608b5bca609d58ce915ccdcbb132b009ef1",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_fira|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d4dc4a57f792b0c81c768cd6212ca39f131703a126c39d0ed815e1d88975e10",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_fira|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d4dc4a57f792b0c81c768cd6212ca39f131703a126c39d0ed815e1d88975e10",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_fira|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d4dc4a57f792b0c81c768cd6212ca39f131703a126c39d0ed815e1d88975e10",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_fira|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7d4dc4a57f792b0c81c768cd6212ca39f131703a126c39d0ed815e1d88975e10",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_paypal|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7da669fb50d5e778306cc430380e2f6266e138ae0054f85967ab8d22168e78a2",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_paypal|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "7da669fb50d5e778306cc430380e2f6266e138ae0054f85967ab8d22168e78a2",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_paypal|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7da669fb50d5e778306cc430380e2f6266e138ae0054f85967ab8d22168e78a2",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_paypal|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "7da669fb50d5e778306cc430380e2f6266e138ae0054f85967ab8d22168e78a2",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "7ad05f4bc2f6898d65436aeb2ec5681508e20fcc2199d9ec4f33200b1d8ed64b",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "1df5c715ba0a9d0951f7454687767a835843cce05179a5ae51faa7bb222f1755",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "7ad05f4bc2f6898d65436aeb2ec5681508e20fcc2199d9ec4f33200b1d8ed64b",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "1df5c715ba0a9d0951f7454687767a835843cce05179a5ae51faa7bb222f1755",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "c55aa1b6741731577b230553dec7982041bf1abcd00a92c7f758e3c81dd4b095",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "63a9404a0a7c2e6a6f50dd92a91a318cec91b8bc707dcdc654f04d3e199ef88f",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "c55aa1b6741731577b230553dec7982041bf1abcd00a92c7f758e3c81dd4b095",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "63a9404a0a7c2e6a6f50dd92a91a318cec91b8bc707dcdc654f04d3e199ef88f",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_wise|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "72134602010327756973463bc3499faf8b0bea349b45eb7163cd22391093a80d",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_wise|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "72134602010327756973463bc3499faf8b0bea349b45eb7163cd22391093a80d",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_wise|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "72134602010327756973463bc3499faf8b0bea349b45eb7163cd22391093a80d",
+  "status": "refused"
+ },
+ "precedence/union_razorpay_wise|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "72134602010327756973463bc3499faf8b0bea349b45eb7163cd22391093a80d",
+  "status": "refused"
+ },
+ "precedence/union_stripe_ais|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "50924a89edb32f12177cdcc3df3e2201b906549cf711d18b60d0542a06afccd1",
+  "status": "refused"
+ },
+ "precedence/union_stripe_ais|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "50924a89edb32f12177cdcc3df3e2201b906549cf711d18b60d0542a06afccd1",
+  "status": "refused"
+ },
+ "precedence/union_stripe_ais|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "50924a89edb32f12177cdcc3df3e2201b906549cf711d18b60d0542a06afccd1",
+  "status": "refused"
+ },
+ "precedence/union_stripe_ais|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "50924a89edb32f12177cdcc3df3e2201b906549cf711d18b60d0542a06afccd1",
+  "status": "refused"
+ },
+ "precedence/union_stripe_b1099|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "ad68e4ba459ee68783e740e18e9e299fc21d3c36bf6256b26da39ed40613874e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_b1099|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "ad68e4ba459ee68783e740e18e9e299fc21d3c36bf6256b26da39ed40613874e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_b1099|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "ad68e4ba459ee68783e740e18e9e299fc21d3c36bf6256b26da39ed40613874e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_b1099|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "ad68e4ba459ee68783e740e18e9e299fc21d3c36bf6256b26da39ed40613874e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "bfdd607d0bf70b9e977e1c2f1978967f014c1f2c561ae46a70b57d2480c233fc",
+  "status": "refused"
+ },
+ "precedence/union_stripe_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "bfdd607d0bf70b9e977e1c2f1978967f014c1f2c561ae46a70b57d2480c233fc",
+  "status": "refused"
+ },
+ "precedence/union_stripe_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "bfdd607d0bf70b9e977e1c2f1978967f014c1f2c561ae46a70b57d2480c233fc",
+  "status": "refused"
+ },
+ "precedence/union_stripe_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "bfdd607d0bf70b9e977e1c2f1978967f014c1f2c561ae46a70b57d2480c233fc",
+  "status": "refused"
+ },
+ "precedence/union_stripe_fira|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "dcbe0607a76c11c6c9ad5db88ad2f8a59968234304fecefdb8f7b2f16783fb55",
+  "status": "refused"
+ },
+ "precedence/union_stripe_fira|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "dcbe0607a76c11c6c9ad5db88ad2f8a59968234304fecefdb8f7b2f16783fb55",
+  "status": "refused"
+ },
+ "precedence/union_stripe_fira|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "dcbe0607a76c11c6c9ad5db88ad2f8a59968234304fecefdb8f7b2f16783fb55",
+  "status": "refused"
+ },
+ "precedence/union_stripe_fira|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "dcbe0607a76c11c6c9ad5db88ad2f8a59968234304fecefdb8f7b2f16783fb55",
+  "status": "refused"
+ },
+ "precedence/union_stripe_paypal|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "9bbadba5188945c7a01bf03fc3e2eda0f8e38efbf318612a7a8a121a74805a8e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_paypal|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "9bbadba5188945c7a01bf03fc3e2eda0f8e38efbf318612a7a8a121a74805a8e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_paypal|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "9bbadba5188945c7a01bf03fc3e2eda0f8e38efbf318612a7a8a121a74805a8e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_paypal|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "9bbadba5188945c7a01bf03fc3e2eda0f8e38efbf318612a7a8a121a74805a8e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_razorpay|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "e12f12a6eb5549a169fcf6734c72e7496f5fef9a6d81cd2c76b0e02cb248364e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_razorpay|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "e12f12a6eb5549a169fcf6734c72e7496f5fef9a6d81cd2c76b0e02cb248364e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_razorpay|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "e12f12a6eb5549a169fcf6734c72e7496f5fef9a6d81cd2c76b0e02cb248364e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_razorpay|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "e12f12a6eb5549a169fcf6734c72e7496f5fef9a6d81cd2c76b0e02cb248364e",
+  "status": "refused"
+ },
+ "precedence/union_stripe_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "75f3b0a4a1a7ae4b86b010afbf30582846bcf6117a0d1a173e1c14b371bb844a",
+  "status": "refused"
+ },
+ "precedence/union_stripe_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "75f3b0a4a1a7ae4b86b010afbf30582846bcf6117a0d1a173e1c14b371bb844a",
+  "status": "refused"
+ },
+ "precedence/union_stripe_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "75f3b0a4a1a7ae4b86b010afbf30582846bcf6117a0d1a173e1c14b371bb844a",
+  "status": "refused"
+ },
+ "precedence/union_stripe_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "75f3b0a4a1a7ae4b86b010afbf30582846bcf6117a0d1a173e1c14b371bb844a",
+  "status": "refused"
+ },
+ "precedence/union_stripe_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "29f09d14ab615a0535b045ae204088d78598f7f655587661a0ff2725c9aaf669",
+  "status": "refused"
+ },
+ "precedence/union_stripe_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "29f09d14ab615a0535b045ae204088d78598f7f655587661a0ff2725c9aaf669",
+  "status": "refused"
+ },
+ "precedence/union_stripe_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "29f09d14ab615a0535b045ae204088d78598f7f655587661a0ff2725c9aaf669",
+  "status": "refused"
+ },
+ "precedence/union_stripe_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "29f09d14ab615a0535b045ae204088d78598f7f655587661a0ff2725c9aaf669",
+  "status": "refused"
+ },
+ "precedence/union_stripe_wise|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "8500517f0057cc70cbac9af9bfe3617210e5e7c93025465f3e6d4b534fc3fa97",
+  "status": "refused"
+ },
+ "precedence/union_stripe_wise|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "8500517f0057cc70cbac9af9bfe3617210e5e7c93025465f3e6d4b534fc3fa97",
+  "status": "refused"
+ },
+ "precedence/union_stripe_wise|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "8500517f0057cc70cbac9af9bfe3617210e5e7c93025465f3e6d4b534fc3fa97",
+  "status": "refused"
+ },
+ "precedence/union_stripe_wise|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "8500517f0057cc70cbac9af9bfe3617210e5e7c93025465f3e6d4b534fc3fa97",
+  "status": "refused"
+ },
+ "precedence/union_tds_ais|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "a0a670b72d1464378d97cdf56b9932fff4568f7dbc039056b0c2446635b5720d",
+  "status": "refused"
+ },
+ "precedence/union_tds_ais|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "a0a670b72d1464378d97cdf56b9932fff4568f7dbc039056b0c2446635b5720d",
+  "status": "refused"
+ },
+ "precedence/union_tds_ais|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "a0a670b72d1464378d97cdf56b9932fff4568f7dbc039056b0c2446635b5720d",
+  "status": "refused"
+ },
+ "precedence/union_tds_ais|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "a0a670b72d1464378d97cdf56b9932fff4568f7dbc039056b0c2446635b5720d",
+  "status": "refused"
+ },
+ "precedence/union_tds_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "f577907a01e92ed4e64b06a4a27dfecf3bb376cf4b37745fffa51a7ca8bf76b5",
+  "status": "refused"
+ },
+ "precedence/union_tds_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f577907a01e92ed4e64b06a4a27dfecf3bb376cf4b37745fffa51a7ca8bf76b5",
+  "status": "refused"
+ },
+ "precedence/union_tds_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "f577907a01e92ed4e64b06a4a27dfecf3bb376cf4b37745fffa51a7ca8bf76b5",
+  "status": "refused"
+ },
+ "precedence/union_tds_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "f577907a01e92ed4e64b06a4a27dfecf3bb376cf4b37745fffa51a7ca8bf76b5",
+  "status": "refused"
+ },
+ "precedence/union_tds_fira|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "4077391dc0779ce23ef1ef6d8080867cb4637cfbef79a98cfb5f82b9ab4eb97d",
+  "status": "refused"
+ },
+ "precedence/union_tds_fira|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "4077391dc0779ce23ef1ef6d8080867cb4637cfbef79a98cfb5f82b9ab4eb97d",
+  "status": "refused"
+ },
+ "precedence/union_tds_fira|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "4077391dc0779ce23ef1ef6d8080867cb4637cfbef79a98cfb5f82b9ab4eb97d",
+  "status": "refused"
+ },
+ "precedence/union_tds_fira|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "4077391dc0779ce23ef1ef6d8080867cb4637cfbef79a98cfb5f82b9ab4eb97d",
+  "status": "refused"
+ },
+ "precedence/union_tds_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "0c012146a8ef445ea60da888b9c76b08387971ff175c9742123dd9482089e3f3",
+  "status": "refused"
+ },
+ "precedence/union_tds_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "0c012146a8ef445ea60da888b9c76b08387971ff175c9742123dd9482089e3f3",
+  "status": "refused"
+ },
+ "precedence/union_tds_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "0c012146a8ef445ea60da888b9c76b08387971ff175c9742123dd9482089e3f3",
+  "status": "refused"
+ },
+ "precedence/union_tds_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "0c012146a8ef445ea60da888b9c76b08387971ff175c9742123dd9482089e3f3",
+  "status": "refused"
+ },
+ "precedence/union_wise_ais|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "d8cc315fcd30e7c9bcc689118011501c24b5897463065140bc89fc885b068673",
+  "status": "refused"
+ },
+ "precedence/union_wise_ais|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "90aad6c0cbe1bc54c7b9bafb24f96b8f31bf9b7e1166522684f62d2403c5072c",
+  "status": "refused"
+ },
+ "precedence/union_wise_ais|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "d8cc315fcd30e7c9bcc689118011501c24b5897463065140bc89fc885b068673",
+  "status": "refused"
+ },
+ "precedence/union_wise_ais|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "d8cc315fcd30e7c9bcc689118011501c24b5897463065140bc89fc885b068673",
+  "status": "refused"
+ },
+ "precedence/union_wise_b1099|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "66a58f99a935a6db6e1207d98a4a6012db80ef56120723b57a41aca296884c5c",
+  "status": "refused"
+ },
+ "precedence/union_wise_b1099|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "5067b32184c60d3e419efa1603346567f6c0f0a113fb1133bd4d34e6601482ba",
+  "status": "refused"
+ },
+ "precedence/union_wise_b1099|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "66a58f99a935a6db6e1207d98a4a6012db80ef56120723b57a41aca296884c5c",
+  "status": "refused"
+ },
+ "precedence/union_wise_b1099|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "66a58f99a935a6db6e1207d98a4a6012db80ef56120723b57a41aca296884c5c",
+  "status": "refused"
+ },
+ "precedence/union_wise_bank|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "662a06bec0ab411e6b43569235fc54a7d17ad725fe4d3e1f9397bf35d3ffa8b9",
+  "status": "refused"
+ },
+ "precedence/union_wise_bank|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "509d88bc335e3cd5548825ca91662f4b1b12f75ae9d5665d077e7ac39fc53852",
+  "status": "refused"
+ },
+ "precedence/union_wise_bank|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "662a06bec0ab411e6b43569235fc54a7d17ad725fe4d3e1f9397bf35d3ffa8b9",
+  "status": "refused"
+ },
+ "precedence/union_wise_bank|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "662a06bec0ab411e6b43569235fc54a7d17ad725fe4d3e1f9397bf35d3ffa8b9",
+  "status": "refused"
+ },
+ "precedence/union_wise_fira|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "62722532257735118da71ca9560018fc612b934490503450aeee0368ccb91743",
+  "status": "refused"
+ },
+ "precedence/union_wise_fira|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "734b84d60b69c6e74dab03d1b627ac804a41a51f54c690fb7270f61aa9e95c91",
+  "status": "refused"
+ },
+ "precedence/union_wise_fira|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "62722532257735118da71ca9560018fc612b934490503450aeee0368ccb91743",
+  "status": "refused"
+ },
+ "precedence/union_wise_fira|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "62722532257735118da71ca9560018fc612b934490503450aeee0368ccb91743",
+  "status": "refused"
+ },
+ "precedence/union_wise_tb|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "fa191ade75e47357075153f5eff8e11076237bc1469c678f2fd98886cec6f9c2",
+  "status": "refused"
+ },
+ "precedence/union_wise_tb|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "255212a76b86a0766b78a699ef4deebf6cdec8ef79656782f4dd1c5d8b636fbf",
+  "status": "refused"
+ },
+ "precedence/union_wise_tb|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "fa191ade75e47357075153f5eff8e11076237bc1469c678f2fd98886cec6f9c2",
+  "status": "refused"
+ },
+ "precedence/union_wise_tb|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "fa191ade75e47357075153f5eff8e11076237bc1469c678f2fd98886cec6f9c2",
+  "status": "refused"
+ },
+ "precedence/union_wise_tds|default": {
+  "code": "PARSE_ERROR",
+  "sha256": "29e23baa25d205569243dd94d6b494c9f36d51c0cb3d7b3d69397dc2fd7b6b7e",
+  "status": "refused"
+ },
+ "precedence/union_wise_tds|derived": {
+  "code": "PARSE_ERROR",
+  "sha256": "f3da618fa6b6d8202b18a78b78ad4957bb5fb9d67848059c3f20492237f5adcc",
+  "status": "refused"
+ },
+ "precedence/union_wise_tds|mdy": {
+  "code": "PARSE_ERROR",
+  "sha256": "29e23baa25d205569243dd94d6b494c9f36d51c0cb3d7b3d69397dc2fd7b6b7e",
+  "status": "refused"
+ },
+ "precedence/union_wise_tds|usd": {
+  "code": "PARSE_ERROR",
+  "sha256": "29e23baa25d205569243dd94d6b494c9f36d51c0cb3d7b3d69397dc2fd7b6b7e",
+  "status": "refused"
+ }
+}

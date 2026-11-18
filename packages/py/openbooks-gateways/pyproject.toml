@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openbooks-gateways"
+dynamic = ["version"]
+description = "Open Books providers for payment gateway exports: Stripe, Razorpay, PayPal, Wise"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["openbooks-core[xlsx]>=0.1.0,<0.2"]
+
+[project.entry-points."openbooks.layouts"]
+"stripe_balance.v1" = "openbooks_gateways.parsers:parse_stripe"
+"razorpay_settlement.v1" = "openbooks_gateways.parsers:parse_razorpay"
+"paypal_activity.v1" = "openbooks_gateways.parsers:parse_paypal"
+"wise_statement.v1" = "openbooks_gateways.parsers:parse_wise"
+
+[tool.hatch.version]
+path = "src/openbooks_gateways/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/openbooks_gateways"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/openbooks_gateways", "README.md", "pyproject.toml"]

@@ -10,11 +10,11 @@ import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 import train_roles as tr  # noqa: E402
-from openbooks.calibration import Calibrator  # noqa: E402
-from openbooks.encoder import RoleNet, dequantize_state  # noqa: E402
+from openbooks_lab.calibration_fit import fit_calibrator  # noqa: E402
+from openbooks_statements.calibration import Calibrator  # noqa: E402
+from openbooks_statements.encoder import RoleNet, dequantize_state  # noqa: E402
 
 
 def main(tag: str, alpha: float) -> None:
@@ -30,7 +30,7 @@ def main(tag: str, alpha: float) -> None:
     calib_sets = [splits["calib"], wide["train"], wide["calib"]] + [fam[f]["calib"] for f in trained]
     lg = [tr.logits_of(net, s, dev) for s in calib_sets]
     cat = lambda i: np.concatenate([x[i] for x in lg])  # noqa: E731
-    cal_r, cal_t = Calibrator.fit(cat(0), cat(2), alpha), Calibrator.fit(cat(1), cat(3), alpha)
+    cal_r, cal_t = fit_calibrator(cat(0), cat(2), alpha), fit_calibrator(cat(1), cat(3), alpha)
     to_json = lambda c: {"temperature": c.temperature, "qhat": None if np.isinf(c.qhat) else c.qhat, "alpha": c.alpha}  # noqa: E731
     (ROOT / "models" / f"fam_{tag}" / f"roles_calibration_shift_{alpha}.json").write_text(
         json.dumps({"role": to_json(cal_r), "vtype": to_json(cal_t),

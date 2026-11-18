@@ -1,7 +1,7 @@
 """process(..., on_stage=cb) reports each pipeline stage it completes, in order."""
 from decimal import Decimal
 
-from openbooks.golden import OPEN, bank_csv, bank_rows
+from openbooks_lab.golden import OPEN, bank_csv, bank_rows
 from openbooks.pipeline import Params, process
 import random
 

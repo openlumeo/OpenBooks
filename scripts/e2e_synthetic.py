@@ -16,9 +16,8 @@ from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
-from openbooks.golden import RZP_HEAD, RZP_OK, build  # noqa: E402
+from openbooks_lab.golden import RZP_HEAD, RZP_OK, build  # noqa: E402
 from openbooks.pipeline import Params, process, run_report, validate_output  # noqa: E402
 
 

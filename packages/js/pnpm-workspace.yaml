@@ -1,0 +1,7 @@
+packages:
+  - "core"
+  - "statements"
+  - "gateways"
+  - "tax"
+  - "doctor"
+  - "cli"

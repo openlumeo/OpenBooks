@@ -18,9 +18,8 @@ from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
-from openbooks import pdf_front as pf  # noqa: E402
+from openbooks_statements import pdf_front as pf  # noqa: E402
 from openbooks.pipeline import Params, Refusal, process  # noqa: E402
 
 BASE = ROOT / "data" / "raw" / "agami_indian_bank_statements" / "train"

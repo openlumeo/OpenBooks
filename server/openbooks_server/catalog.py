@@ -15,11 +15,11 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from openbooks import pipeline
+from openbooks_statements.assets import MODELS_DIR
 from openbooks.pipeline import ALLOWED_EXT, MAX_BYTES, SCHEMA_VERSION
 
-# Same location openbooks.roles uses (repo/models). Not imported from there: that module needs torch at
-# import time, and the service must start without the optional [scan] extra.
-WEIGHTS = Path(pipeline.__file__).resolve().parents[2] / "models" / "roles_head.pt"
+# Same location openbooks.roles uses. openbooks.paths has no torch import, so the service starts without the [scan] extra.
+WEIGHTS = MODELS_DIR / "roles_head.pt"
 CALIBRATION = WEIGHTS.with_name("roles_calibration.json")
 
 _status_cache: dict = {}
@@ -32,13 +32,17 @@ def model_status(weights: Path = WEIGHTS, calibration: Path = CALIBRATION) -> tu
         return False, "no model weights (models/roles_head.pt)"
     if not calibration.exists():
         return False, "no calibration (models/roles_calibration.json)"
-    key = (str(weights), str(calibration), weights.stat().st_mtime_ns, calibration.stat().st_mtime_ns)
+    import hashlib
+
+    # The calibration is small, so its content is part of the key; the weights are large, so their size and mtime are.
+    # (Keying both on mtime alone served a stale answer when a file was rewritten within one timestamp tick.)
+    cal_bytes = calibration.read_bytes()
+    st = weights.stat()
+    key = (str(weights), str(calibration), st.st_size, st.st_mtime_ns, hashlib.sha256(cal_bytes).hexdigest())
     if key not in _status_cache:
         _status_cache.clear()
-        import hashlib
-
         try:
-            fitted = json.loads(calibration.read_text(encoding="utf-8")).get("weights_sha256")
+            fitted = json.loads(cal_bytes.decode("utf-8")).get("weights_sha256")
         except (OSError, ValueError):
             fitted = None
         actual = hashlib.sha256(weights.read_bytes()).hexdigest()
@@ -140,7 +144,7 @@ class Samples:
         with self._lock:
             if self._root is not None:
                 return
-            from openbooks.golden import build
+            from openbooks_lab.golden import build
 
             root = Path(tempfile.mkdtemp(prefix="openbooks-samples-"))
             build(root)

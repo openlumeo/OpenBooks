@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from openbooks.golden import build
+from openbooks_lab.golden import build
 from openbooks.pipeline import Params, Refusal, dumps, fx_check, main, process, run_eval, to_dec
 
 
