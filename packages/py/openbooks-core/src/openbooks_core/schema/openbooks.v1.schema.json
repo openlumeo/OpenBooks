@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:openbooks:schema:v1:output",
-  "title": "Open Books output document (status ok)",
+  "title": "OpenBooksDocument",
   "type": "object",
   "required": [
     "schema_version",
@@ -49,6 +49,18 @@
               "pattern": "^[0-9a-f]{64}$"
             }
           }
+        },
+        "name": {
+          "type": "string"
+        },
+        "detected_format": {
+          "type": "string"
+        },
+        "layout_version": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
         }
       }
     },
@@ -162,7 +174,8 @@
               "type": "array"
             }
           }
-        }
+        },
+        "title": "Evidence"
       }
     },
     "assertions": {
@@ -197,7 +210,8 @@
           "independent": {
             "type": "boolean"
           }
-        }
+        },
+        "title": "Assertion"
       }
     }
   },
@@ -218,7 +232,8 @@
           "type": "string",
           "pattern": "^[A-Z]{3}$"
         }
-      }
+      },
+      "title": "Money"
     },
     "account": {
       "type": "object",
@@ -240,7 +255,8 @@
           "type": "string",
           "pattern": "^[A-Z]{3}$"
         }
-      }
+      },
+      "title": "Account"
     },
     "batch": {
       "type": "object",
@@ -317,7 +333,8 @@
             }
           }
         }
-      }
+      },
+      "title": "Batch"
     },
     "transaction": {
       "type": "object",
@@ -375,7 +392,8 @@
             "null"
           ]
         }
-      }
+      },
+      "title": "Transaction"
     }
   }
 }

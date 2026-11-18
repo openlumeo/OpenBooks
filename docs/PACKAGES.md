@@ -1,6 +1,13 @@
 # Building and publishing the Open Books packages
 
-> **Status (branch `feat/openbooks-core-package`):** `openbooks-core` is extracted and the layout registry is live; `openbooks` is the meta package and still carries every parser, the PDF/OCR path and the heads until the statements/gateways/tax split. See `docs/research/OPENBOOKS_PACKAGING_RESEARCH.md` for the audit, decisions and plan (it supersedes parts of this document, e.g. matching is not shipped in gateways, and the console script is owned by core).
+> **Status (branch `feat/openbooks-core-package`, unreleased, nothing published):** all five Python packages exist
+> (`openbooks-core`, `-gateways`, `-tax`, `-statements`, `-doctor`) plus the `openbooks` meta package, and the npm workspace
+> `packages/js` (`@openbooks/core|statements|gateways|tax|doctor` and the `openbooks` CLI) wraps the Python engine. Closed code
+> (training, synthetic data, golden builders, matching) lives in the private `packages/py/openbooks-lab` and is never published.
+> `docs/research/OPENBOOKS_PACKAGING_RESEARCH.md` has the audit, decisions and plan, and supersedes parts of this document
+> (matching is not shipped in gateways; core owns the `openbooks` console script; PDF and OCR are extras; types come from the JSON
+> Schema with Ajv validation instead of a hand-written Zod layer). Still open: licence, PyMuPDF (AGPL) strategy, the public/private
+> repo split, name reservation, real-sample evaluation, and the first TestPyPI / npm dry run.
 
 Audience: a teammate with write access who will pull this repo, split it into the five packages on the pipeline diagram, publish them (PyPI and npm), and finish the ML side of the workflow. Nothing here has been built or published yet. Everything marked **verified** was run against this repo on 2026-11-18.
 

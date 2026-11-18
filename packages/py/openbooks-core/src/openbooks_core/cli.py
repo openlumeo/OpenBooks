@@ -21,7 +21,7 @@ from .grade import run_eval
 from .output import write_atomic
 from .params import Params
 from .process import dumps, process
-from .registry import LAYOUT_API_VERSION, _entry_points, default_registry
+from .registry import KNOWN_LAYOUTS, KNOWN_SNIFFERS, LAYOUT_API_VERSION, _entry_points, default_registry
 from .report import run_report
 from .schema import SCHEMA_VERSION
 
@@ -50,6 +50,7 @@ def engine_info() -> dict:
     reg = default_registry()
     return {"name": "openbooks-core", "version": __version__, "schema_version": SCHEMA_VERSION, "layout_api": LAYOUT_API_VERSION,
             "python": sys.version.split()[0], "layouts": sorted(reg.installed_layouts()),
+            "known_layouts": [{"id": s.id, "distribution": s.distribution} for s in [*KNOWN_LAYOUTS, *KNOWN_SNIFFERS]],
             "frontends": sorted(n for n in ("document",) if _has_frontend(reg, n)), "linker": reg.linker() is not None}
 
 

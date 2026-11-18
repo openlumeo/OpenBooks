@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:openbooks:schema:v1:refusal",
-  "title": "Open Books typed refusal",
+  "title": "OpenBooksRefusal",
   "type": "object",
   "required": [
     "schema_version",

@@ -52,3 +52,12 @@ def test_the_record_definitions_reject_malformed_transactions(bad):
     with pytest.raises(Refusal) as e:
         validate_output(doc(**bad))
     assert e.value.code == "OUTPUT_INVALID"
+
+
+def test_engine_info_publishes_what_the_wrappers_rely_on():
+    from openbooks_core.cli import engine_info
+
+    info = engine_info()
+    assert {"name", "version", "schema_version", "layout_api", "layouts", "known_layouts", "frontends", "linker"} <= set(info)
+    assert [k["id"] for k in info["known_layouts"]][:2] == ["stripe_balance.v1", "razorpay_settlement.v1"]
+    assert all(k["distribution"].startswith("openbooks-") for k in info["known_layouts"])
