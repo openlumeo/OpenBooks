@@ -17,6 +17,7 @@ CORE_FILES = {"__init__.py", "__main__.py", "_version.py", "builders.py", "cli.p
               "py.typed", "registry.py", "report.py", "schema.py", "schema/openbooks.v1.refusal.schema.json",
               "schema/openbooks.v1.schema.json"}
 GATEWAYS_FILES = {"__init__.py", "_version.py", "parsers.py", "py.typed"}
+TAX_FILES = GATEWAYS_FILES | {"gates.py"}
 # Modules that must not reach a public distribution. Until the provider packages are split out, openbooks still carries them.
 PRIVATE_MODULES = {"synth.py", "golden.py", "golden_docs.py", "bitenc.py", "link.py"}
 
@@ -24,9 +25,9 @@ PRIVATE_MODULES = {"synth.py", "golden.py", "golden_docs.py", "bitenc.py", "link
 @pytest.fixture(scope="session")
 def wheels(tmp_path_factory):
     out = tmp_path_factory.mktemp("dist")
-    for pkg in ("openbooks-core", "openbooks-gateways", "openbooks"):
+    for pkg in ("openbooks-core", "openbooks-gateways", "openbooks-tax", "openbooks"):
         subprocess.run([sys.executable, "-m", "build", "-q", "--wheel", "--outdir", str(out), str(ROOT / "packages" / "py" / pkg)], check=True)
-    return {"core": next(out.glob("openbooks_core-*.whl")), "gateways": next(out.glob("openbooks_gateways-*.whl")),
+    return {"core": next(out.glob("openbooks_core-*.whl")), "gateways": next(out.glob("openbooks_gateways-*.whl")), "tax": next(out.glob("openbooks_tax-*.whl")),
             "meta": next(out.glob("openbooks-0*.whl")), "dir": out}
 
 
@@ -49,13 +50,19 @@ def test_gateways_wheel_contains_exactly_the_allowed_files_and_depends_only_on_c
     assert len(reqs) == 1 and reqs[0].startswith("openbooks-core")
 
 
+def test_tax_wheel_contains_exactly_the_allowed_files_and_depends_only_on_core(wheels):
+    assert names(wheels["tax"], "openbooks_tax/") == TAX_FILES
+    reqs = [l.split(": ", 1)[1] for l in metadata(wheels["tax"]).splitlines() if l.startswith("Requires-Dist")]
+    assert len(reqs) == 1 and reqs[0].startswith("openbooks-core")
+
+
 def test_core_depends_only_on_jsonschema(wheels):
     reqs = [l.split(": ", 1)[1] for l in metadata(wheels["core"]).splitlines() if l.startswith("Requires-Dist")]
     assert len(reqs) == 1 and reqs[0].startswith("jsonschema")
 
 
 def test_no_wheel_ships_tests_scripts_or_model_files(wheels):
-    for w in (wheels["core"], wheels["gateways"], wheels["meta"]):
+    for w in (wheels["core"], wheels["gateways"], wheels["tax"], wheels["meta"]):
         for n in zipfile.ZipFile(w).namelist():
             assert not n.startswith(("tests/", "scripts/", "models/", "docs/")) and not n.endswith((".pt", ".pkl")), n
 
@@ -71,16 +78,17 @@ def entry_points_text(wheel: Path) -> str:
     return z.read(next(n for n in z.namelist() if n.endswith("entry_points.txt"))).decode()
 
 
-def test_every_known_layout_is_registered_by_exactly_one_wheel_and_gateways_owns_its_four(wheels):
+def test_every_known_layout_is_registered_by_exactly_one_wheel_and_providers_own_their_layouts(wheels):
     from openbooks_core.registry import KNOWN_LAYOUTS, KNOWN_SNIFFERS
 
-    texts = {k: entry_points_text(wheels[k]) for k in ("gateways", "meta")}
+    texts = {k: entry_points_text(wheels[k]) for k in ("gateways", "tax", "meta")}
     for lid in [s.id for s in KNOWN_LAYOUTS] + [s.id for s in KNOWN_SNIFFERS]:
         owners = [k for k, t in texts.items() if f"{lid} = " in t or f'"{lid}" = ' in t]
         assert len(owners) == 1, (lid, owners)
     for spec in KNOWN_LAYOUTS:
-        if spec.distribution == "openbooks-gateways":
-            assert f"{spec.id} = " in texts["gateways"], spec.id
+        for dist, key in (("openbooks-gateways", "gateways"), ("openbooks-tax", "tax")):
+            if spec.distribution == dist:
+                assert f"{spec.id} = " in texts[key], spec.id
 
 
 def test_a_clean_environment_with_only_core_installs_one_dependency_and_refuses_everything(wheels, tmp_path):

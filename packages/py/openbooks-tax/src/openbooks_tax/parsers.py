@@ -1,18 +1,23 @@
-"""Tax document parsers: 26AS, AIS, FIRA, trial balance, 1099-B. Moved verbatim; become openbooks-tax.
-"""
+"""Tax and ledger parsers: Form 26AS, AIS, FIRA, Form 1099-B and trial balance. Each is released only when the document
+supplies a figure of its own to check against (a printed total, or a relation between numbers it states). The layouts
+come from public descriptions, not real exports, so all of them are experimental until redacted samples exist."""
 from __future__ import annotations
 
 import re
 from decimal import Decimal
 
-from openbooks_core.builders import (D, body_rows as _body, cell_getter as _cell, currency_of as _currency, empty_data as _empty_data,
-                                     finish_batch as _finish, money_fields as _money_fields, settlement_batch as _settlement,
-                                     split_total as _split_total, stated_totals as _stated_totals, statement_doc)
+from openbooks_core.builders import body_rows as _body
+from openbooks_core.builders import cell_getter as _cell
+from openbooks_core.builders import currency_of as _currency
+from openbooks_core.builders import empty_data as _empty_data
+from openbooks_core.builders import finish_batch as _finish
+from openbooks_core.builders import money_fields as _money_fields
+from openbooks_core.builders import split_total as _split_total
+from openbooks_core.builders import stated_totals as _stated_totals
 from openbooks_core.errors import Refusal
 from openbooks_core.evidence import evidence
-from openbooks_core.normalise import date_order, fmt, money, to_date, to_dec
+from openbooks_core.normalise import date_order, money, to_date, to_dec
 from openbooks_core.params import Params
-
 
 _CCY = re.compile(r"[A-Z]{3}")
 FX_TOLERANCE = Decimal("0.01")

@@ -1,4 +1,4 @@
-"""Gates for the tax and ledger batch kinds. Split from the old extra_gate; rules, wording and order are unchanged."""
+"""Gates for the tax and ledger batch kinds: printed totals, FX arithmetic, debits equal credits. Rules and wording are unchanged from 0.1."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -6,7 +6,7 @@ from decimal import Decimal
 from openbooks_core.builders import D
 from openbooks_core.gates import amount_str, printed_rule
 
-from .parsers_tax import fx_check
+from .parsers import fx_check
 
 
 def tax_statement(b, tx):
