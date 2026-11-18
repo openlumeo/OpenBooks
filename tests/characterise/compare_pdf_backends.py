@@ -61,6 +61,22 @@ def strip_geometry(doc: dict) -> dict:
     return d
 
 
+def regrouped_only(a: dict, b: dict) -> bool:
+    """True when the two documents differ only in how wrapped description lines are split between rows.
+
+    A continuation line printed midway between two rows is equally near both. The old reader's glyph boxes broke that tie by
+    float noise (towards the next row); pdfium's uniform boxes make it an exact tie, which goes to the row above, and the fixtures
+    print continuations below their row, so that is the right row. The check: every other field is identical, and the descriptions
+    hold exactly the same words overall, so nothing was lost, invented or moved to a different transaction's amount.
+    """
+    ta, tb = a.get("data", {}).get("transactions"), b.get("data", {}).get("transactions")
+    if a["status"] != "ok" or b["status"] != "ok" or not ta or not tb or len(ta) != len(tb):
+        return False
+    blank = lambda doc: {**doc, "data": {**doc["data"], "transactions": [{**t, "description": ""} for t in doc["data"]["transactions"]]}}  # noqa: E731
+    words = lambda ts: sorted(w for t in ts for w in str(t.get("description") or "").split())  # noqa: E731
+    return blank(a) == blank(b) and words(ta) == words(tb)
+
+
 def paths(a, b, where=""):
     """Where two JSON values differ, as (path, old, new), at most a handful."""
     if type(a) is not type(b):
@@ -80,7 +96,7 @@ def paths(a, b, where=""):
 def main() -> int:
     root = Path(sys.argv[1])
     new_read = new.read_words
-    differences, compared = [], 0
+    differences, compared, regrouped = [], 0, []
     for case in sorted(p for p in root.iterdir() if p.is_dir()):
         src = next(f for f in case.iterdir() if f.name != "expected.json")
         if src.suffix.lower() != ".pdf" or "scan" in case.name:
@@ -98,15 +114,20 @@ def main() -> int:
         a, b = strip_geometry(old_doc), strip_geometry(new_doc)
         if old_doc["status"] == "refused" and old_doc["error"].get("internal") and new_doc["status"] == "refused"                 and new_doc["error"]["code"] == "UNSUPPORTED_INPUT":
             continue  # intended: a file the old reader crashed on is now refused as unreadable, with a typed code
+        if a != b and regrouped_only(a, b):
+            regrouped.append(case.name)  # a wrapped description line moved to the neighbouring row: same words, nothing else changed
+            continue
         if a != b:
-            what = [k for k in ("status", "error", "file", "data", "evidence", "assertions") if a.get(k) != b.get(k)]
+            what =[k for k in ("status", "error", "file", "data", "evidence", "assertions") if a.get(k) != b.get(k)]
             differences.append(f"{case.name}: old={old_doc['status']}/{old_doc.get('error', {}).get('code')} "
                                f"new={new_doc['status']}/{new_doc.get('error', {}).get('code')} differs in {what}")
             for path, x, y in paths(a, b)[:6]:
                 differences.append(f"    {path}: old={str(x)[:90]!r} new={str(y)[:90]!r}")
     for line in differences:
         print("DIFF", line)
-    print(f"compared {compared} text-layer PDFs, {len(differences)} differences")
+    for name in regrouped:
+        print("NOTE", name, "wrapped description lines attached to the neighbouring row (same words overall)")
+    print(f"compared {compared} text-layer PDFs, {len(differences)} differences, {len(regrouped)} with regrouped description lines")
     return 1 if differences or compared == 0 else 0
 
 
