@@ -38,11 +38,11 @@ path = "src/openbooks_statements/_version.py"
 packages = ["src/openbooks_statements"]
 
 # The weights and their calibration travel together in one wheel so the hash binding can never see a mismatched pair.
-# Source of truth stays models/ at the repo root. Only the weights, their calibration and the model card ship.
-[tool.hatch.build.targets.wheel.force-include]
-"../../../models/roles_head.pt" = "openbooks_statements/data/roles_head.pt"
-"../../../models/roles_calibration.json" = "openbooks_statements/data/roles_calibration.json"
-"../../../models/roles_model_card.json" = "openbooks_statements/data/roles_model_card.json"
+# Source of truth stays models/ at the repo root. Only the weights, their calibration and the model card ship (hatch_build.py),
+# in the wheel and in the sdist, so a wheel built from the sdist is the same.
+[tool.hatch.build.targets.wheel.hooks.custom]
+
+[tool.hatch.build.targets.sdist.hooks.custom]
 
 [tool.hatch.build.targets.sdist]
-include = ["LICENSE", "src/openbooks_statements", "README.md", "pyproject.toml"]
+include = ["LICENSE", "src/openbooks_statements", "README.md", "pyproject.toml", "hatch_build.py"]
