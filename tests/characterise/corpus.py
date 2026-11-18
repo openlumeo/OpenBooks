@@ -57,8 +57,12 @@ def _write(root: Path, name: str, content: str | bytes, ext: str = "csv") -> Pat
 
 
 def _golden(root: Path, which: str) -> list[Case]:
-    from openbooks_lab import golden_docs
-    from openbooks_lab.golden import build
+    try:  # after the package split the builders live in the private openbooks_lab; before it, in openbooks itself
+        from openbooks_lab import golden_docs
+        from openbooks_lab.golden import build
+    except ModuleNotFoundError:
+        from openbooks import golden_docs
+        from openbooks.golden import build
 
     gdir = root / "_golden"
     if which == "main":
