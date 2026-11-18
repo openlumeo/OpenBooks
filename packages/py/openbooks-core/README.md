@@ -1,7 +1,16 @@
 # openbooks-core package boundary
 
-Status: scaffold / migration contract. The production engine remains in `src/openbooks`
-until the registry migration and compatibility suite are implemented together.
+Status: **implemented (0.1.0, unreleased).** The contract, normalisation, gates, registry, `process`, the `.xlsx` front end,
+the grader and the CLI live here. Parsers still ship in the `openbooks` meta distribution and register through entry points
+until the statements, gateways and tax packages are split out.
+
+```bash
+pip install -e packages/py/openbooks-core             # only jsonschema is installed
+python -m openbooks_core engine-info                  # version, contract version, installed layouts (JSON)
+python -m openbooks_core run file.csv --machine       # JSON lines on stdout; exit 0 released, 1 refused, 2 usage, 3 engine fault
+```
+
+With no provider installed every known layout is refused with the package to install; nothing is ever released by guesswork.
 
 ## Responsibility
 

@@ -25,8 +25,8 @@ Requires Python 3.11 or newer.
 ```bash
 git clone https://github.com/Sagexd08/OpenBooks.git
 cd OpenBooks
-pip install -e .              # core: CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
-pip install -e ".[scan]"      # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
+pip install -e packages/py/openbooks-core -e packages/py/openbooks   # core + parsers: CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
+pip install -e "packages/py/openbooks[scan]"                          # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
 ```
 
 ## Use
@@ -74,7 +74,7 @@ else:
 A conversation-style workspace (Open Books by Lumeo) lives in `web/`, backed by a small engine service in `server/`. Drop files into a thread, watch each one go through Detect, Parse, Normalise and Balance, and get one released document or a typed refusal per file, with the checks, per-field evidence and JSON on every card. With a Claude API key you can then ask questions about the released documents. Totals in answers are computed by code, never by the model.
 
 ```bash
-pip install -e . -e server                 # engine + engine service (FastAPI)
+pip install -e packages/py/openbooks-core -e packages/py/openbooks -e server   # engine + engine service (FastAPI)
 cd web && pnpm install
 cp .env.example .env.local                 # optional: ANTHROPIC_API_KEY for questions
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
@@ -159,7 +159,8 @@ Evidence files are in [docs/evidence/](docs/evidence/). Reproduce the family num
 ## Repository layout
 
 ```
-src/openbooks/   pipeline, parsers, PDF/scan front end, typed heads, calibration, linking, synthetic generator
+packages/py/openbooks-core/   the openbooks.v1 contract, normalisation, gates, layout registry, CLI (depends only on jsonschema)
+packages/py/openbooks/        parsers, PDF/scan front end, typed heads, linking, `openbooks.pipeline` compatibility facade (interim: splits into statements/gateways/tax)
 scripts/         training, calibration, promotion gate, evaluation, baselines
 tests/           pytest suite (set OB_SLOW=1 for the slow tests)
 models/          shipped int8 heads (trained on default + sign/branch/skew synthetic layouts), calibration and manifest
@@ -169,8 +170,9 @@ docs/            architecture, format catalog, dataset notes, evidence
 ## Develop
 
 ```bash
-pip install -e ".[scan]" pytest
-OB_SLOW=1 python -m pytest -q                       # full suite
+pip install -e packages/py/openbooks-core -e "packages/py/openbooks[scan]" -e server pytest hypothesis httpx
+OB_SLOW=1 python -m pytest -q tests packages/py/openbooks-core/tests server/tests   # full suite
+python tests/characterise/run.py verify              # behaviour frozen before the package split (868 results)
 python scripts/family_baseline.py                   # unseen-family baseline
 python scripts/train_roles.py 1200 150 12           # retrain the heads (GPU recommended)
 python scripts/promote.py --baseline docs/evidence/roles_metrics_calibrated.json <candidate.json>   # promotion gate

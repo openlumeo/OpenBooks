@@ -8,7 +8,7 @@ Open Books turns financial files into **one proven JSON document per file**, or 
 
 | Rule | Meaning |
 |---|---|
-| One file in, one JSON out | Output schema is `openbooks.v1` (`SCHEMA` and `validate_output` in `src/openbooks/pipeline.py`). |
+| One file in, one JSON out | Output schema is `openbooks.v1` (`openbooks_core/schema/*.json` and `validate_output` in `openbooks_core.schema`; `openbooks.pipeline` re-exports them). |
 | Proven or refused | A file is released only if every assertion passes and at least one assertion is independent evidence. Otherwise it is refused with a typed code. |
 | Money is `Decimal` end to end | Nothing is rounded silently; amounts are formatted with the currency exponent. |
 | Evidence for every field | Each field carries page, bbox, raw text and method (`parser`, `pdf_text`, `ocr`, optionally `+model`). |
@@ -120,9 +120,13 @@ All training and test data is synthetic. No real statements are used or scored.
 ## 6. Repository map
 
 ```
-src/openbooks/
-  pipeline.py        detect, parse (CSV/OFX/MT940/gateways), normalise, balance gate, schema, CLI
-  parsers_extra.py   26AS, AIS, FIRA, trial balance, XLSX
+packages/py/openbooks-core/src/openbooks_core/
+  registry.py        known layouts and detection order, entry-point provider discovery
+  normalise.py, builders.py, gates.py, schema.py, process.py, cli.py   normalisation, shared builders, balance gates, contract, pipeline, CLI
+packages/py/openbooks/src/openbooks/
+  pipeline.py        compatibility facade over openbooks_core
+  parsers_statements.py, parsers_gateways.py, parsers_tax.py   the parsers (bank CSV/OFX/MT940; Stripe/Razorpay/PayPal/Wise; 26AS/AIS/FIRA/1099-B/trial balance)
+  gates_tax.py, gates_statements.py   per-kind gates
   pdf_front.py       PDF and scan front end (text layer, OCR, column geometry)
   roles.py           typed heads at inference time, constraint-aware resolution
   encoder.py         layout encoder and int8 quantisation

@@ -1,5 +1,7 @@
 # Building and publishing the Open Books packages
 
+> **Status (branch `feat/openbooks-core-package`):** `openbooks-core` is extracted and the layout registry is live; `openbooks` is the meta package and still carries every parser, the PDF/OCR path and the heads until the statements/gateways/tax split. See `docs/research/OPENBOOKS_PACKAGING_RESEARCH.md` for the audit, decisions and plan (it supersedes parts of this document, e.g. matching is not shipped in gateways, and the console script is owned by core).
+
 Audience: a teammate with write access who will pull this repo, split it into the five packages on the pipeline diagram, publish them (PyPI and npm), and finish the ML side of the workflow. Nothing here has been built or published yet. Everything marked **verified** was run against this repo on 2026-11-18.
 
 ![Open Books pipeline](pipeline.jpeg)
