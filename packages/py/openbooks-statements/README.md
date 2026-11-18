@@ -5,11 +5,12 @@ Providers for bank statements, registered with `openbooks-core`.
 | Input | Install | How it is proven |
 |---|---|---|
 | bank CSV (`bank_csv.v1`), OFX, MT940 | `pip install openbooks-statements` (pure Python) | opening + movements = closing, running balance ties on every row |
-| PDF with a text layer | `pip install "openbooks-statements[pdf]"` (adds PyMuPDF) | same chain, with page and bounding box evidence per field |
+| PDF with a text layer | `pip install "openbooks-statements[pdf]"` (adds pypdfium2) | same chain, with page and bounding box evidence per field |
 | scans and photos | `pip install "openbooks-statements[scan]"` (adds EasyOCR, PyTorch, Pillow) | same chain; OCR dates are also checked to be in order, and low OCR confidence refuses |
 
-Without the `[pdf]` extra a PDF is not a refusal about the document: the engine reports that PyMuPDF is missing (exit code 3).
-PyMuPDF is licensed AGPL-3.0 or commercially, which is why it is an extra and not a base dependency.
+Without the `[pdf]` extra a PDF is not a refusal about the document: the engine reports that pypdfium2 is missing (exit code 3).
+PDFs are read with pypdfium2 (Apache-2.0 / BSD-3, wrapping Google's PDFium) and images with Pillow; nothing in this package is copyleft.
+A page whose text layer is rotated (`/Rotate`) is refused rather than guessed; scans are rendered and read by OCR.
 
 ## Typed heads (`--model`)
 

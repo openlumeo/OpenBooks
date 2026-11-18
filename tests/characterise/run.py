@@ -36,6 +36,10 @@ def run_case(case: Case, variant: str) -> dict:
     from openbooks.pipeline import dumps, process
 
     doc = process(case.path, _params(case.params, PARAM_VARIANTS[variant]))
+    if case.path.suffix.lower() == ".pdf":  # two PDF libraries report slightly different box coordinates for the same text
+        for ev in doc.get("evidence", {}).values():
+            ev.pop("bbox", None)
+            ev.pop("confidence", None)
     if case.path.suffix.lower() in (".xlsx", ".pdf"):  # generators stamp times/ids, so the file's own hash differs per build
         if "file" in doc:
             doc["file"]["sha256"] = "-"

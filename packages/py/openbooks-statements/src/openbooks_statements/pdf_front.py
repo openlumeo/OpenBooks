@@ -70,19 +70,15 @@ _READER = None
 
 
 def _ocr_page(page, number: int) -> list[Word]:
-    import fitz
-    import numpy as np
-
     global _READER
     if _READER is None:
         import easyocr
         import torch
 
         _READER = easyocr.Reader(["en"], gpu=torch.cuda.is_available(), verbose=False)
-    pw, ph = page.rect.width, page.rect.height
+    pw, ph = page.width, page.height
     scale = min(OCR_DPI / 72, OCR_MAX_PX / max(pw, ph))
-    pix = page.get_pixmap(matrix=fitz.Matrix(scale, scale), alpha=False)
-    img = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
+    img = page.render_rgb(scale)
     out = []
     for poly, text, conf in _READER.readtext(img, paragraph=False):
         xs, ys = [q[0] / scale for q in poly], [q[1] / scale for q in poly]
@@ -148,51 +144,28 @@ def _ocr_fix(s: str) -> str:
     return s
 
 
-def _text_words(page, number: int, pw: float, ph: float) -> list[Word]:
-    """Words from the text layer, skipping rotated text (watermarks) and breaking at span boundaries."""
-    out: list[Word] = []
-    for block in page.get_text("rawdict")["blocks"]:
-        for line in block.get("lines", []):
-            dx, dy = line["dir"]
-            if dx < 0.9 or abs(dy) > 0.05:
-                continue
-            for span in line["spans"]:
-                cur: list[dict] = []
-                for ch in span["chars"] + [{"c": " "}]:
-                    if ch["c"].isspace():
-                        if cur:
-                            x0, y0 = min(c["bbox"][0] for c in cur), min(c["bbox"][1] for c in cur)
-                            x1, y1 = max(c["bbox"][2] for c in cur), max(c["bbox"][3] for c in cur)
-                            out.append(Word("".join(c["c"] for c in cur), x0, y0, x1, y1, number, None, pw, ph))
-                        cur = []
-                    else:
-                        cur.append(ch)
-    return out
-
-
 def read_words(path: Path | bytes, p: Params) -> tuple[list[list[Word]], str]:
-    import fitz
+    from .pdf_backend import open_document
 
+    is_image = isinstance(path, Path) and path.suffix.lower() in (".png", ".jpg", ".jpeg")
+    doc = open_document(path, image=is_image)
     try:
-        doc = fitz.open(stream=path, filetype="pdf") if isinstance(path, (bytes, bytearray)) else fitz.open(path)
-    except Exception:
-        raise Refusal("UNSUPPORTED_INPUT", "unreadable document") from None
-    if doc.needs_pass:
-        raise Refusal("UNSUPPORTED_INPUT", "encrypted document")
-    if doc.page_count > MAX_PAGES:
-        raise Refusal("UNSUPPORTED_INPUT", f"more than {MAX_PAGES} pages")
-    pages, method = [], "pdf_text"
-    for i, page in enumerate(doc, 1):
-        pw, ph = page.rect.width, page.rect.height
-        ws = _text_words(page, i, pw, ph)
-        if len(ws) > MAX_WORDS_PER_PAGE:
-            raise Refusal("UNSUPPORTED_INPUT", f"page {i} has more than {MAX_WORDS_PER_PAGE} words")
-        if len(ws) < TEXT_LAYER_MIN_WORDS:
-            if not p.ocr:
-                raise Refusal("UNSUPPORTED_INPUT", f"page {i} has no text layer and OCR is off")
-            ws, method = _ocr_page(page, i), "ocr"
-        pages.append(ws)
-    return pages, method
+        if doc.page_count > MAX_PAGES:
+            raise Refusal("UNSUPPORTED_INPUT", f"more than {MAX_PAGES} pages")
+        pages, method = [], "pdf_text"
+        for i, page in enumerate(doc.pages(), 1):
+            pw, ph = page.width, page.height
+            ws = [Word(t, x0, y0, x1, y1, i, None, pw, ph) for t, x0, y0, x1, y1 in page.words()]
+            if len(ws) > MAX_WORDS_PER_PAGE:
+                raise Refusal("UNSUPPORTED_INPUT", f"page {i} has more than {MAX_WORDS_PER_PAGE} words")
+            if len(ws) < TEXT_LAYER_MIN_WORDS:
+                if not p.ocr:
+                    raise Refusal("UNSUPPORTED_INPUT", f"page {i} has no text layer and OCR is off")
+                ws, method = _ocr_page(page, i), "ocr"
+            pages.append(ws)
+        return pages, method
+    finally:
+        doc.close()
 
 
 def _lines(words: list[Word]) -> list[list[Word]]:

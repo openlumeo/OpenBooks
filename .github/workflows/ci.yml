@@ -150,6 +150,8 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks-lab pytest
       - run: python tests/characterise/export_fixtures.py golden_fixtures
+      - name: Old (PyMuPDF) versus new (pypdfium2) PDF reading on the same files
+        run: python -m pip install pymupdf && python tests/characterise/compare_pdf_backends.py golden_fixtures
       - uses: actions/upload-artifact@v4
         with:
           name: golden_fixtures

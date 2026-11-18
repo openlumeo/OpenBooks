@@ -12,7 +12,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "LicenseRef-Lumeo-Proprietary"
 classifiers = ["Private :: Do Not Upload"]
-dependencies = ["openbooks-core", "openbooks-statements[scan]", "openpyxl", "numpy", "scipy"]
+dependencies = ["openbooks-core", "pymupdf", "openbooks-statements[scan]", "openpyxl", "numpy", "scipy"]
 
 [project.entry-points."openbooks.linkers"]
 default = "openbooks_lab.link"

@@ -1,5 +1,5 @@
 """openbooks-statements with only openbooks-core: bank CSV, OFX and MT940 release when the balances tie and refuse when they
-do not; the OCR date gate; asset lookup; the missing-PDF-extra behaviour. Nothing here needs PyMuPDF or PyTorch."""
+do not; the OCR date gate; asset lookup; the missing-PDF-extra behaviour. Nothing here needs a PDF library or PyTorch."""
 import hashlib
 import json
 import subprocess
@@ -107,10 +107,10 @@ def test_statements_alone_refuse_a_stripe_file_and_name_the_package(tmp_path):
     assert doc["status"] == "refused" and "openbooks-gateways" in doc["error"]["message"]
 
 
-def test_a_pdf_without_pymupdf_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch):
+def test_a_pdf_without_pypdfium2_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch):
     from openbooks_statements.frontend import FRONTEND
 
-    monkeypatch.setitem(sys.modules, "fitz", None)  # makes `import fitz` raise ImportError
+    monkeypatch.setitem(sys.modules, "pypdfium2", None)  # makes `import pypdfium2` raise ImportError
     pdf = tmp_path / "in.pdf"
     pdf.write_bytes(b"%PDF-1.4")
     with pytest.raises(EngineFault, match=r"openbooks-statements\[pdf\]"):
@@ -119,12 +119,12 @@ def test_a_pdf_without_pymupdf_is_an_engine_problem_with_an_install_hint(tmp_pat
         process(pdf, strict=True, registry=default_registry())
 
 
-def test_processing_a_csv_needs_neither_pymupdf_nor_torch(tmp_path):
+def test_processing_a_csv_needs_neither_a_pdf_library_nor_torch(tmp_path):
     f = tmp_path / "in.csv"
     f.write_text(BANK, encoding="utf-8")
     code = ("import sys\nfrom decimal import Decimal\nfrom openbooks_core import process, Params\n"
             f"assert process({str(f)!r}, Params(currency='INR', opening=Decimal('1000')))['status'] == 'ok'\n"
-            "print(sorted(m for m in ('torch', 'fitz', 'pymupdf', 'easyocr', 'scipy', 'openbooks_gateways', 'openbooks_tax') if m in sys.modules))\n")
+            "print(sorted(m for m in ('torch', 'pypdfium2', 'easyocr', 'scipy', 'openbooks_gateways', 'openbooks_tax') if m in sys.modules))\n")
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.strip().splitlines()[-1]
     assert out == "[]", out
 

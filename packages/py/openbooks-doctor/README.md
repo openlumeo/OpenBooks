@@ -9,7 +9,7 @@ openbooks doctor --strict   # warnings fail too
 ```
 
 Checks: Python version; core and its schemas; provider versions in step with core; every installed provider actually imports;
-which known layouts have no provider (and the package to install); PyMuPDF and the OCR dependencies; model weights match their
+which known layouts have no provider (and the package to install); the PDF library and the OCR dependencies; model weights match their
 calibration by sha256; a built-in self-test per installed layout (a balanced document must release and its tampered twin must
 be refused, and a released tampered document is reported as a false accept); temp directory and free space.
 

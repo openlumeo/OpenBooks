@@ -10,12 +10,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-# The base install is pure Python: bank CSV, OFX and MT940. PDF and scans are extras so the PyMuPDF (AGPL) and PyTorch
+# The base install is pure Python: bank CSV, OFX and MT940. PDF and scans are extras so the PDF library and PyTorch
 # dependencies are opt-in.
 dependencies = ["openbooks-core[xlsx]>=0.1.0,<0.2"]
 
 [project.optional-dependencies]
-pdf = ["pymupdf"]
+pdf = ["pypdfium2>=4.30"]
 scan = ["openbooks-statements[pdf]", "easyocr", "torch>=2.6", "pillow", "numpy"]
 
 [project.entry-points."openbooks.layouts"]
