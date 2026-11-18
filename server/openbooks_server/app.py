@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import threading
 from contextlib import asynccontextmanager
 
@@ -17,10 +18,25 @@ from .catalog import Samples, formats, health
 from .runs import MAX_FILES, Run, parse_params
 
 samples = Samples()
+log = logging.getLogger("openbooks_server")
+
+
+def _inference():
+    """The torch-backed module, imported on first use so the service still starts without the [scan] extra."""
+    try:
+        from . import inference
+    except ImportError as e:
+        raise HTTPException(503, f"typed heads unavailable: {e}") from None
+    return inference
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    if health()["model_weights_present"]:  # load weights now so the first request is not the slow one
+        try:
+            await asyncio.to_thread(lambda: _inference().warm())
+        except Exception:  # health reports the issue; the service still serves everything but the heads
+            log.exception("model warm-up failed")
     yield
     samples.close()
 
@@ -121,6 +137,33 @@ async def post_runs(
 
     return StreamingResponse(stream(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
+
+
+@app.post("/v1/roles")
+async def post_roles(file: UploadFile = File(...), params: str | None = Form(None)) -> JSONResponse:
+    """The typed heads' own reading of one PDF or scan: per word role, value type, conformal sets, abstained.
+    Inputs match /v1/runs: `file` and `params` (ocr, date_order are used; the rest are ignored here)."""
+    inference = _inference()
+    from openbooks.pipeline import MAX_BYTES
+    from openbooks_core.errors import Refusal
+
+    try:
+        p = parse_params(_json_field(params, "params"))
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from None
+    run = Run()
+    try:
+        await asyncio.to_thread(run.stage, file.filename or "", file.file)
+        staged = run.files[0]
+        if staged.size > MAX_BYTES:
+            raise HTTPException(413, f"file is {staged.size} bytes; the limit is {MAX_BYTES}")
+        return JSONResponse(await asyncio.to_thread(inference.infer_file, staged.path, p))
+    except Refusal as e:
+        return JSONResponse({"error": e.code, "message": e.message}, status_code=422)
+    except inference.ModelUnavailable as e:
+        return JSONResponse({"error": "model_unavailable", "message": str(e)}, status_code=503)
+    finally:
+        run.cleanup()
 
 
 @app.post("/v1/link")

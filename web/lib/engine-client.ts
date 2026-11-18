@@ -1,6 +1,6 @@
 // Browser-side calls. Everything goes through this app's own /api routes.
 import { parseNDJSON, parseSSE } from "./sse";
-import type { EngineDoc, Formats, Health, LinkReport, ReleasedDoc, RunParams, Sample, Stage } from "./types";
+import type { EngineDoc, Formats, Health, LinkReport, ReleasedDoc, RolesDoc, RunParams, Sample, Stage } from "./types";
 
 export class ApiError extends Error {
   constructor(message: string, readonly status: number) {
@@ -58,6 +58,14 @@ export async function* runFiles(
       case "run.error": yield { type: "error", message: d.message }; break;
     }
   }
+}
+
+/** The typed heads' own reading of one PDF or scan: per word role, value type, conformal sets and abstention. */
+export async function predictRoles(file: File, params: Pick<RunParams, "ocr" | "date_order"> = {}): Promise<RolesDoc> {
+  const fd = new FormData();
+  fd.append("file", file, file.name);
+  fd.append("params", JSON.stringify(params));
+  return json<RolesDoc>(await fetch("/api/roles", { method: "POST", body: fd }));
 }
 
 export async function linkDocs(docs: ReleasedDoc[]): Promise<LinkReport> {

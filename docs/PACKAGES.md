@@ -1,5 +1,7 @@
 # Building and publishing the Open Books packages
 
+> The split described here exists on `main` (`packages/py/*`, `packages/js/*`). For how the packages are wired at runtime and served, see [SERVING.md](SERVING.md); for the model, see [MODEL.md](MODEL.md). This page remains the plan and the publishing checklist.
+
 > **Status (branch `feat/openbooks-core-package`, unreleased, nothing published):** all five Python packages exist
 > (`openbooks-core`, `-gateways`, `-tax`, `-statements`, `-doctor`) plus the `openbooks` meta package, and the npm workspace
 > `packages/js` (`@openbooks/core|statements|gateways|tax|doctor` and the `openbooks` CLI) wraps the Python engine. Closed code

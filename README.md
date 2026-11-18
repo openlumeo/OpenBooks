@@ -81,6 +81,8 @@ cp .env.example .env.local                 # optional: ANTHROPIC_API_KEY for que
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
 ```
 
+The model's own per-word reading (role, value type, abstention) is available at `POST /v1/roles` and from `predictRoles()` in `web/lib/engine-client.ts`.
+
 The browser only talks to the Next.js server, which proxies to the engine service on loopback. History stays in the browser (IndexedDB); uploaded files are processed in a temp directory and deleted after each run. Tests: `pytest server/tests` and `cd web && pnpm test`. Design: `docs/web/design.md`.
 
 ## What you get
@@ -172,6 +174,17 @@ tests/           pytest suite (set OB_SLOW=1 for the slow tests)
 models/          shipped int8 heads (trained on default + sign/branch/skew synthetic layouts), calibration and manifest
 docs/            architecture, format catalog, dataset notes, evidence
 ```
+
+## Documentation
+
+| Read | For |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The product contract, the four stages, refusal codes |
+| [docs/MODEL.md](docs/MODEL.md) | How the typed role heads work: inputs, architecture, calibration, training, measured limits |
+| [docs/SERVING.md](docs/SERVING.md) | Packages and how they find each other, the engine service and its routes, the web tier, deploy checklist |
+| [docs/PROFILE_ROLES.md](docs/PROFILE_ROLES.md) | Measured latency and memory-bandwidth profile of the model (`scripts/profile_roles.py`) |
+| [docs/PACKAGES.md](docs/PACKAGES.md) | The package split and publishing plan |
+| [docs/format_catalog.md](docs/format_catalog.md), [docs/DATASETS.md](docs/DATASETS.md) | Supported layouts and data sources |
 
 ## Develop
 

@@ -180,3 +180,4 @@ class Samples:
     def close(self) -> None:
         if self._root is not None:
             shutil.rmtree(self._root, ignore_errors=True)
+            self._root, self._cases = None, {}  # a later lifespan (tests, reload) rebuilds instead of serving deleted paths

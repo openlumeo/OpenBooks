@@ -149,6 +149,32 @@ export type Sample = {
   params: RunParams;
 };
 
+// ---- typed heads' own reading (mirrors server/openbooks_server/inference.py infer_file) ------
+
+export type RoleName = "other" | "date" | "desc" | "debit" | "credit" | "balance";
+
+export type RoleToken = {
+  text: string;
+  /** [x0, y0, x1, y1] as fractions of the page, origin top-left */
+  box: [number, number, number, number];
+  role: RoleName;
+  /** conformal set: every role the model cannot rule out */
+  role_set: RoleName[];
+  vtype: "text" | "date" | "money" | "code";
+  type_set: string[];
+  /** the role set is not exactly one role: the model declines to commit */
+  abstained: boolean;
+};
+
+export type RolesDoc = {
+  schema_version: "openbooks.roles.v1";
+  method: "pdf_text" | "ocr";
+  pages: { page: number; width: number; height: number; tokens: RoleToken[] }[];
+  summary: { tokens: number; abstained: number; abstain_rate: number; by_role: Record<string, number>; inference_ms: number; device: string };
+  /** the exact weights and calibration that produced this reading */
+  model: { weights_sha256: string; calibration_sha256: string };
+};
+
 // ---- run params (mirrors server/openbooks_server/runs.py parse_params) ---------
 
 export type RunParams = {
