@@ -1,5 +1,5 @@
 {
-  "name": "openbooks",
+  "name": "@lumeo_hq/openbooks",
   "version": "0.1.0",
   "description": "Open Books command line: financial documents in, one proven JSON per file out (or a typed refusal). Needs the Python engine: pip install openbooks",
   "license": "Apache-2.0",
@@ -17,11 +17,11 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@openbooks/core": "workspace:*",
-    "@openbooks/statements": "workspace:*",
-    "@openbooks/gateways": "workspace:*",
-    "@openbooks/tax": "workspace:*",
-    "@openbooks/doctor": "workspace:*",
+    "@lumeo_hq/openbooks-core": "workspace:*",
+    "@lumeo_hq/openbooks-statements": "workspace:*",
+    "@lumeo_hq/openbooks-gateways": "workspace:*",
+    "@lumeo_hq/openbooks-tax": "workspace:*",
+    "@lumeo_hq/openbooks-doctor": "workspace:*",
     "commander": "^14.0.0"
   }
 }

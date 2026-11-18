@@ -3,11 +3,11 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { clearEngineCache, findEngine } from "@openbooks/core";
-import * as gateways from "@openbooks/gateways";
-import * as statements from "@openbooks/statements";
-import * as tax from "@openbooks/tax";
-import { runDoctor } from "@openbooks/doctor";
+import { clearEngineCache, findEngine } from "@lumeo_hq/openbooks-core";
+import * as gateways from "@lumeo_hq/openbooks-gateways";
+import * as statements from "@lumeo_hq/openbooks-statements";
+import * as tax from "@lumeo_hq/openbooks-tax";
+import { runDoctor } from "@lumeo_hq/openbooks-doctor";
 import { EXIT, main } from "../src/main.js";
 
 const here = dirname(fileURLToPath(import.meta.url));

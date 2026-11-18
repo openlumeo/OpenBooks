@@ -1,4 +1,4 @@
-# @openbooks/core
+# @lumeo_hq/openbooks-core
 
 Typed access to the Open Books engine. Hand it a financial document; get back either a **released** `openbooks.v1` document
 (every amount a decimal string, every field with its evidence) or a **refusal** with a typed code. Nothing is parsed in
@@ -7,11 +7,11 @@ the engine uses.
 
 ```bash
 pip install openbooks            # the engine (Python 3.11+); or openbooks-core plus the provider packages you need
-npm install @openbooks/core
+npm install @lumeo_hq/openbooks-core
 ```
 
 ```ts
-import { runFile, EngineError } from "@openbooks/core";
+import { runFile, EngineError } from "@lumeo_hq/openbooks-core";
 
 try {
   const r = await runFile("statement.csv", { currency: "INR", opening: "1000.00" });
@@ -28,7 +28,7 @@ try {
 A refusal is a **value**. An `EngineError` (no Python, engine not installed, version mismatch, crash, timeout, output that does
 not match the contract) is thrown, so a broken installation can never be mistaken for a bad document.
 
-Python is found from `options.python`, then `OPENBOOKS_PYTHON`, then `./.venv`, then the system Python. Run `npx openbooks doctor`
+Python is found from `options.python`, then `OPENBOOKS_PYTHON`, then `./.venv`, then the system Python. Run `npx @lumeo_hq/openbooks doctor`
 to diagnose an installation. Money is never a JavaScript number: pass `opening` as a string.
 
 Options: `currency`, `opening`, `account`, `allowDerivedOpening`, `dateOrder` (`"dmy" | "mdy"`), `ocr`, `model`, `runTimeoutMs`

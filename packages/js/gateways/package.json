@@ -1,5 +1,5 @@
 {
-  "name": "@openbooks/gateways",
+  "name": "@lumeo_hq/openbooks-gateways",
   "version": "0.1.0",
   "description": "Open Books gateways wrapper: typed access to the Python engine, restricted to the gateways layouts",
   "license": "Apache-2.0",
@@ -20,6 +20,6 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@openbooks/core": "workspace:*"
+    "@lumeo_hq/openbooks-core": "workspace:*"
   }
 }

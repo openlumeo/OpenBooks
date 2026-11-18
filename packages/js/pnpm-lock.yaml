@@ -20,19 +20,19 @@ importers:
 
   cli:
     dependencies:
-      '@openbooks/core':
+      '@lumeo_hq/openbooks-core':
         specifier: workspace:*
         version: link:../core
-      '@openbooks/doctor':
+      '@lumeo_hq/openbooks-doctor':
         specifier: workspace:*
         version: link:../doctor
-      '@openbooks/gateways':
+      '@lumeo_hq/openbooks-gateways':
         specifier: workspace:*
         version: link:../gateways
-      '@openbooks/statements':
+      '@lumeo_hq/openbooks-statements':
         specifier: workspace:*
         version: link:../statements
-      '@openbooks/tax':
+      '@lumeo_hq/openbooks-tax':
         specifier: workspace:*
         version: link:../tax
       commander:
@@ -51,25 +51,25 @@ importers:
 
   doctor:
     dependencies:
-      '@openbooks/core':
+      '@lumeo_hq/openbooks-core':
         specifier: workspace:*
         version: link:../core
 
   gateways:
     dependencies:
-      '@openbooks/core':
+      '@lumeo_hq/openbooks-core':
         specifier: workspace:*
         version: link:../core
 
   statements:
     dependencies:
-      '@openbooks/core':
+      '@lumeo_hq/openbooks-core':
         specifier: workspace:*
         version: link:../core
 
   tax:
     dependencies:
-      '@openbooks/core':
+      '@lumeo_hq/openbooks-core':
         specifier: workspace:*
         version: link:../core
 

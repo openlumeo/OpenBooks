@@ -4,7 +4,7 @@
 
 > **Status (branch `feat/openbooks-core-package`, unreleased, nothing published):** all five Python packages exist
 > (`openbooks-core`, `-gateways`, `-tax`, `-statements`, `-doctor`) plus the `openbooks` meta package, and the npm workspace
-> `packages/js` (`@openbooks/core|statements|gateways|tax|doctor` and the `openbooks` CLI) wraps the Python engine. Closed code
+> `packages/js` (`@lumeo_hq/openbooks-core|statements|gateways|tax|doctor` and the `openbooks` CLI) wraps the Python engine. Closed code
 > (training, synthetic data, golden builders, matching) lives in the private `packages/py/openbooks-lab` and is never published.
 > `docs/research/OPENBOOKS_PACKAGING_RESEARCH.md` has the audit, decisions and plan, and supersedes parts of this document
 > (matching is not shipped in gateways; core owns the `openbooks` console script; PDF and OCR are extras; types come from the JSON
@@ -19,7 +19,7 @@ Audience: a teammate with write access who will pull this repo, split it into th
 
 1. Resolve the open decisions in section 9 (they gate a public release).
 2. Python: split `src/openbooks` into `openbooks-core`, `-statements`, `-gateways`, `-tax`, `-doctor` behind a layout registry (section 3). Keep `pip install openbooks` as a meta package so nothing breaks.
-3. npm: add the `openbooks` CLI with subcommands plus `@openbooks/*` packages that wrap the Python engine and ship typed, validated output (section 4).
+3. npm: add the `openbooks` CLI with subcommands plus `@lumeo_hq/openbooks-*` packages that wrap the Python engine and ship typed, validated output (section 4).
 4. ML: close the end-to-end gaps (section 6).
 5. Publish to TestPyPI and an npm dry run first, then real (section 7).
 
@@ -43,7 +43,7 @@ Map from today's modules to the diagram's packages:
 The Python engine stays the single source of truth for parsing and proving. Re-implementing parsers in TypeScript would fork the accuracy story, so npm packages are **typed wrappers** over the engine:
 
 ```
-npm: openbooks (CLI) -> @openbooks/{core,statements,gateways,tax,doctor}
+npm: @lumeo_hq/openbooks (CLI) -> @lumeo_hq/openbooks-{core,statements,gateways,tax,doctor}
           |  spawns:  python -m openbooks.pipeline run ...   (JSON in <out>/<sha256>.json)
           v
 PyPI: openbooks (meta) -> openbooks-{core,statements,gateways,tax,doctor}
@@ -51,7 +51,7 @@ PyPI: openbooks (meta) -> openbooks-{core,statements,gateways,tax,doctor}
 
 Dependency direction: `statements`, `gateways`, `tax` depend on `core`; `doctor` depends on `core` and inspects whichever others are installed. Extras: `openbooks-statements[scan]` adds OCR and PyTorch (EasyOCR, torch, pillow).
 
-Names (**verified** 2026-11-18, HTTP 404 = not found): npm `openbooks`, `openbooks-core`, `openbooks-doctor`, `@openbooks/core`; PyPI `openbooks`, `openbooks-core`. A 404 on `@openbooks/core` does not prove the `@openbooks` npm scope is free: create the org at npmjs.com first and confirm before anything else.
+Names (**verified** 2026-11-18, HTTP 404 = not found): npm `openbooks`, `openbooks-core`, `openbooks-doctor`, `@lumeo_hq/openbooks-core`; PyPI `openbooks`, `openbooks-core`. A 404 on `@lumeo_hq/openbooks-core` does not prove the npm scope is free; the packages are published under the `@lumeo_hq` org (owned by the publishing account).
 
 ## 3. Part A: Python packages
 
@@ -132,11 +132,11 @@ An `openbooks doctor` subcommand. It should check and print pass/fail with a fix
 ```
 packages/js/
   package.json              { "private": true, "workspaces": ["*"] }
-  core/         @openbooks/core         types + Zod schema + runEngine()
-  statements/   @openbooks/statements   openbooks statements ...
-  gateways/     @openbooks/gateways     openbooks gateways ...
-  tax/          @openbooks/tax          openbooks tax ...
-  doctor/       @openbooks/doctor       openbooks doctor
+  core/         @lumeo_hq/openbooks-core         types + Zod schema + runEngine()
+  statements/   @lumeo_hq/openbooks-statements   openbooks statements ...
+  gateways/     @lumeo_hq/openbooks-gateways     openbooks gateways ...
+  tax/          @lumeo_hq/openbooks-tax          openbooks tax ...
+  doctor/       @lumeo_hq/openbooks-doctor       openbooks doctor
   cli/          openbooks               the umbrella binary with all subcommands
 ```
 
@@ -151,7 +151,7 @@ npx json-schema-to-zod -i packages/js/core/schema/openbooks.v1.schema.json -o pa
 
 Add that export as a script in `package.json` and a CI check that fails if the committed file differs from a fresh export. A refusal document is `{ "schema_version": "openbooks.v1", "status": "refused", "data": null, "error": {"code","message","file_sha256"} }` (no `file` block; see `refusal_doc` in `pipeline.py`): add its Zod type by hand in `core` and export `OpenBooksResult = z.union([Ok, Refused])`.
 
-### 4.3 `@openbooks/core`
+### 4.3 `@lumeo_hq/openbooks-core`
 
 ```ts
 // src/engine.ts
@@ -209,8 +209,8 @@ Shared flags map one-to-one to the Python CLI: `--currency --opening --account -
 // packages/js/cli/package.json
 { "name": "openbooks", "version": "0.1.0", "type": "module", "bin": { "openbooks": "dist/cli.js" },
   "files": ["dist"], "engines": { "node": ">=20" },
-  "dependencies": { "@openbooks/core": "0.1.0", "@openbooks/statements": "0.1.0", "@openbooks/gateways": "0.1.0",
-                    "@openbooks/tax": "0.1.0", "@openbooks/doctor": "0.1.0", "commander": "^12.0.0" } }
+  "dependencies": { "@lumeo_hq/openbooks-core": "0.1.0", "@lumeo_hq/openbooks-statements": "0.1.0", "@lumeo_hq/openbooks-gateways": "0.1.0",
+                    "@lumeo_hq/openbooks-tax": "0.1.0", "@lumeo_hq/openbooks-doctor": "0.1.0", "commander": "^12.0.0" } }
 ```
 
 `dist/cli.js` starts with `#!/usr/bin/env node`. Build with `tsc`; test with `vitest` by running the real engine on the golden files (`python -m openbooks.pipeline eval` builds them) and asserting that tampered files come back `refused` with the right code.
@@ -273,9 +273,9 @@ PyPI (use TestPyPI first):
 3. Publish in dependency order: core, then statements/gateways/tax, then doctor, then the meta package. Pin `openbooks-core>=X,<Y` in the others.
 
 npm:
-1. Create the `@openbooks` org; enable 2FA on the publishing account.
+1. Use the `@lumeo_hq` org; enable 2FA on the publishing account.
 2. `npm pack` in each package and inspect the tarball (only `dist`, `schema`, README, licence).
-3. `npm publish --dry-run`, then publish from CI with `--access public --provenance`. Publish `@openbooks/core` first, `openbooks` last. Note that npm unpublish is time-limited: treat every publish as permanent.
+3. `npm publish --dry-run`, then publish from CI with `--access public --provenance`. Publish `@lumeo_hq/openbooks-core` first, `openbooks` last. Note that npm unpublish is time-limited: treat every publish as permanent.
 
 Both: one version number for all packages (changesets or a script), a CHANGELOG, and a licence file (none is chosen yet; see section 9).
 
@@ -285,7 +285,7 @@ In a fresh venv and a fresh Node install, with only published or locally packed 
 1. `pip install openbooks` then `openbooks doctor` is green (exit 0).
 2. `openbooks eval <golden-root>` gives `mismatches=0 false_accepts=0` (build the golden set with `openbooks.golden.build`).
 3. `openbooks run statement.csv --currency INR --opening 1000.00 --out out` writes a document that validates against the packaged schema; a tampered copy is refused `BALANCE_MISMATCH`.
-4. `npm i -g openbooks` then `openbooks statements run statement.csv ...` returns the same JSON, Zod-validated; `openbooks gateways run` on a PayPal sample and `openbooks tax run` on a 1099-B sample release; a wrong-package file returns `UNKNOWN_LAYOUT`.
+4. `npm i -g @lumeo_hq/openbooks` then `openbooks statements run statement.csv ...` returns the same JSON, Zod-validated; `openbooks gateways run` on a PayPal sample and `openbooks tax run` on a 1099-B sample release; a wrong-package file returns `UNKNOWN_LAYOUT`.
 5. `openbooks run statement.pdf --model` (with `[scan]`) records `file.model` and refuses cleanly when torch is missing.
 6. The full suite passes against the meta package: `OB_SLOW=1 python -m pytest -q` (143 tests today), including the mutation test: no single-cell change to a valid statement is ever released.
 
@@ -293,6 +293,6 @@ In a fresh venv and a fresh Node install, with only published or locally packed 
 
 1. **Open vs closed.** The diagram says open: schema, parsers, validators, grader, benchmark; closed: matching, task factory, training recipe. The repo currently has `link.py` (matching) and `scripts/train_roles.py` (training recipe) public. Decide what ships on PyPI/npm and what moves to a private repo before publishing anything. Publishing is effectively permanent.
 2. **Licence.** None chosen; until then all rights are reserved.
-3. **Names and scope.** Confirm the `@openbooks` npm org and the PyPI names (section 2).
+3. **Names and scope.** Confirm the `@lumeo_hq` npm org and the PyPI names (section 2).
 4. **LedgerBench, the Lumeo API and the Ledger models** on the diagram are not in this repo and are out of scope here.
 5. **Unverified layouts.** PayPal, Wise and 1099-B parsers follow public descriptions and synthetic fixtures. Mark them experimental in the package README until M7.

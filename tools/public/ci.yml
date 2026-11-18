@@ -63,7 +63,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @openbooks/core run check-generated
+      - run: pnpm --filter @lumeo_hq/openbooks-core run check-generated
       - run: pnpm exec tsc -b
       - run: pnpm exec vitest run
         env:

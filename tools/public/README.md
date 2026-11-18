@@ -21,7 +21,7 @@ raw text and extraction method. Money is `Decimal` end to end and nothing is rou
 | `openbooks-doctor` | `openbooks doctor`: installation, provider and model-integrity checks | |
 | `openbooks` | meta package: installs the above | `[scan]` |
 
-npm: `@openbooks/core`, `@openbooks/statements`, `@openbooks/gateways`, `@openbooks/tax`, `@openbooks/doctor` and the `openbooks`
+npm: `@lumeo_hq/openbooks-core`, `@lumeo_hq/openbooks-statements`, `@lumeo_hq/openbooks-gateways`, `@lumeo_hq/openbooks-tax`, `@lumeo_hq/openbooks-doctor` and the `openbooks`
 CLI are typed wrappers that run the Python engine. They parse nothing themselves.
 
 A package that is not installed never causes a guess: a file that looks like a known layout whose package is missing is refused,
@@ -37,7 +37,7 @@ python -m openbooks_core doctor
 ```
 
 ```ts
-import { runFile } from "@openbooks/core";
+import { runFile } from "@lumeo_hq/openbooks-core";
 const r = await runFile("statement.csv", { currency: "INR", opening: "1000.00" });
 if (r.kind === "released") console.log(r.document.data.transactions[0]?.amount?.amount); // a string, never a float
 else console.log(r.code, r.message); // a refusal is a value, not an exception
