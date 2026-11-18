@@ -6,6 +6,18 @@ This is engineering analysis, not legal advice: have counsel review the licence 
 
 ---
 
+## Decisions taken (after this analysis)
+- **Licence: Apache-2.0** for all six Python and six npm packages and the model files. Applied: `LICENSE` in every package (so in every wheel
+  and tarball), SPDX metadata, `NOTICE`, and `LICENSE.md` marking everything else in this repository proprietary. The copyright holder in
+  `NOTICE` is written as "Lumeo": confirm the legal entity name before publishing.
+- **PyMuPDF: replaced** (option B). The public packages now read PDFs with pypdfium2 (Apache-2.0 / BSD-3) and images with Pillow
+  (`openbooks_statements/pdf_backend.py`), and PyMuPDF is no longer a dependency of any public package. It is kept in the private lab
+  only, to generate synthetic PDFs offline; the hosted sample catalogue still imports those builders at runtime, so give it committed
+  fixtures before the hosted service ships without PyMuPDF. Unlike the earlier suggestion, no optional `[pymupdf]` backend was kept.
+- Known behaviour difference: a page whose text layer is rotated (`/Rotate`) is refused rather than guessed.
+
+---
+
 ## 1. Where things stand
 
 - The repository `Sagexd08/OpenBooks` is **private** and has **no licence** [V]. With no licence, all rights are reserved: nobody may

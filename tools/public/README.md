@@ -15,7 +15,7 @@ raw text and extraction method. Money is `Decimal` end to end and nothing is rou
 | Python | Reads | Install extras |
 |---|---|---|
 | `openbooks-core` | the contract, normalisation, balance gates, layout registry, CLI | `[xlsx]` |
-| `openbooks-statements` | bank CSV, OFX, MT940 (pure Python) | `[pdf]` PDFs (PyMuPDF), `[scan]` OCR and the typed heads |
+| `openbooks-statements` | bank CSV, OFX, MT940 (pure Python) | `[pdf]` PDFs (pypdfium2), `[scan]` OCR and the typed heads |
 | `openbooks-gateways` | Stripe, Razorpay, PayPal, Wise | |
 | `openbooks-tax` | Form 26AS, AIS, FIRA, Form 1099-B, trial balance | |
 | `openbooks-doctor` | `openbooks doctor`: installation, provider and model-integrity checks | |
@@ -47,5 +47,5 @@ Exit codes: `0` everything released, `1` something was refused, `2` usage error,
 
 ## Licence
 
-See `LICENSE`. Some optional dependencies have their own terms: PyMuPDF (the `[pdf]` extra) is AGPL-3.0 or commercial, and
-EasyOCR pulls in `python-bidi` (LGPL). See `THIRD_PARTY.md`.
+Apache License 2.0; see `LICENSE` and `NOTICE`. Dependencies keep their own licences (all permissive except `python-bidi`, LGPL, pulled in by
+EasyOCR under the optional `[scan]` extra); see `THIRD_PARTY.md`.
