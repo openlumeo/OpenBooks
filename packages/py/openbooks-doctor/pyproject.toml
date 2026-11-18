@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.21"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
@@ -8,6 +8,8 @@ dynamic = ["version"]
 description = "Open Books doctor: checks an installation, its providers and model assets, and runs a built-in proven-or-refused self-test"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 dependencies = ["openbooks-core>=0.1.0,<0.2"]
 
 [project.scripts]
@@ -23,4 +25,4 @@ path = "src/openbooks_doctor/_version.py"
 packages = ["src/openbooks_doctor"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/openbooks_doctor", "README.md", "pyproject.toml"]
+include = ["LICENSE", "src/openbooks_doctor", "README.md", "pyproject.toml"]

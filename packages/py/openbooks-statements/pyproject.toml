@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.21"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
@@ -8,6 +8,8 @@ dynamic = ["version"]
 description = "Open Books providers for bank statements: bank CSV, OFX, MT940, PDF and scans (OCR), optional typed-head cross-check"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 # The base install is pure Python: bank CSV, OFX and MT940. PDF and scans are extras so the PyMuPDF (AGPL) and PyTorch
 # dependencies are opt-in.
 dependencies = ["openbooks-core[xlsx]>=0.1.0,<0.2"]
@@ -43,4 +45,4 @@ packages = ["src/openbooks_statements"]
 "../../../models/roles_model_card.json" = "openbooks_statements/data/roles_model_card.json"
 
 [tool.hatch.build.targets.sdist]
-include = ["src/openbooks_statements", "README.md", "pyproject.toml"]
+include = ["LICENSE", "src/openbooks_statements", "README.md", "pyproject.toml"]

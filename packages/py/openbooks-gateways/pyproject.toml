@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.21"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
@@ -8,6 +8,8 @@ dynamic = ["version"]
 description = "Open Books providers for payment gateway exports: Stripe, Razorpay, PayPal, Wise"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 dependencies = ["openbooks-core[xlsx]>=0.1.0,<0.2"]
 
 [project.entry-points."openbooks.layouts"]
@@ -23,4 +25,4 @@ path = "src/openbooks_gateways/_version.py"
 packages = ["src/openbooks_gateways"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/openbooks_gateways", "README.md", "pyproject.toml"]
+include = ["LICENSE", "src/openbooks_gateways", "README.md", "pyproject.toml"]

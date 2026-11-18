@@ -1,7 +1,7 @@
 # PRIVATE. Lumeo training, synthetic data, golden-set builders and payout matching. Never publish this distribution:
 # the classifier below makes PyPI refuse the upload, and CI checks that no public wheel imports it.
 [build-system]
-requires = ["hatchling>=1.21"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
@@ -10,6 +10,7 @@ version = "0.1.0"
 description = "Private: Open Books training recipe, synthetic data generator, golden-set builders, payout matching"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "LicenseRef-Lumeo-Proprietary"
 classifiers = ["Private :: Do Not Upload"]
 dependencies = ["openbooks-core", "openbooks-statements[scan]", "openpyxl", "numpy", "scipy"]
 

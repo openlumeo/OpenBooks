@@ -7,7 +7,7 @@ contribution files from tools/public/, writes the licence file you give it, then
 1 if it finds any. It runs no git commands and publishes nothing. The new repository should start with a single fresh commit:
 never push this repository's history (it holds the training recipe, evidence, weights lineage and the hosted product).
 
---dry-run lists what would be copied and scans in memory; it needs no licence file. A real export refuses to run without one,
+--dry-run lists what would be copied and scans in memory; it needs no licence file. A real export refuses to run without one (the default is the Apache-2.0 text),
 because a public tree without a licence grants nobody any rights.
 """
 from __future__ import annotations
@@ -33,7 +33,7 @@ INCLUDE = [
 EXCLUDE = ["**/node_modules/**", "**/dist/**", "**/__pycache__/**", "**/*.egg-info/**", "**/.pytest_cache/**", "**/.venv/**",
            "**/*.tsbuildinfo", "**/*.pyc", "**/build/**"]
 # tools/public/<src> -> <dest> in the export
-OVERLAY = {"README.md": "README.md", "CONTRIBUTING.md": "CONTRIBUTING.md", "SECURITY.md": "SECURITY.md", "THIRD_PARTY.md": "THIRD_PARTY.md",
+OVERLAY = {"README.md": "README.md", "CONTRIBUTING.md": "CONTRIBUTING.md", "SECURITY.md": "SECURITY.md", "THIRD_PARTY.md": "THIRD_PARTY.md", "NOTICE": "NOTICE",
            "ci.yml": ".github/workflows/ci.yml", "gitignore": ".gitignore", "pytest.toml": "pyproject.toml"}
 
 # Text that must not appear in the public tree. A hit fails the export.
@@ -109,16 +109,17 @@ def build(licence: bytes | None) -> dict[str, bytes]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("out", type=Path)
-    ap.add_argument("--licence-file", type=Path, help="the licence text to ship as LICENSE (required unless --dry-run)")
+    ap.add_argument("--licence-file", type=Path, default=ROOT / "tools" / "public" / "LICENSE",
+                    help="the licence text to ship as LICENSE (default: the Apache-2.0 text in tools/public/LICENSE)")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args(argv)
-    if not a.dry_run and not a.licence_file:
-        ap.error("a real export needs --licence-file: a public repository without a licence grants nobody any rights")
-    if a.licence_file and not a.licence_file.read_text(encoding="utf-8").strip():
+    if not a.dry_run and not a.licence_file.is_file():
+        ap.error(f"licence file {a.licence_file} not found: a public repository without a licence grants nobody any rights")
+    if a.licence_file.is_file() and not a.licence_file.read_text(encoding="utf-8").strip():
         ap.error("the licence file is empty")
     if not a.dry_run and a.out.exists() and any(a.out.iterdir()):
         ap.error(f"{a.out} is not empty; export into a new directory")
-    files = build(a.licence_file.read_bytes() if a.licence_file else None)
+    files = build(a.licence_file.read_bytes() if a.licence_file.is_file() else None)
     problems = scan_tree(files)
     for line in problems:
         print(f"PRIVATE MATERIAL {line}")
