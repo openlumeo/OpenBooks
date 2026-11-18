@@ -72,12 +72,12 @@ else:
 
 ## Web app
 
-A conversation-style workspace (Open Books by Lumeo) lives in `web/`, backed by a small engine service in `server/`. Drop files into a thread, watch each one go through Detect, Parse, Normalise and Balance, and get one released document or a typed refusal per file, with the checks, per-field evidence and JSON on every card. With a Claude API key you can then ask questions about the released documents. Totals in answers are computed by code, never by the model.
+A conversation-style workspace (Open Books by Lumeo) lives in `web/`, backed by a small engine service in `server/`. Drop files into a thread, watch each one go through Detect, Parse, Normalise and Balance, and get one released document or a typed refusal per file, with the checks, per-field evidence and JSON on every card. With an OpenRouter API key (any open-weights model that supports tool calls) you can then ask questions about the released documents. Totals in answers are computed by code, never by the model.
 
 ```bash
 pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" \n            -e packages/py/openbooks-lab -e packages/py/openbooks -e server   # engine + engine service (FastAPI)
 cd web && pnpm install
-cp .env.example .env.local                 # optional: ANTHROPIC_API_KEY for questions
+cp .env.example .env.local                 # optional: OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL for questions
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
 ```
 
@@ -182,6 +182,7 @@ docs/            architecture, format catalog, dataset notes, evidence
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The product contract, the four stages, refusal codes |
 | [docs/MODEL.md](docs/MODEL.md) | How the typed role heads work: inputs, architecture, calibration, training, measured limits |
 | [docs/SERVING.md](docs/SERVING.md) | Packages and how they find each other, the engine service and its routes, the web tier, deploy checklist |
+| [docs/QA_FLOW.md](docs/QA_FLOW.md) | Question flow end to end, the typed model's place in it, every parameter, request limits, security audit |
 | [docs/PROFILE_ROLES.md](docs/PROFILE_ROLES.md) | Measured latency and memory-bandwidth profile of the model (`scripts/profile_roles.py`) |
 | [docs/PACKAGES.md](docs/PACKAGES.md) | The package split and publishing plan |
 | [docs/format_catalog.md](docs/format_catalog.md), [docs/DATASETS.md](docs/DATASETS.md) | Supported layouts and data sources |

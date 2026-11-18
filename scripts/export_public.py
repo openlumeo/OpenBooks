@@ -42,7 +42,7 @@ FORBIDDEN = {
     "training recipe or internal weights": [r"jepa_encoder", r"train_roles", r"score_family_candidate", r"promote\.py", r"roles_manifest"],
     "third-party training data": [r"\bCORD\b", r"\bFUNSD\b", r"\bSROIE\b", r"invoice-ner"],
     "internal documents": [r"HANDOFF", r"format_catalog", r"docs/evidence", r"PRODUCT\.md", r"docs/research"],
-    "hosted product": [r"ANTHROPIC_API_KEY", r"openbooks_server", r"OPENBOOKS_ENGINE_URL"],
+    "hosted product": [r"OPENBOOKS_LLM_API_KEY", r"openbooks_server", r"OPENBOOKS_ENGINE_URL"],
     "personal or machine details": [r"Rohit", r"Victus", r"gmail\.com", r"C:\\{1,2}Users", r"/Users/"],
 }
 # Files allowed to mention forbidden strings because their job is to forbid them.

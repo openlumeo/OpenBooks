@@ -4,7 +4,7 @@ Date: 2026-11-18 · Status: approved direction (user answers: deterministic engi
 
 ## 1. Goal
 
-A conversation-style web app for the Open Books engine. A user drops financial files into a thread. Each file comes back as one `openbooks.v1` JSON document (released) or a typed refusal, shown as a run card that follows the four pipeline stages. The user can then ask questions about the released documents in plain language. The answers come from Claude, but every number in an answer is computed by code, not by the model.
+A conversation-style web app for the Open Books engine. A user drops financial files into a thread. Each file comes back as one `openbooks.v1` JSON document (released) or a typed refusal, shown as a run card that follows the four pipeline stages. The user can then ask questions about the released documents in plain language. The answers come from an open-weights model, but every number in an answer is computed by code, not by the model.
 
 Primary user (PRODUCT.md): chartered accountants and bookkeepers in India processing client files. Deployment target: hosted by Lumeo.
 
@@ -22,7 +22,7 @@ Next.js 15 server (TypeScript, App Router route handlers)
    ├── /api/runs    ── proxy (SSE pass-through) ──►  FastAPI  /v1/runs
    ├── /api/link    ── proxy ──────────────────────►  FastAPI  /v1/link
    ├── /api/engine  ── proxy ──────────────────────►  FastAPI  /v1/health, /v1/formats, /v1/samples
-   └── /api/ask     ── Claude API (@anthropic-ai/sdk), tools run in TS over the docs sent by the client
+   └── /api/ask     ── OpenAI-compatible API (openai SDK, OpenRouter by default), tools run in TS over the docs sent by the client
                                                      │
                                                      ▼
                                         FastAPI (Python, OpenBooks/server)
@@ -30,7 +30,7 @@ Next.js 15 server (TypeScript, App Router route handlers)
 ```
 
 - **Why a Python sidecar:** the engine is Python (PyMuPDF, EasyOCR, PyTorch). A warm process loads OCR and model weights once and can stream progress. Shelling out to the CLI per file would be cold every time and could not stream.
-- **Why proxy through Next.js:** the browser sees one origin. The FastAPI port is bound to `127.0.0.1` and never exposed, and the Anthropic key lives only in the Next.js server environment.
+- **Why proxy through Next.js:** the browser sees one origin. The FastAPI port is bound to `127.0.0.1` and never exposed, and the LLM API key lives only in the Next.js server environment.
 - **Repo layout:** `OpenBooks/server/` (package `openbooks_server` with its own `pyproject.toml` that depends on the `openbooks` engine plus `fastapi`, `uvicorn`, `python-multipart`), `OpenBooks/web/` (Next.js). The engine package under `src/openbooks/` gains one optional hook (section 4) and nothing else.
 
 ## 3. Engine service (FastAPI, `OpenBooks/server/openbooks_server/`)
@@ -85,23 +85,23 @@ Next.js 15 App Router, TypeScript strict, Tailwind v4 with Lumeo tokens copied f
 
 IndexedDB (`idb`) stores threads `{id, title, createdAt, updatedAt, turns[]}`. Turns hold the returned docs and answers, never the original file bytes. The title is the first file name or the first question. "Delete thread" and "Clear all" are available. An in-memory map `turnId → File[]` lets a refusal be re-run within the session.
 
-## 6. Ask (Claude Q&A)
+## 6. Ask (LLM Q&A)
 
 - Route `POST /api/ask` with body `{question, history, docs}`, where `docs` are the thread's run results (released docs plus refusal stubs). The route streams the reply back.
-- Model `claude-opus-5-5`, adaptive thinking, `effort: "medium"` set explicitly. Server-side refusal fallback is on (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`). The system prompt is stable and cached, the docs digest sits after it, and the question comes last.
+- Model set by `OPENBOOKS_LLM_MODEL` (an open-weights, tool-calling model; free or paid on OpenRouter), `temperature: 0`, `max_tokens: 3000`, OpenRouter routing `provider.sort: "latency"` with `require_parameters`. The system prompt and docs digest come first as a stable prefix so provider-side prefix caching can hit, and the question comes last.
 - **Context sent to the model:** for each doc, the file name, status, layout, batches and assertions, plus a transaction count. Released docs with ≤ 200 transactions are included in full. Larger ones are reached only through tools. Refusals carry their code and message. The `evidence` maps are reached only through tools.
 - **Tools (run in TypeScript; amounts handled as decimal strings with `decimal.js`, never floats):**
   - `query_transactions({file?, direction?, kind?, description_contains?, date_from?, date_to?, min_amount?, max_amount?, limit?})` → matching rows plus `count` and an exact `sum` per currency.
   - `get_evidence({file, record_id, field?})` → evidence entries.
 - **Rules in the system prompt:** answer only from these documents. Get every total or count from `query_transactions`, never from mental arithmetic. Cite file and record ids. A refused file has no data; explain its refusal code and what would fix it. Say plainly when a question cannot be answered from the documents.
-- If no Anthropic credentials are set, `/api/ask` returns 503 with a clear message. The composer then shows "Q&A needs ANTHROPIC_API_KEY on the web server", and runs keep working.
+- If no LLM credentials are set, `/api/ask` returns 503 with a clear message. The composer then shows "Q&A needs OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL on the web server", and runs keep working.
 
 ## 7. Errors
 
 - Engine unreachable → a banner and a disabled send button for runs; the status strip turns rose.
 - An SSE stream that drops mid-run → files without a `file.done` show `INTERRUPTED` with a retry button (same-tab files).
 - Over 20 files or a client-side file > 20 MB → blocked in the composer with the reason. The engine still enforces its own limits; the client check is only for faster feedback.
-- Claude errors: typed SDK errors are mapped to short messages (rate limit, auth, overloaded). A `refusal` stop reason after fallbacks shows as an answer that declines.
+- Model errors: typed SDK errors are mapped to short messages (rate limit, auth, unavailable).
 
 ## 8. Testing
 
@@ -113,5 +113,5 @@ IndexedDB (`idb`) stores threads `{id, title, createdAt, updatedAt, turns[]}`. T
 ## 9. Dev ergonomics
 
 - `OpenBooks/server`: `pip install -e . -e server` (from `OpenBooks/`) then `uvicorn openbooks_server.app:app --port 8765`.
-- `OpenBooks/web`: `pnpm i && pnpm dev`. Env: `OPENBOOKS_ENGINE_URL=http://127.0.0.1:8765`, `ANTHROPIC_API_KEY` (optional).
+- `OpenBooks/web`: `pnpm i && pnpm dev`. Env: `OPENBOOKS_ENGINE_URL=http://127.0.0.1:8765`, `OPENBOOKS_LLM_API_KEY` and `OPENBOOKS_LLM_MODEL` (optional).
 - A root `README` section explains both, plus a `pnpm dev:all` script that starts both processes.

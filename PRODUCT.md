@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Next.js (App Router) with TypeScript for the web app. The backend is a FastAPI service wrapping the Python engine (`openbooks.pipeline.process`, `openbooks.link.link`), reached only through Next.js route handlers. Q&A uses the Claude API from the Next.js server. Full design: `docs/web/design.md`.
+Next.js (App Router) with TypeScript for the web app. The backend is a FastAPI service wrapping the Python engine (`openbooks.pipeline.process`, `openbooks.link.link`), reached only through Next.js route handlers. Q&A calls an open-weights model through an OpenAI-compatible API (OpenRouter by default) from the Next.js server. Full design: `docs/web/design.md`.
 
 ## Users
 

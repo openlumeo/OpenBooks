@@ -17,7 +17,7 @@ Read [MODEL.md](MODEL.md) first for what the model does. This page is about the 
                       ▼
                     Typed heads  (models/roles_head.pt + roles_calibration.json, PyTorch, GPU if present)
 
- /api/ask  ──►  Claude API (separate; answers questions about released documents; totals computed by code)
+ /api/ask  ──►  open-weights LLM API (separate; answers questions about released documents; totals computed by code)
 ```
 
 Design rules that follow from this:
@@ -120,9 +120,11 @@ Concurrency: one forward pass runs on the GPU at a time (a lock in `inference.py
 | `/api/roles` | `POST /v1/roles` | Streams the upload; client call `predictRoles()` in `web/lib/engine-client.ts`, types in `web/lib/types.ts` |
 | `/api/link` | `POST /v1/link` | |
 | `/api/engine/[...path]` | `GET /v1/health`, `formats`, `samples`, `samples/{id}` | Allow-listed paths only |
-| `/api/ask` | Claude API | Optional; needs `ANTHROPIC_API_KEY`; uses released documents only |
+| `/api/ask` | OpenRouter (open-weights model) | Optional; needs `OPENBOOKS_LLM_API_KEY` and `OPENBOOKS_LLM_MODEL`; uses released documents only |
 
-Environment (`web/.env.example`): `OPENBOOKS_ENGINE_URL` (default `http://127.0.0.1:8765`) and optional `ANTHROPIC_API_KEY`. The UI shows "Model ready/off" from `/v1/health` and enables the "Model cross-check" box only when the engine reports the model present.
+Environment (`web/.env.example`): `OPENBOOKS_ENGINE_URL` (default `http://127.0.0.1:8765`) and optional `OPENBOOKS_LLM_API_KEY` and `OPENBOOKS_LLM_MODEL`. The UI shows "Model ready/off" from `/v1/health` and enables the "Model cross-check" box only when the engine reports the model present.
+
+Request size limits, the `/api/ask` rate limit, the Q&A parameters and the security audit are in [QA_FLOW.md](QA_FLOW.md).
 
 Where the model's output reaches the user today: the cross-check box on a run (the released card shows the weights hash chip, and evidence methods read "model cross-checked"), and `LOW_CONFIDENCE` refusals. The per-word reading from `/v1/roles` is available to the browser through `predictRoles()` but no screen renders it yet.
 
@@ -164,7 +166,7 @@ Checklist:
 - [ ] `models/` (or `OPENBOOKS_MODELS_DIR`) holds `roles_head.pt`, `roles_calibration.json`, `roles_manifest.json`; `/v1/health` shows `model_weights_present: true`.
 - [ ] `models/jepa_encoder.pt` is **not** deployed (CC BY-SA pretraining, internal only; it is git-ignored).
 - [ ] Packages installed, not on `PYTHONPATH` (entry points), and `openbooks doctor` passes.
-- [ ] `ANTHROPIC_API_KEY` set only on the web server if questions are wanted; never in client code.
+- [ ] `OPENBOOKS_LLM_API_KEY` set only on the web server if questions are wanted; never in client code.
 - [ ] After a model update, the calibration was refitted for the new weights (otherwise the engine refuses `--model` and says so in `model_issue`).
 - [ ] You accept that the model abstains heavily on unseen layouts ([MODEL.md](MODEL.md) §7).
 
