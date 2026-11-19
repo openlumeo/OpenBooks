@@ -176,6 +176,12 @@ describe("install-engine", () => {
     expect(c.out()).toContain("already installed");
   });
 
+  it("--version prints the package version", async () => {
+    const c = capture();
+    expect(await main(["--version"], c.io)).toBe(EXIT.ok);
+    expect(c.out().trim()).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
   it("the postinstall hook never fails the npm install and does nothing in a source checkout", () => {
     const r = spawnSync(process.execPath, [join(here, "../scripts/postinstall.mjs")], { encoding: "utf8" });
     expect(r.status).toBe(0);

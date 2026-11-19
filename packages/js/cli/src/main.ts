@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Command, CommanderError } from "commander";
@@ -102,6 +103,7 @@ export async function main(argv: string[], io: IO = { out: (s) => process.stdout
   let code: number = EXIT.ok;
   const program = new Command("openbooks")
     .description("Financial documents in, one proven JSON per file out (or a typed refusal). Usage: openbooks <files...> [options]")
+    .version((JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string }).version, "-V, --version", "print the version")
     .exitOverride()
     .configureOutput({ writeOut: io.out, writeErr: io.err });
   const set = (n: number) => { code = n; };
@@ -159,6 +161,7 @@ export async function main(argv: string[], io: IO = { out: (s) => process.stdout
     }
     if (e instanceof EngineError) {
       io.err(`openbooks: ${e.message}\n${e.hint ? `  ${e.hint}\n` : ""}`);
+      if (/\[scan\]/.test(e.message)) io.err("  or, with the npm package: openbooks install-engine --scan\n");
       return EXIT.engine;
     }
     io.err(`openbooks: unexpected error: ${(e as Error).message}\n`);
