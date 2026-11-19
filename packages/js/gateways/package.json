@@ -1,6 +1,6 @@
 {
   "name": "@lumeo_hq/openbooks-gateways",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Open Books gateways wrapper: typed access to the Python engine, restricted to the gateways layouts",
   "license": "Apache-2.0",
   "type": "module",

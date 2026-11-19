@@ -10,6 +10,7 @@ import * as statements from "@lumeo_hq/openbooks-statements";
 import * as tax from "@lumeo_hq/openbooks-tax";
 import { runDoctor } from "@lumeo_hq/openbooks-doctor";
 import { EXIT, main } from "../src/main.js";
+import { engineRange } from "../src/install-engine.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../../../..");
@@ -186,5 +187,22 @@ describe("install-engine", () => {
     const r = spawnSync(process.execPath, [join(here, "../scripts/postinstall.mjs")], { encoding: "utf8" });
     expect(r.status).toBe(0);
     expect(r.stdout).toBe("");
+  });
+});
+
+describe("engine version line", () => {
+  const versionOf = (dir: string) => (JSON.parse(readFileSync(join(repo, "packages/js", dir, "package.json"), "utf8")) as { version: string }).version;
+
+  // npm and PyPI share a major.minor line: CLI 0.2.x installs openbooks 0.2.x, never 0.1.x or 0.3.x.
+  // When the line moves (0.3), bump every package and update this expectation on purpose.
+  it("installs the engine from the same major.minor line as the CLI", () => {
+    expect(versionOf("cli")).toMatch(/^0\.2\.\d+$/);
+    expect(engineRange()).toBe("~=0.2.0");
+  });
+
+  it("keeps all six npm packages on one major.minor line", () => {
+    const line = (v: string) => v.split(".").slice(0, 2).join(".");
+    const want = line(versionOf("cli"));
+    for (const d of ["core", "statements", "gateways", "tax", "doctor"]) expect(line(versionOf(d)), d).toBe(want);
   });
 });

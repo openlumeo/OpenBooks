@@ -18,7 +18,7 @@ export type InstallResult =
   | { status: "failed"; detail: string; hint?: string };
 
 /** npm and PyPI share a major.minor line (the contract version); patch releases are independent. So 0.1.x of this CLI takes any openbooks 0.1.x. */
-function engineRange(): string {
+export function engineRange(): string {
   const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
   const [major, minor] = pkg.version.split(".");
   return `~=${major}.${minor}.0`;
