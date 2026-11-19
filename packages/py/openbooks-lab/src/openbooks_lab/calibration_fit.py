@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 
 import numpy as np
-from openbooks_statements.calibration import Calibrator, softmax
+from openbooks.statements.calibration import Calibrator, softmax
 from scipy.optimize import minimize_scalar
 
 

@@ -12,28 +12,28 @@ raw text and extraction method. Money is `Decimal` end to end and nothing is rou
 
 ## Packages
 
-| Python | Reads | Install extras |
-|---|---|---|
-| `openbooks-core` | the contract, normalisation, balance gates, layout registry, CLI | `[xlsx]` |
-| `openbooks-statements` | bank CSV, OFX, MT940 (pure Python) | `[pdf]` PDFs (pypdfium2), `[scan]` OCR and the typed heads |
-| `openbooks-gateways` | Stripe, Razorpay, PayPal, Wise | |
-| `openbooks-tax` | Form 26AS, AIS, FIRA, Form 1099-B, trial balance | |
-| `openbooks-doctor` | `openbooks doctor`: installation, provider and model-integrity checks | |
-| `openbooks` | meta package: installs the above | `[scan]` |
+One Python package, `openbooks` (`pip install openbooks`; add `[scan]` for OCR and the typed heads):
+
+| Module | Reads |
+|---|---|
+| `openbooks.core` | the contract, normalisation, balance gates, layout registry, CLI |
+| `openbooks.statements` | bank CSV, OFX, MT940, PDFs with a text layer; scans with `[scan]` |
+| `openbooks.gateways` | Stripe, Razorpay, PayPal, Wise |
+| `openbooks.tax` | Form 26AS, AIS, FIRA, Form 1099-B, trial balance |
+| `openbooks.doctor` | `openbooks doctor`: installation, provider and model-integrity checks |
 
 npm: `@lumeo_hq/openbooks-core`, `@lumeo_hq/openbooks-statements`, `@lumeo_hq/openbooks-gateways`, `@lumeo_hq/openbooks-tax`, `@lumeo_hq/openbooks-doctor` and the `openbooks`
 CLI are typed wrappers that run the Python engine. They parse nothing themselves.
 
-A package that is not installed never causes a guess: a file that looks like a known layout whose package is missing is refused,
-with the name of the package to install.
+A missing provider never causes a guess: a file that looks like a known layout whose provider is not registered is refused
+with a typed code.
 
 ## From source
 
 ```bash
-pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax \
-            -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks-doctor -e packages/py/openbooks
-python -m openbooks_core run statement.csv --currency INR --opening 1000.00 --machine
-python -m openbooks_core doctor
+pip install -e packages/py/openbooks
+python -m openbooks run statement.csv --currency INR --opening 1000.00 --machine
+python -m openbooks doctor
 ```
 
 ```ts

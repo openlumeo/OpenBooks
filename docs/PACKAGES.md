@@ -1,5 +1,11 @@
 # Building and publishing the Open Books packages
 
+> **Superseded for Python (0.2.0).** The five Python distributions planned here (`openbooks-core`, `-statements`, `-gateways`,
+> `-tax`, `-doctor`) and the meta package were published as 0.1.0 and then merged into one package, `openbooks`, with the same
+> code as `openbooks.core`, `openbooks.statements`, `openbooks.gateways`, `openbooks.tax` and `openbooks.doctor`. For installing,
+> upgrading from 0.1 and releasing, see [PYTHONOPENBOOKSPACKAGES.md](PYTHONOPENBOOKSPACKAGES.md). The npm sections still apply.
+> The rest of this page is kept as the original plan.
+
 > The split described here exists on `main` (`packages/py/*`, `packages/js/*`). For how the packages are wired at runtime and served, see [SERVING.md](SERVING.md); for the model, see [MODEL.md](MODEL.md). This page remains the plan and the publishing checklist.
 
 > **Status (branch `feat/openbooks-core-package`, unreleased, nothing published):** all five Python packages exist

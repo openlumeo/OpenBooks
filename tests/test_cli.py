@@ -41,7 +41,7 @@ def test_report_accepts_the_same_flags_as_run(pdf, tmp_path):
 
 def test_model_load_is_reused_within_a_process():
     torch = pytest.importorskip("torch")  # noqa: F841
-    from openbooks_statements.roles import RoleModel
+    from openbooks.statements.roles import RoleModel
 
     first = RoleModel.load()
     if first is None:

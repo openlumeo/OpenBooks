@@ -16,7 +16,7 @@ def test_training_script_uses_no_external_data_or_pretrained_weights():
 
 
 def test_encoder_does_not_load_the_cord_pretrained_checkpoint():
-    src = (ROOT / "packages" / "py" / "openbooks-statements" / "src" / "openbooks_statements" / "encoder.py").read_text(encoding="utf-8")
+    src = (ROOT / "packages" / "py" / "openbooks" / "src" / "openbooks" / "statements" / "encoder.py").read_text(encoding="utf-8")
     assert "torch.load" not in src
     code = [ln for ln in src.splitlines() if not ln.lstrip().startswith(("#", '"""'))]
     assert not any("jepa_encoder.pt" in ln for ln in code)

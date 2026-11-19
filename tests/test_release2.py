@@ -4,9 +4,9 @@ import numpy as np
 import pytest
 
 from openbooks_lab.calibration_fit import conformal_threshold, ece, fit_calibrator, fit_temperature
-from openbooks_statements.calibration import Calibrator, prediction_set, softmax
+from openbooks.statements.calibration import Calibrator, prediction_set, softmax
 from openbooks_lab.link import link
-from openbooks_statements.pdf_front import _ocr_fix
+from openbooks.statements.pdf_front import _ocr_fix
 
 
 def _src(sha, amount, day, cur="INR"):

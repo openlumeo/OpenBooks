@@ -1,4 +1,4 @@
-# Workspace configuration only. The distributions live under packages/py/*; install them editable for development:
-#   pip install -e packages/py/openbooks-core -e packages/py/openbooks
+# Workspace configuration only. The public distribution lives in packages/py/openbooks; install it editable for development:
+#   pip install -e "packages/py/openbooks[scan]"
 [tool.pytest.ini_options]
 testpaths = ["tests"]

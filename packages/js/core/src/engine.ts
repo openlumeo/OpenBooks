@@ -99,7 +99,7 @@ export async function runFiles(files: readonly string[], opts: RunOptions = {}):
   const engine: Engine = await findEngine(opts);
   const dir = await mkdtemp(join(tmpdir(), "openbooks-"));
   try {
-    const argv = [...engine.python, "-m", "openbooks_core", "run", "--machine", "--out", dir, ...flags(opts), ...paths];
+    const argv = [...engine.python, "-m", "openbooks", "run", "--machine", "--out", dir, ...flags(opts), ...paths];
     let r;
     try {
       r = await run(argv, { timeoutMs: opts.runTimeoutMs ?? 120_000, signal: opts.signal, maxBytes: opts.maxOutputBytes });
@@ -135,7 +135,7 @@ export async function runFiles(files: readonly string[], opts: RunOptions = {}):
         else validateRefusal(doc);
       } catch (e) {
         throw new EngineError("bad_output", `${(e as Error).message}. The installed engine and this package may be different versions.`,
-          "install matching versions of @lumeo_hq/openbooks-core and openbooks-core", { cause: e });
+          "install matching versions of @lumeo_hq/openbooks-core and the Python package openbooks", { cause: e });
       }
       results.push(toResult(line, doc as OpenBooksDocument | OpenBooksRefusal, expectSha, opts.accept));
     }

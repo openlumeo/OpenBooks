@@ -103,10 +103,10 @@ describe.skipIf(!python)("provider wrappers", () => {
     const { info } = await findEngine({ python: python! });
     const owned = (dist: string) => info.known_layouts.filter((l) => l.distribution === dist).map((l) => l.id);
     // The PDF/image layout id is produced by the document front end and is not in the core table.
-    expect([...statements.LAYOUTS].filter((l) => l !== "bank_statement_pdf.v1").sort()).toEqual(owned("openbooks-statements").sort());
+    expect([...statements.LAYOUTS].filter((l) => l !== "bank_statement_pdf.v1").sort()).toEqual(owned("openbooks.statements").sort());
     expect([...statements.LAYOUTS]).toContain("bank_statement_pdf.v1");
-    expect([...gateways.LAYOUTS].sort()).toEqual(owned("openbooks-gateways").sort());
-    expect([...tax.LAYOUTS].sort()).toEqual(owned("openbooks-tax").sort());
+    expect([...gateways.LAYOUTS].sort()).toEqual(owned("openbooks.gateways").sort());
+    expect([...tax.LAYOUTS].sort()).toEqual(owned("openbooks.tax").sort());
   });
 
   it("never release a layout outside their list", async () => {

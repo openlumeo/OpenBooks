@@ -8,8 +8,8 @@ import torch
 ROOT = Path("C:/Desktop/openbooks")
 sys.path.insert(0, str(ROOT / "scripts"))
 import train_roles as tr  # noqa: E402
-from openbooks_statements.calibration import Calibrator  # noqa: E402
-from openbooks_statements.encoder import RoleNet, dequantize_state  # noqa: E402
+from openbooks.statements.calibration import Calibrator  # noqa: E402
+from openbooks.statements.encoder import RoleNet, dequantize_state  # noqa: E402
 
 torch.set_num_threads(10)
 blob = torch.load(ROOT / "models" / "roles_head.pt", map_location="cpu", weights_only=False)

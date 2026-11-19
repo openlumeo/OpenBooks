@@ -48,12 +48,12 @@ function isNotFound(e: unknown): boolean {
 async function probe(python: string[], timeoutMs: number): Promise<Engine | "no_engine" | "not_python"> {
   let r;
   try {
-    r = await run([...python, "-m", "openbooks_core", "engine-info"], { timeoutMs });
+    r = await run([...python, "-m", "openbooks", "engine-info"], { timeoutMs });
   } catch (e) {
     if (isNotFound(e)) return "not_python";
     throw e;
   }
-  if (r.code !== 0) return /No module named ['"]?openbooks_core/.test(r.stderr) ? "no_engine" : "not_python";
+  if (r.code !== 0) return /No module named ['"]?openbooks/.test(r.stderr) ? "no_engine" : "not_python";
   let info: EngineInfo;
   try { info = JSON.parse(r.stdout) as EngineInfo; } catch { return "not_python"; }
   return { python, info };
@@ -83,9 +83,9 @@ async function discover(opts: DiscoverOptions): Promise<Engine> {
     if (r === "no_engine") continue;
     if (r.info.schema_version !== SUPPORTED_SCHEMA_VERSION || r.info.layout_api !== SUPPORTED_LAYOUT_API) {
       throw new EngineError("engine_version",
-        `the installed engine (openbooks-core ${r.info.version}) speaks ${r.info.schema_version}, layout API ${r.info.layout_api}; ` +
+        `the installed engine (openbooks ${r.info.version}) speaks ${r.info.schema_version}, layout API ${r.info.layout_api}; ` +
         `this package needs ${SUPPORTED_SCHEMA_VERSION}, layout API ${SUPPORTED_LAYOUT_API}`,
-        "install matching versions of @lumeo_hq/openbooks-core and openbooks-core");
+        "install matching versions of @lumeo_hq/openbooks-core and the Python package openbooks");
     }
     return r;
   }

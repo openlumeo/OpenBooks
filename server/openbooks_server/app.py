@@ -146,7 +146,7 @@ async def post_roles(file: UploadFile = File(...), params: str | None = Form(Non
     Inputs match /v1/runs: `file` and `params` (ocr, date_order are used; the rest are ignored here)."""
     inference = _inference()
     from openbooks.pipeline import MAX_BYTES
-    from openbooks_core.errors import Refusal
+    from openbooks.core.errors import Refusal
 
     try:
         p = parse_params(_json_field(params, "params"))

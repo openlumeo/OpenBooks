@@ -24,4 +24,4 @@ export class EngineError extends Error {
   }
 }
 
-export const INSTALL_HINT = "pip install openbooks   (or: pip install openbooks-core plus the provider packages you need), then run: openbooks doctor";
+export const INSTALL_HINT = "pip install openbooks, then run: openbooks doctor";

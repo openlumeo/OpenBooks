@@ -15,12 +15,12 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from openbooks_core.errors import Refusal
-from openbooks_core.params import Params
-from openbooks_statements.encoder import NOT_MONEY, tensors, windows
-from openbooks_statements.labels import ROLES, VTYPES
-from openbooks_statements.pdf_front import read_words
-from openbooks_statements.roles import Pred, Predictions, RoleModel
+from openbooks.core.errors import Refusal
+from openbooks.core.params import Params
+from openbooks.statements.encoder import NOT_MONEY, tensors, windows
+from openbooks.statements.labels import ROLES, VTYPES
+from openbooks.statements.pdf_front import read_words
+from openbooks.statements.roles import Pred, Predictions, RoleModel
 
 INFER_EXTS = {".pdf", ".png", ".jpg", ".jpeg"}
 MAX_BATCH_TOKENS = 4096  # padded tokens per forward; 8 full 512-token windows, ~50 MB of attention scores

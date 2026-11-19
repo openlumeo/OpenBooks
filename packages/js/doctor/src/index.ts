@@ -55,10 +55,10 @@ export async function runDoctor(opts: DoctorOptions = {}): Promise<DoctorReport>
     }
     throw e;
   }
-  const argv = [...python, "-m", "openbooks_core", "doctor", "--json", ...(opts.deep ? ["--deep"] : [])];
+  const argv = [...python, "-m", "openbooks", "doctor", "--json", ...(opts.deep ? ["--deep"] : [])];
   const r = await runProcess(argv, { timeoutMs: opts.timeoutMs ?? 180_000 });
   if (r.code === 2 && /invalid choice/.test(r.stderr)) {
-    checks.push({ id: "doctor.installed", status: "fail", detail: "the Python engine is installed but openbooks-doctor is not", fix: "pip install openbooks-doctor" });
+    checks.push({ id: "doctor.installed", status: "fail", detail: "the Python engine is installed but its doctor command is not", fix: "pip install --force-reinstall openbooks" });
     return report(checks, opts.strict ?? false);
   }
   if (r.code !== 0 && r.code !== 1) {

@@ -45,8 +45,8 @@ def engine_layouts() -> set[str]:
     import inspect
     import re
 
-    from openbooks_statements import pdf_front
-    from openbooks_core import registry
+    from openbooks.statements import pdf_front
+    from openbooks.core import registry
 
     src = "".join(inspect.getsource(m) for m in (registry, pdf_front))
     return set(re.findall(r'"([a-z0-9_]+\.v1)"', src)) - {"openbooks.v1"}

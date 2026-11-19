@@ -54,7 +54,7 @@ def test_every_open_package_carries_the_same_apache_licence_text():
     assert "Apache License" in master and "Version 2.0, January 2004" in master and "END OF TERMS AND CONDITIONS" in master
     dirs = [d for d in (ROOT / "packages" / "py").iterdir() if d.is_dir() and d.name != "openbooks-lab"]
     dirs += [d for d in (ROOT / "packages" / "js").iterdir() if (d / "package.json").exists()]
-    assert len(dirs) == 12
+    assert len(dirs) == 7  # the one Python package and the six npm packages
     for d in dirs:
         assert (d / "LICENSE").read_text(encoding="utf-8") == master, d.name
 

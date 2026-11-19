@@ -7,26 +7,39 @@ released only if its numbers prove themselves (balances tie, totals match, and a
 document itself); otherwise it is refused with a typed code. Every released field keeps its evidence: page, bounding box, row,
 raw text and extraction method. Money is `Decimal` end to end and nothing is rounded silently.
 
-This is the meta package: it installs the whole open stack and keeps `import openbooks.pipeline` working.
-
 ```bash
-pip install openbooks            # core, statements (with PDF), gateways, tax, doctor
+pip install openbooks            # every layout, PDFs with a text layer, doctor
 pip install "openbooks[scan]"    # adds OCR for scans and the typed heads (EasyOCR, PyTorch, Pillow)
 openbooks doctor
 openbooks run statement.csv --currency INR --opening 1000.00 --out out
 ```
 
-| Package | Reads |
+```python
+from decimal import Decimal
+from pathlib import Path
+
+from openbooks import Params, process
+
+doc = process(Path("statement.csv"), Params(currency="INR", opening=Decimal("1000.00")))
+print(doc["status"], doc.get("error"))   # a refusal is a value, not an exception
+```
+
+Everything is in this one package:
+
+| Module | Reads |
 |---|---|
-| `openbooks-core` | the contract, normalisation, balance gates, layout registry, CLI |
-| `openbooks-statements` | bank CSV, OFX, MT940, PDFs, scans |
-| `openbooks-gateways` | Stripe, Razorpay, PayPal, Wise |
-| `openbooks-tax` | Form 26AS, AIS, FIRA, Form 1099-B, trial balance |
-| `openbooks-doctor` | installation, provider and model-integrity checks |
+| `openbooks.core` | the contract, normalisation, balance gates, layout registry, CLI |
+| `openbooks.statements` | bank CSV, OFX, MT940, PDFs; scans with `[scan]` |
+| `openbooks.gateways` | Stripe, Razorpay, PayPal, Wise |
+| `openbooks.tax` | Form 26AS, AIS, FIRA, Form 1099-B, trial balance |
+| `openbooks.doctor` | installation, provider and model-integrity checks |
+
+Until 0.1.0 these were six separate packages (`openbooks-core`, `openbooks-statements`, `openbooks-gateways`, `openbooks-tax`,
+`openbooks-doctor` and this one as a meta package). After upgrading, `openbooks doctor` tells you how to remove the old ones.
 
 Exit codes: `0` everything released, `1` something was refused, `2` usage error, `3` the engine could not run.
 
-> **Status: 0.1, pre-release.** Every layout has been exercised on synthetic fixtures only, not on real exports, and PayPal, Wise
+> **Status: 0.2, pre-release.** Every layout has been exercised on synthetic fixtures only, not on real exports, and PayPal, Wise
 > and all the tax layouts are experimental. Do not rely on it for real filings.
 
 Licence: Apache-2.0.

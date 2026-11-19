@@ -8,7 +8,7 @@ Open Books turns financial files into **one proven JSON document per file**, or 
 
 | Rule | Meaning |
 |---|---|
-| One file in, one JSON out | Output schema is `openbooks.v1` (`openbooks_core/schema/*.json` and `validate_output` in `openbooks_core.schema`; `openbooks.pipeline` re-exports them). |
+| One file in, one JSON out | Output schema is `openbooks.v1` (`openbooks/core/schema/*.json` and `validate_output` in `openbooks.core.schema`; `openbooks` and `openbooks.pipeline` re-export them). |
 | Proven or refused | A file is released only if every assertion passes and at least one assertion is independent evidence. Otherwise it is refused with a typed code. |
 | Money is `Decimal` end to end | Nothing is rounded silently; amounts are formatted with the currency exponent. |
 | Evidence for every field | Each field carries page, bbox, raw text and method (`parser`, `pdf_text`, `ocr`, optionally `+model`). |
@@ -69,7 +69,7 @@ flowchart LR
 | Excel workpapers | `.xlsx` | `parsers_extra.parse_xlsx` |
 | Bank statement PDFs (text layer) and scans (OCR) | `pdf_front.extract_document` | `pdf_front.py` |
 
-Not yet built: PayPal, Wise and 1099 parsers, and the split into separately installable packages shown on the diagram (`openbooks-core`, `-statements`, `-gateways`, `-tax`, `-doctor`). Today everything lives in the single `openbooks` package under `src/`.
+The parts on the diagram (core, statements, gateways, tax, doctor) are modules of the one `openbooks` package in `packages/py/openbooks/` (`openbooks.core`, `openbooks.statements`, ...). They were six separate distributions in 0.1.0 and were merged in 0.2.0.
 
 ### Balance checks (stage 4)
 
@@ -120,12 +120,12 @@ All training and test data is synthetic. No real statements are used or scored.
 ## 6. Repository map
 
 ```
-packages/py/openbooks-core/src/openbooks_core/
+packages/py/openbooks/src/openbooks/core/
   registry.py        known layouts and detection order, entry-point provider discovery
   normalise.py, builders.py, gates.py, schema.py, process.py, cli.py   normalisation, shared builders, balance gates, contract, pipeline, CLI
-packages/py/openbooks/src/openbooks/pipeline.py   compatibility facade over openbooks_core (the meta package has no other code)
-packages/py/openbooks-gateways/, openbooks-tax/   Stripe/Razorpay/PayPal/Wise; 26AS/AIS/FIRA/1099-B/trial balance, with their gates
-packages/py/openbooks-statements/src/openbooks_statements/
+packages/py/openbooks/src/openbooks/pipeline.py   compatibility facade over openbooks.core
+packages/py/openbooks/src/openbooks/gateways/, tax/, doctor/   Stripe/Razorpay/PayPal/Wise; 26AS/AIS/FIRA/1099-B/trial balance, with their gates; installation checks
+packages/py/openbooks/src/openbooks/statements/
   parsers.py         bank CSV, OFX, MT940
   gates.py           the OCR date-order gate
   pdf_front.py       PDF and scan front end (text layer, OCR, column geometry)

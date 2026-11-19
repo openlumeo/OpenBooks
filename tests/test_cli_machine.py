@@ -6,14 +6,14 @@ import sys
 
 import pytest
 
-from openbooks_core import cli
-from openbooks_core.output import write_atomic
+from openbooks.core import cli
+from openbooks.core.output import write_atomic
 
 BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2026,Pay,,5.00,1005.00\n"
 
 
 def run_cli(*args):
-    return subprocess.run([sys.executable, "-m", "openbooks_core", *args], capture_output=True, text=True)
+    return subprocess.run([sys.executable, "-m", "openbooks.core", *args], capture_output=True, text=True)
 
 
 def bank(tmp_path, text=BANK, name="in.csv"):
@@ -51,7 +51,7 @@ def test_a_bad_opening_is_a_usage_error(tmp_path):
 
 
 def test_missing_library_is_an_engine_fault_in_strict_mode_and_a_refusal_otherwise(tmp_path, monkeypatch):
-    from openbooks_core import process
+    from openbooks.core import process
 
     pdf = tmp_path / "in.pdf"
     pdf.write_bytes(b"%PDF-1.4 not a real pdf")
@@ -60,12 +60,12 @@ def test_missing_library_is_an_engine_fault_in_strict_mode_and_a_refusal_otherwi
         def extract(self, path, params):
             raise ImportError("No module named 'fitz'")
 
-    from openbooks_core.registry import default_registry
+    from openbooks.core.registry import default_registry
 
     reg = default_registry().__class__(frontends={"document": Broken()})
     doc = process(pdf, registry=reg)
     assert doc["status"] == "refused" and doc["error"]["internal"] is True  # 0.1 behaviour, now marked
-    from openbooks_core.errors import EngineFault
+    from openbooks.core.errors import EngineFault
 
     with pytest.raises(EngineFault):
         process(pdf, registry=reg, strict=True)

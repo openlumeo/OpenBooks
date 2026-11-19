@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from openbooks_statements.encoder import D, Enc, RoleNet, column_heads
+from openbooks.statements.encoder import D, Enc, RoleNet, column_heads
 
 CH = 12
 BITS = CH * 8 + 1
