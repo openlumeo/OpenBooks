@@ -39,7 +39,7 @@ Design rules that follow from this:
 | | `openbooks.tax` | Form 26AS, AIS, FIRA, 1099-B, trial balance (experimental layouts) | |
 | | `openbooks.doctor` | `openbooks doctor`: dependency, provider, model-integrity checks and a proven-or-refused self-test | |
 | `lumeo-openbooks-lab` | `openbooks_lab` | **Private, never published**: synthetic data, golden sets, calibration fitting, payout matching | `openbooks[scan]` |
-| `openbooks-server` (`server/`) | `openbooks_server` | The FastAPI engine service described below | `openbooks`, `lumeo-openbooks-lab`, FastAPI, uvicorn |
+| `openbooks-server` (`server/`) | `openbooks_server` | FastAPI service with bundled synthetic samples | `openbooks`, FastAPI, uvicorn. Optional `lumeo-openbooks-lab` enables payout matching. |
 
 ### npm (`packages/js/`, pnpm workspace)
 
@@ -65,7 +65,7 @@ Consequences: registration is what makes a layout work. A file whose layout has 
 |---|---|
 | Everything except OCR and the model | `pip install openbooks` |
 | Plus OCR for scans and the typed heads | `pip install "openbooks[scan]"` (EasyOCR, PyTorch ≥ 2.6, Pillow) |
-| From a source checkout | `pip install -e packages/py/openbooks -e packages/py/openbooks-lab -e server` |
+| From a source checkout | `pip install -e packages/py/openbooks -e server` (add `-e packages/py/openbooks-lab` for payout matching) |
 | Check the install | `openbooks doctor` (exit 0 ok, 1 a check failed, 2 usage, 3 doctor crashed; `--json` for machines) |
 
 Model assets are looked up in order: `$OPENBOOKS_MODELS_DIR`, the `data/` directory packaged inside `openbooks.statements`, then the repo `models/` directory in a source checkout. The calibration names the sha256 of its weights and a mismatch refuses to load.
@@ -76,12 +76,12 @@ Start it: `python -m uvicorn openbooks_server.app:app --host 127.0.0.1 --port 87
 
 | Route | Method | Purpose |
 |---|---|---|
-| `/v1/health` | GET | Engine version, schema version, OCR available, `model_weights_present` and `model_issue`, size limit (20 MB), allowed extensions |
+| `/v1/health` | GET | Engine and schema version, OCR and linking availability, `model_ready`, `model_issue`, `model_identity`, size limit (20 MB), allowed extensions. `model_weights_present` remains a compatibility alias for `model_ready`. |
 | `/v1/formats` | GET | Supported layouts grouped for the UI, plus the unverified ones |
 | `/v1/samples`, `/v1/samples/{id}` | GET | Synthetic golden files for trying the app |
 | `/v1/runs` | POST (multipart `files`, `params`, `file_params`) | Process up to 20 files; **server-sent events**: `file.started`, `file.stage`, `file.done` (one `openbooks.v1` document, released or refused), `run.done` |
 | `/v1/roles` | POST (multipart `file`, `params`) | The typed heads' own reading of one PDF or scan: `openbooks.roles.v1` |
-| `/v1/link` | POST (JSON `docs`) | Link payouts and remittances to bank credits (`openbooks.links.v1`) |
+| `/v1/link` | POST (JSON `docs`) | Link payouts and remittances to bank credits (`openbooks.links.v1`). Requires the optional linker. |
 
 `params` (validated by `runs.parse_params`): `currency` (3 letters), `opening` (plain decimal), `account`, `allow_derived_opening`, `ocr`, `model`, `date_order` (`dmy`/`mdy`). Bad values return 422 with a message fit for the user.
 

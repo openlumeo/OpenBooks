@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { ArrowUp, FlaskConical, Paperclip, SlidersHorizontal, Square, X } from "lucide-react";
 import { fmtBytes, paramSummary } from "@/lib/format";
 import type { RunParams, Sample } from "@/lib/types";
+import type { Workspace } from "@/lib/use-workspace";
 
 export const MAX_FILES = 20;
 
@@ -19,7 +20,9 @@ export type ComposerProps = {
   onAddFiles: (files: File[]) => void;
   onSend: (text: string) => void;
   onStop: () => void;
-  busy: boolean;
+  operation: Workspace["operation"];
+  locked: boolean;
+  attachInput: RefObject<HTMLInputElement | null>;
   engineUp: boolean;
   askEnabled: boolean | null;
   allowed: string[];
@@ -41,12 +44,12 @@ export function problemsFor(pending: Pending[], allowed: string[], maxBytes: num
 }
 
 export function Composer(props: ComposerProps) {
-  const { pending, setPending, params, setParams, busy, engineUp, askEnabled, allowed, maxBytes } = props;
+  const { pending, setPending, params, setParams, operation, locked, engineUp, askEnabled, allowed, maxBytes } = props;
   const [text, setText] = useState("");
   const [showParams, setShowParams] = useState(false);
   const [showSamples, setShowSamples] = useState(false);
   const [paramError, setParamError] = useState<string | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
+  const fileInput = props.attachInput;
   const area = useRef<HTMLTextAreaElement>(null);
   const samplesRef = useRef<HTMLDivElement>(null);
   const ids = useId();
@@ -77,7 +80,7 @@ export function Composer(props: ComposerProps) {
   const hasText = text.trim().length > 0;
   const canRun = hasFiles && engineUp && !problem && !paramError;
   const canAsk = !hasFiles && hasText && askEnabled === true;
-  const canSend = !busy && (canRun || canAsk);
+  const canSend = !locked && (canRun || canAsk);
 
   const send = () => {
     if (!canSend) return;
@@ -97,7 +100,9 @@ export function Composer(props: ComposerProps) {
       : "Attach files to check, or drop them anywhere here";
 
   let hint: string;
-  if (!engineUp) hint = "The engine is not reachable, so files cannot be checked right now.";
+  if (operation === "link") hint = "Checking links across released files.";
+  else if (operation === "history") hint = "Updating browser history.";
+  else if (!engineUp) hint = "The engine is not reachable, so files cannot be checked right now.";
   else if (problem) hint = problem;
   else if (hasFiles) hint = "Each file is checked on its own. Nothing is released unless its numbers tie out.";
   else if (askEnabled === false && (hasText || props.hasDocs)) hint = "Questions need OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL on the web server. File checks still work.";
@@ -158,7 +163,7 @@ export function Composer(props: ComposerProps) {
                 e.target.value = "";
               }}
             />
-            <button type="button" className="tool-btn" onClick={() => fileInput.current?.click()} disabled={busy}>
+            <button type="button" className="tool-btn" onClick={() => fileInput.current?.click()} disabled={locked}>
               <Paperclip size={15} /> Attach
             </button>
             <div ref={samplesRef} style={{ position: "relative" }}>
@@ -168,7 +173,7 @@ export function Composer(props: ComposerProps) {
                 aria-expanded={showSamples}
                 aria-controls={`${ids}-samples`}
                 onClick={() => setShowSamples((v) => !v)}
-                disabled={!engineUp || props.samples.length === 0}
+                disabled={locked || !engineUp || props.samples.length === 0}
               >
                 <FlaskConical size={15} /> Samples
               </button>
@@ -207,7 +212,7 @@ export function Composer(props: ComposerProps) {
               <SlidersHorizontal size={15} /> Params {summary && <span className="badge">{summary}</span>}
             </button>
           </div>
-          {busy ? (
+          {operation && operation !== "history" ? (
             <button type="button" className="btn btn-ghost btn-sm" onClick={props.onStop}>
               <Square size={13} /> Stop
             </button>
@@ -219,7 +224,7 @@ export function Composer(props: ComposerProps) {
         </div>
       </div>
       <div className="composer-hint">
-        <span className={`t-body-sm${problem || !engineUp ? " field-error" : ""}`} role={problem ? "alert" : undefined}>
+        <span className={`t-body-sm${problem || !engineUp ? " field-error" : ""}`} role={problem ? "alert" : "status"}>
           {(problem || !engineUp) && <span className="dot" aria-hidden="true" />}
           {hint}
         </span>

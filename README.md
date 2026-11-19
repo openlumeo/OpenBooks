@@ -20,14 +20,31 @@ Accounting automation fails quietly: a misread digit, a swapped debit and credit
 
 ## Install
 
-Requires Python 3.11 or newer.
+Requires Python 3.11 or newer (and Node 20+ with pnpm for the JS packages and web app).
+
+**Just use it** (no checkout): one command installs all the JS packages and the Python engine behind them.
+
+```bash
+npm i -g @lumeo_hq/openbooks      # or: npm i @lumeo_hq/openbooks   inside a project
+openbooks statement.csv --currency INR --opening 1000.00      # no subcommand needed (same as: openbooks run ...)
+```
+
+The install step runs `pip install openbooks` for you (needs Python 3.11+ on the machine). If that step is skipped (`--ignore-scripts`, `OPENBOOKS_SKIP_PYTHON=1`, pnpm's build-script approval, or a Python that refuses global installs), run `openbooks install-engine` (add `--scan` for OCR). `openbooks doctor` checks the result.
+
+**From a source checkout, one command, everything** (all Python packages, the engine service, the JS workspace and the web app):
 
 ```bash
 git clone https://github.com/Sagexd08/OpenBooks.git
 cd OpenBooks
+python scripts/setup.py            # add --scan for OCR + typed heads, --no-js for Python only, --dry-run to preview
+```
+
+Just the engine, from PyPI: `pip install openbooks`. Or install from the checkout:
+
+```bash
 pip install -e packages/py/openbooks                                       # CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
 pip install -e "packages/py/openbooks[scan]"                               # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
-pip install -e packages/py/openbooks-lab                                   # private: golden-set builders, synthetic data, training, matching (needed for tests and the web app)
+pip install -e packages/py/openbooks-lab                                   # private: training, tests and optional payout matching
 ```
 
 ## Use
@@ -72,16 +89,18 @@ else:
 
 ## Web app
 
-A conversation-style workspace (Open Books by Lumeo) lives in `web/`, backed by a small engine service in `server/`. Drop files into a thread, watch each one go through Detect, Parse, Normalise and Balance, and get one released document or a typed refusal per file, with the checks, per-field evidence and JSON on every card. With an OpenRouter API key (any open-weights model that supports tool calls) you can then ask questions about the released documents. Totals in answers are computed by code, never by the model.
+A batch workspace (Open Books by Lumeo) lives in `web/`, backed by the engine service in `server/`. Attach files or try a synthetic sample, run the checks, and review the released, refused, and interrupted files in the batch. Inspect a released file’s checks and source evidence before downloading its JSON. Retry interrupted files and recoverable refusals from the result card. With a configured OpenRouter model that supports tool calls, you can ask questions about the released documents. Code computes the totals.
 
 ```bash
-pip install -e packages/py/openbooks -e packages/py/openbooks-lab -e server   # engine + engine service (FastAPI)
+pip install -e packages/py/openbooks -e server   # engine + engine service (FastAPI); add -e packages/py/openbooks-lab for payout matching
 cd web && pnpm install
 cp .env.example .env.local                 # optional: OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL for questions
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
 ```
 
-The model's own per-word reading (role, value type, abstention) is available at `POST /v1/roles` and from `predictRoles()` in `web/lib/engine-client.ts`.
+For a quick walkthrough, queue **Bank statement CSV** and **Bank CSV without an opening balance** from the sample picker. Run both, then review the checks and download the released JSON. Enter `1000.00` in the refused card to re-run the second file. After a reload, history still shows the results and a retry asks for the original file again.
+
+The service ships with synthetic samples. Install `openbooks-lab` from this checkout to enable payout matching. The model’s per-word reading (role, value type, abstention) is available at `POST /v1/roles`.
 
 The browser only talks to the Next.js server, which proxies to the engine service on loopback. History stays in the browser (IndexedDB); uploaded files are processed in a temp directory and deleted after each run. Tests: `pytest server/tests` and `cd web && pnpm test`. Design: `docs/web/design.md`.
 
@@ -124,7 +143,7 @@ A refusal is `{ "schema_version": "openbooks.v1", "status": "refused", "data": n
 | Trial balance, Excel workpapers | `trial_balance.v1`, `.xlsx` |
 | Bank statement PDFs and scans | text layer or OCR, column-geometry row rebuild |
 
-The PayPal, Wise and 1099-B layouts follow public descriptions of those exports and are tested on synthetic fixtures only; treat them as unverified until real redacted samples exist. Other 1099 forms have no arithmetic to prove and are not parsed. Planned, not built: separately installable packages (Python and npm). The step-by-step build, publish and ML-completion guide is [docs/PACKAGES.md](docs/PACKAGES.md). See also [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The PayPal, Wise and 1099-B layouts follow public descriptions of those exports and are tested on synthetic fixtures only. Treat them as unverified until real redacted samples exist. The Python packages and npm wrappers are documented in [docs/SERVING.md](docs/SERVING.md). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the release rules.
 
 ## How it works
 
@@ -195,11 +214,11 @@ pip install -e "packages/py/openbooks[scan]" -e packages/py/openbooks-lab -e ser
 OB_SLOW=1 python -m pytest -q tests packages/py/openbooks/tests server/tests   # full suite
 python tests/characterise/run.py verify              # behaviour frozen before the package split (868 results)
 python scripts/family_baseline.py                   # unseen-family baseline
-python scripts/train_roles.py 1200 150 12           # retrain the heads (GPU recommended)
-python scripts/promote.py --baseline docs/evidence/roles_metrics_calibrated.json <candidate.json>   # promotion gate
+python scripts/train_roles.py 1200 150 12 --out out/roles/candidate-01
+python scripts/verify_roles.py out/roles/candidate-01 --scans
 ```
 
-Training knobs: `OB_SEED`, `OB_LOSS` (`ce`, `ls`, `focalN`), `OB_WIDE`, and `OB_FAMILIES` (`none`, or a comma list of `sign`, `branch`, `skew`) for leave-one-family-out runs, which write to `models/fam_<tag>/` and never touch the shipped weights.
+Training knobs include `--alpha`, `--device`, `OB_SEED`, `OB_LOSS` (`ce`, `ls`, `focalN`), `OB_WIDE`, and `OB_FAMILIES` (`none`, or a comma list of `sign`, `branch`, `skew`). See the [candidate workflow](docs/MODEL.md#6-training-and-shipping).
 
 ## Limitations
 

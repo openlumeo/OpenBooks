@@ -10,8 +10,11 @@ The weights ship in this distribution (data/roles_head.pt); without them the fla
 from __future__ import annotations
 
 import hashlib
+import io
 import json
+import math
 import re
+import threading
 from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
@@ -20,12 +23,12 @@ import numpy as np
 import torch
 from openbooks.core.errors import Refusal
 
-from .calibration import Calibrator
+from .calibration import Calibrator, prediction_set
 from .encoder import RoleNet, dequantize_state, tensors, windows
-from .assets import MODELS_DIR
+from .assets import CALIBRATION_NAME, MODELS_DIR, WEIGHTS_NAME, ModelUnavailable
 from .labels import ROLES, VTYPES
 
-WEIGHTS, CALIBRATION = MODELS_DIR / "roles_head.pt", MODELS_DIR / "roles_calibration.json"
+WEIGHTS, CALIBRATION = MODELS_DIR / WEIGHTS_NAME, MODELS_DIR / CALIBRATION_NAME
 AMOUNT = ("debit", "credit", "balance")
 _MONEY = re.compile(r"^\(?-?\d[\d,]*\.\d{2}\)?(?:Dr|Cr|DR|CR)?$")
 _DATE = re.compile(r"^(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}[ -][A-Za-z]{3}[ -]\d{2,4})$")
@@ -90,36 +93,72 @@ class RoleModel:
     def __init__(self, net: RoleNet, role_cal: Calibrator, type_cal: Calibrator, dev):
         self.net, self.role_cal, self.type_cal, self.dev = net.eval(), role_cal, type_cal, dev
 
-    _loaded: dict = {}  # (weights, calibration, mtimes) -> model; one entry, so a retrain on disk is picked up
+    _load_lock = threading.Lock()
+    _cache_key: tuple | None = None
+    _cached_model: RoleModel | None = None
+    _cached_issue: str | None = None
 
     @classmethod
-    def load(cls, weights: Path = WEIGHTS, calibration: Path = CALIBRATION):
-        """Loaded once per process (about 170 ms), then reused; the net is in eval mode and holds no per-file state."""
-        if not weights.exists() or not calibration.exists():
-            return None
-        key = (weights, calibration, weights.stat().st_mtime_ns, calibration.stat().st_mtime_ns)
-        if key not in cls._loaded:
-            cls._loaded.clear()
-            cls._loaded[key] = cls._build(weights, calibration)
-        return cls._loaded[key]
+    def load(cls, weights: Path = WEIGHTS, calibration: Path = CALIBRATION) -> RoleModel | None:
+        """Reuse the loaded model while its assets are unchanged."""
+        with cls._load_lock:
+            try:
+                st = weights.stat()
+                cal_bytes = calibration.read_bytes()
+            except FileNotFoundError:
+                return None
+            except OSError as e:
+                raise ModelUnavailable(f"Cannot read model assets ({type(e).__name__}). Check OPENBOOKS_MODELS_DIR.") from e
+            key = (weights, calibration, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns, cal_bytes)
+            if key != cls._cache_key:
+                try:
+                    model = cls._build(weights, cal_bytes)
+                except ModelUnavailable as e:
+                    model, issue = None, e.message
+                except OSError as e:
+                    # Files may change during a deployment. Try again on the next call.
+                    raise ModelUnavailable(f"Cannot read model weights ({type(e).__name__}). Check OPENBOOKS_MODELS_DIR.") from e
+                else:
+                    issue = None
+                cls._cache_key, cls._cached_model, cls._cached_issue = key, model, issue
+            if cls._cached_issue is not None:
+                raise ModelUnavailable(cls._cached_issue)
+            return cls._cached_model
 
     @classmethod
-    def _build(cls, weights: Path, calibration: Path):
+    def _build(cls, weights: Path, cal_bytes: bytes) -> RoleModel:
         """The calibration is only valid for the weights it was fitted on, so it names them by sha256 and a mismatch
         refuses: a retrain with an old calibration (or the reverse) must never load silently."""
-        cal = json.loads(calibration.read_text(encoding="utf-8"))
-        w_sha = hashlib.sha256(weights.read_bytes()).hexdigest()
-        if cal.get("weights_sha256") != w_sha:
-            have = cal.get("weights_sha256")
-            was = f"weights {have[:12]}" if have else "no weights hash"
-            raise Refusal("UNSUPPORTED_INPUT", f"{calibration.name} was fitted for {was}, not for {w_sha[:12]} "
-                                               f"({weights.name}): refit the calibration for these weights")
-        dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        net = RoleNet(len(ROLES), len(VTYPES))
-        net.load_state_dict(dequantize_state(torch.load(weights, map_location="cpu", weights_only=True)["int8_state"]))
-        mk = lambda d: Calibrator(d["temperature"], float("inf") if d["qhat"] is None else d["qhat"], d["alpha"])  # noqa: E731
-        model = cls(net.to(dev), mk(cal["role"]), mk(cal["vtype"]), dev)
-        model.identity = {"weights_sha256": w_sha, "calibration_sha256": hashlib.sha256(calibration.read_bytes()).hexdigest()}
+        try:
+            cal = json.loads(cal_bytes)
+            fitted = cal.get("weights_sha256")
+            if not fitted:
+                raise ModelUnavailable("Invalid model calibration: no weights hash. Restore roles_calibration.json for these weights.")
+            if not isinstance(fitted, str) or not re.fullmatch(r"[0-9a-f]{64}", fitted):
+                raise ValueError("invalid weights_sha256")
+        except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as e:
+            raise ModelUnavailable("Invalid model calibration. Restore roles_calibration.json for these weights.") from e
+        # Hash and deserialize the same bytes so a replacement on disk cannot misidentify a loaded checkpoint.
+        weights_bytes = weights.read_bytes()
+        w_sha = hashlib.sha256(weights_bytes).hexdigest()
+        if fitted != w_sha:
+            raise ModelUnavailable(f"Model calibration was fitted for other weights ({fitted[:12]}, not {w_sha[:12]}). "
+                                   "Restore the matching roles_calibration.json or refit the calibration for these weights.")
+        try:
+            role_cal = _calibrator(cal["role"])
+            type_cal = _calibrator(cal["vtype"])
+        except (KeyError, TypeError, ValueError, OverflowError) as e:
+            raise ModelUnavailable("Invalid model calibration. Restore roles_calibration.json for these weights.") from e
+        try:
+            state = torch.load(io.BytesIO(weights_bytes), map_location="cpu", weights_only=True)["int8_state"]
+            net = RoleNet(len(ROLES), len(VTYPES))
+            net.load_state_dict(dequantize_state(state))
+            dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model = cls(net.to(dev), role_cal, type_cal, dev)
+        except Exception as e:
+            raise ModelUnavailable(f"Cannot load the model checkpoint ({type(e).__name__}). "
+                                   "Check roles_head.pt and the PyTorch installation.") from e
+        model.identity = {"weights_sha256": w_sha, "calibration_sha256": hashlib.sha256(cal_bytes).hexdigest()}
         return model
 
     @torch.no_grad()
@@ -135,11 +174,29 @@ class RoleModel:
         words = [w for pg in pages for w in pg]
         if not words:
             return Predictions({})
-        role, vt = self.logits(words)
+        return self.predictions(words, *self.logits(words))
+
+    def predictions(self, words, role: np.ndarray, vt: np.ndarray) -> Predictions:
+        """Apply the shipped calibration to logits from either inference path."""
+        if not np.isfinite(role).all() or not np.isfinite(vt).all():
+            raise ModelUnavailable("Model inference produced invalid scores. Check the model checkpoint.")
         rp, tp = self.role_cal.probs(role), self.type_cal.probs(vt)
-        rs, ts = self.role_cal.sets(role), self.type_cal.sets(vt)
+        if not np.isfinite(rp).all() or not np.isfinite(tp).all():
+            raise ModelUnavailable("Model inference produced invalid probabilities. Check the model calibration.")
+        rs = [prediction_set(p, self.role_cal.qhat) for p in rp]
+        ts = [prediction_set(p, self.type_cal.qhat) for p in tp]
         return Predictions({w: Pred(ROLES[int(rp[i].argmax())], tuple(ROLES[k] for k in rs[i]), VTYPES[int(tp[i].argmax())],
                                     tuple(VTYPES[k] for k in ts[i])) for i, w in enumerate(words)})
+
+
+def _calibrator(data: dict) -> Calibrator:
+    temperature, qhat, alpha = data["temperature"], data["qhat"], data["alpha"]
+    values = (temperature, alpha) if qhat is None else (temperature, alpha, qhat)
+    if any(type(x) not in (int, float) or not math.isfinite(x) for x in values):
+        raise ValueError("calibration values must be finite numbers")
+    if temperature <= 0 or not 0 < alpha < 1 or (qhat is not None and not 0 <= qhat <= 1):
+        raise ValueError("calibration values are out of range")
+    return Calibrator(temperature, float("inf") if qhat is None else qhat, alpha)
 
 
 def _ties(roles, tokens, prev, value) -> bool:

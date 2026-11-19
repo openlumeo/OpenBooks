@@ -1,0 +1,14 @@
+# Production ML roadmap
+
+Open Books should optimise for **documents proven without manual intervention**, with false releases as a hard gate. A higher token score is useful only if it produces more usable, traceable documents at an acceptable cost.
+
+| Priority | Build | Evidence to ship |
+|---|---|---|
+| 1. Real reference set | Collect consented, redacted files. Label both file decisions and their evidence. Split by institution, layout family and time before training. Keep a frozen challenge set for unseen layouts, scan defects and arithmetic tampering. | Report false releases, correct releases, refusal reasons and uncertainty by slice. Keep raw documents and identifiers out of general telemetry. |
+| 2. Reproducible candidates | Store dataset and split identifiers, code revision, training configuration, weights, calibration, held-out metrics and proof-gate results together. Compare float, mixed precision and quantized runs with the same data and serving precision. | A second operator can replay the run. Report GPU memory, throughput, and p50/p95 latency split by OCR and native PDF, plus cost per proven document. [PyTorch mixed precision recipe](https://docs.pytorch.org/tutorials/recipes/recipes/amp_recipe.html) |
+| 3. Safe rollout | Keep a champion and challenger. Run the challenger in shadow mode against consented traffic, compare proof decisions, and review disagreements before canarying. Roll back by switching a model version together with its calibration. | An immutable artifact and evaluation record for each version. A rollback rehearsal and a documented owner. [MLflow registry workflows](https://mlflow.org/docs/latest/ml/model-registry/workflow/) |
+| 4. Learning loop | Route unfamiliar layouts, high abstention, and repeated refusal reasons to a reviewed queue. Add confirmed fixes to training and keep the held-out challenge set separate. Monitor input drift, release/refusal mix, review load and latency by format. | Alerts are actionable, and improved automation does not increase incorrect releases. [Google's ML production readiness rubric](https://research.google/pubs/the-ml-test-score-a-rubric-for-ml-production-readiness-and-technical-debt-reduction/) |
+
+The local candidate bundle and verification gate cover the first part of reproducibility. Start with the real reference set and a small shadow evaluator before adding a hosted registry or more training infrastructure. Synthetic results are useful regression evidence. Real pilot outcomes determine the release threshold and unit economics.
+
+Record acceptance and error together. A candidate can abstain less while making more confident mistakes. Keep the risk and coverage curves separate for each document slice, and recheck calibration when layouts or scan conditions shift. [Conformal prediction and distribution shift](https://arxiv.org/abs/2107.07511)

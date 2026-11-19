@@ -11,34 +11,22 @@ import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
-from openbooks_lab.link import link
+from fastapi.responses import JSONResponse, Response, StreamingResponse
+from openbooks.core.errors import Refusal
+from openbooks.core.schema import SCHEMA_VERSION, validate_output
+from openbooks.statements.assets import ModelUnavailable
 
-from .catalog import Samples, formats, health
+from .catalog import Samples, formats, health, installed_linker, load_model, model_status
 from .runs import MAX_FILES, Run, parse_params
 
 samples = Samples()
 log = logging.getLogger("openbooks_server")
 
 
-def _inference():
-    """The torch-backed module, imported on first use so the service still starts without the [scan] extra."""
-    try:
-        from . import inference
-    except ImportError as e:
-        raise HTTPException(503, f"typed heads unavailable: {e}") from None
-    return inference
-
-
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    if health()["model_weights_present"]:  # load weights now so the first request is not the slow one
-        try:
-            await asyncio.to_thread(lambda: _inference().warm())
-        except Exception:  # health reports the issue; the service still serves everything but the heads
-            log.exception("model warm-up failed")
+    await asyncio.to_thread(model_status)
     yield
-    samples.close()
 
 
 app = FastAPI(title="Open Books engine service", version="0.1.0", lifespan=lifespan)
@@ -64,8 +52,9 @@ def get_sample(case_id: str):
     hit = samples.get(case_id)
     if hit is None:
         raise HTTPException(404, "no such sample")
-    filename, path = hit
-    return FileResponse(path, filename=filename, media_type="application/octet-stream")
+    filename, content = hit
+    return Response(content, media_type="application/octet-stream",
+                    headers={"Content-Disposition": f'attachment; filename="{filename}"'})
 
 
 def _json_field(raw: str | None, name: str):
@@ -93,12 +82,15 @@ async def post_runs(
         raise HTTPException(422, f"at most {MAX_FILES} files per run")
     try:
         base = parse_params(_json_field(params, "params"))
-        raw_per = _json_field(file_params, "file_params") or {}
+        raw_per = _json_field(file_params, "file_params")
+        if raw_per is None:
+            raw_per = {}
         if not isinstance(raw_per, dict):
             raise ValueError("file_params must be an object keyed by file index")
         per_file = {}
+        indices = {str(i) for i in range(len(files))}
         for k, v in raw_per.items():
-            if not str(k).isdigit() or int(k) >= len(files):
+            if k not in indices:
                 raise ValueError(f"file_params key {k!r} is not a file index")
             per_file[int(k)] = parse_params(v, base)
     except ValueError as e:
@@ -144,9 +136,7 @@ async def post_runs(
 async def post_roles(file: UploadFile = File(...), params: str | None = Form(None)) -> JSONResponse:
     """The typed heads' own reading of one PDF or scan: per word role, value type, conformal sets, abstained.
     Inputs match /v1/runs: `file` and `params` (ocr, date_order are used; the rest are ignored here)."""
-    inference = _inference()
     from openbooks.pipeline import MAX_BYTES
-    from openbooks.core.errors import Refusal
 
     try:
         p = parse_params(_json_field(params, "params"))
@@ -158,11 +148,16 @@ async def post_roles(file: UploadFile = File(...), params: str | None = Form(Non
         staged = run.files[0]
         if staged.size > MAX_BYTES:
             raise HTTPException(413, f"file is {staged.size} bytes; the limit is {MAX_BYTES}")
-        return JSONResponse(await asyncio.to_thread(inference.infer_file, staged.path, p))
+        if staged.path.suffix.lower() not in {".pdf", ".png", ".jpg", ".jpeg"}:
+            raise Refusal("UNSUPPORTED_INPUT", "The typed heads read PDFs and scans only.")
+        model = await asyncio.to_thread(load_model)
+        from .inference import infer_file
+
+        return JSONResponse(await asyncio.to_thread(infer_file, staged.path, p, model))
+    except ModelUnavailable as e:
+        return JSONResponse({"error": "model_unavailable", "message": e.message}, status_code=503)
     except Refusal as e:
         return JSONResponse({"error": e.code, "message": e.message}, status_code=422)
-    except inference.ModelUnavailable as e:
-        return JSONResponse({"error": "model_unavailable", "message": str(e)}, status_code=503)
     finally:
         run.cleanup()
 
@@ -173,6 +168,15 @@ def post_link(body: dict) -> JSONResponse:
     if not isinstance(docs, list) or not all(isinstance(d, dict) for d in docs):
         raise HTTPException(422, "docs must be a list of openbooks.v1 documents")
     try:
-        return JSONResponse(link(docs))
-    except (KeyError, TypeError, ValueError) as e:
+        for doc in docs:
+            if doc.get("schema_version") != SCHEMA_VERSION or doc.get("status") not in ("ok", "refused"):
+                raise ValueError("expected a released or refused openbooks.v1 document")
+            if doc["status"] == "ok":
+                validate_output(doc)
+        linker = installed_linker()
+        if linker is None:
+            return JSONResponse({"error": "link_unavailable", "message": "No reconciliation provider is available."},
+                                status_code=503)
+        return JSONResponse(linker.link(docs))
+    except (Refusal, KeyError, TypeError, ValueError) as e:
         raise HTTPException(422, f"docs are not valid openbooks.v1 output: {e}") from None

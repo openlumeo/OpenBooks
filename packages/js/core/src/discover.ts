@@ -23,6 +23,16 @@ export interface Engine {
   /** The interpreter command, e.g. ["py", "-3"] or ["C:\\...\\python.exe"]. */
   python: string[];
   info: EngineInfo;
+  /** The module run with `python -m`: "openbooks" (engine 0.2+) or "openbooks_core" (engine 0.1). Absent means "openbooks". */
+  module?: string;
+}
+
+/** Engine 0.2 ships everything in the `openbooks` package; 0.1 split it and ran as `openbooks_core`. Both speak the same contract. */
+const ENGINE_MODULES = ["openbooks", "openbooks_core"] as const;
+
+/** The argv prefix that runs an engine command: `python -m <module>`. */
+export function engineCommand(engine: Engine): string[] {
+  return [...engine.python, "-m", engine.module ?? "openbooks"];
 }
 
 export interface DiscoverOptions {
@@ -46,17 +56,24 @@ function isNotFound(e: unknown): boolean {
 }
 
 async function probe(python: string[], timeoutMs: number): Promise<Engine | "no_engine" | "not_python"> {
-  let r;
-  try {
-    r = await run([...python, "-m", "openbooks", "engine-info"], { timeoutMs });
-  } catch (e) {
-    if (isNotFound(e)) return "not_python";
-    throw e;
+  for (const module of ENGINE_MODULES) {
+    let r;
+    try {
+      r = await run([...python, "-m", module, "engine-info"], { timeoutMs });
+    } catch (e) {
+      if (isNotFound(e)) return "not_python";
+      throw e;
+    }
+    // "No module named openbooks" (nothing installed) or "No module named openbooks.__main__" (engine 0.1): try the next name.
+    if (r.code !== 0) {
+      if (/No module named ['"]?openbooks/.test(r.stderr)) continue;
+      return "not_python";
+    }
+    let info: EngineInfo;
+    try { info = JSON.parse(r.stdout) as EngineInfo; } catch { return "not_python"; }
+    return { python, info, module };
   }
-  if (r.code !== 0) return /No module named ['"]?openbooks/.test(r.stderr) ? "no_engine" : "not_python";
-  let info: EngineInfo;
-  try { info = JSON.parse(r.stdout) as EngineInfo; } catch { return "not_python"; }
-  return { python, info };
+  return "no_engine";
 }
 
 /** Find a Python that has the Open Books engine, and check it speaks the contract this package understands. */

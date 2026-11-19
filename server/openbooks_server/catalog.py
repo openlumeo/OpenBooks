@@ -7,48 +7,51 @@ parser without listing it here (or listing one that does not exist) fails the bu
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
-import shutil
-import tempfile
-import threading
+from functools import cached_property
+from importlib import resources
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+from zipfile import ZipFile
 
-from openbooks import pipeline
-from openbooks.statements.assets import MODELS_DIR
 from openbooks.pipeline import ALLOWED_EXT, MAX_BYTES, SCHEMA_VERSION
+from openbooks.core.errors import PluginLoadError
+from openbooks.core.registry import default_registry
+from openbooks.statements.assets import CALIBRATION_NAME, MODELS_DIR, WEIGHTS_NAME, ModelUnavailable
 
-# Same location openbooks.roles uses. openbooks.paths has no torch import, so the service starts without the [scan] extra.
-WEIGHTS = MODELS_DIR / "roles_head.pt"
-CALIBRATION = WEIGHTS.with_name("roles_calibration.json")
-
-_status_cache: dict = {}
+WEIGHTS = MODELS_DIR / WEIGHTS_NAME
+CALIBRATION = MODELS_DIR / CALIBRATION_NAME
 
 
-def model_status(weights: Path = WEIGHTS, calibration: Path = CALIBRATION) -> tuple[bool, str | None]:
-    """Whether --model can run, by the engine's own rule (roles.RoleModel._build): the calibration names the sha256 of
-    the weights it was fitted on, and a mismatch refuses. Cached by modification time so the health poll stays cheap."""
-    if not weights.exists():
-        return False, "no model weights (models/roles_head.pt)"
-    if not calibration.exists():
-        return False, "no calibration (models/roles_calibration.json)"
-    import hashlib
+def load_model(weights: Path = WEIGHTS, calibration: Path = CALIBRATION):
+    try:
+        if not weights.is_file():
+            raise ModelUnavailable(f"Missing model weights ({WEIGHTS_NAME}). Check OPENBOOKS_MODELS_DIR.")
+        if not calibration.is_file():
+            raise ModelUnavailable(f"Missing model calibration ({CALIBRATION_NAME}). Check OPENBOOKS_MODELS_DIR.")
+        from openbooks.statements.roles import RoleModel
+    except (ImportError, OSError, RuntimeError) as e:
+        raise ModelUnavailable('Cannot import the model runtime. Install or repair "openbooks[scan]".') from e
+    model = RoleModel.load(weights, calibration)
+    if model is None:
+        raise ModelUnavailable("The model assets disappeared during loading. Check OPENBOOKS_MODELS_DIR.")
+    return model
 
-    # The calibration is small, so its content is part of the key; the weights are large, so their size and mtime are.
-    # (Keying both on mtime alone served a stale answer when a file was rewritten within one timestamp tick.)
-    cal_bytes = calibration.read_bytes()
-    st = weights.stat()
-    key = (str(weights), str(calibration), st.st_size, st.st_mtime_ns, hashlib.sha256(cal_bytes).hexdigest())
-    if key not in _status_cache:
-        _status_cache.clear()
-        try:
-            fitted = json.loads(cal_bytes.decode("utf-8")).get("weights_sha256")
-        except (OSError, ValueError):
-            fitted = None
-        actual = hashlib.sha256(weights.read_bytes()).hexdigest()
-        _status_cache[key] = (True, None) if fitted == actual else (
-            False, f"calibration was fitted for other weights ({(fitted or 'none')[:12]}, not {actual[:12]}): refit it")
-    return _status_cache[key]
+
+def model_status() -> dict:
+    try:
+        model = load_model()
+    except ModelUnavailable as e:
+        return {"model_ready": False, "model_issue": e.message, "model_identity": None}
+    return {"model_ready": True, "model_issue": None, "model_identity": model.identity}
+
+
+def installed_linker():
+    try:
+        return default_registry().linker()
+    except PluginLoadError:
+        return None
 
 FORMATS = [
     {
@@ -104,17 +107,15 @@ def engine_version() -> str:
 
 
 def health() -> dict:
-    ready, issue = model_status()
-    if ready and importlib.util.find_spec("torch") is None:
-        ready, issue = False, 'PyTorch is not installed (pip install "openbooks[scan]")'
+    model = model_status()
     return {
         "status": "ok",
         "engine_version": engine_version(),
         "schema_version": SCHEMA_VERSION,
         "ocr_available": importlib.util.find_spec("easyocr") is not None,
-        # true only when a --model run would load: weights, matching calibration and PyTorch all present
-        "model_weights_present": ready,
-        "model_issue": issue,
+        **model,
+        "model_weights_present": model["model_ready"],  # compatibility with older clients
+        "link_available": installed_linker() is not None,
         "max_bytes": MAX_BYTES,
         "allowed_extensions": sorted(ALLOWED_EXT),
     }
@@ -133,51 +134,44 @@ def formats() -> dict:
 
 
 class Samples:
-    """Golden cases, built once per process into a temp dir on first use."""
+    """The synthetic corpus packaged with the server."""
 
-    def __init__(self) -> None:
-        self._lock = threading.Lock()
-        self._root: Path | None = None
-        self._cases: dict[str, dict] = {}
+    @cached_property
+    def _archive(self) -> bytes:
+        return resources.files("openbooks_server").joinpath("samples.zip").read_bytes()
 
-    def _ensure(self) -> None:
-        with self._lock:
-            if self._root is not None:
-                return
-            from openbooks_lab.golden import build
-
-            root = Path(tempfile.mkdtemp(prefix="openbooks-samples-"))
-            build(root)
-            labels = dict(FEATURED)
-            order = {cid: i for i, (cid, _) in enumerate(FEATURED)}
-            for case in sorted(root.iterdir()):
-                src = next(f for f in case.iterdir() if f.name != "expected.json")
-                exp = json.loads((case / "expected.json").read_text(encoding="utf-8"))
+    @cached_property
+    def _cases(self) -> dict[str, dict]:
+        cases = {}
+        labels = dict(FEATURED)
+        order = {cid: i for i, (cid, _) in enumerate(FEATURED)}
+        with ZipFile(io.BytesIO(self._archive)) as archive:
+            for name in archive.namelist():
+                case_id, filename = name.split("/")
+                if filename == "expected.json":
+                    continue
+                exp = json.loads(archive.read(f"{case_id}/expected.json"))
                 code = exp.get("code")
-                self._cases[case.name] = {
-                    "id": case.name,
-                    "filename": f"{case.name}{src.suffix}",
-                    "label": labels.get(case.name, case.name.replace("_", " ")),
-                    "featured": case.name in labels,
-                    "rank": order.get(case.name, len(order)),
+                cases[case_id] = {
+                    "id": case_id,
+                    "filename": f"{case_id}{Path(filename).suffix}",
+                    "label": labels.get(case_id, case_id.replace("_", " ")),
+                    "featured": case_id in labels,
+                    "rank": order.get(case_id, len(order)),
                     "expect_status": exp["status"],
                     "expect_code": code[0] if isinstance(code, list) else code,
                     "params": exp.get("params", {}),
-                    "_path": src,
+                    "_path": name,
                 }
-            self._root = root
+        return cases
 
     def list(self) -> list[dict]:
-        self._ensure()
         cases = sorted(self._cases.values(), key=lambda c: (c["rank"], c["id"]))
         return [{k: v for k, v in c.items() if not k.startswith("_")} for c in cases]
 
-    def get(self, case_id: str) -> tuple[str, Path] | None:
-        self._ensure()
+    def get(self, case_id: str) -> tuple[str, bytes] | None:
         c = self._cases.get(case_id)
-        return (c["filename"], c["_path"]) if c else None
-
-    def close(self) -> None:
-        if self._root is not None:
-            shutil.rmtree(self._root, ignore_errors=True)
-            self._root, self._cases = None, {}  # a later lifespan (tests, reload) rebuilds instead of serving deleted paths
+        if c is None:
+            return None
+        with ZipFile(io.BytesIO(self._archive)) as archive:
+            return c["filename"], archive.read(c["_path"])

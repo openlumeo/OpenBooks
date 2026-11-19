@@ -463,9 +463,8 @@ def extract_document(path: Path, p: Params):
     if p.model:
         try:
             from .roles import RoleModel
-        except ImportError as e:
-            raise Refusal("UNSUPPORTED_INPUT", f"--model needs PyTorch ({e.name or 'torch'} is missing): "
-                                               'pip install "openbooks[scan]"') from e
+        except (ImportError, OSError, RuntimeError) as e:
+            raise Refusal("UNSUPPORTED_INPUT", '--model needs a working PyTorch installation: pip install "openbooks[scan]"') from e
         model = RoleModel.load()
         if model is None:
             raise Refusal("UNSUPPORTED_INPUT", "--model needs the model assets (roles_head.pt and roles_calibration.json): reinstall openbooks, or set OPENBOOKS_MODELS_DIR")

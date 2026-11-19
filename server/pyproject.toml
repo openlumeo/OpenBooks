@@ -3,10 +3,11 @@ name = "openbooks-server"
 version = "0.1.0"
 description = "HTTP service for the Open Books engine: one openbooks.v1 JSON per file, streamed as server-sent events."
 requires-python = ">=3.11"
-dependencies = ["openbooks", "lumeo-openbooks-lab", "fastapi>=0.115", "uvicorn[standard]>=0.30", "python-multipart>=0.0.9"]
+dependencies = ["openbooks", "fastapi>=0.115", "uvicorn[standard]>=0.30", "python-multipart>=0.0.9"]
 
 [project.optional-dependencies]
 test = ["pytest", "httpx"]
+scan = ["openbooks[scan]"]
 
 [build-system]
 requires = ["setuptools"]
@@ -14,6 +15,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["openbooks_server*"]
+
+[tool.setuptools.package-data]
+openbooks_server = ["samples.zip"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

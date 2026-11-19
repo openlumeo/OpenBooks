@@ -50,50 +50,73 @@ export function UserAsk({ turn }: { turn: UserAskTurn }) {
 
 export function RunView({
   turn,
-  busy,
+  recoveryDisabled,
   onRerun,
   onStop,
+  onAttach,
 }: {
   turn: RunTurn;
-  busy: boolean;
+  recoveryDisabled: boolean;
   onRerun: (run: RunTurn, index: number, p: RunParams) => void;
   onStop: () => void;
+  onAttach: () => void;
 }) {
-  const released = turn.files.filter((f) => f.doc?.status === "ok").length;
-  const refused = turn.files.filter((f) => f.doc?.status === "refused").length;
-  const pending = turn.files.length - released - refused;
+  const released = turn.files.filter((f) => f.doc?.status === "ok");
+  const refused = turn.files.filter((f) => f.doc?.status === "refused");
+  const interrupted = turn.files.filter((f) => f.state === "interrupted");
+  const waiting = turn.files.length - released.length - refused.length - interrupted.length;
   const done = turn.files.filter((f) => f.doc);
-  const summary =
-    turn.state === "running"
-      ? `Checking ${turn.files.length} file${turn.files.length === 1 ? "" : "s"}${released + refused ? ` · ${released + refused} done` : ""}`
-      : `${released} released · ${refused} refused${pending ? ` · ${pending} not finished` : ""}`;
+  const headingId = `review-${turn.id}`;
+  const fileId = (index: number) => `${headingId}-file-${index}`;
 
   return (
-    <section className="turn" aria-label="Run results">
+    <section className="turn" aria-labelledby={headingId}>
       <div className="turn-agent-head">
         <Who label="Open Books" at={turn.at} />
-        <span className="turn-agent-actions">
-          <span className="mono-label" aria-live="polite">{summary}</span>
+      </div>
+      <div className="batch-review">
+        <div className="batch-review-head">
+          <div>
+            <h2 id={headingId}>Batch review</h2>
+            <p className="mono-label">{turn.files.length} {turn.files.length === 1 ? "file" : "files"}{waiting ? ` · ${waiting} awaiting results` : ""}</p>
+          </div>
           {turn.state === "running" && (
             <button type="button" className="btn btn-ghost btn-xs" onClick={onStop}>
               <Square size={12} /> Stop
             </button>
           )}
-          {turn.state !== "running" && done.length > 1 && (
+          {turn.state !== "running" && done.length > 0 && (
             <button
               type="button"
-              className="btn btn-ghost btn-xs"
+              className="btn btn-ghost btn-xs batch-export"
               onClick={() => done.forEach((f, i) => setTimeout(() => downloadText(jsonFileName(f.name), docText(f.doc!)), i * 250))}
               title="Saves one JSON per file"
             >
-              <Download size={14} /> Download all ({done.length})
+              <Download size={14} /> Export JSON ({done.length})
             </button>
           )}
+        </div>
+        <dl className="batch-metrics">
+          {([
+            { label: "Released", tone: "released", files: released, action: "Review checks" },
+            { label: "Refused", tone: "refused", files: refused, action: "Review refusal" },
+            { label: "Interrupted", tone: "interrupted", files: interrupted, action: "Recover file" },
+          ] as const).map(({ label, tone, files, action }) => (
+            <div className={`batch-metric batch-metric--${tone}`} key={label}>
+              <dt>{label}</dt>
+              <dd className="batch-metric-count num">{files.length}</dd>
+              {files[0] && <dd><a href={`#${fileId(files[0].index)}`}>{action}<ArrowRight size={12} aria-hidden="true" /></a></dd>}
+            </div>
+          ))}
+        </dl>
+        <span className="sr-only" role="status">
+          {released.length} released, {refused.length} refused, {interrupted.length} interrupted, {waiting} awaiting results.
         </span>
       </div>
       {turn.error && <p className="error-line"><span className="dot" />{turn.error}</p>}
+      {turn.linkError && <p className="error-line"><span className="dot" />{turn.linkError}</p>}
       {turn.files.map((f) => (
-        <RunCard key={f.index} file={f} run={turn} busy={busy} onRerun={(i, p) => onRerun(turn, i, p)} />
+        <RunCard key={f.index} id={fileId(f.index)} file={f} run={turn} recoveryDisabled={recoveryDisabled} onRerun={(i, p) => onRerun(turn, i, p)} onAttach={onAttach} />
       ))}
     </section>
   );

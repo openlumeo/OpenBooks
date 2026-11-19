@@ -9,7 +9,16 @@ import os
 from importlib import resources
 from pathlib import Path
 
+from openbooks.core.errors import Refusal
+
 WEIGHTS_NAME, CALIBRATION_NAME = "roles_head.pt", "roles_calibration.json"
+
+
+class ModelUnavailable(Refusal):
+    """The requested model could not be loaded."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__("UNSUPPORTED_INPUT", message)
 
 
 def models_dir() -> Path:

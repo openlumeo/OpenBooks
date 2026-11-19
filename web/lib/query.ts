@@ -1,5 +1,5 @@
 // Deterministic answers for the Q&A model. The model never adds money; these functions do,
-// in decimal.js over the engine's decimal strings, and return exact strings.
+// over the engine's decimal strings, and return exact strings.
 import Decimal from "decimal.js";
 import type { EngineDoc, Evidence, Money, ReleasedDoc, Transaction } from "./types";
 
@@ -21,7 +21,12 @@ export type TxnFilter = {
 
 function moneyAt(t: Transaction, k: string): Money | undefined {
   const m = t[k];
-  return m && typeof m === "object" && "amount" in m && "currency" in m ? (m as Money) : undefined;
+  if (m && typeof m === "object" && "amount" in m && "currency" in m
+      && typeof m.amount === "string" && /^-?\d+(\.\d+)?$/.test(m.amount)
+      && typeof m.currency === "string" && /^[A-Z]{3}$/.test(m.currency)) {
+    return { amount: m.amount, currency: m.currency };
+  }
+  return undefined;
 }
 
 /** The single money value that represents a row's size, per batch kind:
@@ -32,13 +37,41 @@ export function rowAmount(t: Transaction): Money | undefined {
     const m = moneyAt(t, k);
     if (m) return m;
   }
-  const deb = t.debit as Money | undefined;
-  const cre = t.credit as Money | undefined;
-  if (deb && cre) {
+  const deb = moneyAt(t, "debit");
+  const cre = moneyAt(t, "credit");
+  if (deb && cre && deb.currency === cre.currency) {
     const d = new Decimal(deb.amount);
     return { amount: (d.isZero() ? new Decimal(cre.amount) : d.negated()).toFixed(), currency: deb.currency };
   }
   return undefined;
+}
+
+type DecimalSum = { coefficient: bigint; scale: number };
+
+function addMoney(sums: Map<string, DecimalSum>, { amount, currency }: Money) {
+  const [integer, fraction = ""] = amount.split(".", 2);
+  const coefficient = BigInt(integer + fraction);
+  const previous = sums.get(currency);
+  if (!previous) {
+    sums.set(currency, { coefficient, scale: fraction.length });
+    return;
+  }
+  const scale = Math.max(previous.scale, fraction.length);
+  sums.set(currency, {
+    coefficient: previous.coefficient * 10n ** BigInt(scale - previous.scale)
+      + coefficient * 10n ** BigInt(scale - fraction.length),
+    scale,
+  });
+}
+
+function exactSums(sums: Map<string, DecimalSum>): Record<string, string> {
+  return Object.fromEntries([...sums].map(([currency, { coefficient, scale }]) => {
+    if (scale === 0) return [currency, coefficient.toString()];
+    const negative = coefficient < 0n;
+    const digits = (negative ? -coefficient : coefficient).toString().padStart(scale + 1, "0");
+    const fraction = digits.slice(-scale).replace(/0+$/, "");
+    return [currency, (negative ? "-" : "") + digits.slice(0, -scale) + (fraction ? "." + fraction : "")];
+  }));
 }
 
 export type QueryRow = {
@@ -71,8 +104,8 @@ export function queryTransactions(docs: DocRef[], f: TxnFilter): QueryResult {
   const needle = f.description_contains?.toLowerCase();
   const min = f.min_amount !== undefined ? new Decimal(f.min_amount) : undefined;
   const max = f.max_amount !== undefined ? new Decimal(f.max_amount) : undefined;
-  const sums = new Map<string, Decimal>();
-  const byDirection = new Map<string, { count: number; sums: Map<string, Decimal> }>();
+  const sums = new Map<string, DecimalSum>();
+  const byDirection = new Map<string, { count: number; sums: Map<string, DecimalSum> }>();
   const rows: QueryRow[] = [];
   let count = 0;
   for (const { file, doc } of released(docs, f.file)) {
@@ -93,10 +126,10 @@ export function queryTransactions(docs: DocRef[], f: TxnFilter): QueryResult {
         if (max && a.gt(max)) continue;
       }
       count++;
-      if (amt) sums.set(amt.currency, (sums.get(amt.currency) ?? new Decimal(0)).plus(amt.amount));
-      const bucket = byDirection.get(t.direction ?? "none") ?? { count: 0, sums: new Map<string, Decimal>() };
+      if (amt) addMoney(sums, amt);
+      const bucket = byDirection.get(t.direction ?? "none") ?? { count: 0, sums: new Map<string, DecimalSum>() };
       bucket.count++;
-      if (amt) bucket.sums.set(amt.currency, (bucket.sums.get(amt.currency) ?? new Decimal(0)).plus(amt.amount));
+      if (amt) addMoney(bucket.sums, amt);
       byDirection.set(t.direction ?? "none", bucket);
       if (rows.length < limit) {
         rows.push({
@@ -109,9 +142,9 @@ export function queryTransactions(docs: DocRef[], f: TxnFilter): QueryResult {
   }
   return {
     count,
-    sums: Object.fromEntries([...sums].map(([c, d]) => [c, d.toFixed()])),
+    sums: exactSums(sums),
     by_direction: Object.fromEntries(
-      [...byDirection].map(([dir, b]) => [dir, { count: b.count, sums: Object.fromEntries([...b.sums].map(([c, d]) => [c, d.toFixed()])) }]),
+      [...byDirection].map(([dir, b]) => [dir, { count: b.count, sums: exactSums(b.sums) }]),
     ),
     rows,
     truncated: count > rows.length,
@@ -130,12 +163,20 @@ export function getEvidence(docs: DocRef[], file: string, recordId: string, fiel
   return Object.keys(out).length ? out : { error: `no evidence for ${prefix}${field ? "" : "*"} in ${file}` };
 }
 
-/** Distinct file keys for a thread's docs. Same name twice gets a #2 suffix so the model can address each. */
+/** Keep original names and give repeated names an unused numeric suffix. */
 export function fileKeys(names: string[]): string[] {
-  const seen = new Map<string, number>();
-  return names.map((n) => {
-    const k = (seen.get(n) ?? 0) + 1;
-    seen.set(n, k);
-    return k === 1 ? n : `${n} #${k}`;
+  const used = new Set(names);
+  const nextSuffix = new Map<string, number>();
+  return names.map((name) => {
+    let suffix = nextSuffix.get(name);
+    if (suffix === undefined) {
+      nextSuffix.set(name, 2);
+      return name;
+    }
+    let key: string;
+    do { key = `${name} #${suffix++}`; } while (used.has(key));
+    nextSuffix.set(name, suffix);
+    used.add(key);
+    return key;
   });
 }

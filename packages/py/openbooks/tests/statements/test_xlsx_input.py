@@ -204,3 +204,20 @@ def test_the_input_workbook_is_never_modified(tmp_path):
     before = (f.read_bytes(), f.stat().st_mtime_ns)
     process(f, P)
     assert (f.read_bytes(), f.stat().st_mtime_ns) == before
+
+
+@pytest.mark.parametrize("has_formula", [False, True])
+def test_workbook_source_handles_close_after_release_or_refusal(tmp_path, monkeypatch, has_formula):
+    rows = [*ROWS, ["04/01/2026", "Refund", None, "=1+1", 1297.0]] if has_formula else ROWS
+    f = workbook(tmp_path, rows)
+    open_workbook = openpyxl.load_workbook
+    sources = []
+
+    def track_source(source, **kwargs):
+        sources.append(source)
+        return open_workbook(source, **kwargs)
+
+    monkeypatch.setattr(openpyxl, "load_workbook", track_source)
+    assert process(f, P)["status"] == ("refused" if has_formula else "ok")
+    assert sources and all(source.closed for source in sources)
+    f.unlink()

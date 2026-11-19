@@ -3,10 +3,10 @@ import { createReadStream } from "node:fs";
 import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
-import { findEngine, type DiscoverOptions, type Engine } from "./discover.js";
+import { engineCommand, findEngine, type DiscoverOptions, type Engine } from "./discover.js";
 import { EngineError } from "./errors.js";
 import type { OpenBooksDocument, OpenBooksRefusal } from "./generated/openbooks.js";
-import { run } from "./spawn.js";
+import { checkAborted, run, validateTimeout } from "./spawn.js";
 import { validateDocument, validateRefusal } from "./validate.js";
 
 export interface RunOptions extends DiscoverOptions {
@@ -53,12 +53,23 @@ export type RunResult = Released | Refused;
 export const isReleased = (r: RunResult): r is Released => r.kind === "released";
 
 interface MachineLine { file: string; status: "ok" | "refused"; code: string | null; output: string; internal?: boolean }
+interface Input { path: string; sha: string }
+
+function isMachineLine(value: unknown): value is MachineLine {
+  if (typeof value !== "object" || value === null) return false;
+  const line = value as Partial<MachineLine>;
+  return typeof line.file === "string" && typeof line.output === "string"
+    && (line.internal === undefined || typeof line.internal === "boolean")
+    && ((line.status === "ok" && line.code === null) || (line.status === "refused" && typeof line.code === "string"));
+}
 
 function flags(o: RunOptions): string[] {
   const a: string[] = [];
   if (o.currency) a.push("--currency", o.currency);
   if (o.opening !== undefined) {
-    if (!/^-?\d+(\.\d+)?$/.test(o.opening)) throw new EngineError("input", `opening must be a plain decimal string like "1000.00", got ${JSON.stringify(o.opening)}`);
+    if (typeof o.opening !== "string" || !/^-?\d+(\.\d+)?$/.test(o.opening)) {
+      throw new EngineError("input", 'opening must be a plain decimal string like "1000.00"');
+    }
     a.push("--opening", o.opening);
   }
   if (o.account) a.push("--account", o.account);
@@ -69,9 +80,9 @@ function flags(o: RunOptions): string[] {
   return a;
 }
 
-async function sha256(path: string): Promise<string> {
+async function sha256(path: string, signal?: AbortSignal): Promise<string> {
   const h = createHash("sha256");
-  for await (const chunk of createReadStream(path)) h.update(chunk as Buffer);
+  for await (const chunk of createReadStream(path, { signal })) h.update(chunk as Buffer);
   return h.digest("hex");
 }
 
@@ -86,62 +97,138 @@ function lastLines(s: string, n = 6): string {
  */
 export async function runFiles(files: readonly string[], opts: RunOptions = {}): Promise<RunResult[]> {
   if (files.length === 0) return [];
-  const paths = files.map((f) => resolve(f));
-  const hashes: string[] = [];
-  for (const p of paths) {
+  checkAborted(opts.signal);
+  const runFlags = flags(opts);
+  const timeoutMs = opts.runTimeoutMs ?? 120_000;
+  validateTimeout(timeoutMs, "runTimeoutMs");
+  const batches: Input[][] = [];
+  let batch: Input[] = [];
+  let hashes = new Set<string>();
+  for (const file of files) {
+    const path = resolve(file);
+    let sha: string;
     try {
-      if (!(await stat(p)).isFile()) throw new Error("not a file");
-    } catch {
-      throw new EngineError("input", `cannot read ${basename(p)}: it does not exist or is not a file`);
+      if (!(await stat(path)).isFile()) throw new Error("not a file");
+      sha = await sha256(path, opts.signal);
+    } catch (cause) {
+      checkAborted(opts.signal);
+      throw new EngineError("input", `cannot read ${basename(path)}: ${(cause as Error).message}`, undefined, { cause });
     }
-    hashes.push(await sha256(p));
+    // Each engine invocation writes one file per hash. Read each result before a later input can overwrite it.
+    if (hashes.has(sha)) {
+      batches.push(batch);
+      batch = [];
+      hashes = new Set();
+    }
+    batch.push({ path, sha });
+    hashes.add(sha);
   }
-  const engine: Engine = await findEngine(opts);
-  const dir = await mkdtemp(join(tmpdir(), "openbooks-"));
-  try {
-    const argv = [...engine.python, "-m", "openbooks", "run", "--machine", "--out", dir, ...flags(opts), ...paths];
-    let r;
+  batches.push(batch);
+  checkAborted(opts.signal);
+  const engine = await discoverForRun(opts);
+  checkAborted(opts.signal);
+  const deadline = performance.now() + timeoutMs;
+  const results: RunResult[] = [];
+  for (const inputs of batches) {
+    checkAborted(opts.signal);
+    const dir = await mkdtemp(resolve(tmpdir(), "openbooks-"));
     try {
-      r = await run(argv, { timeoutMs: opts.runTimeoutMs ?? 120_000, signal: opts.signal, maxBytes: opts.maxOutputBytes });
-    } catch (e) {
-      if (e instanceof EngineError) throw e;
-      throw new EngineError("engine_fault", `could not start the engine: ${(e as Error).message}`, undefined, { cause: e });
+      const remaining = Math.ceil(deadline - performance.now());
+      if (remaining < 1) throw new EngineError("timeout", `the engine did not finish within ${timeoutMs} ms`);
+      results.push(...await runBatch(engine, dir, inputs, runFlags, opts, remaining));
+    } finally {
+      await rm(dir, { recursive: true, force: true });
     }
-    if (r.code !== 0 && r.code !== 1) {
-      throw new EngineError("engine_fault", `the engine failed (exit ${r.code ?? r.signal}): ${lastLines(r.stderr) || "no message"}`,
-        "run: openbooks doctor");
-    }
-    const lines: MachineLine[] = [];
-    for (const raw of r.stdout.split(/\r?\n/).filter(Boolean)) {
-      let j: unknown;
-      try { j = JSON.parse(raw); } catch { throw new EngineError("bad_output", "the engine printed something that is not JSON lines"); }
-      if (typeof j === "object" && j !== null && "status" in j) lines.push(j as MachineLine);
-    }
-    if (lines.length !== paths.length) {
-      throw new EngineError("bad_output", `expected ${paths.length} results from the engine, got ${lines.length}`);
-    }
-    const results: RunResult[] = [];
-    for (const [i, line] of lines.entries()) {
-      const expectSha = hashes[i]!;
-      if (basename(line.output) !== `${expectSha}.json`) {
-        throw new EngineError("bad_output", `the engine's output for ${line.file} does not belong to that input file`);
-      }
-      let doc: unknown;
-      try { doc = JSON.parse(await readFile(line.output, "utf8")); } catch (e) {
-        throw new EngineError("bad_output", `could not read the engine's output for ${line.file}`, undefined, { cause: e });
-      }
-      try {
-        if (line.status === "ok") validateDocument(doc);
-        else validateRefusal(doc);
-      } catch (e) {
-        throw new EngineError("bad_output", `${(e as Error).message}. The installed engine and this package may be different versions.`,
-          "install matching versions of @lumeo_hq/openbooks-core and the Python package openbooks", { cause: e });
-      }
-      results.push(toResult(line, doc as OpenBooksDocument | OpenBooksRefusal, expectSha, opts.accept));
-    }
-    return results;
+  }
+  return results;
+}
+
+async function discoverForRun(opts: RunOptions): Promise<Engine> {
+  const { signal } = opts;
+  if (!signal) return findEngine(opts);
+  let onAbort: () => void = () => {};
+  const aborted = new Promise<never>((_, reject) => {
+    onAbort = () => reject(new EngineError("aborted", "the run was aborted"));
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+  try {
+    // The discovery probe can be shared with other callers, so cancel this wait without stopping the probe.
+    return await Promise.race([findEngine(opts), aborted]);
   } finally {
-    await rm(dir, { recursive: true, force: true });
+    signal.removeEventListener("abort", onAbort);
+  }
+}
+
+async function runBatch(
+  engine: Engine, dir: string, inputs: Input[], flags: string[], opts: RunOptions, timeoutMs: number,
+): Promise<RunResult[]> {
+  const argv = [...engineCommand(engine), "run", "--machine", "--out", dir, ...flags, ...inputs.map((input) => input.path)];
+  let r;
+  try {
+    r = await run(argv, { timeoutMs, signal: opts.signal, maxBytes: opts.maxOutputBytes });
+  } catch (cause) {
+    if (cause instanceof EngineError) throw cause;
+    throw new EngineError("engine_fault", `could not start the engine: ${(cause as Error).message}`, undefined, { cause });
+  }
+  if (r.code !== 0 && r.code !== 1) {
+    throw new EngineError("engine_fault", `the engine failed (exit ${r.code ?? r.signal}): ${lastLines(r.stderr) || "no message"}`,
+      "run: openbooks doctor");
+  }
+  const lines: MachineLine[] = [];
+  const records = r.stdout.trim().split(/\r?\n/).filter(Boolean);
+  for (const [index, raw] of records.entries()) {
+    let value: unknown;
+    try { value = JSON.parse(raw); } catch { throw new EngineError("bad_output", "the engine printed something that is not JSON lines"); }
+    if (index === records.length - 1 && typeof value === "object" && value !== null && "engine" in value) continue;
+    if (!isMachineLine(value)) throw new EngineError("bad_output", `invalid engine result on line ${index + 1}`);
+    lines.push(value);
+  }
+  if (lines.length !== inputs.length) {
+    throw new EngineError("bad_output", `expected ${inputs.length} results from the engine, got ${lines.length}`);
+  }
+  if ((r.code === 1) !== lines.some((line) => line.status === "refused")) {
+    throw new EngineError("bad_output", "the engine exit code did not match the reported results");
+  }
+
+  const results: RunResult[] = [];
+  for (const [index, line] of lines.entries()) {
+    checkAborted(opts.signal);
+    const { path, sha } = inputs[index]!;
+    const name = basename(path);
+    const target = join(dir, `${sha}.json`);
+    if (line.file !== name || resolve(line.output) !== target) {
+      throw new EngineError("bad_output", `the engine's output for ${name} does not belong to that input file`);
+    }
+    let doc: unknown;
+    try { doc = JSON.parse(await readFile(target, { encoding: "utf8", signal: opts.signal })); } catch (cause) {
+      checkAborted(opts.signal);
+      throw new EngineError("bad_output", `could not read the engine's output for ${name}`, undefined, { cause });
+    }
+    if (line.status === "ok") {
+      checkDocument(doc, validateDocument);
+      if (doc.file.sha256 !== sha || doc.file.name !== name) {
+        throw new EngineError("bad_output", `the released document for ${name} does not match that input file`);
+      }
+      if (!doc.assertions.every((assertion) => assertion.passed) || !doc.assertions.some((assertion) => assertion.independent)) {
+        throw new EngineError("bad_output", `the released document for ${name} has incomplete assertions`);
+      }
+    } else {
+      checkDocument(doc, validateRefusal);
+      if (doc.error.file_sha256 !== sha || doc.error.code !== line.code || Boolean(doc.error.internal) !== Boolean(line.internal)) {
+        throw new EngineError("bad_output", `the refusal for ${name} does not match the input file or reported result`);
+      }
+    }
+    results.push(toResult(line, doc, sha, opts.accept));
+  }
+  return results;
+}
+
+function checkDocument<T>(doc: unknown, validate: (value: unknown) => asserts value is T): asserts doc is T {
+  try {
+    validate(doc);
+  } catch (cause) {
+    throw new EngineError("bad_output", `${(cause as Error).message}. The installed engine and this package may be different versions.`,
+      "install matching versions of @lumeo_hq/openbooks-core and the Python package openbooks", { cause });
   }
 }
 

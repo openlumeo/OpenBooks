@@ -1,11 +1,13 @@
-import { mkdir, rename, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Command, CommanderError } from "commander";
-import { EngineError, findEngine, runFiles, type RunOptions, type RunResult } from "@lumeo_hq/openbooks-core";
+import { EngineError, findEngine, MAX_TIMEOUT_MS, runFiles, type RunOptions, type RunResult } from "@lumeo_hq/openbooks-core";
 import * as gateways from "@lumeo_hq/openbooks-gateways";
 import * as statements from "@lumeo_hq/openbooks-statements";
 import * as tax from "@lumeo_hq/openbooks-tax";
 import { runDoctor } from "@lumeo_hq/openbooks-doctor";
+import { installEngine } from "./install-engine.js";
 
 /** Exit codes match the Python CLI: 0 all released, 1 something was refused, 2 usage, 3 the engine could not run. */
 export const EXIT = { ok: 0, refused: 1, usage: 2, engine: 3 } as const;
@@ -59,16 +61,22 @@ function toOptions(f: RunFlags): RunOptions {
   if (f.python) o.python = f.python;
   if (f.timeout !== undefined) {
     const n = Number(f.timeout);
-    if (!Number.isInteger(n) || n <= 0) throw new CommanderError(2, "openbooks.badOption", "--timeout must be a positive whole number of milliseconds");
+    if (!Number.isInteger(n) || n < 1 || n > MAX_TIMEOUT_MS) {
+      throw new CommanderError(2, "openbooks.badOption", `--timeout must be a whole number from 1 to ${MAX_TIMEOUT_MS} milliseconds`);
+    }
     o.runTimeoutMs = n;
   }
   return o;
 }
 
 async function writeAtomic(path: string, text: string): Promise<void> {
-  const tmp = `${path}.${process.pid}.tmp`;
-  await writeFile(tmp, text, "utf8");
-  await rename(tmp, path);
+  const tmp = `${path}.${randomUUID()}.tmp`;
+  try {
+    await writeFile(tmp, text, { encoding: "utf8", flag: "wx" });
+    await rename(tmp, path);
+  } finally {
+    await rm(tmp, { force: true });
+  }
 }
 
 async function runAndReport(files: string[], flags: RunFlags, runner: Runner, io: IO): Promise<number> {
@@ -93,17 +101,17 @@ async function runAndReport(files: string[], flags: RunFlags, runner: Runner, io
 export async function main(argv: string[], io: IO = { out: (s) => process.stdout.write(s), err: (s) => process.stderr.write(s) }): Promise<number> {
   let code: number = EXIT.ok;
   const program = new Command("openbooks")
-    .description("Financial documents in, one proven JSON per file out (or a typed refusal). Needs the Python engine: pip install openbooks")
+    .description("Financial documents in, one proven JSON per file out (or a typed refusal). Usage: openbooks <files...> [options]")
     .exitOverride()
     .configureOutput({ writeOut: io.out, writeErr: io.err });
   const set = (n: number) => { code = n; };
 
-  addRunOptions(program.command("run").description("read any supported file").argument("<files...>"))
+  addRunOptions(program.command("run", { isDefault: true }).description("read any supported file").argument("<files...>"))
     .action(async (files: string[], f: RunFlags) => set(await runAndReport(files, f, runFiles, io)));
 
   const family = (name: string, desc: string, run: Runner) => {
     const g = program.command(name).description(desc);
-    addRunOptions(g.command("run").description(`read ${name} files only; anything else is refused`).argument("<files...>"))
+    addRunOptions(g.command("run", { isDefault: true }).description(`read ${name} files only; anything else is refused`).argument("<files...>"))
       .action(async (files: string[], f: RunFlags) => set(await runAndReport(files, f, run, io)));
   };
   family("statements", "bank statements: CSV, OFX, MT940, PDF and scans", statements.runFiles);
@@ -123,6 +131,18 @@ export async function main(argv: string[], io: IO = { out: (s) => process.stdout
       set(rep.ok ? EXIT.ok : EXIT.refused);
     });
 
+  program.command("install-engine").description("install the Python engine (pip install openbooks) that these packages run on")
+    .option("--scan", "also install OCR and the typed heads (EasyOCR, PyTorch: a large download)")
+    .option("--force", "reinstall even if a working engine is already present")
+    .option("--python <path>", "install into this Python interpreter")
+    .action(async (f: { scan?: boolean; force?: boolean; python?: string }) => {
+      const r = await installEngine({ ...(f.scan ? { scan: true } : {}), ...(f.force ? { force: true } : {}), ...(f.python ? { python: f.python } : {}), log: (l) => io.out(`${l}\n`) });
+      if (r.status === "failed") {
+        io.err(`openbooks: ${r.detail}\n${r.hint ? `  ${r.hint}\n` : ""}`);
+        set(EXIT.engine);
+      } else io.out(`${r.detail}\n`);
+    });
+
   program.command("engine-info").description("print the engine version, contract version and installed layouts as JSON")
     .option("--python <path>", "the Python interpreter to ask")
     .action(async (f: { python?: string }) => {
@@ -133,7 +153,10 @@ export async function main(argv: string[], io: IO = { out: (s) => process.stdout
     await program.parseAsync(argv, { from: "user" });
     return code;
   } catch (e) {
-    if (e instanceof CommanderError) return e.exitCode === 0 ? EXIT.ok : EXIT.usage;
+    if (e instanceof CommanderError) {
+      if (e.code === "openbooks.badOption") io.err(`openbooks: ${e.message}\n`);
+      return e.exitCode === 0 ? EXIT.ok : EXIT.usage;
+    }
     if (e instanceof EngineError) {
       io.err(`openbooks: ${e.message}\n${e.hint ? `  ${e.hint}\n` : ""}`);
       return EXIT.engine;

@@ -15,27 +15,16 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from openbooks.core.errors import Refusal
 from openbooks.core.params import Params
 from openbooks.statements.encoder import NOT_MONEY, tensors, windows
 from openbooks.statements.labels import ROLES, VTYPES
 from openbooks.statements.pdf_front import read_words
-from openbooks.statements.roles import Pred, Predictions, RoleModel
+from openbooks.statements.roles import Predictions, RoleModel
 
-INFER_EXTS = {".pdf", ".png", ".jpg", ".jpeg"}
 MAX_BATCH_TOKENS = 4096  # padded tokens per forward; 8 full 512-token windows, ~50 MB of attention scores
 
 # One GPU: one forward at a time. ponytail: a micro-batching queue across requests if concurrent load ever matters.
 _GPU = threading.Lock()
-
-
-class ModelUnavailable(RuntimeError):
-    pass
-
-
-def warm() -> RoleModel | None:
-    """Load weights + calibration now (about 1 s) so the first request is not the slow one. None when not shipped."""
-    return RoleModel.load()
 
 
 def _pad(parts: list[tuple], dev) -> tuple:
@@ -86,11 +75,7 @@ def predict_batched(model: RoleModel, pages) -> Predictions:
     words = [w for pg in pages for w in pg]
     if not words:
         return Predictions({})
-    role, vt = logits_batched(model, words)
-    rp, tp = model.role_cal.probs(role), model.type_cal.probs(vt)
-    rs, ts = model.role_cal.sets(role), model.type_cal.sets(vt)
-    return Predictions({w: Pred(ROLES[int(rp[i].argmax())], tuple(ROLES[k] for k in rs[i]), VTYPES[int(tp[i].argmax())],
-                                tuple(VTYPES[k] for k in ts[i])) for i, w in enumerate(words)})
+    return model.predictions(words, *logits_batched(model, words))
 
 
 def _page_json(page_no: int, words, preds: Predictions) -> dict:
@@ -108,15 +93,9 @@ def _page_json(page_no: int, words, preds: Predictions) -> dict:
     return {"page": page_no, "width": pw, "height": ph, "tokens": tokens}
 
 
-def infer_file(path: Path, params: Params) -> dict:
-    """Read one PDF or scan and return the model's per-token reading. Raises Refusal (unreadable, too big, no OCR) or
-    ModelUnavailable (weights or calibration missing or mismatched)."""
-    if path.suffix.lower() not in INFER_EXTS:
-        raise Refusal("UNSUPPORTED_INPUT", f"the typed heads read PDFs and scans only, not {path.suffix or 'this file'}")
+def infer_file(path: Path, params: Params, model: RoleModel) -> dict:
+    """Read one PDF or scan and return the loaded model's per-token reading."""
     pages, method = read_words(path, params)
-    model = warm()
-    if model is None:
-        raise ModelUnavailable("no model weights or calibration (models/roles_head.pt, roles_calibration.json)")
     t0 = time.perf_counter()
     with _GPU:
         preds = predict_batched(model, pages)

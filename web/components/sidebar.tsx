@@ -8,7 +8,7 @@ import type { Workspace } from "@/lib/use-workspace";
 
 const LIMITATIONS_URL = "https://github.com/Sagexd08/OpenBooks#limitations";
 
-export function Sidebar({ ws, open, onNavigate }: { ws: Workspace; open: boolean; onNavigate: () => void }) {
+export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: boolean; onNavigate: () => void; onNew: () => void }) {
   const { engine } = ws;
   const h = engine.health;
   const status =
@@ -21,16 +21,13 @@ export function Sidebar({ ws, open, onNavigate }: { ws: Workspace; open: boolean
   return (
     <aside className="ob-sidebar" data-open={open} aria-label="Threads">
       <div className="ob-sidebar-head">
-        <a href="/" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); ws.newThread(); onNavigate(); }}>
+        <a href="/" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); onNew(); }}>
           <BrandLockup />
         </a>
         <button
           type="button"
           className="btn btn-primary-landing btn-sm ob-new hero-cta-btn"
-          onClick={() => {
-            ws.newThread();
-            onNavigate();
-          }}
+          onClick={onNew}
           disabled={ws.busy}
         >
           <span className="inline-flex items-center gap-2"><Plus size={15} /> New run</span>
@@ -92,7 +89,7 @@ export function Sidebar({ ws, open, onNavigate }: { ws: Workspace; open: boolean
                     type="button"
                     className="icon-btn icon-btn--danger ob-thread-del"
                     aria-label={`Delete thread ${t.title}`}
-                    disabled={ws.busy && t.id === ws.activeId}
+                    disabled={ws.busy}
                     onClick={(e) => {
                       e.stopPropagation();
                       ws.removeThread(t.id);

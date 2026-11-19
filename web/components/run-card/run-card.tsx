@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useRef, useState, type KeyboardEvent } from "react";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Download, Paperclip, RotateCw } from "lucide-react";
 import { downloadText, fmtBytes, jsonFileName } from "@/lib/format";
 import { fixesFor, REFUSAL_MEANING } from "@/lib/stages";
 import { recallFile } from "@/lib/session-files";
@@ -15,29 +15,35 @@ import { RefusalFix } from "./refusal-fix";
 
 type Tab = "data" | "checks" | "evidence" | "json";
 const TABS: { id: Tab; label: string }[] = [
-  { id: "data", label: "Data" },
   { id: "checks", label: "Checks" },
+  { id: "data", label: "Data" },
   { id: "evidence", label: "Evidence" },
   { id: "json", label: "JSON" },
 ];
 
 export function RunCard({
+  id,
   file,
   run,
-  busy,
+  recoveryDisabled,
   onRerun,
+  onAttach,
 }: {
+  id: string;
   file: FileRun;
   run: RunTurn;
-  busy: boolean;
+  recoveryDisabled: boolean;
   onRerun: (index: number, p: RunParams) => void;
+  onAttach: () => void;
 }) {
-  const [tab, setTab] = useState<Tab>("data");
+  const [tab, setTab] = useState<Tab>("checks");
   const [record, setRecord] = useState("batch-1");
+  const [pages, setPages] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState(false);
   const base = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const doc = file.doc;
+  const available = !!recallFile(run.sourceTurnId, file.index);
 
   const onTabKey = (e: KeyboardEvent, i: number) => {
     const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
@@ -51,7 +57,7 @@ export function RunCard({
   const sha = doc?.status === "ok" ? doc.file.sha256 : doc?.status === "refused" ? doc.error.file_sha256 : null;
 
   return (
-    <article className={`run-card${doc?.status === "refused" ? " run-card--refused" : ""}`} aria-label={`${file.name}: ${verdictWord(file)}`}>
+    <article id={id} tabIndex={-1} className={`run-card${doc?.status === "refused" ? " run-card--refused" : ""}`} aria-label={`${file.name}: ${verdictWord(file)}`}>
       <header className="run-card-head">
         <h3 className="run-card-name">{file.name}</h3>
         <Verdict file={file} />
@@ -106,7 +112,15 @@ export function RunCard({
         )}
 
         {file.state === "interrupted" && (
-          <p className="error-line"><span className="dot" />The run stopped before this file finished. Nothing was released for it.</p>
+          <div className="interrupted-recovery">
+            <p className="fix-note">{available
+              ? "The run stopped before this file finished. Retry with the same settings."
+              : "The run stopped before this file finished. Attach the original file again to retry."}</p>
+            <button type="button" className="btn btn-ghost btn-xs" disabled={recoveryDisabled} onClick={() => available ? onRerun(file.index, {}) : onAttach()}>
+              {available ? <RotateCw size={14} /> : <Paperclip size={14} />}
+              {available ? "Retry file" : "Attach original file"}
+            </button>
+          </div>
         )}
 
         {doc?.status === "refused" && (
@@ -116,9 +130,10 @@ export function RunCard({
             {fixesFor(doc.error.message).length > 0 && (
               <RefusalFix
                 fields={fixesFor(doc.error.message)}
-                available={!!recallFile(run.sourceTurnId, file.index)}
-                disabled={busy}
+                available={available}
+                disabled={recoveryDisabled}
                 onRerun={(p) => onRerun(file.index, p)}
+                onAttach={onAttach}
               />
             )}
           </div>
@@ -157,9 +172,12 @@ export function RunCard({
               {tab === "data" && (
                 <DataTab
                   doc={doc}
+                  pages={pages}
+                  onPage={(batchId, page) => setPages((prev) => ({ ...prev, [batchId]: page }))}
                   onPick={(id) => {
                     setRecord(id);
                     setTab("evidence");
+                    tabRefs.current[TABS.findIndex((t) => t.id === "evidence")]?.focus();
                   }}
                 />
               )}

@@ -323,7 +323,10 @@ def test_a_workbook_without_openpyxl_is_an_engine_problem_with_an_install_hint(t
 
     monkeypatch.setitem(sys.modules, "openpyxl", None)  # makes `import openpyxl` raise ImportError
     f = tmp_path / "book.xlsx"
-    f.write_bytes(b"PK not really")
+    import zipfile
+
+    with zipfile.ZipFile(f, "w") as z:  # a real zip, so the size check passes and openpyxl is actually needed
+        z.writestr("xl/workbook.xml", "<workbook/>")
     rc, _, err = code(["run", str(f), "--out", str(tmp_path / "o")], capsys)
     assert rc == 3 and "pip install openpyxl" in err and "Traceback" not in err
     assert "EngineFault: EngineFault" not in err  # one prefix, not the fault wrapped in itself

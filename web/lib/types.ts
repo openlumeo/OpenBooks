@@ -126,6 +126,7 @@ export type Health = {
   /** true only when a --model run would load (weights, matching calibration, PyTorch) */
   model_weights_present: boolean;
   model_issue?: string | null;
+  link_available?: boolean;
   max_bytes: number;
   allowed_extensions: string[];
 };
@@ -220,6 +221,7 @@ export type RunTurn = {
   files: FileRun[];
   state: "running" | "done" | "error";
   error?: string;
+  linkError?: string;
 };
 
 export type UserAskTurn = { id: string; kind: "user-ask"; at: number; text: string };

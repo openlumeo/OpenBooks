@@ -1,11 +1,11 @@
 import OpenAI from "openai";
 import { z } from "zod";
 import { createRateLimiter, MAX_JSON_BYTES, rejectOversize } from "@/lib/guards";
+import { Amount, AskBody, IsoDate } from "@/lib/server/ask-input";
 import { SYSTEM_PROMPT } from "@/lib/server/ask-prompt";
 import { buildDigest } from "@/lib/digest";
 import { groupAmount } from "@/lib/ledger";
-import { getEvidence, queryTransactions, type DocRef, type TxnFilter } from "@/lib/query";
-import type { EngineDoc } from "@/lib/types";
+import { getEvidence, queryTransactions, type DocRef } from "@/lib/query";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -24,17 +24,6 @@ function hasCredentials(): boolean {
 export function GET() {
   return Response.json({ enabled: hasCredentials(), model: MODEL });
 }
-
-const Body = z.object({
-  question: z.string().trim().min(1).max(4000),
-  history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(20000) })).max(40),
-  docs: z
-    .array(z.object({ file: z.string().max(300), doc: z.record(z.string(), z.unknown()) }))
-    .max(200),
-});
-
-const Amount = z.string().regex(/^-?\d+(\.\d+)?$/, "plain decimal like 1000.00");
-const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD");
 
 const QueryInput = z
   .object({
@@ -123,7 +112,7 @@ function runTool(docs: DocRef[], block: { name: string; input: unknown }): { con
   if (block.name === "query_transactions") {
     const p = QueryInput.safeParse(block.input);
     if (!p.success) return { content: `invalid input: ${p.error.message}`, isError: true, summary: "invalid query" };
-    const r = queryTransactions(docs, p.data as TxnFilter);
+    const r = queryTransactions(docs, p.data);
     return { content: JSON.stringify(r), isError: false, summary: summarise(block.name, p.data, r) };
   }
   if (block.name === "get_evidence") {
@@ -157,10 +146,9 @@ export async function POST(req: Request) {
   if (askLimited()) {
     return Response.json({ error: "rate_limited", message: "Too many questions in the last minute. Try again shortly." }, { status: 429 });
   }
-  const parsed = Body.safeParse(await req.json().catch(() => null));
+  const parsed = AskBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "bad_request", message: parsed.error.message }, { status: 400 });
-  const { question, history } = parsed.data;
-  const docs = parsed.data.docs as unknown as DocRef[] & { doc: EngineDoc }[];
+  const { question, history, docs } = parsed.data;
 
   const client = new OpenAI({ baseURL: BASE_URL, apiKey: process.env.OPENBOOKS_LLM_API_KEY });
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
