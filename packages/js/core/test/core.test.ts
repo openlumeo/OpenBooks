@@ -21,7 +21,10 @@ const scratch = mkdtempSync(join(tmpdir(), "ob-scratch-"));
 for (const k of ["TMPDIR", "TMP", "TEMP"]) process.env[k] = scratch;
 const leftovers = () => readdirSync(scratch).length;
 
-afterEach(() => { delete process.env.FAKE_MODE; clearEngineCache(); });
+afterEach(() => {
+  if (process.env.FAKE_MODE) clearEngineCache();
+  delete process.env.FAKE_MODE;
+});
 
 describe.skipIf(!realPython)("with the real engine", () => {
   const opts = { python: realPython!, currency: "INR", opening: "1000.00" };
@@ -179,6 +182,30 @@ describe("when the engine misbehaves, that is an error and never a refusal", () 
   it("rejects an output file that belongs to a different input", async () => {
     process.env.FAKE_MODE = "wrong_file";
     await expect(runFile(file("m.csv", BANK), { python: fake })).rejects.toMatchObject({ kind: "bad_output" });
+  });
+
+  it.each(["wrong_hash", "external_path", "bad_line"])("rejects a mismatched or malformed result (%s)", async (mode) => {
+    process.env.FAKE_MODE = mode;
+    await expect(runFile(file(`${mode}.csv`, BANK), { python: fake })).rejects.toMatchObject({ kind: "bad_output" });
+  });
+
+  it("keeps results separate for inputs with identical bytes", async () => {
+    const paths = [file("same-bytes.csv", BANK), file("same-bytes.txt", BANK)];
+    const results = await runFiles(paths, { python: fake });
+    expect(results).toMatchObject([
+      { kind: "refused", file: "same-bytes.csv", message: "same-bytes.csv" },
+      { kind: "refused", file: "same-bytes.txt", message: "same-bytes.txt" },
+    ]);
+  });
+
+  it("rejects a pre-aborted run before accessing input or Python", async () => {
+    await expect(runFile(join(work, "missing.csv"), { python: "missing", signal: AbortSignal.abort() }))
+      .rejects.toMatchObject({ kind: "aborted" });
+  });
+
+  it("rejects a timer outside Node's supported range instead of timing out after 1 ms", async () => {
+    await expect(runFile(file("overflow.csv", BANK), { python: fake, runTimeoutMs: 2 ** 31 }))
+      .rejects.toMatchObject({ kind: "input" });
   });
 
   it("stops a hung engine at the timeout and cleans up", async () => {

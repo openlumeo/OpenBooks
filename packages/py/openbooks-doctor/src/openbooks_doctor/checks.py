@@ -137,11 +137,17 @@ def check_scan(deep: bool) -> list[Check]:
                  "OCR and typed-head dependencies present" if not miss else "missing: " + ", ".join(miss),
                  "" if not miss else "pip install 'openbooks-statements[scan]' (only needed for scans and --model)")]
     if have["torch"] and deep:
-        import torch
+        try:
+            import torch
 
-        v = tuple(int(x) for x in torch.__version__.split("+")[0].split(".")[:2])
-        out.append(Check("scan.torch", PASS if v >= (2, 6) else FAIL, f"PyTorch {torch.__version__}; CUDA {'available' if torch.cuda.is_available() else 'not available (CPU)'}",
-                         "" if v >= (2, 6) else "weights_only loading needs PyTorch 2.6 or newer: pip install -U torch"))
+            v = tuple(int(x) for x in torch.__version__.split("+")[0].split(".")[:2])
+            cuda = torch.cuda.is_available()
+        except (ImportError, OSError, RuntimeError, ValueError) as e:
+            out.append(Check("scan.torch", FAIL, f"PyTorch did not initialize ({type(e).__name__})", "reinstall PyTorch"))
+        else:
+            out.append(Check("scan.torch", PASS if v >= (2, 6) else FAIL,
+                             f"PyTorch {torch.__version__}; CUDA {'available' if cuda else 'not available (CPU)'}",
+                             "" if v >= (2, 6) else "weights_only loading needs PyTorch 2.6 or newer: pip install -U torch"))
     return out
 
 
@@ -154,10 +160,11 @@ def check_model(deep: bool) -> list[Check]:
     if not w.exists() or not c.exists():
         return [Check("model.assets", WARN, f"no model assets in {MODELS_DIR}: --model is refused", "reinstall openbooks-statements, or set OPENBOOKS_MODELS_DIR")]
     try:
-        fitted = json.loads(c.read_text(encoding="utf-8")).get("weights_sha256")
-    except (OSError, ValueError) as e:
-        return [Check("model.integrity", FAIL, f"calibration unreadable: {e}", "reinstall openbooks-statements")]
-    actual = hashlib.sha256(w.read_bytes()).hexdigest()
+        calibration = json.loads(c.read_text(encoding="utf-8"))
+        fitted = calibration["weights_sha256"]
+        actual = hashlib.sha256(w.read_bytes()).hexdigest()
+    except (OSError, ValueError, TypeError, KeyError) as e:
+        return [Check("model.integrity", FAIL, f"model assets unreadable: {e}", "reinstall openbooks-statements")]
     if fitted != actual:
         return [Check("model.integrity", FAIL, f"calibration was fitted for weights {str(fitted)[:12]}, but the weights are {actual[:12]}",
                       "the weights or the calibration was replaced or corrupted: reinstall openbooks-statements")]
@@ -177,7 +184,6 @@ def check_model(deep: bool) -> list[Check]:
             try:
                 from openbooks_statements.roles import RoleModel
 
-                RoleModel._loaded.clear()
                 ident = RoleModel.load().identity
                 out.append(Check("model.load", PASS, f"loads with weights_only=True; identity {ident['weights_sha256'][:12]}"))
             except Exception as e:  # noqa: BLE001

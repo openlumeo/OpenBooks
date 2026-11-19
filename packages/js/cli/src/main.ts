@@ -1,7 +1,8 @@
-import { mkdir, rename, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Command, CommanderError } from "commander";
-import { EngineError, findEngine, runFiles, type RunOptions, type RunResult } from "@lumeo_hq/openbooks-core";
+import { EngineError, findEngine, MAX_TIMEOUT_MS, runFiles, type RunOptions, type RunResult } from "@lumeo_hq/openbooks-core";
 import * as gateways from "@lumeo_hq/openbooks-gateways";
 import * as statements from "@lumeo_hq/openbooks-statements";
 import * as tax from "@lumeo_hq/openbooks-tax";
@@ -60,16 +61,22 @@ function toOptions(f: RunFlags): RunOptions {
   if (f.python) o.python = f.python;
   if (f.timeout !== undefined) {
     const n = Number(f.timeout);
-    if (!Number.isInteger(n) || n <= 0) throw new CommanderError(2, "openbooks.badOption", "--timeout must be a positive whole number of milliseconds");
+    if (!Number.isInteger(n) || n < 1 || n > MAX_TIMEOUT_MS) {
+      throw new CommanderError(2, "openbooks.badOption", `--timeout must be a whole number from 1 to ${MAX_TIMEOUT_MS} milliseconds`);
+    }
     o.runTimeoutMs = n;
   }
   return o;
 }
 
 async function writeAtomic(path: string, text: string): Promise<void> {
-  const tmp = `${path}.${process.pid}.tmp`;
-  await writeFile(tmp, text, "utf8");
-  await rename(tmp, path);
+  const tmp = `${path}.${randomUUID()}.tmp`;
+  try {
+    await writeFile(tmp, text, { encoding: "utf8", flag: "wx" });
+    await rename(tmp, path);
+  } finally {
+    await rm(tmp, { force: true });
+  }
 }
 
 async function runAndReport(files: string[], flags: RunFlags, runner: Runner, io: IO): Promise<number> {
@@ -146,7 +153,10 @@ export async function main(argv: string[], io: IO = { out: (s) => process.stdout
     await program.parseAsync(argv, { from: "user" });
     return code;
   } catch (e) {
-    if (e instanceof CommanderError) return e.exitCode === 0 ? EXIT.ok : EXIT.usage;
+    if (e instanceof CommanderError) {
+      if (e.code === "openbooks.badOption") io.err(`openbooks: ${e.message}\n`);
+      return e.exitCode === 0 ? EXIT.ok : EXIT.usage;
+    }
     if (e instanceof EngineError) {
       io.err(`openbooks: ${e.message}\n${e.hint ? `  ${e.hint}\n` : ""}`);
       return EXIT.engine;

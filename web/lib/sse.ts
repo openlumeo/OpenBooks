@@ -26,6 +26,7 @@ export async function* parseSSE(body: ReadableStream<Uint8Array>): AsyncGenerato
       }
     }
   } finally {
+    void reader.cancel().catch(() => {});
     reader.releaseLock();
   }
 }
@@ -65,6 +66,7 @@ export async function* parseNDJSON<T>(body: ReadableStream<Uint8Array>): AsyncGe
       }
     }
   } finally {
+    void reader.cancel().catch(() => {});
     reader.releaseLock();
   }
 }

@@ -45,7 +45,7 @@ Just the engine, from PyPI: `pip install openbooks`. Or install piece by piece f
 pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax \
             -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks   # CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
 pip install -e "packages/py/openbooks-statements[scan]"                    # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
-pip install -e packages/py/openbooks-lab                                   # private: golden-set builders, synthetic data, training, matching (needed for tests and the web app)
+pip install -e packages/py/openbooks-lab                                   # private: training, tests and optional payout matching
 ```
 
 ## Use
@@ -90,17 +90,19 @@ else:
 
 ## Web app
 
-A conversation-style workspace (Open Books by Lumeo) lives in `web/`, backed by a small engine service in `server/`. Drop files into a thread, watch each one go through Detect, Parse, Normalise and Balance, and get one released document or a typed refusal per file, with the checks, per-field evidence and JSON on every card. With an OpenRouter API key (any open-weights model that supports tool calls) you can then ask questions about the released documents. Totals in answers are computed by code, never by the model.
+A batch workspace (Open Books by Lumeo) lives in `web/`, backed by the engine service in `server/`. Attach files or try a synthetic sample, run the checks, and review the released, refused, and interrupted files in the batch. Inspect a released file’s checks and source evidence before downloading its JSON. Retry interrupted files and recoverable refusals from the result card. With a configured OpenRouter model that supports tool calls, you can ask questions about the released documents. Code computes the totals.
 
 ```bash
 pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" \
-            -e packages/py/openbooks-lab -e packages/py/openbooks -e server   # engine + engine service (FastAPI)
+            -e packages/py/openbooks-doctor -e packages/py/openbooks -e server
 cd web && pnpm install
 cp .env.example .env.local                 # optional: OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL for questions
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
 ```
 
-The model's own per-word reading (role, value type, abstention) is available at `POST /v1/roles` and from `predictRoles()` in `web/lib/engine-client.ts`.
+For a quick walkthrough, queue **Bank statement CSV** and **Bank CSV without an opening balance** from the sample picker. Run both, then review the checks and download the released JSON. Enter `1000.00` in the refused card to re-run the second file. After a reload, history still shows the results and a retry asks for the original file again.
+
+The service ships with synthetic samples. Install `openbooks-lab` from this checkout to enable payout matching. The model’s per-word reading (role, value type, abstention) is available at `POST /v1/roles`.
 
 The browser only talks to the Next.js server, which proxies to the engine service on loopback. History stays in the browser (IndexedDB); uploaded files are processed in a temp directory and deleted after each run. Tests: `pytest server/tests` and `cd web && pnpm test`. Design: `docs/web/design.md`.
 
@@ -143,7 +145,7 @@ A refusal is `{ "schema_version": "openbooks.v1", "status": "refused", "data": n
 | Trial balance, Excel workpapers | `trial_balance.v1`, `.xlsx` |
 | Bank statement PDFs and scans | text layer or OCR, column-geometry row rebuild |
 
-The PayPal, Wise and 1099-B layouts follow public descriptions of those exports and are tested on synthetic fixtures only; treat them as unverified until real redacted samples exist. Other 1099 forms have no arithmetic to prove and are not parsed. Planned, not built: separately installable packages (Python and npm). The step-by-step build, publish and ML-completion guide is [docs/PACKAGES.md](docs/PACKAGES.md). See also [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The PayPal, Wise and 1099-B layouts follow public descriptions of those exports and are tested on synthetic fixtures only. Treat them as unverified until real redacted samples exist. The Python packages and npm wrappers are documented in [docs/SERVING.md](docs/SERVING.md). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the release rules.
 
 ## How it works
 
@@ -213,11 +215,11 @@ pip install -e packages/py/openbooks-core -e "packages/py/openbooks[scan]" -e se
 OB_SLOW=1 python -m pytest -q tests packages/py/openbooks-core/tests server/tests   # full suite
 python tests/characterise/run.py verify              # behaviour frozen before the package split (868 results)
 python scripts/family_baseline.py                   # unseen-family baseline
-python scripts/train_roles.py 1200 150 12           # retrain the heads (GPU recommended)
-python scripts/promote.py --baseline docs/evidence/roles_metrics_calibrated.json <candidate.json>   # promotion gate
+python scripts/train_roles.py 1200 150 12 --out out/roles/candidate-01
+python scripts/verify_roles.py out/roles/candidate-01 --scans
 ```
 
-Training knobs: `OB_SEED`, `OB_LOSS` (`ce`, `ls`, `focalN`), `OB_WIDE`, and `OB_FAMILIES` (`none`, or a comma list of `sign`, `branch`, `skew`) for leave-one-family-out runs, which write to `models/fam_<tag>/` and never touch the shipped weights.
+Training knobs include `--alpha`, `--device`, `OB_SEED`, `OB_LOSS` (`ce`, `ls`, `focalN`), `OB_WIDE`, and `OB_FAMILIES` (`none`, or a comma list of `sign`, `branch`, `skew`). See the [candidate workflow](docs/MODEL.md#6-training-and-shipping).
 
 ## Limitations
 

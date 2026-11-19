@@ -38,7 +38,7 @@ Proven or refused, never guessed. Other extraction tools return their best readi
 - Money is Decimal end to end; the UI must never round, reformat away precision, or compute totals in floating point.
 - PayPal activity, Wise statement and Form 1099-B layouts are built but follow public descriptions of those exports and are tested on synthetic files only; present them as unverified. Other 1099 forms are not parsed.
 - Numeric dates: the day/month order is proven from the file; bank statements (CSV and PDF) default to day-first without proof, PayPal and 1099-B refuse rather than guess. The user can supply the order.
-- Not built (must not be claimed or listed as supported): the separately installable packages shown on the pipeline diagram.
+- Python packages provide the engine and format providers. The npm packages provide typed wrappers that run the Python engine locally.
 - Open decision: authentication and account model for the hosted service. The v1 spec has no accounts; a hosted deployment will need them before real client data is accepted.
 - Open decision: data-processing terms and retention statement for hosted uploads (financial data of the accountant's clients).
 

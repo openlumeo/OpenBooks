@@ -60,20 +60,49 @@ def test_health_and_formats(client):
     assert {u["layout"] for u in f["unverified"]} <= engine_layouts() and all(u["name"] for u in f["unverified"])
 
 
-def test_model_status_applies_the_engines_hash_binding(tmp_path):
+def test_model_load_checks_calibration_and_checkpoint(tmp_path):
     import hashlib
 
-    from openbooks_server.catalog import model_status
+    pytest.importorskip("torch")
+    from openbooks_server.catalog import load_model
+    from openbooks_statements.assets import ModelUnavailable
 
     w, c = tmp_path / "w.pt", tmp_path / "cal.json"
-    assert model_status(w, c) == (False, "no model weights (models/roles_head.pt)")
+    with pytest.raises(ModelUnavailable, match="Missing model weights"):
+        load_model(w, c)
     w.write_bytes(b"weights-v2")
-    assert model_status(w, c) == (False, "no calibration (models/roles_calibration.json)")
-    c.write_text(json.dumps({"weights_sha256": "0" * 64}), encoding="utf-8")
-    ready, issue = model_status(w, c)
-    assert not ready and "calibration was fitted for other weights" in issue
-    c.write_text(json.dumps({"weights_sha256": hashlib.sha256(b"weights-v2").hexdigest()}), encoding="utf-8")
-    assert model_status(w, c) == (True, None)
+    with pytest.raises(ModelUnavailable, match="Missing model calibration"):
+        load_model(w, c)
+    head = {"temperature": 1, "qhat": 0.9, "alpha": 0.05}
+    c.write_text(json.dumps({"weights_sha256": "0" * 64, "role": head, "vtype": head}), encoding="utf-8")
+    with pytest.raises(ModelUnavailable, match="calibration was fitted for other weights"):
+        load_model(w, c)
+    c.write_text(json.dumps({"weights_sha256": hashlib.sha256(b"weights-v2").hexdigest(),
+                             "role": head, "vtype": head}), encoding="utf-8")
+    with pytest.raises(ModelUnavailable, match="Cannot load the model checkpoint"):
+        load_model(w, c)
+    c.write_text("[]", encoding="utf-8")
+    with pytest.raises(ModelUnavailable, match="Invalid model calibration"):
+        load_model(w, c)
+
+
+def test_unavailable_model_keeps_health_and_other_routes_working(monkeypatch, client):
+    from openbooks_server import catalog
+    from openbooks_server import app as app_module
+    from openbooks_statements.assets import ModelUnavailable
+
+    def unavailable():
+        raise ModelUnavailable("Test model is unavailable.")
+
+    monkeypatch.setattr(catalog, "load_model", unavailable)
+    monkeypatch.setattr(app_module, "load_model", unavailable)
+    health = client.get("/v1/health").json()
+    assert health["status"] == "ok"
+    assert health["model_ready"] is health["model_weights_present"] is False
+    assert health["model_identity"] is None and health["model_issue"] == "Test model is unavailable."
+    response = client.post("/v1/roles", files={"file": ("test.pdf", b"not parsed")})
+    assert response.status_code == 503 and response.json()["error"] == "model_unavailable"
+    assert client.get("/v1/samples/ok_pdf_text").status_code == 200
 
 
 def test_catalog_lists_exactly_the_layouts_the_engine_emits(client):
@@ -171,6 +200,8 @@ def test_temp_files_are_removed(client):
 
 
 def test_link_settlement_payout_to_bank_credit(client):
+    if not client.get("/v1/health").json()["link_available"]:
+        pytest.skip("no reconciliation provider installed")
     rzp = sample(client, "ok_razorpay")
     bank = ("bank.csv", (BANK + "08/01/2026,RAZORPAY SETTLEMENT setl_1,,77.64,1077.64\n").encode())
     r = run(client, [rzp, bank], {"opening": "1000.00", "currency": "INR"})
@@ -183,3 +214,15 @@ def test_link_settlement_payout_to_bank_credit(client):
 
 def test_link_rejects_garbage(client):
     assert client.post("/v1/link", json={"docs": "nope"}).status_code == 422
+    assert client.post("/v1/link", json={"docs": [{"schema_version": "openbooks.v1", "status": "ok"}]}).status_code == 422
+
+
+def test_engine_and_samples_work_without_reconciliation_provider(client, monkeypatch):
+    from openbooks_core.registry import Registry
+    from openbooks_server import catalog
+
+    monkeypatch.setattr(catalog, "default_registry", Registry)
+    assert client.get("/v1/samples/ok_bank_csv").status_code == 200
+    assert client.get("/v1/health").json()["link_available"] is False
+    response = client.post("/v1/link", json={"docs": []})
+    assert response.status_code == 503 and response.json()["error"] == "link_unavailable"

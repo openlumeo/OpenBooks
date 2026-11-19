@@ -35,8 +35,12 @@ def shape_problem(doc: dict) -> str:
     return ""
 
 
-def main(scans: bool, model: bool = False) -> dict:
-    tmp = Path(tempfile.mkdtemp(prefix="ob_e2e_"))
+def main(scans: bool, model: bool = False, output: Path | None = None, identity: dict | None = None) -> dict:
+    with tempfile.TemporaryDirectory(prefix="ob_e2e_") as scratch:
+        return evaluate(Path(scratch), scans, model, output, identity)
+
+
+def evaluate(tmp: Path, scans: bool, model: bool, output: Path | None, identity: dict | None) -> dict:
     gold, pack, out = tmp / "golden", tmp / "pack", tmp / "out"
     pack.mkdir()
     build(gold, 7, 0, scans)
@@ -67,6 +71,9 @@ def main(scans: bool, model: bool = False) -> dict:
         expected_ok += status == "ok"
         released_ok += ok and status == "ok"
         problem = shape_problem(got)
+        if identity and got["status"] == "ok" and src.suffix.lower() in {".pdf", ".png", ".jpeg", ".jpg"}:
+            if got["file"].get("model") != identity:
+                problem = "released without the candidate model identity"
         if problem:
             bad_shape.append(f"{name}: {problem}")
     run_report(pack, out, Params(ocr=scans, model=model))
@@ -86,13 +93,16 @@ def main(scans: bool, model: bool = False) -> dict:
            "isolated_pair": {"links": len(pair_report["links"]), "expected": 1,
                              "amounts": [x["amount"]["amount"] for x in pair_report["links"]]}}
     tag = ("_model" if model else "") + ("_scans" if scans else "")
-    (ROOT / "docs" / "evidence" / f"e2e_synthetic{tag}.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
-    shutil.rmtree(tmp, ignore_errors=True)
+    (output or ROOT / "docs" / "evidence" / f"e2e_synthetic{tag}.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
     return res
+
+
+def passed(result: dict) -> bool:
+    return not (result["schema_violations"] or result["decision_mismatches"] or result["false_accepts"]
+                or result["isolated_pair"]["links"] != 1 or not result["crowded_pack"]["all_links_proven"])
 
 
 if __name__ == "__main__":
     r = main("--scans" in sys.argv, "--model" in sys.argv)
     print(json.dumps(r, indent=1))
-    bad = r["schema_violations"] or r["decision_mismatches"] or r["false_accepts"] or r["isolated_pair"]["links"] != 1 or not r["crowded_pack"]["all_links_proven"]
-    sys.exit(1 if bad else 0)
+    sys.exit(0 if passed(r) else 1)

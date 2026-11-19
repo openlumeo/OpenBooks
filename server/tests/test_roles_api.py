@@ -56,6 +56,8 @@ def test_reading_of_a_pdf(client, pdf, model):
         x0, y0, x1, y1 = t["box"]
         assert -0.01 <= x0 <= x1 <= 1.01 and -0.01 <= y0 <= y1 <= 1.01
     assert doc["model"] == model.identity  # same hashes a --model release records
+    health = client.get("/v1/health").json()
+    assert health["model_ready"] and health["model_identity"] == doc["model"]
 
 
 def test_batched_logits_equal_the_stock_path(pdf, model):

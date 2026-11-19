@@ -1,9 +1,8 @@
 // A stand-in for `python`: invoked as `node fake-engine.mjs -m openbooks_core <command> ...` and misbehaving on demand
 // (FAKE_MODE) so the wrapper's error handling can be tested without breaking a real engine.
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
 const args = process.argv.slice(2);
 const mode = process.env.FAKE_MODE ?? "ok";
@@ -26,13 +25,22 @@ else if (mode === "garbage") { console.log("this is not json"); process.exit(0);
 else if (mode === "noisy") { process.stdout.write("x".repeat(5_000_000)); setInterval(() => {}, 1000); }
 else {
   mkdirSync(out, { recursive: true });
-  const f = files[files.length - 1];
-  const sha = createHash("sha256").update(readFileSync(f)).digest("hex");
-  const name = mode === "wrong_file" ? "0".repeat(64) : sha;
-  const doc = mode === "bad_doc" ? { schema_version: "openbooks.v1", status: "refused", data: null }
-    : { schema_version: "openbooks.v1", status: "refused", data: null, error: { code: "UNKNOWN_LAYOUT", message: "fake", file_sha256: sha } };
-  writeFileSync(join(out, `${name}.json`), JSON.stringify(doc));
-  console.log(JSON.stringify({ file: "in.csv", status: "refused", code: "UNKNOWN_LAYOUT", output: join(out, `${name}.json`) }));
+  for (const f of files) {
+    const sha = createHash("sha256").update(readFileSync(f)).digest("hex");
+    const name = mode === "wrong_file" ? "0".repeat(64) : sha;
+    const doc = mode === "bad_doc" ? { schema_version: "openbooks.v1", status: "refused", data: null }
+      : { schema_version: "openbooks.v1", status: "refused", data: null, error: {
+          code: "UNKNOWN_LAYOUT", message: basename(f), file_sha256: mode === "wrong_hash" ? "0".repeat(64) : sha,
+        } };
+    const target = join(out, `${name}.json`);
+    writeFileSync(target, JSON.stringify(doc));
+    const output = mode === "external_path" ? join(out, "alternate", `${name}.json`) : target;
+    if (output !== target) {
+      mkdirSync(dirname(output), { recursive: true });
+      writeFileSync(output, JSON.stringify(doc));
+    }
+    console.log(JSON.stringify({ file: basename(f), status: "refused", code: "UNKNOWN_LAYOUT", output: mode === "bad_line" ? null : output }));
+  }
   console.log(JSON.stringify({ engine: info }));
   process.exit(1);
 }

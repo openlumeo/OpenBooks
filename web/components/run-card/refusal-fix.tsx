@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { RotateCw } from "lucide-react";
+import { Paperclip, RotateCw } from "lucide-react";
 import type { FixField } from "@/lib/stages";
 import type { RunParams } from "@/lib/types";
 
@@ -14,11 +14,13 @@ export function RefusalFix({
   available,
   disabled,
   onRerun,
+  onAttach,
 }: {
   fields: FixField[];
   available: boolean;
   disabled: boolean;
   onRerun: (p: RunParams) => void;
+  onAttach: () => void;
 }) {
   const [opening, setOpening] = useState("");
   const [currency, setCurrency] = useState("");
@@ -33,9 +35,12 @@ export function RefusalFix({
   if (!available) {
     const names = fields.map((f) => (f === "date_order" ? "a date order" : f === "opening" ? "an opening balance" : "a currency"));
     return (
-      <p className="fix-note">
-        To re-run with {names.join(" and ")}, attach the file again. Files are kept only for this browser tab, not in history.
-      </p>
+      <div className="interrupted-recovery">
+        <p className="fix-note">Attach the original file again and set {names.join(" and ")} in Params.</p>
+        <button type="button" className="btn btn-ghost btn-xs" disabled={disabled} onClick={onAttach}>
+          <Paperclip size={14} /> Attach original file
+        </button>
+      </div>
     );
   }
 
@@ -45,7 +50,7 @@ export function RefusalFix({
       onSubmit={(e) => {
         e.preventDefault();
         setTouched(true);
-        if (!openingOk || !currencyOk || !orderOk) return;
+        if (disabled || !openingOk || !currencyOk || !orderOk) return;
         const p: RunParams = {};
         if (fields.includes("opening")) p.opening = opening.replace(/,/g, "").trim();
         if (fields.includes("currency")) p.currency = currency.trim().toUpperCase();

@@ -27,7 +27,10 @@ function capture() {
   return { io: { out: (s: string) => o.push(s), err: (s: string) => e.push(s) }, out: () => o.join(""), err: () => e.join("") };
 }
 
-afterEach(() => { delete process.env.FAKE_MODE; clearEngineCache(); });
+afterEach(() => {
+  if (process.env.FAKE_MODE) clearEngineCache();
+  delete process.env.FAKE_MODE;
+});
 
 describe.skipIf(!python)("openbooks CLI with the real engine", () => {
   const base = ["--currency", "INR", "--opening", "1000", "--python", python ?? ""];
@@ -107,6 +110,12 @@ describe.skipIf(!python)("openbooks CLI with the real engine", () => {
 });
 
 describe("openbooks CLI when the engine is unusable", () => {
+  it("prints an actionable error for invalid run flags", async () => {
+    const c = capture();
+    expect(await main(["run", "file.csv", "--timeout", "2147483648"], c.io)).toBe(EXIT.usage);
+    expect(c.err()).toContain("--timeout must be");
+  });
+
   it("exits 3 and says what to do when Python is missing", async () => {
     const c = capture();
     expect(await main(["run", file("j.csv", BANK), "--python", "no-such-python-xyz"], c.io)).toBe(EXIT.engine);

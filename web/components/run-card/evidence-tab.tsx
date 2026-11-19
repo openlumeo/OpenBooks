@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import type { ReleasedDoc } from "@/lib/types";
 
 const METHOD_LABEL: Record<string, string> = {
@@ -10,6 +10,7 @@ const METHOD_LABEL: Record<string, string> = {
 };
 
 export function EvidenceTab({ doc, record, onRecord }: { doc: ReleasedDoc; record: string; onRecord: (id: string) => void }) {
+  const inputId = useId();
   const records = useMemo(() => {
     const ids = new Set<string>();
     for (const k of Object.keys(doc.evidence)) ids.add(k.slice(0, k.indexOf(".")));
@@ -21,15 +22,15 @@ export function EvidenceTab({ doc, record, onRecord }: { doc: ReleasedDoc; recor
   return (
     <div className="panel">
       <div className="evidence-pick">
-        <label htmlFor={`ev-${doc.file.sha256}`} className="mono-label">Record</label>
-        <select id={`ev-${doc.file.sha256}`} className="field" value={current} onChange={(e) => onRecord(e.target.value)}>
+        <label htmlFor={inputId} className="mono-label">Record</label>
+        <select id={inputId} className="field" value={current} onChange={(e) => onRecord(e.target.value)}>
           {records.map((r) => (
             <option key={r} value={r}>{r}</option>
           ))}
         </select>
         <span className="t-body-sm">Where every value of this record was read from.</span>
       </div>
-      <div className="ledger-wrap">
+      <div className="ledger-wrap" role="region" tabIndex={0} aria-label="Source evidence">
         <table className="kv">
           <thead>
             <tr>

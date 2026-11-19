@@ -154,10 +154,12 @@ def test_calibration_that_does_not_match_the_weights_is_refused(tmp_path):
     with pytest.raises(Refusal) as e:
         RoleModel.load(w, c)
     assert e.value.code == "UNSUPPORTED_INPUT" and "refit the calibration" in e.value.message
-    c.write_text(json.dumps({"weights_sha256": hashlib.sha256(b"not real weights").hexdigest()}), encoding="utf-8")
-    with pytest.raises(Exception) as e2:  # hash now matches, so it gets as far as reading the (invalid) weights
+    head = {"temperature": 1, "qhat": 0.9, "alpha": 0.05}
+    c.write_text(json.dumps({"weights_sha256": hashlib.sha256(b"not real weights").hexdigest(),
+                             "role": head, "vtype": head}), encoding="utf-8")
+    with pytest.raises(Refusal, match="Cannot load the model checkpoint") as e2:
         RoleModel.load(w, c)
-    assert not isinstance(e2.value, Refusal)
+    assert e2.value.code == "UNSUPPORTED_INPUT"
 
 
 def test_the_shipped_weights_load_and_name_themselves():

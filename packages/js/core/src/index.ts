@@ -6,4 +6,4 @@ export { EngineError } from "./errors.js";
 export type { EngineErrorKind } from "./errors.js";
 export { validateDocument, validateRefusal } from "./validate.js";
 export type { OpenBooksDocument, OpenBooksRefusal, Account, Batch, Transaction, Money, Evidence, Assertion } from "./generated/openbooks.js";
-export { run as runProcess, killTree } from "./spawn.js";
+export { run as runProcess, killTree, MAX_TIMEOUT_MS } from "./spawn.js";
