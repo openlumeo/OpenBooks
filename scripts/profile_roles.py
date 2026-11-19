@@ -22,11 +22,11 @@ sys.path[:0] = [*(str(p) for p in (ROOT / "packages/py").glob("*/src")), str(ROO
 
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
-from openbooks_core.params import Params  # noqa: E402
+from openbooks.core.params import Params  # noqa: E402
 from openbooks_server.inference import _pad, logits_batched  # noqa: E402
-from openbooks_statements.encoder import D, LAYERS, MAXLEN, n_params, tensors, windows  # noqa: E402
-from openbooks_statements.pdf_front import read_words  # noqa: E402
-from openbooks_statements.roles import RoleModel  # noqa: E402
+from openbooks.statements.encoder import D, LAYERS, MAXLEN, n_params, tensors, windows  # noqa: E402
+from openbooks.statements.pdf_front import read_words  # noqa: E402
+from openbooks.statements.roles import RoleModel  # noqa: E402
 
 DEFAULT_PDF = ROOT / "data/raw/agami_indian_bank_statements/train/India_Bank_Statement_Digital_Type1/00001.pdf"
 ACT_FLOATS_PER_TOKEN_LAYER = 24 * D  # est. unfused activation reads+writes per token per layer (LN, qkv, proj, 4D MLP up/down, GELU, residuals)

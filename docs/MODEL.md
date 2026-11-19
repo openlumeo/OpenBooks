@@ -2,7 +2,7 @@
 
 This is the only learned model in Open Books. It is a small layout-aware encoder that reads the words of a PDF or scan and says, for every word, **which column of a bank statement it sits in** and **what kind of value it is**. It never releases a document. It can only add refusals.
 
-Source: `packages/py/openbooks-statements/src/openbooks_statements/` (`encoder.py`, `roles.py`, `calibration.py`, `labels.py`). Weights and calibration: `models/`. Served directly by `POST /v1/roles` (see [SERVING.md](SERVING.md)). Measured cost: [PROFILE_ROLES.md](PROFILE_ROLES.md).
+Source: `packages/py/openbooks/src/openbooks/statements/` (`encoder.py`, `roles.py`, `calibration.py`, `labels.py`). Weights and calibration: `models/`. Served directly by `POST /v1/roles` (see [SERVING.md](SERVING.md)). Measured cost: [PROFILE_ROLES.md](PROFILE_ROLES.md).
 
 ## 1. What it is, and what it is not
 

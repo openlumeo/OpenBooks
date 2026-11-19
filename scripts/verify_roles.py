@@ -31,8 +31,8 @@ def main() -> int:
     import torch
 
     from e2e_synthetic import main as evaluate, passed
-    from openbooks_statements.roles import RoleModel
-    from openbooks_statements.assets import ModelUnavailable
+    from openbooks.statements.roles import RoleModel
+    from openbooks.statements.assets import ModelUnavailable
 
     torch.set_num_threads(args.threads)
     try:

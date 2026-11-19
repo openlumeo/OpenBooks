@@ -3,7 +3,7 @@ import { createReadStream } from "node:fs";
 import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
-import { findEngine, type DiscoverOptions, type Engine } from "./discover.js";
+import { engineCommand, findEngine, type DiscoverOptions, type Engine } from "./discover.js";
 import { EngineError } from "./errors.js";
 import type { OpenBooksDocument, OpenBooksRefusal } from "./generated/openbooks.js";
 import { checkAborted, run, validateTimeout } from "./spawn.js";
@@ -162,7 +162,7 @@ async function discoverForRun(opts: RunOptions): Promise<Engine> {
 async function runBatch(
   engine: Engine, dir: string, inputs: Input[], flags: string[], opts: RunOptions, timeoutMs: number,
 ): Promise<RunResult[]> {
-  const argv = [...engine.python, "-m", "openbooks_core", "run", "--machine", "--out", dir, ...flags, ...inputs.map((input) => input.path)];
+  const argv = [...engineCommand(engine), "run", "--machine", "--out", dir, ...flags, ...inputs.map((input) => input.path)];
   let r;
   try {
     r = await run(argv, { timeoutMs, signal: opts.signal, maxBytes: opts.maxOutputBytes });
@@ -228,7 +228,7 @@ function checkDocument<T>(doc: unknown, validate: (value: unknown) => asserts va
     validate(doc);
   } catch (cause) {
     throw new EngineError("bad_output", `${(cause as Error).message}. The installed engine and this package may be different versions.`,
-      "install matching versions of @lumeo_hq/openbooks-core and openbooks-core", { cause });
+      "install matching versions of @lumeo_hq/openbooks-core and the Python package openbooks", { cause });
   }
 }
 

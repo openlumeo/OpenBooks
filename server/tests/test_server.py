@@ -45,8 +45,8 @@ def engine_layouts() -> set[str]:
     import inspect
     import re
 
-    from openbooks_statements import pdf_front
-    from openbooks_core import registry
+    from openbooks.statements import pdf_front
+    from openbooks.core import registry
 
     src = "".join(inspect.getsource(m) for m in (registry, pdf_front))
     return set(re.findall(r'"([a-z0-9_]+\.v1)"', src)) - {"openbooks.v1"}
@@ -65,7 +65,7 @@ def test_model_load_checks_calibration_and_checkpoint(tmp_path):
 
     pytest.importorskip("torch")
     from openbooks_server.catalog import load_model
-    from openbooks_statements.assets import ModelUnavailable
+    from openbooks.statements.assets import ModelUnavailable
 
     w, c = tmp_path / "w.pt", tmp_path / "cal.json"
     with pytest.raises(ModelUnavailable, match="Missing model weights"):
@@ -89,7 +89,7 @@ def test_model_load_checks_calibration_and_checkpoint(tmp_path):
 def test_unavailable_model_keeps_health_and_other_routes_working(monkeypatch, client):
     from openbooks_server import catalog
     from openbooks_server import app as app_module
-    from openbooks_statements.assets import ModelUnavailable
+    from openbooks.statements.assets import ModelUnavailable
 
     def unavailable():
         raise ModelUnavailable("Test model is unavailable.")
@@ -218,7 +218,7 @@ def test_link_rejects_garbage(client):
 
 
 def test_engine_and_samples_work_without_reconciliation_provider(client, monkeypatch):
-    from openbooks_core.registry import Registry
+    from openbooks.core.registry import Registry
     from openbooks_server import catalog
 
     monkeypatch.setattr(catalog, "default_registry", Registry)

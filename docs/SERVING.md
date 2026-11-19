@@ -12,7 +12,7 @@ Read [MODEL.md](MODEL.md) first for what the model does. This page is about the 
                     Engine service  (server/, FastAPI, 127.0.0.1:8765)
                       │  imports
                       ▼
-                    Python packages (openbooks-core + providers, found through entry points)
+                    Python package openbooks (core + providers, found through entry points)
                       │  optional, only with --model / POST /v1/roles
                       ▼
                     Typed heads  (models/roles_head.pt + roles_calibration.json, PyTorch, GPU if present)
@@ -32,24 +32,24 @@ Design rules that follow from this:
 
 | Distribution | Import | Role | Depends on |
 |---|---|---|---|
-| `openbooks-core` | `openbooks_core` | The `openbooks.v1` contract and JSON schema, Decimal normalisation, balance gates, refusal codes, **layout detection and the provider registry**, `openbooks` CLI | `jsonschema` (`[xlsx]` adds spreadsheet reading) |
-| `openbooks-statements` | `openbooks_statements` | Bank CSV, OFX, MT940, PDFs (`[pdf]`), OCR and the **typed heads with their weights** (`[scan]`) | core |
-| `openbooks-gateways` | `openbooks_gateways` | Stripe, Razorpay, PayPal, Wise | core |
-| `openbooks-tax` | `openbooks_tax` | Form 26AS, AIS, FIRA, 1099-B, trial balance (experimental layouts) | core |
-| `openbooks-doctor` | `openbooks_doctor` | `openbooks doctor`: dependency, provider, model-integrity checks and a proven-or-refused self-test | core |
-| `openbooks` | `openbooks` | Meta package: installs the stack above and keeps `openbooks.pipeline` importable. Contains no parsers | all of the above |
-| `openbooks-lab` | `openbooks_lab` | **Private, never published**: synthetic data, golden sets, calibration fitting, payout matching | |
-| `openbooks-server` (`server/`) | `openbooks_server` | FastAPI service with bundled synthetic samples | `openbooks`, FastAPI, uvicorn. Optional `openbooks-lab` enables payout matching. |
+| `openbooks` | `openbooks` | The one public package (since 0.2.0), with five parts: | `jsonschema`, `openpyxl`, `pypdfium2` (`[scan]` adds EasyOCR, PyTorch, Pillow, NumPy) |
+| | `openbooks.core` | The `openbooks.v1` contract and JSON schema, Decimal normalisation, balance gates, refusal codes, **layout detection and the provider registry**, `openbooks` CLI | |
+| | `openbooks.statements` | Bank CSV, OFX, MT940, PDFs, OCR and the **typed heads with their weights** (`[scan]`) | |
+| | `openbooks.gateways` | Stripe, Razorpay, PayPal, Wise | |
+| | `openbooks.tax` | Form 26AS, AIS, FIRA, 1099-B, trial balance (experimental layouts) | |
+| | `openbooks.doctor` | `openbooks doctor`: dependency, provider, model-integrity checks and a proven-or-refused self-test | |
+| `lumeo-openbooks-lab` | `openbooks_lab` | **Private, never published**: synthetic data, golden sets, calibration fitting, payout matching | `openbooks[scan]` |
+| `openbooks-server` (`server/`) | `openbooks_server` | FastAPI service with bundled synthetic samples | `openbooks`, FastAPI, uvicorn. Optional `lumeo-openbooks-lab` enables payout matching. |
 
 ### npm (`packages/js/`, pnpm workspace)
 
 `@lumeo_hq/openbooks-core`, `@lumeo_hq/openbooks-statements`, `@lumeo_hq/openbooks-gateways`, `@lumeo_hq/openbooks-tax`, `@lumeo_hq/openbooks-doctor` and the `@lumeo_hq/openbooks` command-line package are **typed wrappers around the Python engine**. No parsing happens in JavaScript; they need `pip install openbooks` on the same machine. The web app in `web/` is a separate Next.js project that talks to the engine service over HTTP and does not use these packages.
 
-### How packages find each other
+### How the parts find each other
 
-`openbooks-core` owns **what exists and in what order** (the known layouts and sniffers); detection never depends on which providers are installed. Providers only supply implementations, through entry points declared in their `pyproject.toml`:
+`openbooks.core` owns **what exists and in what order** (the known layouts and sniffers); detection never depends on which providers are registered. Providers (the built-in `openbooks.statements`, `openbooks.gateways`, `openbooks.tax`, or a third-party plugin) only supply implementations, through entry points declared in `packages/py/openbooks/pyproject.toml` (or the plugin's own):
 
-| Entry-point group | Name → value | Example in `openbooks-statements` |
+| Entry-point group | Name → value | Example in `openbooks.statements` |
 |---|---|---|
 | `openbooks.layouts` | layout id → `parse(args, params)` | `bank_csv.v1` |
 | `openbooks.sniffers` | layout id → `parse(text, params)` for formats recognised from their text | `ofx.v1`, `mt940.v1` |
@@ -57,7 +57,7 @@ Design rules that follow from this:
 | `openbooks.gates` | `kind[:label]` → `gate(batch, transactions)` | `statement:ocr_dates` |
 | `openbooks.linkers` | `default` → `link(docs)` and `run_link(paths, out)` | payout matching |
 
-Consequences: installing a package is what makes its layouts work. A file whose layout belongs to an uninstalled package is refused with `UNKNOWN_LAYOUT` and a "pip install openbooks-…" message (`ProviderMissing`). It is **never** routed to a looser parser, which could claim a file meant for the missing one. **Running from `PYTHONPATH` instead of installing skips entry-point registration**, so layouts will not be found; always `pip install` (editable is fine).
+Consequences: registration is what makes a layout work. A file whose layout has no registered provider is refused with `UNKNOWN_LAYOUT` (`ProviderMissing`). It is **never** routed to a looser parser, which could claim a file meant for the missing one. **Running from `PYTHONPATH` instead of installing skips entry-point registration**, so layouts will not be found; always `pip install` (editable is fine).
 
 ### Install matrix
 
@@ -65,11 +65,10 @@ Consequences: installing a package is what makes its layouts work. A file whose 
 |---|---|
 | Everything except OCR and the model | `pip install openbooks` |
 | Plus OCR for scans and the typed heads | `pip install "openbooks[scan]"` (EasyOCR, PyTorch ≥ 2.6, Pillow) |
-| One family only | `pip install openbooks-core openbooks-gateways` |
-| From a source checkout | `pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks-doctor -e packages/py/openbooks -e server` |
+| From a source checkout | `pip install -e packages/py/openbooks -e server` (add `-e packages/py/openbooks-lab` for payout matching) |
 | Check the install | `openbooks doctor` (exit 0 ok, 1 a check failed, 2 usage, 3 doctor crashed; `--json` for machines) |
 
-Model assets are looked up in order: `$OPENBOOKS_MODELS_DIR`, the `data/` directory packaged inside `openbooks-statements`, then the repo `models/` directory in a source checkout. The calibration names the sha256 of its weights and a mismatch refuses to load.
+Model assets are looked up in order: `$OPENBOOKS_MODELS_DIR`, the `data/` directory packaged inside `openbooks.statements`, then the repo `models/` directory in a source checkout. The calibration names the sha256 of its weights and a mismatch refuses to load.
 
 ## 3. The engine service (`server/openbooks_server/`)
 
@@ -133,8 +132,7 @@ Where the model's output reaches the user today: the cross-check box on a run (t
 Development (two processes):
 
 ```bash
-pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax \
-            -e "packages/py/openbooks-statements[pdf,scan]" -e packages/py/openbooks-lab -e packages/py/openbooks -e server
+pip install -e "packages/py/openbooks[scan]" -e packages/py/openbooks-lab -e server
 cd web && pnpm install && cp .env.example .env.local
 pnpm dev:all            # engine on 127.0.0.1:8765, web on http://localhost:3000
 ```
@@ -170,9 +168,9 @@ Checklist:
 - [ ] After a model update, the calibration was refitted for the new weights (otherwise the engine refuses `--model` and says so in `model_issue`).
 - [ ] You accept that the model abstains heavily on unseen layouts ([MODEL.md](MODEL.md) §7).
 
-## 7. Adding a package or provider
+## 7. Adding a provider
 
-1. Create `packages/py/openbooks-<name>/` with a `pyproject.toml` that depends on `openbooks-core` and declares entry points in the groups above. New layout ids must also be added to the core's known-layout list, since core owns detection order.
+1. Add a subpackage `packages/py/openbooks/src/openbooks/<name>/` and declare its entry points in the groups above in `packages/py/openbooks/pyproject.toml` (a third-party plugin declares them in its own distribution instead). New layout ids must also be added to the core's known-layout list, since core owns detection order.
 2. Add its layout ids to `FORMATS` in `server/openbooks_server/catalog.py` (a test fails if a layout is emitted but not listed, or listed but not emitted).
 3. Add a golden case in `openbooks_lab` (one balanced file that must release, one tampered twin that must be refused).
-4. Add it to the `openbooks` meta package's dependencies if it should ship by default, then follow the publishing checklist in [PACKAGES.md](PACKAGES.md).
+4. Add its files to `tests/packaging/test_wheels.py`, then follow the publishing checklist in [PYTHONOPENBOOKSPACKAGES.md](PYTHONOPENBOOKSPACKAGES.md).

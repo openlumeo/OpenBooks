@@ -20,9 +20,9 @@ from decimal import Decimal
 from pathlib import Path
 
 import fitz  # PyMuPDF: the reference implementation. Private test code only; never shipped.
-from openbooks_core import Params, process
-from openbooks_statements import pdf_front as new
-from openbooks_statements.pdf_front import TEXT_LAYER_MIN_WORDS, Word
+from openbooks.core import Params, process
+from openbooks.statements import pdf_front as new
+from openbooks.statements.pdf_front import TEXT_LAYER_MIN_WORDS, Word
 
 
 def legacy_read_words(path, p):

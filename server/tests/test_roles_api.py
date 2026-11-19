@@ -6,11 +6,11 @@ import pytest
 
 pytest.importorskip("torch")
 from fastapi.testclient import TestClient  # noqa: E402
-from openbooks_core.params import Params  # noqa: E402
+from openbooks.core.params import Params  # noqa: E402
 from openbooks_server.app import app  # noqa: E402
 from openbooks_server.inference import logits_batched  # noqa: E402
-from openbooks_statements.pdf_front import read_words  # noqa: E402
-from openbooks_statements.roles import RoleModel  # noqa: E402
+from openbooks.statements.pdf_front import read_words  # noqa: E402
+from openbooks.statements.roles import RoleModel  # noqa: E402
 
 ROLES = {"other", "date", "desc", "debit", "credit", "balance"}
 

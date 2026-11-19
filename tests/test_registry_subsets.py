@@ -10,11 +10,11 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent / "characterise"))
 
 from corpus import build_corpus  # noqa: E402
-from openbooks_core import default_registry  # noqa: E402
-from openbooks_core.process import dumps, process  # noqa: E402
+from openbooks.core import default_registry  # noqa: E402
+from openbooks.core.process import dumps, process  # noqa: E402
 from run import _params  # noqa: E402
 
-DISTRIBUTIONS = ("openbooks-statements", "openbooks-gateways", "openbooks-tax")
+DISTRIBUTIONS = ("openbooks.statements", "openbooks.gateways", "openbooks.tax")
 SUBSETS = [c for n in range(len(DISTRIBUTIONS)) for c in itertools.combinations(DISTRIBUTIONS, n)]  # every proper subset
 
 
@@ -29,7 +29,7 @@ def full(cases):
     return {c.id: dumps(process(c.path, _params(c.params, {}), registry=reg)) for c in cases}
 
 
-@pytest.mark.parametrize("subset", SUBSETS, ids=lambda s: "+".join(x.split("-")[1] for x in s) or "core-only")
+@pytest.mark.parametrize("subset", SUBSETS, ids=lambda s: "+".join(x.split(".")[1] for x in s) or "core-only")
 def test_a_subset_gives_the_full_result_or_a_missing_provider_refusal(subset, cases, full):
     reg = default_registry().restricted_to(subset)
     missing = 0
@@ -38,7 +38,7 @@ def test_a_subset_gives_the_full_result_or_a_missing_provider_refusal(subset, ca
         text = dumps(doc)
         if text == full[c.id]:
             continue
-        assert doc["status"] == "refused" and doc["error"]["code"] == "UNKNOWN_LAYOUT" and "optional package" in doc["error"]["message"], (
+        assert doc["status"] == "refused" and doc["error"]["code"] == "UNKNOWN_LAYOUT" and "is not registered" in doc["error"]["message"], (
             f"{c.id}: differs from the full install and is not a missing-provider refusal: {doc.get('error') or doc['status']}")
         missing += 1
     assert missing > 0, "a proper subset should leave some corpus files without a provider"

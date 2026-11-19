@@ -28,13 +28,13 @@ import torch.nn.functional as F
 ROOT = Path(__file__).resolve().parents[1]
 
 from openbooks_lab.calibration_fit import ece, fit_calibrator  # noqa: E402
-from openbooks_statements.calibration import Calibrator  # noqa: E402
-from openbooks_statements.encoder import RoleNet, dequantize_state, h_shape, h_word, n_params, quantize_state, row_features, windows  # noqa: E402
-from openbooks_statements.encoder import NB, column_heads  # noqa: E402
+from openbooks.statements.calibration import Calibrator  # noqa: E402
+from openbooks.statements.encoder import RoleNet, dequantize_state, h_shape, h_word, n_params, quantize_state, row_features, windows  # noqa: E402
+from openbooks.statements.encoder import NB, column_heads  # noqa: E402
 from openbooks_lab.golden_docs import _pdf_rows  # noqa: E402
-from openbooks_statements.pdf_front import read_words  # noqa: E402
+from openbooks.statements.pdf_front import read_words  # noqa: E402
 from openbooks.pipeline import Params  # noqa: E402
-from openbooks_statements.roles import AMOUNT, VTYPES, vtype_of  # noqa: E402
+from openbooks.statements.roles import AMOUNT, VTYPES, vtype_of  # noqa: E402
 from openbooks_lab.synth import (FAMILIES, NOISY_SCAN, ROLES, SKEW_MERCHANTS, label_words, merchant_rows, random_layout,  # noqa: E402
                              render, to_scan, with_failed_rows)
 

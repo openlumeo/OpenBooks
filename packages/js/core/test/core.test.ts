@@ -102,7 +102,7 @@ describe.skipIf(!realPython)("with the real engine", () => {
     const r = await runFile(p, opts).catch((e: unknown) => e);
     if (r instanceof EngineError) {
       expect(r.kind).toBe("engine_fault");
-      expect(r.message).toMatch(/openbooks-statements\[(pdf|scan)\]/);
+      expect(r.message).toMatch(/pip install '?openbooks(\[scan\])?'?/);
       return;
     }
     expect(r).toMatchObject({ kind: "refused", internal: false });

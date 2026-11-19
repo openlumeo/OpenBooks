@@ -1,4 +1,4 @@
-# Open Books Python packages
+# Open Books Python package
 
 Financial documents in, **one proven JSON document per file out, or a typed refusal**. Never guessed. Never partially released.
 
@@ -7,29 +7,33 @@ released only if its numbers prove themselves: balances tie, totals match, and a
 document itself. Otherwise it is refused with a typed code. Every released field keeps its evidence (page, bounding box, row, raw
 text, extraction method), and money is `Decimal` end to end, never a float, never rounded silently.
 
-> **Status: 0.1.0, pre-release.** Every layout has been exercised on synthetic fixtures only, not on real exports. PayPal, Wise and
+> **Status: 0.2.0, pre-release.** Every layout has been exercised on synthetic fixtures only, not on real exports. PayPal, Wise and
 > all the tax layouts are experimental. Do not rely on it for real filings.
 
-## Where to find them
+## Where to find it
 
-All six packages are on PyPI, released together at the same version, under the Apache-2.0 licence.
+One package on PyPI, under the Apache-2.0 licence: https://pypi.org/project/openbooks/. Everything is inside it:
 
-| Package | PyPI | What it is |
-|---|---|---|
-| `openbooks` | https://pypi.org/project/openbooks/ | Meta package: installs everything below and keeps `import openbooks.pipeline` working |
-| `openbooks-core` | https://pypi.org/project/openbooks-core/ | The `openbooks.v1` contract, normalisation, balance gates, layout registry and the `openbooks` CLI |
-| `openbooks-statements` | https://pypi.org/project/openbooks-statements/ | Bank statements: CSV, OFX, MT940, PDFs, scans (OCR), optional typed-head model |
-| `openbooks-gateways` | https://pypi.org/project/openbooks-gateways/ | Payment gateway exports: Stripe, Razorpay, PayPal, Wise |
-| `openbooks-tax` | https://pypi.org/project/openbooks-tax/ | Tax and ledger documents: Form 26AS, AIS, FIRA, Form 1099-B, trial balance |
-| `openbooks-doctor` | https://pypi.org/project/openbooks-doctor/ | `openbooks doctor`: checks an installation, its providers and model assets |
+| Module | What it is |
+|---|---|
+| `openbooks.core` | The `openbooks.v1` contract, normalisation, balance gates, layout registry and the `openbooks` CLI |
+| `openbooks.statements` | Bank statements: CSV, OFX, MT940, PDFs, scans (OCR), optional typed-head model |
+| `openbooks.gateways` | Payment gateway exports: Stripe, Razorpay, PayPal, Wise |
+| `openbooks.tax` | Tax and ledger documents: Form 26AS, AIS, FIRA, Form 1099-B, trial balance |
+| `openbooks.doctor` | `openbooks doctor`: checks an installation, its providers and model assets |
+| `openbooks.pipeline` | The 0.1 compatibility facade (`from openbooks.pipeline import process, Params`) |
 
 Each release ships a wheel (`py3-none-any`, pure Python) and a source distribution. Release history:
-`https://pypi.org/project/<name>/#history`.
+https://pypi.org/project/openbooks/#history.
+
+Until 0.1.0 the same code was published as six packages (`openbooks-core`, `openbooks-statements`, `openbooks-gateways`,
+`openbooks-tax`, `openbooks-doctor` and the `openbooks` meta package). Those five are no longer released; see
+[Upgrading from 0.1](#upgrading-from-01).
 
 ## Requirements
 
 - Python **3.11 or newer** (3.11, 3.12 tested in CI on Linux and Windows).
-- No compiler needed: every Open Books wheel is pure Python. The `[pdf]` extra pulls `pypdfium2`, which ships prebuilt binaries for
+- No compiler needed: the Open Books wheel is pure Python. Its `pypdfium2` dependency ships prebuilt binaries for
   common platforms.
 - The `[scan]` extra installs PyTorch (2.6 or newer) and EasyOCR, which are large (several hundred MB to a few GB).
 
@@ -43,12 +47,12 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 python -m pip install --upgrade pip
 ```
 
-### Everything (recommended)
-
 ```bash
-pip install openbooks              # core, statements with PDF support, gateways, tax, doctor
+pip install openbooks              # every layout, PDFs with a text layer, doctor
 openbooks doctor                   # should end with "-> OK" and exit 0
 ```
+
+The base install needs only `jsonschema`, `openpyxl` and `pypdfium2`.
 
 Add OCR for scans and photos, and the typed-head model cross-check:
 
@@ -63,39 +67,37 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install "openbooks[scan]"
 ```
 
-### Only what you need
-
-Each provider brings `openbooks-core` with it. Install only the families you read:
-
-```bash
-pip install openbooks-statements             # bank CSV, OFX, MT940 (pure Python, no PDF library, no PyTorch)
-pip install "openbooks-statements[pdf]"      # + PDFs with a text layer (pypdfium2)
-pip install "openbooks-statements[scan]"     # + scans and photos (EasyOCR, PyTorch, Pillow, NumPy) and --model
-pip install openbooks-gateways               # Stripe, Razorpay, PayPal, Wise
-pip install openbooks-tax                    # 26AS, AIS, FIRA, 1099-B, trial balance
-pip install openbooks-doctor                 # installation checks
-pip install openbooks-core                   # the engine alone (only jsonschema); refuses every file until a provider is installed
-```
-
-A missing provider never causes a guess: a file that looks like a known layout whose package is not installed is refused with the
-name of the package to install.
-
 ### Pinning
 
-All packages move in lock-step. Pin the same version everywhere:
-
 ```bash
-pip install "openbooks==0.1.0"
+pip install "openbooks==0.2.0"
 ```
-
-Providers accept any `openbooks-core` in the same minor series (`>=0.1.0,<0.2`); the meta package pins exact versions.
 
 ### Upgrading and uninstalling
 
 ```bash
 pip install --upgrade openbooks
-pip uninstall openbooks openbooks-core openbooks-statements openbooks-gateways openbooks-tax openbooks-doctor
+pip uninstall openbooks
 ```
+
+### Upgrading from 0.1
+
+`pip install --upgrade openbooks` does not remove the five 0.1 packages, because 0.2 no longer depends on them. They are
+harmless: the engine ignores what they register, and `openbooks doctor` warns about them (`install.retired`). To remove them:
+
+```bash
+pip uninstall openbooks-core openbooks-statements openbooks-gateways openbooks-tax openbooks-doctor
+pip install --force-reinstall --no-deps openbooks    # the uninstall also deletes the openbooks command; this puts it back
+```
+
+Imports change from the 0.1 names to modules of `openbooks`:
+
+| 0.1 | 0.2 |
+|---|---|
+| `from openbooks_core import process, Params` | `from openbooks import process, Params` (or `from openbooks.core import ...`) |
+| `openbooks_statements`, `openbooks_gateways`, `openbooks_tax`, `openbooks_doctor` | `openbooks.statements`, `openbooks.gateways`, `openbooks.tax`, `openbooks.doctor` |
+| `python -m openbooks_core ...` | `python -m openbooks ...` |
+| `from openbooks.pipeline import process, Params` | unchanged |
 
 ## Check the installation
 
@@ -106,36 +108,35 @@ openbooks doctor --deep     # also imports PyTorch and loads the model
 openbooks doctor --strict   # warnings fail too
 ```
 
-Doctor checks the Python version, core and its schemas, that provider versions match core, that every provider imports, which known
-layouts have no provider, the PDF and OCR dependencies, that the model weights match their calibration, and runs a built-in
+Doctor checks the Python version, core and its schemas, that no 0.1 split package is left installed, that every provider
+imports, which known layouts have no provider, the PDF and OCR dependencies, that the model weights match their calibration, and runs a built-in
 self-test per layout (a balanced document must release and its tampered twin must be refused). It reads no user documents.
 Without `[scan]` it shows one expected warning: `scan.dependencies: missing: torch, easyocr, PIL, numpy`.
 
 ## Supported documents
 
-| Layout id | Document | Package | Proven by | Status |
+| Layout id | Document | Module | Proven by | Status |
 |---|---|---|---|---|
-| `bank_csv.v1` | bank statement CSV / `.xlsx` | statements | opening + movements = closing; running balance ties on every row | synthetic fixtures |
-| `ofx.v1` | OFX bank statement | statements | same balance chain | synthetic fixtures |
-| `mt940.v1` | SWIFT MT940 | statements | same balance chain | synthetic fixtures |
-| PDF / scan | bank statement PDF, scanned page, photo | statements `[pdf]` / `[scan]` | same chain, with page and bounding box per field; OCR dates must be in order | synthetic fixtures |
-| `stripe_balance.v1` | Stripe balance export | gateways | gross - fee - tax = net per row, totals, payout | synthetic fixtures |
-| `razorpay_settlement.v1` | Razorpay settlement | gateways | same | synthetic fixtures |
-| `paypal_activity.v1` | PayPal activity download | gateways | PayPal's own gross, fee and net columns | **experimental** |
-| `wise_statement.v1` | Wise statement | gateways | running balance ties on every row | **experimental** |
-| `tds_26as.v1` | Form 26AS | tax | printed totals of amount, tax deducted, tax deposited | **experimental** |
-| `ais.v1` | Annual Information Statement | tax | printed total of reported value | **experimental** |
-| `fira.v1` | Foreign inward remittance advice | tax | foreign amount x rate = INR amount within 0.01, INR - charges = net, totals | **experimental** |
-| `form_1099b.v1` | Form 1099-B detail | tax | proceeds - cost basis + adjustment = gain/loss per row, totals | **experimental** |
-| `trial_balance.v1` | Trial balance | tax | debits = credits, printed totals | **experimental** |
+| `bank_csv.v1` | bank statement CSV / `.xlsx` | `openbooks.statements` | opening + movements = closing; running balance ties on every row | synthetic fixtures |
+| `ofx.v1` | OFX bank statement | `openbooks.statements` | same balance chain | synthetic fixtures |
+| `mt940.v1` | SWIFT MT940 | `openbooks.statements` | same balance chain | synthetic fixtures |
+| PDF / scan | bank statement PDF, scanned page, photo | `openbooks.statements` (scans need `[scan]`) | same chain, with page and bounding box per field; OCR dates must be in order | synthetic fixtures |
+| `stripe_balance.v1` | Stripe balance export | `openbooks.gateways` | gross - fee - tax = net per row, totals, payout | synthetic fixtures |
+| `razorpay_settlement.v1` | Razorpay settlement | `openbooks.gateways` | same | synthetic fixtures |
+| `paypal_activity.v1` | PayPal activity download | `openbooks.gateways` | PayPal's own gross, fee and net columns | **experimental** |
+| `wise_statement.v1` | Wise statement | `openbooks.gateways` | running balance ties on every row | **experimental** |
+| `tds_26as.v1` | Form 26AS | `openbooks.tax` | printed totals of amount, tax deducted, tax deposited | **experimental** |
+| `ais.v1` | Annual Information Statement | `openbooks.tax` | printed total of reported value | **experimental** |
+| `fira.v1` | Foreign inward remittance advice | `openbooks.tax` | foreign amount x rate = INR amount within 0.01, INR - charges = net, totals | **experimental** |
+| `form_1099b.v1` | Form 1099-B detail | `openbooks.tax` | proceeds - cost basis + adjustment = gain/loss per row, totals | **experimental** |
+| `trial_balance.v1` | Trial balance | `openbooks.tax` | debits = credits, printed totals | **experimental** |
 
 Accepted file types: `.csv`, `.txt`, `.xlsx`, `.ofx`, `.qfx`, `.sta`, `.mt940`, `.pdf`, and `.png`/`.jpg`/`.jpeg` for scans, up to
 20 MB per file. Text must be UTF-8 or cp1252. Other 1099 forms have no arithmetic to prove and are not parsed. A printed total that is an Excel formula is not counted as independent evidence.
 
 ## Command line
 
-`pip install openbooks-core` (or anything that depends on it) provides the `openbooks` command. `python -m openbooks_core ...` is
-the same command.
+`pip install openbooks` provides the `openbooks` command. `python -m openbooks ...` is the same command.
 
 ```bash
 openbooks run statement.csv --currency INR --opening 1000.00 --out out
@@ -148,7 +149,7 @@ openbooks run statement.csv --currency INR --opening 1000.00 --out out
 | `openbooks link FILE [FILE ...]` | link settlement payouts and FIRA credits to bank credits (needs a linker plugin; none ships in 0.1) |
 | `openbooks eval ROOT` | run a golden set and report mismatches and false accepts |
 | `openbooks engine-info` | print the engine version, contract version and installed layouts as JSON |
-| `openbooks doctor` | installation checks (with `openbooks-doctor` installed) |
+| `openbooks doctor` | installation checks |
 
 Options for `run` and `report`:
 
@@ -184,7 +185,7 @@ $ echo $?
 from decimal import Decimal
 from pathlib import Path
 
-from openbooks_core import Params, process
+from openbooks import Params, process
 
 doc = process(Path("statement.csv"), Params(currency="INR", opening=Decimal("1000.00")))
 
@@ -198,9 +199,9 @@ else:
 `Params` fields: `currency`, `opening` (a `Decimal`, not a string), `account`, `allow_derived_opening`, `ocr` (default `True`),
 `model` (default `False`), `date_order` (`"dmy"`, `"mdy"` or `None`).
 
-Other public names in `openbooks_core`: `validate_output`, `load_schema`, `SCHEMA_VERSION`, `Refusal`, `ProviderMissing`,
-`EngineFault`, `Registry`, `default_registry`, and the normalisers `to_dec`, `to_date`, `date_order`, `money`, `fmt`.
-Existing code that does `from openbooks.pipeline import process, Params` keeps working with the `openbooks` meta package.
+Other public names in `openbooks` (the same objects as in `openbooks.core`): `validate_output`, `load_schema`, `SCHEMA_VERSION`,
+`Refusal`, `ProviderMissing`, `EngineFault`, `Registry`, `default_registry`, and the normalisers `to_dec`, `to_date`,
+`date_order`, `money`, `fmt`. Existing code that does `from openbooks.pipeline import process, Params` keeps working.
 
 ## Output
 
@@ -247,20 +248,20 @@ Refusal codes:
 | Code | Meaning |
 |---|---|
 | `BALANCE_MISMATCH` | the document's own numbers do not tie (balance chain, totals, per-row arithmetic) |
-| `UNKNOWN_LAYOUT` | no known layout matches, or it matches a layout whose provider package is not installed (the message names the package) |
+| `UNKNOWN_LAYOUT` | no known layout matches, or it matches a layout whose provider is not registered (a broken install; the message says so) |
 | `UNSUPPORTED_INPUT` | the file type, size (over 20 MB), encoding or structure is not accepted (for example an encrypted PDF, a rotated text layer) |
 | `PARSE_ERROR` | the layout matched but a value could not be read safely (ambiguous date, malformed amount, missing column) |
 | `LOW_CONFIDENCE` | OCR confidence or the typed heads did not support a confident reading |
 | `OUTPUT_INVALID` | the built document failed the `openbooks.v1` JSON Schema or a required gate was missing |
 
 An unexpected internal error is also refused (`PARSE_ERROR`) and marked `error.internal: true`.
-The JSON Schemas ship inside `openbooks-core` (`openbooks_core/schema/openbooks.v1.schema.json` and
-`openbooks.v1.refusal.schema.json`); load them with `openbooks_core.load_schema()`.
+The JSON Schemas ship inside the package (`openbooks/core/schema/openbooks.v1.schema.json` and
+`openbooks.v1.refusal.schema.json`); load them with `openbooks.load_schema()`.
 
 ## The typed-head model (`--model`)
 
-`openbooks-statements` ships a small calibrated model (`roles_head.pt`, about 19 MB) with its calibration and model card inside the
-wheel under `openbooks_statements/data/`. With `[scan]` installed, `openbooks run statement.pdf --model` cross-checks the column
+The package ships a small calibrated model (`roles_head.pt`, about 19 MB) with its calibration and model card inside the
+wheel under `openbooks/statements/data/`. With `[scan]` installed, `openbooks run statement.pdf --model` cross-checks the column
 assignment. The heads can only add refusals (`LOW_CONFIDENCE`); the balance gate always has the last word.
 
 - The calibration names the sha256 of the exact weights it was fitted on; a mismatch refuses to load.
@@ -273,38 +274,29 @@ assignment. The heads can only add refusals (`LOW_CONFIDENCE`); the balance gate
 
 | Symptom | Fix |
 |---|---|
-| exit code `3` and "PDF and image statements need pypdfium2" | `pip install "openbooks-statements[pdf]"` (included in `pip install openbooks`) |
+| exit code `3` and "PDF and image statements need pypdfium2" | `pip install --force-reinstall openbooks` (pypdfium2 is a base dependency) |
 | exit code `3` on a scan or with `--model` | `pip install "openbooks[scan]"` |
-| `UNKNOWN_LAYOUT` naming a package | install that package, for example `pip install openbooks-gateways` |
+| `UNKNOWN_LAYOUT` saying a provider is not registered | `pip install --force-reinstall openbooks` |
 | `PARSE_ERROR` about date order | pass `--date-order dmy` or `--date-order mdy` |
 | a bank file without a stated opening balance is refused (`PARSE_ERROR`) | pass `--opening AMOUNT`, or `--allow-derived-opening` |
-| `versions.lockstep` fails in doctor | upgrade all packages together: `pip install --upgrade openbooks` |
+| `install.retired` warns in doctor | the 0.1 split packages are still installed; see [Upgrading from 0.1](#upgrading-from-01) |
+| `ModuleNotFoundError: openbooks_core` | 0.1 import names; use `openbooks` / `openbooks.core` (see the table above) |
 | `ERROR: ... requires a different Python` | use Python 3.11 or newer |
 
 ## Releasing a new version (maintainers)
 
-Publishing is automated by `.github/workflows/publish-pypi.yml` with PyPI Trusted Publishing (no tokens). Each PyPI project trusts
-`Sagexd08/OpenBooks`, workflow `publish-pypi.yml`, and its own GitHub environment:
+Publishing is automated by `.github/workflows/publish-pypi.yml` with PyPI Trusted Publishing (no tokens). The PyPI project
+`openbooks` trusts `Sagexd08/OpenBooks`, workflow `publish-pypi.yml`, environment `pypi-openbooks`.
 
-| Project | Environment |
-|---|---|
-| openbooks-core | `pypi` |
-| openbooks-statements | `pypi-statements` |
-| openbooks-gateways | `pypi-gateways` |
-| openbooks-tax | `pypi-tax` |
-| openbooks-doctor | `pypi-doctor` |
-| openbooks | `pypi-openbooks` |
-
-1. Bump the version in every `packages/py/openbooks-*/src/openbooks_*/_version.py`, and the `version` and the `==` pins in
-   `packages/py/openbooks/pyproject.toml`. All six must match (the workflow checks).
-2. Build and check locally: `python -m build --sdist --wheel packages/py/<name>` per package, `twine check --strict dist/*`, and
+1. Bump the version in `packages/py/openbooks/src/openbooks/_version.py`.
+2. Build and check locally: `python -m build --sdist --wheel packages/py/openbooks`, `twine check --strict dist/*`, and
    `OB_PACKAGING=1 python -m pytest tests/packaging`.
-3. Commit, push, then tag: `git tag py-vX.Y.Z && git push origin py-vX.Y.Z`. The workflow builds, checks and uploads in dependency
-   order (core first, the `openbooks` meta package last).
+3. Commit, push, then tag: `git tag py-vX.Y.Z && git push origin py-vX.Y.Z`. The workflow checks that the tag matches the
+   version, builds, checks and uploads.
 
 A version can never be uploaded twice. To withdraw a bad release, yank it on PyPI and publish the next version.
 
 ## Licence
 
-Apache License 2.0 for all six packages and the shipped model files. Dependencies keep their own licences; all are permissive
+Apache License 2.0 for the package and the shipped model files. Dependencies keep their own licences; all are permissive
 except `python-bidi` (LGPL), pulled in by EasyOCR under the optional `[scan]` extra.

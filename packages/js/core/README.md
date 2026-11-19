@@ -6,7 +6,7 @@ JavaScript: this package runs the Python engine as a child process and validates
 the engine uses.
 
 ```bash
-pip install openbooks            # the engine (Python 3.11+); or openbooks-core plus the provider packages you need
+pip install openbooks            # the engine (Python 3.11+)
 npm install @lumeo_hq/openbooks-core
 ```
 

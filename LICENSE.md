@@ -5,7 +5,7 @@ This is Lumeo's private repository. It contains two kinds of material.
 **Open packages: Apache License 2.0.** Everything under these directories is licensed under the Apache License, Version 2.0
 (the `LICENSE` file in each directory is the licence text):
 
-- `packages/py/openbooks-core`, `openbooks-gateways`, `openbooks-tax`, `openbooks-statements`, `openbooks-doctor`, `openbooks`
+- `packages/py/openbooks`
 - `packages/js/*`
 - the model files `models/roles_head.pt`, `models/roles_calibration.json` and `models/roles_model_card.json`
 

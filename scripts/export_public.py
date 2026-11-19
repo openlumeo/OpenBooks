@@ -23,10 +23,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # Nothing is public unless it is listed here.
 INCLUDE = [
-    "packages/py/openbooks-core/**", "packages/py/openbooks-gateways/**", "packages/py/openbooks-tax/**",
-    "packages/py/openbooks-statements/**", "packages/py/openbooks-doctor/**", "packages/py/openbooks/**",
+    "packages/py/openbooks/**",
     "packages/js/**",
-    "models/roles_head.pt", "models/roles_calibration.json", "models/roles_model_card.json",  # the statements wheel ships these
+    "models/roles_head.pt", "models/roles_calibration.json", "models/roles_model_card.json",  # the openbooks wheel ships these
     "tests/packaging/**", "tests/test_cli_machine.py", "tests/test_model_card.py",
 ]
 # Never copied even when an include matches.

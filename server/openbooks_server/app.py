@@ -12,9 +12,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import JSONResponse, Response, StreamingResponse
-from openbooks_core.errors import Refusal
-from openbooks_core.schema import SCHEMA_VERSION, validate_output
-from openbooks_statements.assets import ModelUnavailable
+from openbooks.core.errors import Refusal
+from openbooks.core.schema import SCHEMA_VERSION, validate_output
+from openbooks.statements.assets import ModelUnavailable
 
 from .catalog import Samples, formats, health, installed_linker, load_model, model_status
 from .runs import MAX_FILES, Run, parse_params

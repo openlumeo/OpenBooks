@@ -6,8 +6,8 @@
     python scripts/setup.py --no-js      # Python only
     python scripts/setup.py --dry-run    # print the commands, run nothing
 
-Python packages are installed editable in ONE pip call so the local copies satisfy the
-`==0.1.0` pins of the `openbooks` meta package instead of being fetched from PyPI.
+Python packages are installed editable in ONE pip call, so the private lab and the server resolve
+`openbooks` to the local copy instead of fetching it from PyPI.
 Installing (not PYTHONPATH) is required: layouts register through entry points.
 """
 from __future__ import annotations
@@ -23,11 +23,6 @@ PY = ROOT / "packages" / "py"
 
 # Order is cosmetic; pip resolves them together.
 PY_PACKAGES = [
-    PY / "openbooks-core",
-    PY / "openbooks-gateways",
-    PY / "openbooks-tax",
-    PY / "openbooks-statements",
-    PY / "openbooks-doctor",
     PY / "openbooks-lab",
     PY / "openbooks",
     ROOT / "server",
@@ -57,8 +52,7 @@ def main() -> int:
         pip = [sys.executable, "-m", "pip", "install"]
         for p in PY_PACKAGES:
             name = p.name
-            extra = "[pdf,scan]" if name == "openbooks-statements" and args.scan else (
-                "[pdf]" if name == "openbooks-statements" else "")
+            extra = "[scan]" if name == "openbooks" and args.scan else ""
             pip += ["-e", f"{p}{extra}"]
         run(pip, ROOT, args.dry_run)
 

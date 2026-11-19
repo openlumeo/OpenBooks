@@ -1,4 +1,4 @@
-import { EngineError, findEngine, runProcess, type DiscoverOptions } from "@lumeo_hq/openbooks-core";
+import { EngineError, engineCommand, findEngine, runProcess, type DiscoverOptions } from "@lumeo_hq/openbooks-core";
 
 export type DoctorStatus = "pass" | "warn" | "fail" | "skip";
 
@@ -45,9 +45,9 @@ function nodeCheck(): DoctorCheck {
  */
 export async function runDoctor(opts: DoctorOptions = {}): Promise<DoctorReport> {
   const checks: DoctorCheck[] = [nodeCheck()];
-  let python: string[];
+  let command: string[];
   try {
-    python = (await findEngine(opts)).python;
+    command = engineCommand(await findEngine(opts));
   } catch (e) {
     if (e instanceof EngineError && ["python_not_found", "engine_not_installed", "engine_version"].includes(e.kind)) {
       checks.push({ id: `engine.${e.kind}`, status: "fail", detail: e.message, ...(e.hint ? { fix: e.hint } : {}) });
@@ -55,10 +55,10 @@ export async function runDoctor(opts: DoctorOptions = {}): Promise<DoctorReport>
     }
     throw e;
   }
-  const argv = [...python, "-m", "openbooks_core", "doctor", "--json", ...(opts.deep ? ["--deep"] : [])];
+  const argv = [...command, "doctor", "--json", ...(opts.deep ? ["--deep"] : [])];
   const r = await runProcess(argv, { timeoutMs: opts.timeoutMs ?? 180_000 });
   if (r.code === 2 && /invalid choice/.test(r.stderr)) {
-    checks.push({ id: "doctor.installed", status: "fail", detail: "the Python engine is installed but openbooks-doctor is not", fix: "pip install openbooks-doctor" });
+    checks.push({ id: "doctor.installed", status: "fail", detail: "the Python engine is installed but its doctor command is not", fix: "pip install --force-reinstall openbooks" });
     return report(checks, opts.strict ?? false);
   }
   if (r.code !== 0 && r.code !== 1) {

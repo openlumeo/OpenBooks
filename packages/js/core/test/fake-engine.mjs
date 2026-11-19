@@ -1,4 +1,4 @@
-// A stand-in for `python`: invoked as `node fake-engine.mjs -m openbooks_core <command> ...` and misbehaving on demand
+// A stand-in for `python`: invoked as `node fake-engine.mjs -m openbooks <command> ...` and misbehaving on demand
 // (FAKE_MODE) so the wrapper's error handling can be tested without breaking a real engine.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -7,11 +7,11 @@ import { basename, dirname, join } from "node:path";
 const args = process.argv.slice(2);
 const mode = process.env.FAKE_MODE ?? "ok";
 const cmd = args[2];
-const info = { name: "openbooks-core", version: "0.0.0-fake", schema_version: "openbooks.v1", layout_api: mode === "old" ? 0 : 1,
+const info = { name: "openbooks", version: "0.0.0-fake", schema_version: "openbooks.v1", layout_api: mode === "old" ? 0 : 1,
                python: "3.12.0", layouts: [], known_layouts: [], frontends: [], linker: false };
 
 if (cmd === "engine-info") {
-  if (mode === "no_module") { console.error("No module named openbooks_core"); process.exit(1); }
+  if (mode === "no_module") { console.error("No module named openbooks"); process.exit(1); }
   console.log(JSON.stringify(info));
   process.exit(0);
 }

@@ -7,8 +7,8 @@ from pathlib import Path
 import torch
 
 import train_roles as tr
-from openbooks_statements.assets import ModelUnavailable
-from openbooks_statements.roles import RoleModel
+from openbooks.statements.assets import ModelUnavailable
+from openbooks.statements.roles import RoleModel
 from role_candidates import sha256, split_sha256, write_json
 
 

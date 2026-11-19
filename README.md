@@ -39,12 +39,11 @@ cd OpenBooks
 python scripts/setup.py            # add --scan for OCR + typed heads, --no-js for Python only, --dry-run to preview
 ```
 
-Just the engine, from PyPI: `pip install openbooks`. Or install piece by piece from the checkout:
+Just the engine, from PyPI: `pip install openbooks`. Or install from the checkout:
 
 ```bash
-pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax \
-            -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks   # CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
-pip install -e "packages/py/openbooks-statements[scan]"                    # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
+pip install -e packages/py/openbooks                                       # CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
+pip install -e "packages/py/openbooks[scan]"                               # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
 pip install -e packages/py/openbooks-lab                                   # private: training, tests and optional payout matching
 ```
 
@@ -93,8 +92,7 @@ else:
 A batch workspace (Open Books by Lumeo) lives in `web/`, backed by the engine service in `server/`. Attach files or try a synthetic sample, run the checks, and review the released, refused, and interrupted files in the batch. Inspect a released file’s checks and source evidence before downloading its JSON. Retry interrupted files and recoverable refusals from the result card. With a configured OpenRouter model that supports tool calls, you can ask questions about the released documents. Code computes the totals.
 
 ```bash
-pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" \
-            -e packages/py/openbooks-doctor -e packages/py/openbooks -e server
+pip install -e packages/py/openbooks -e server   # engine + engine service (FastAPI); add -e packages/py/openbooks-lab for payout matching
 cd web && pnpm install
 cp .env.example .env.local                 # optional: OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL for questions
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
@@ -183,12 +181,13 @@ Evidence files are in [docs/evidence/](docs/evidence/). Reproduce the family num
 ## Repository layout
 
 ```
-packages/py/openbooks-core/   the openbooks.v1 contract, normalisation, gates, layout registry, CLI (depends only on jsonschema)
-packages/py/openbooks-gateways/   Stripe, Razorpay, PayPal, Wise (depends only on core)
-packages/py/openbooks-tax/        26AS, AIS, FIRA, 1099-B, trial balance (depends only on core; experimental layouts)
-packages/py/openbooks-statements/   bank CSV, OFX, MT940 (pure Python); [pdf] PDFs; [scan] OCR and the typed heads with their weights
-packages/py/openbooks-doctor/   `openbooks doctor`: dependency, provider, model-integrity and self-test checks (human or --json, exit codes 0/1/2/3)
-packages/py/openbooks/        meta package: installs the stack and keeps `openbooks.pipeline` importable
+packages/py/openbooks/        the one public Python package (pip install openbooks):
+  src/openbooks/core/         the openbooks.v1 contract, normalisation, gates, layout registry, CLI
+  src/openbooks/statements/   bank CSV, OFX, MT940, PDFs; [scan] OCR and the typed heads with their weights
+  src/openbooks/gateways/     Stripe, Razorpay, PayPal, Wise
+  src/openbooks/tax/          26AS, AIS, FIRA, 1099-B, trial balance (experimental layouts)
+  src/openbooks/doctor/       `openbooks doctor`: dependency, provider, model-integrity and self-test checks (human or --json, exit codes 0/1/2/3)
+  src/openbooks/pipeline.py   the 0.1 compatibility facade
 packages/py/openbooks-lab/    PRIVATE, never published: synthetic data, golden-set builders, calibration fitting, payout matching
 scripts/         training, calibration, promotion gate, evaluation, baselines
 tests/           pytest suite (set OB_SLOW=1 for the slow tests)
@@ -211,8 +210,8 @@ docs/            architecture, format catalog, dataset notes, evidence
 ## Develop
 
 ```bash
-pip install -e packages/py/openbooks-core -e "packages/py/openbooks[scan]" -e server pytest hypothesis httpx
-OB_SLOW=1 python -m pytest -q tests packages/py/openbooks-core/tests server/tests   # full suite
+pip install -e "packages/py/openbooks[scan]" -e packages/py/openbooks-lab -e server pytest hypothesis httpx
+OB_SLOW=1 python -m pytest -q tests packages/py/openbooks/tests server/tests   # full suite
 python tests/characterise/run.py verify              # behaviour frozen before the package split (868 results)
 python scripts/family_baseline.py                   # unseen-family baseline
 python scripts/train_roles.py 1200 150 12 --out out/roles/candidate-01

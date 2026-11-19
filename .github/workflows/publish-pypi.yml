@@ -1,12 +1,10 @@
 name: publish-pypi
 
-# Publishes the six public Python packages to PyPI with Trusted Publishing (OIDC): no tokens in the repo or in secrets.
-# Each PyPI project lists Sagexd08/OpenBooks, this workflow file (publish-pypi.yml) and its own GitHub environment as its trusted
-# publisher (PyPI accepts one pending publisher per repo + workflow + environment, hence one environment per package):
-#   openbooks-core -> pypi, openbooks-statements -> pypi-statements, openbooks-gateways -> pypi-gateways,
-#   openbooks-tax -> pypi-tax, openbooks-doctor -> pypi-doctor, openbooks -> pypi-openbooks
-# The jobs run in dependency order; a job whose publisher is not registered yet fails and stops the ones after it, and
-# "Re-run failed jobs" picks up from there with the same built files. A PyPI version can never be re-uploaded, only yanked.
+# Publishes the `openbooks` Python package to PyPI with Trusted Publishing (OIDC): no tokens in the repo or in secrets.
+# The PyPI project `openbooks` lists Sagexd08/OpenBooks, this workflow file (publish-pypi.yml) and the GitHub environment
+# `pypi-openbooks` as its trusted publisher. A PyPI version can never be re-uploaded, only yanked.
+# Until 0.1.0 the engine was split across six distributions (openbooks-core, -statements, -gateways, -tax, -doctor and the
+# openbooks meta package); since 0.2.0 everything ships in `openbooks` and the five others are no longer released.
 
 on:
   push:
@@ -25,82 +23,20 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install build twine
-      - name: Every package carries the same version (and the tag's, when there is one)
+      - name: The tag matches the package version, when there is a tag
         run: |
-          versions=$(cat packages/py/openbooks-*/src/openbooks_*/_version.py | sed -E 's/.*"(.*)".*/\1/' | sort -u)
-          meta=$(sed -nE 's/^version = "(.*)"/\1/p' packages/py/openbooks/pyproject.toml)
-          echo "packages: $versions, meta: $meta"
-          test "$(echo "$versions" | wc -l)" -eq 1 && test "$versions" = "$meta"
-          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then test "${GITHUB_REF_NAME#py-v}" = "$meta"; fi
-      - name: Build sdist and wheel per package
-        run: |
-          for p in openbooks-core openbooks-gateways openbooks-tax openbooks-statements openbooks-doctor openbooks; do
-            python -m build --sdist --wheel --outdir dist/$p packages/py/$p
-          done
-      - run: twine check --strict dist/*/*
+          version=$(sed -E 's/.*"(.*)".*/\1/' packages/py/openbooks/src/openbooks/_version.py)
+          echo "openbooks $version"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then test "${GITHUB_REF_NAME#py-v}" = "$version"; fi
+      - run: python -m build --sdist --wheel --outdir dist packages/py/openbooks
+      - run: twine check --strict dist/*
       - uses: actions/upload-artifact@v4
         with:
           name: python-dists
           path: dist/
 
-  core:
+  publish:
     needs: build
-    runs-on: ubuntu-latest
-    environment: { name: pypi, url: "https://pypi.org/project/openbooks-core/" }
-    permissions: { id-token: write }
-    steps:
-      - uses: actions/download-artifact@v4
-        with: { name: python-dists, path: dist/ }
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with: { packages-dir: dist/openbooks-core/ }
-
-  statements:
-    needs: core
-    runs-on: ubuntu-latest
-    environment: { name: pypi-statements, url: "https://pypi.org/project/openbooks-statements/" }
-    permissions: { id-token: write }
-    steps:
-      - uses: actions/download-artifact@v4
-        with: { name: python-dists, path: dist/ }
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with: { packages-dir: dist/openbooks-statements/ }
-
-  gateways:
-    needs: core
-    runs-on: ubuntu-latest
-    environment: { name: pypi-gateways, url: "https://pypi.org/project/openbooks-gateways/" }
-    permissions: { id-token: write }
-    steps:
-      - uses: actions/download-artifact@v4
-        with: { name: python-dists, path: dist/ }
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with: { packages-dir: dist/openbooks-gateways/ }
-
-  tax:
-    needs: core
-    runs-on: ubuntu-latest
-    environment: { name: pypi-tax, url: "https://pypi.org/project/openbooks-tax/" }
-    permissions: { id-token: write }
-    steps:
-      - uses: actions/download-artifact@v4
-        with: { name: python-dists, path: dist/ }
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with: { packages-dir: dist/openbooks-tax/ }
-
-  doctor:
-    needs: core
-    runs-on: ubuntu-latest
-    environment: { name: pypi-doctor, url: "https://pypi.org/project/openbooks-doctor/" }
-    permissions: { id-token: write }
-    steps:
-      - uses: actions/download-artifact@v4
-        with: { name: python-dists, path: dist/ }
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with: { packages-dir: dist/openbooks-doctor/ }
-
-  meta:
-    # Last, so `pip install openbooks` never resolves against a provider that is not on PyPI yet.
-    needs: [statements, gateways, tax, doctor]
     runs-on: ubuntu-latest
     environment: { name: pypi-openbooks, url: "https://pypi.org/project/openbooks/" }
     permissions: { id-token: write }
@@ -108,4 +44,4 @@ jobs:
       - uses: actions/download-artifact@v4
         with: { name: python-dists, path: dist/ }
       - uses: pypa/gh-action-pypi-publish@release/v1
-        with: { packages-dir: dist/openbooks/ }
+        with: { packages-dir: dist/ }

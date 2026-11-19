@@ -16,9 +16,9 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from openbooks.pipeline import ALLOWED_EXT, MAX_BYTES, SCHEMA_VERSION
-from openbooks_core.errors import PluginLoadError
-from openbooks_core.registry import default_registry
-from openbooks_statements.assets import CALIBRATION_NAME, MODELS_DIR, WEIGHTS_NAME, ModelUnavailable
+from openbooks.core.errors import PluginLoadError
+from openbooks.core.registry import default_registry
+from openbooks.statements.assets import CALIBRATION_NAME, MODELS_DIR, WEIGHTS_NAME, ModelUnavailable
 
 WEIGHTS = MODELS_DIR / WEIGHTS_NAME
 CALIBRATION = MODELS_DIR / CALIBRATION_NAME
@@ -30,7 +30,7 @@ def load_model(weights: Path = WEIGHTS, calibration: Path = CALIBRATION):
             raise ModelUnavailable(f"Missing model weights ({WEIGHTS_NAME}). Check OPENBOOKS_MODELS_DIR.")
         if not calibration.is_file():
             raise ModelUnavailable(f"Missing model calibration ({CALIBRATION_NAME}). Check OPENBOOKS_MODELS_DIR.")
-        from openbooks_statements.roles import RoleModel
+        from openbooks.statements.roles import RoleModel
     except (ImportError, OSError, RuntimeError) as e:
         raise ModelUnavailable('Cannot import the model runtime. Install or repair "openbooks[scan]".') from e
     model = RoleModel.load(weights, calibration)
