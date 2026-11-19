@@ -20,12 +20,30 @@ Accounting automation fails quietly: a misread digit, a swapped debit and credit
 
 ## Install
 
-Requires Python 3.11 or newer.
+Requires Python 3.11 or newer (and Node 20+ with pnpm for the JS packages and web app).
+
+**Just use it** (no checkout): one command installs all the JS packages and the Python engine behind them.
+
+```bash
+npm i -g @lumeo_hq/openbooks      # or: npm i @lumeo_hq/openbooks   inside a project
+openbooks statement.csv --currency INR --opening 1000.00      # no subcommand needed (same as: openbooks run ...)
+```
+
+The install step runs `pip install openbooks` for you (needs Python 3.11+ on the machine). If that step is skipped (`--ignore-scripts`, `OPENBOOKS_SKIP_PYTHON=1`, pnpm's build-script approval, or a Python that refuses global installs), run `openbooks install-engine` (add `--scan` for OCR). `openbooks doctor` checks the result.
+
+**From a source checkout, one command, everything** (all Python packages, the engine service, the JS workspace and the web app):
 
 ```bash
 git clone https://github.com/Sagexd08/OpenBooks.git
 cd OpenBooks
-pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax \n            -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks   # CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
+python scripts/setup.py            # add --scan for OCR + typed heads, --no-js for Python only, --dry-run to preview
+```
+
+Just the engine, from PyPI: `pip install openbooks`. Or install piece by piece from the checkout:
+
+```bash
+pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax \
+            -e "packages/py/openbooks-statements[pdf]" -e packages/py/openbooks   # CSV, OFX, MT940, gateways, tax, XLSX, text-layer PDFs
 pip install -e "packages/py/openbooks-statements[scan]"                    # adds OCR for scans and the optional typed heads (EasyOCR, PyTorch, Pillow)
 pip install -e packages/py/openbooks-lab                                   # private: golden-set builders, synthetic data, training, matching (needed for tests and the web app)
 ```
@@ -75,7 +93,8 @@ else:
 A conversation-style workspace (Open Books by Lumeo) lives in `web/`, backed by a small engine service in `server/`. Drop files into a thread, watch each one go through Detect, Parse, Normalise and Balance, and get one released document or a typed refusal per file, with the checks, per-field evidence and JSON on every card. With an OpenRouter API key (any open-weights model that supports tool calls) you can then ask questions about the released documents. Totals in answers are computed by code, never by the model.
 
 ```bash
-pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" \n            -e packages/py/openbooks-lab -e packages/py/openbooks -e server   # engine + engine service (FastAPI)
+pip install -e packages/py/openbooks-core -e packages/py/openbooks-gateways -e packages/py/openbooks-tax -e "packages/py/openbooks-statements[pdf]" \
+            -e packages/py/openbooks-lab -e packages/py/openbooks -e server   # engine + engine service (FastAPI)
 cd web && pnpm install
 cp .env.example .env.local                 # optional: OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL for questions
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000

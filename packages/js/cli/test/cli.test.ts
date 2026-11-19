@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -35,6 +36,21 @@ describe.skipIf(!python)("openbooks CLI with the real engine", () => {
     const c = capture();
     expect(await main(["run", file("a.csv", BANK), ...base], c.io)).toBe(EXIT.ok);
     expect(c.out()).toContain("a.csv: released bank_csv.v1");
+  });
+
+  it("runs files without the run subcommand, also for a family", async () => {
+    const c = capture();
+    expect(await main([file("d.csv", BANK), ...base], c.io)).toBe(EXIT.ok);
+    expect(c.out()).toContain("d.csv: released bank_csv.v1");
+    const f = capture();
+    expect(await main(["gateways", file("e.csv", BANK), ...base], f.io)).toBe(EXIT.refused);
+    expect(f.out()).toContain("refused");
+  });
+
+  it("still dispatches real subcommands ahead of the default", async () => {
+    const c = capture();
+    expect(await main(["engine-info", "--python", python ?? ""], c.io)).toBe(EXIT.ok);
+    expect(c.out()).toContain("openbooks.v1");
   });
 
   it("exits 1 when something is refused, and still prints the rest", async () => {
@@ -80,7 +96,7 @@ describe.skipIf(!python)("openbooks CLI with the real engine", () => {
     expect(await main(["run"], capture().io)).toBe(EXIT.usage);
     expect(await main(["run", file("h.csv", BANK), "--date-order", "ymd", ...base], capture().io)).toBe(EXIT.usage);
     expect(await main(["run", file("i.csv", BANK), "--timeout", "soon", ...base], capture().io)).toBe(EXIT.usage);
-    expect(await main(["frobnicate"], capture().io)).toBe(EXIT.usage);
+    expect(await main([], capture().io)).toBe(EXIT.usage);
   });
 
   it("--help exits 0", async () => {
@@ -133,5 +149,26 @@ describe("doctor wrapper", () => {
     process.env.FAKE_MODE = "no_module";
     const rep = await runDoctor({ python: [process.execPath, fake] });
     expect(rep.checks.find((c) => c.id === "engine.engine_not_installed")?.fix).toContain("pip install");
+  });
+});
+
+describe("install-engine", () => {
+  it("fails with exit 3 and a hint when there is no usable Python, without throwing", async () => {
+    const c = capture();
+    expect(await main(["install-engine", "--python", join(work, "no-such-python")], c.io)).toBe(EXIT.engine);
+    expect(c.err()).toContain("no Python interpreter was found");
+    expect(c.err()).toContain("python.org");
+  });
+
+  it.skipIf(!python)("does nothing when a working engine is already installed", async () => {
+    const c = capture();
+    expect(await main(["install-engine", "--python", python ?? ""], c.io)).toBe(EXIT.ok);
+    expect(c.out()).toContain("already installed");
+  });
+
+  it("the postinstall hook never fails the npm install and does nothing in a source checkout", () => {
+    const r = spawnSync(process.execPath, [join(here, "../scripts/postinstall.mjs")], { encoding: "utf8" });
+    expect(r.status).toBe(0);
+    expect(r.stdout).toBe("");
   });
 });
