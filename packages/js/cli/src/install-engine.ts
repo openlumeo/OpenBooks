@@ -49,7 +49,7 @@ export async function installEngine(opts: InstallOptions = {}): Promise<InstallR
   const log = opts.log ?? (() => {});
   const range = engineRange();
 
-  if (!opts.force) {
+  if (!opts.force && !opts.scan) { // --scan adds an extra to an existing engine, so it always runs pip (which is a no-op when nothing is missing)
     try {
       const e = await findEngine(opts.python ? { python: opts.python } : {});
       return { status: "present", detail: `the Open Books engine ${e.info.version} is already installed` };
