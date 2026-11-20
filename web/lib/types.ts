@@ -123,6 +123,7 @@ export type Health = {
   engine_version: string;
   schema_version: string;
   ocr_available: boolean;
+  ocr_issue?: string | null;
   /** true only when a --model run would load (weights, matching calibration, PyTorch) */
   model_weights_present: boolean;
   model_issue?: string | null;
@@ -156,6 +157,7 @@ export type RoleName = "other" | "date" | "desc" | "debit" | "credit" | "balance
 
 export type RoleToken = {
   text: string;
+  ocr_confidence?: number | null;
   /** [x0, y0, x1, y1] as fractions of the page, origin top-left */
   box: [number, number, number, number];
   role: RoleName;

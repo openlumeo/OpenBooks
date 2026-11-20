@@ -6,7 +6,6 @@ parser without listing it here (or listing one that does not exist) fails the bu
 """
 from __future__ import annotations
 
-import importlib.util
 import io
 import json
 from functools import cached_property
@@ -16,9 +15,10 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from openbooks.pipeline import ALLOWED_EXT, MAX_BYTES, SCHEMA_VERSION
-from openbooks.core.errors import PluginLoadError
+from openbooks.core.errors import EngineFault, PluginLoadError
 from openbooks.core.registry import default_registry
 from openbooks.statements.assets import CALIBRATION_NAME, MODELS_DIR, WEIGHTS_NAME, ModelUnavailable
+from openbooks.statements.pdf_front import ocr_runtime
 
 WEIGHTS = MODELS_DIR / WEIGHTS_NAME
 CALIBRATION = MODELS_DIR / CALIBRATION_NAME
@@ -108,11 +108,17 @@ def engine_version() -> str:
 
 def health() -> dict:
     model = model_status()
+    ocr_issue = None
+    try:
+        ocr_runtime()
+    except EngineFault as e:
+        ocr_issue = str(e)
     return {
         "status": "ok",
         "engine_version": engine_version(),
         "schema_version": SCHEMA_VERSION,
-        "ocr_available": importlib.util.find_spec("easyocr") is not None,
+        "ocr_available": ocr_issue is None,
+        "ocr_issue": ocr_issue,
         **model,
         "model_weights_present": model["model_ready"],  # compatibility with older clients
         "link_available": installed_linker() is not None,

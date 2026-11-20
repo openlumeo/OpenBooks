@@ -1,6 +1,6 @@
 {
   "name": "@lumeo_hq/openbooks-doctor",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Open Books doctor wrapper: typed access to the Python engine, restricted to the doctor layouts",
   "license": "Apache-2.0",
   "type": "module",

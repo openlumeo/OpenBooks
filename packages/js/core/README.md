@@ -32,4 +32,6 @@ Python is found from `options.python`, then `OPENBOOKS_PYTHON`, then `./.venv`, 
 to diagnose an installation. Money is never a JavaScript number: pass `opening` as a string.
 
 Options: `currency`, `opening`, `account`, `allowDerivedOpening`, `dateOrder` (`"dmy" | "mdy"`), `ocr`, `model`, `runTimeoutMs`
+
+PDF and image runs cross-check with the local model by default and require the Python `openbooks[scan]` extra. Set `model: false` to skip the cross-check.
 (default 120000), `maxOutputBytes`, `signal`, `accept` (release only these layouts), `python`.

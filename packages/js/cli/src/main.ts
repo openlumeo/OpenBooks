@@ -43,6 +43,7 @@ function addRunOptions(c: Command): Command {
     .option("--date-order <order>", "day/month order of numeric dates: dmy or mdy")
     .option("--no-ocr", "refuse scans instead of running OCR")
     .option("--model", "cross-check PDFs and scans with the typed model heads")
+    .option("--no-model", "skip the model cross-check for PDFs and scans")
     .option("--out <dir>", "also write each document, named <sha256>.json, into this directory")
     .option("--json", "print the results as JSON instead of one line per file")
     .option("--python <path>", "the Python interpreter that has Open Books installed (default: OPENBOOKS_PYTHON, ./.venv, then the system Python)")
@@ -58,7 +59,7 @@ function toOptions(f: RunFlags): RunOptions {
   if (f.allowDerivedOpening) o.allowDerivedOpening = true;
   if (f.dateOrder) o.dateOrder = f.dateOrder;
   if (f.ocr === false) o.ocr = false;
-  if (f.model) o.model = true;
+  if (f.model !== undefined) o.model = f.model;
   if (f.python) o.python = f.python;
   if (f.timeout !== undefined) {
     const n = Number(f.timeout);

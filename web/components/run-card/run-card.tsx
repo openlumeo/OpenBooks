@@ -12,6 +12,7 @@ import { AssertionsTab } from "./assertions-tab";
 import { EvidenceTab } from "./evidence-tab";
 import { JsonTab, docText } from "./json-tab";
 import { RefusalFix } from "./refusal-fix";
+import { ModelReading } from "./model-reading";
 
 type Tab = "data" | "checks" | "evidence" | "json";
 const TABS: { id: Tab; label: string }[] = [
@@ -43,7 +44,8 @@ export function RunCard({
   const base = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const doc = file.doc;
-  const available = !!recallFile(run.sourceTurnId, file.index);
+  const sourceFile = recallFile(run.sourceTurnId, file.index);
+  const available = !!sourceFile;
 
   const onTabKey = (e: KeyboardEvent, i: number) => {
     const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
@@ -186,6 +188,10 @@ export function RunCard({
               {tab === "json" && <JsonTab doc={doc} name={file.name} />}
             </div>
           </>
+        )}
+
+        {doc && sourceFile && /\.(pdf|png|jpe?g)$/i.test(sourceFile.name) && (
+          <ModelReading file={sourceFile} params={file.params} disabled={recoveryDisabled} />
         )}
 
         {doc && (

@@ -1,0 +1,5 @@
+services:
+  web:
+    environment:
+      OPENBOOKS_ENGINE_URL: ${OPENBOOKS_REMOTE_ENGINE_URL:?Set the private inference endpoint}
+    depends_on: !reset {}

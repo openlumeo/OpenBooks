@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { clearEngineCache, EngineError, findEngine, runProcess } from "@lumeo_hq/openbooks-core";
 
 export interface InstallOptions {
@@ -27,7 +28,9 @@ export function engineRange(): string {
 function pythonCandidates(explicit?: string): string[][] {
   const given = explicit ?? process.env.OPENBOOKS_PYTHON;
   if (given) return [[given]];
-  return process.platform === "win32" ? [["py", "-3"], ["python"]] : [["python3"], ["python"]];
+  const win = process.platform === "win32";
+  const venv = win ? join(process.cwd(), ".venv", "Scripts", "python.exe") : join(process.cwd(), ".venv", "bin", "python");
+  return [...(existsSync(venv) ? [[venv]] : []), ...(win ? [["python"], ["py", "-3"]] : [["python3"], ["python"]])];
 }
 
 /** The first interpreter that is Python 3.11 or newer, or why none was. */
@@ -48,18 +51,23 @@ async function pickPython(explicit?: string): Promise<{ python: string[] } | { p
 export async function installEngine(opts: InstallOptions = {}): Promise<InstallResult> {
   const log = opts.log ?? (() => {});
   const range = engineRange();
+  const versionPrefix = range.slice(2, -1);
+  let existingPython: string[] | undefined;
 
   if (!opts.force && !opts.scan) { // --scan adds an extra to an existing engine, so it always runs pip (which is a no-op when nothing is missing)
     try {
       const e = await findEngine(opts.python ? { python: opts.python } : {});
-      return { status: "present", detail: `the Open Books engine ${e.info.version} is already installed` };
+      if (e.info.version.startsWith(versionPrefix)) {
+        return { status: "present", detail: `the Open Books engine ${e.info.version} is already installed` };
+      }
+      existingPython = e.python;
     } catch (e) {
       // A version mismatch is fixed by installing the matching release; anything else means "not there yet".
       if (!(e instanceof EngineError)) return { status: "failed", detail: (e as Error).message };
     }
   }
 
-  const picked = await pickPython(opts.python);
+  const picked = existingPython ? { python: existingPython } : await pickPython(opts.python);
   if ("problem" in picked) {
     return { status: "failed", detail: picked.problem, hint: "install Python 3.11 or newer from https://www.python.org/downloads/, then run: openbooks install-engine" };
   }
@@ -87,6 +95,9 @@ export async function installEngine(opts: InstallOptions = {}): Promise<InstallR
   clearEngineCache();
   try {
     const e = await findEngine({ python: picked.python });
+    if (!e.info.version.startsWith(versionPrefix)) {
+      return { status: "failed", detail: `pip succeeded but Python still loads Open Books ${e.info.version}`, hint: `install ${spec} in a fresh virtual environment` };
+    }
     return { status: "installed", detail: `installed the Open Books engine ${e.info.version}` };
   } catch (e) {
     return { status: "failed", detail: `pip succeeded but the engine does not load: ${(e as Error).message}`, hint: "run: openbooks doctor" };

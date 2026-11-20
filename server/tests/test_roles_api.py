@@ -7,6 +7,7 @@ import pytest
 pytest.importorskip("torch")
 from fastapi.testclient import TestClient  # noqa: E402
 from openbooks.core.params import Params  # noqa: E402
+from openbooks.core.errors import EngineFault  # noqa: E402
 from openbooks_server.app import app  # noqa: E402
 from openbooks_server.inference import logits_batched  # noqa: E402
 from openbooks.statements.pdf_front import read_words  # noqa: E402
@@ -51,6 +52,7 @@ def test_reading_of_a_pdf(client, pdf, model):
     toks = [t for p in doc["pages"] for t in p["tokens"]]
     assert toks and doc["summary"]["tokens"] == len(toks)
     for t in toks:
+        assert t["ocr_confidence"] is None
         assert t["role"] in ROLES and set(t["role_set"]) <= ROLES
         assert t["abstained"] == (len(t["role_set"]) != 1)
         x0, y0, x1, y1 = t["box"]
@@ -79,3 +81,13 @@ def test_not_a_pdf_is_a_typed_refusal(client, tmp_path):
 
 def test_bad_params_are_rejected(client, pdf):
     assert post(client, pdf, {"ocr": "yes"}).status_code == 422
+
+
+def test_broken_ocr_runtime_returns_an_actionable_error(client, pdf, model, monkeypatch):
+    def fail(*args):
+        raise EngineFault("Repair openbooks[scan].")
+
+    monkeypatch.setattr("openbooks_server.inference.read_words", fail)
+    response = post(client, pdf)
+    assert response.status_code == 503
+    assert response.json() == {"error": "engine_fault", "message": "Repair openbooks[scan]."}

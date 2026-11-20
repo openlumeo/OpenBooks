@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import JSONResponse, Response, StreamingResponse
-from openbooks.core.errors import Refusal
+from openbooks.core.errors import EngineFault, Refusal
 from openbooks.core.schema import SCHEMA_VERSION, validate_output
 from openbooks.statements.assets import ModelUnavailable
 
@@ -156,6 +156,8 @@ async def post_roles(file: UploadFile = File(...), params: str | None = Form(Non
         return JSONResponse(await asyncio.to_thread(infer_file, staged.path, p, model))
     except ModelUnavailable as e:
         return JSONResponse({"error": "model_unavailable", "message": e.message}, status_code=503)
+    except EngineFault as e:
+        return JSONResponse({"error": "engine_fault", "message": str(e)}, status_code=503)
     except Refusal as e:
         return JSONResponse({"error": e.code, "message": e.message}, status_code=422)
     finally:

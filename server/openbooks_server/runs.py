@@ -22,7 +22,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import BinaryIO
 
-from openbooks.pipeline import Params, process
+from openbooks.pipeline import MAX_BYTES, Params, process
 
 MAX_FILES = 20
 _CURRENCY = re.compile(r"^[A-Za-z]{3}$")
@@ -106,8 +106,10 @@ class Run:
         d = self.root / str(i)
         d.mkdir()
         path = d / safe_name(name, i)
+        # Never write more than the engine limit + 1 byte to disk: the extra byte still makes process()
+        # refuse the file as oversize, but a hostile upload cannot fill the disk.
         with open(path, "wb") as out:
-            shutil.copyfileobj(stream, out, 1 << 20)
+            out.write(stream.read(MAX_BYTES + 1))
         self.files.append(Staged(name or path.name, path, path.stat().st_size))
 
     def execute(self, params: Params, per_file: dict[int, Params], emit: Emit) -> None:

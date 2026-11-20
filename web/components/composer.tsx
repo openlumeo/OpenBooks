@@ -28,6 +28,7 @@ export type ComposerProps = {
   allowed: string[];
   maxBytes: number;
   modelAvailable: boolean;
+  ocrIssue?: string | null;
   modelIssue?: string | null;
   hasDocs: boolean;
 };
@@ -104,6 +105,7 @@ export function Composer(props: ComposerProps) {
   else if (operation === "history") hint = "Updating browser history.";
   else if (!engineUp) hint = "The engine is not reachable, so files cannot be checked right now.";
   else if (problem) hint = problem;
+  else if (hasFiles && props.ocrIssue && pending.some(({ file }) => /\.(png|jpe?g)$/i.test(file.name))) hint = props.ocrIssue;
   else if (hasFiles) hint = "Each file is checked on its own. Nothing is released unless its numbers tie out.";
   else if (askEnabled === false && (hasText || props.hasDocs)) hint = "Questions need OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL on the web server. File checks still work.";
   else hint = askEnabled ? "Enter to send · Shift+Enter for a new line" : "Attach files to begin";

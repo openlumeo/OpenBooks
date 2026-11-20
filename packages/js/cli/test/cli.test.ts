@@ -3,14 +3,15 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } fro
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as core from "@lumeo_hq/openbooks-core";
 import { clearEngineCache, findEngine } from "@lumeo_hq/openbooks-core";
 import * as gateways from "@lumeo_hq/openbooks-gateways";
 import * as statements from "@lumeo_hq/openbooks-statements";
 import * as tax from "@lumeo_hq/openbooks-tax";
 import { runDoctor } from "@lumeo_hq/openbooks-doctor";
 import { EXIT, main } from "../src/main.js";
-import { engineRange } from "../src/install-engine.js";
+import { engineRange, installEngine } from "../src/install-engine.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../../../..");
@@ -164,6 +165,28 @@ describe("doctor wrapper", () => {
 });
 
 describe("install-engine", () => {
+  it("upgrades a compatible 0.1 engine using the interpreter that loaded it", async () => {
+    const python = ["legacy-python"];
+    const info = {
+      name: "openbooks", version: "0.1.0", schema_version: "openbooks.v1", layout_api: 1,
+      python: python[0]!, layouts: [], known_layouts: [], frontends: [], linker: false,
+    };
+    const discover = vi.spyOn(core, "findEngine")
+      .mockResolvedValueOnce({ python, info, module: "openbooks_core" })
+      .mockResolvedValueOnce({ python, info: { ...info, version: "0.2.0" } });
+    const run = vi.spyOn(core, "runProcess").mockResolvedValue({ code: 0, stdout: "", stderr: "" });
+    try {
+      expect(await installEngine()).toMatchObject({ status: "installed" });
+      expect(run).toHaveBeenCalledWith(
+        [...python, "-m", "pip", "install", "--disable-pip-version-check", "openbooks~=0.2.0"],
+        expect.anything(),
+      );
+    } finally {
+      discover.mockRestore();
+      run.mockRestore();
+    }
+  });
+
   it("fails with exit 3 and a hint when there is no usable Python, without throwing", async () => {
     const c = capture();
     expect(await main(["install-engine", "--python", join(work, "no-such-python")], c.io)).toBe(EXIT.engine);

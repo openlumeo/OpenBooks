@@ -29,7 +29,7 @@ npm i -g @lumeo_hq/openbooks      # or: npm i @lumeo_hq/openbooks   inside a pro
 openbooks statement.csv --currency INR --opening 1000.00      # no subcommand needed (same as: openbooks run ...)
 ```
 
-The install step runs `pip install openbooks` for you (needs Python 3.11+ on the machine). If that step is skipped (`--ignore-scripts`, `OPENBOOKS_SKIP_PYTHON=1`, pnpm's build-script approval, or a Python that refuses global installs), run `openbooks install-engine` (add `--scan` for OCR). `openbooks doctor` checks the result.
+The npm install hook installs `openbooks[scan]` (Python 3.11+) so PDF and image runs can use the model locally by default. Pass `--no-model` to skip the cross-check. If the install hook is skipped, run `openbooks install-engine --scan`. `openbooks doctor --deep` checks that the model actually loads.
 
 **From a source checkout, one command, everything** (all Python packages, the engine service, the JS workspace and the web app):
 
@@ -92,11 +92,15 @@ else:
 A batch workspace (Open Books by Lumeo) lives in `web/`, backed by the engine service in `server/`. Attach files or try a synthetic sample, run the checks, and review the released, refused, and interrupted files in the batch. Inspect a released file’s checks and source evidence before downloading its JSON. Retry interrupted files and recoverable refusals from the result card. With a configured OpenRouter model that supports tool calls, you can ask questions about the released documents. Code computes the totals.
 
 ```bash
-pip install -e packages/py/openbooks -e server   # engine + engine service (FastAPI); add -e packages/py/openbooks-lab for payout matching
+python -m venv .venv
+# Activate .venv: .venv\Scripts\Activate.ps1 on PowerShell, or source .venv/bin/activate on macOS/Linux
+python -m pip install -e packages/py/openbooks -e "server[scan]"  # local engine, OCR and model
 cd web && pnpm install
 cp .env.example .env.local                 # optional: OPENBOOKS_LLM_API_KEY and OPENBOOKS_LLM_MODEL for questions
 pnpm dev:all                               # engine on 127.0.0.1:8765, web on http://localhost:3000
 ```
+
+For a single-host deployment, see [Deploy Open Books on one host](deploy/README.md).
 
 For a quick walkthrough, queue **Bank statement CSV** and **Bank CSV without an opening balance** from the sample picker. Run both, then review the checks and download the released JSON. Enter `1000.00` in the refused card to re-run the second file. After a reload, history still shows the results and a retry asks for the original file again.
 

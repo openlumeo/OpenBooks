@@ -62,11 +62,11 @@ export async function* runFiles(
 }
 
 /** The typed heads' own reading of one PDF or scan: per word role, value type, conformal sets and abstention. */
-export async function predictRoles(file: File, params: Pick<RunParams, "ocr" | "date_order"> = {}): Promise<RolesDoc> {
+export async function predictRoles(file: File, params: Pick<RunParams, "ocr" | "date_order"> = {}, signal?: AbortSignal): Promise<RolesDoc> {
   const fd = new FormData();
   fd.append("file", file, file.name);
   fd.append("params", JSON.stringify(params));
-  return json<RolesDoc>(await fetch("/api/roles", { method: "POST", body: fd }));
+  return json<RolesDoc>(await fetch("/api/roles", { method: "POST", body: fd, signal }));
 }
 
 export async function linkDocs(docs: ReleasedDoc[], signal?: AbortSignal): Promise<LinkReport> {

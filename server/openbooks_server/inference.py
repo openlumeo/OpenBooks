@@ -85,6 +85,7 @@ def _page_json(page_no: int, words, preds: Predictions) -> dict:
         p = preds.table[w]
         tokens.append({
             "text": w.text,
+            "ocr_confidence": w.conf,
             "box": [round(w.x0 / pw, 4), round(w.y0 / ph, 4), round(w.x1 / pw, 4), round(w.y1 / ph, 4)],  # 0..1 of the page
             "role": p.role, "role_set": list(p.role_set),
             "vtype": p.vtype, "type_set": list(p.type_set),

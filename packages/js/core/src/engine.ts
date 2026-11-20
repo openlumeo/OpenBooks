@@ -18,7 +18,7 @@ export interface RunOptions extends DiscoverOptions {
   dateOrder?: "dmy" | "mdy";
   /** Read scans with OCR (default true). */
   ocr?: boolean;
-  /** Cross-check PDFs and scans with the typed model heads. */
+  /** Cross-check PDFs and scans with the typed model heads (default true). */
   model?: boolean;
   /** Stop the engine after this long (default 120 000 ms). */
   runTimeoutMs?: number;
@@ -76,7 +76,7 @@ function flags(o: RunOptions): string[] {
   if (o.allowDerivedOpening) a.push("--allow-derived-opening");
   if (o.dateOrder) a.push("--date-order", o.dateOrder);
   if (o.ocr === false) a.push("--no-ocr");
-  if (o.model) a.push("--model");
+  if (o.model !== false) a.push("--model");
   return a;
 }
 

@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "web/tests/security-headers.test.ts"
+        ],
+        "createdAt": "2026-11-20T13:35:58.045Z",
+        "reason": "Claude: <img src=x onerror> is an XSS test payload string, not rendered UI"
+      }
+    ]
+  }
+}

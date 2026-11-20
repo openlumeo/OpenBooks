@@ -8,6 +8,7 @@ geometry and handed to the same statement builder and balance gate as CSV, so a 
 from __future__ import annotations
 
 import re
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -67,18 +68,28 @@ def _loc(ws: list[Word]) -> tuple[int, list[float], float | None]:
 
 
 _READER = None
+# PDFium is process-wide and cannot be called concurrently, even for different documents.
+# This also protects the shared EasyOCR reader when the HTTP routes run in different threads.
+_DOCUMENT_LOCK = threading.Lock()
+
+
+def ocr_runtime():
+    try:
+        import easyocr
+        import torch
+    except (ImportError, OSError, RuntimeError) as e:
+        raise EngineFault("Cannot load OCR. Install or repair 'openbooks[scan]' in the engine's Python environment.") from e
+    return easyocr, torch
 
 
 def _ocr_page(page, number: int) -> list[Word]:
     global _READER
     if _READER is None:
+        easyocr, torch = ocr_runtime()
         try:
-            import easyocr
-            import torch
-        except ImportError as e:
-            raise EngineFault("this page has no text layer, so it needs OCR: pip install 'openbooks[scan]' (or run with --no-ocr to refuse scans)") from e
-
-        _READER = easyocr.Reader(["en"], gpu=torch.cuda.is_available(), verbose=False)
+            _READER = easyocr.Reader(["en"], gpu=torch.cuda.is_available(), verbose=False)
+        except (OSError, RuntimeError) as e:
+            raise EngineFault("Could not initialize OCR. Check the EasyOCR model files and the PyTorch runtime.") from e
     pw, ph = page.width, page.height
     scale = min(OCR_DPI / 72, OCR_MAX_PX / max(pw, ph))
     img = page.render_rgb(scale)
@@ -148,6 +159,11 @@ def _ocr_fix(s: str) -> str:
 
 
 def read_words(path: Path | bytes, p: Params) -> tuple[list[list[Word]], str]:
+    with _DOCUMENT_LOCK:
+        return _read_words(path, p)
+
+
+def _read_words(path: Path | bytes, p: Params) -> tuple[list[list[Word]], str]:
     from .pdf_backend import open_document
 
     is_image = isinstance(path, Path) and path.suffix.lower() in (".png", ".jpg", ".jpeg")
@@ -159,12 +175,12 @@ def read_words(path: Path | bytes, p: Params) -> tuple[list[list[Word]], str]:
         for i, page in enumerate(doc.pages(), 1):
             pw, ph = page.width, page.height
             ws = [Word(t, x0, y0, x1, y1, i, None, pw, ph) for t, x0, y0, x1, y1 in page.words()]
-            if len(ws) > MAX_WORDS_PER_PAGE:
-                raise Refusal("UNSUPPORTED_INPUT", f"page {i} has more than {MAX_WORDS_PER_PAGE} words")
             if len(ws) < TEXT_LAYER_MIN_WORDS:
                 if not p.ocr:
                     raise Refusal("UNSUPPORTED_INPUT", f"page {i} has no text layer and OCR is off")
                 ws, method = _ocr_page(page, i), "ocr"
+            if len(ws) > MAX_WORDS_PER_PAGE:
+                raise Refusal("UNSUPPORTED_INPUT", f"page {i} has more than {MAX_WORDS_PER_PAGE} words")
             pages.append(ws)
         return pages, method
     finally:
