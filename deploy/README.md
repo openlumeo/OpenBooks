@@ -18,3 +18,5 @@ The smoke test checks health, runs a packaged statement with explicit INR and da
 For a local sandbox, use `OPENBOOKS_SITE_ADDRESS=:80`, `OPENBOOKS_HTTP_BIND=127.0.0.1:3080`, and `OPENBOOKS_HTTPS_BIND=127.0.0.1:3443`. Run with `docker compose -p openbooks-sandbox` and test `http://127.0.0.1:3080`.
 
 Q&A is optional. Set `OPENBOOKS_LLM_API_KEY`, `OPENBOOKS_LLM_MODEL`, and, if needed, `OPENBOOKS_LLM_BASE_URL` on the VPS. The upload, OCR, and model reading routes run without these values.
+
+The public API uses a shared PostgreSQL rate limiter. Apply `web/migrations/001_rate_buckets.sql` to a test branch first and then to the target database using a direct connection. Set `DATABASE_URL` to the pooled Neon connection in the deployment environment. Production requests to limited routes return 503 if the database or migration is unavailable. Keep the web service behind the configured trusted reverse proxy: the limiter uses the last `X-Forwarded-For` address supplied by that proxy (or Netlify's client IP header). Do not expose the web service directly to untrusted clients.

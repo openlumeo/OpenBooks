@@ -21,7 +21,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
   return (
     <aside className="ob-sidebar" data-open={open} aria-label="Threads">
       <div className="ob-sidebar-head">
-        <a href="/" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); onNew(); }}>
+        <a href="/app" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); onNew(); }}>
           <BrandLockup />
         </a>
         <button

@@ -5,6 +5,7 @@ import { AskBody } from "@/lib/server/ask-input";
 
 vi.mock("@/lib/server/ask-prompt", () => ({ SYSTEM_PROMPT: "test" }));
 vi.mock("openai", () => ({ default: vi.fn() }));
+vi.mock("@/lib/server/limiter", () => ({ limitOr429: vi.fn().mockResolvedValue(null) }));
 
 const sha = "a".repeat(64);
 const file = {

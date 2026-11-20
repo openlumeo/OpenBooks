@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
-import { createRateLimiter, MAX_JSON_BYTES, rejectOversize } from "@/lib/guards";
+import { MAX_JSON_BYTES, rejectOversize } from "@/lib/guards";
+import { limitOr429 } from "@/lib/server/limiter";
 import { Amount, AskBody, IsoDate } from "@/lib/server/ask-input";
 import { SYSTEM_PROMPT } from "@/lib/server/ask-prompt";
 import { buildDigest } from "@/lib/digest";
@@ -14,7 +15,6 @@ const MODEL = process.env.OPENBOOKS_LLM_MODEL ?? "";
 const BASE_URL = process.env.OPENBOOKS_LLM_BASE_URL ?? "https://openrouter.ai/api/v1";
 const MAX_TURNS = 8;
 const MAX_TOKENS = 3000;
-const askLimited = createRateLimiter(30, 60_000);
 
 function hasCredentials(): boolean {
   return Boolean(MODEL && process.env.OPENBOOKS_LLM_API_KEY);
@@ -143,9 +143,8 @@ export async function POST(req: Request) {
   }
   const tooBig = rejectOversize(req, MAX_JSON_BYTES);
   if (tooBig) return tooBig;
-  if (askLimited()) {
-    return Response.json({ error: "rate_limited", message: "Too many questions in the last minute. Try again shortly." }, { status: 429 });
-  }
+  const limited = await limitOr429(req, "ask");
+  if (limited) return limited;
   const parsed = AskBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "bad_request", message: parsed.error.message }, { status: 400 });
   const { question, history, docs } = parsed.data;

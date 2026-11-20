@@ -20,6 +20,7 @@ services:
     restart: unless-stopped
     environment:
       OPENBOOKS_ENGINE_URL: http://engine:8765
+      DATABASE_URL: ${DATABASE_URL:-}
       OPENBOOKS_LLM_API_KEY: ${OPENBOOKS_LLM_API_KEY:-}
       OPENBOOKS_LLM_MODEL: ${OPENBOOKS_LLM_MODEL:-}
       OPENBOOKS_LLM_BASE_URL: ${OPENBOOKS_LLM_BASE_URL:-https://openrouter.ai/api/v1}

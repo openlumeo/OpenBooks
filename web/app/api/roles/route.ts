@@ -1,10 +1,13 @@
 import { MAX_FILE_BYTES, rejectOversize } from "@/lib/guards";
-import { ENGINE_URL, engineDown, relay } from "@/lib/server/engine";
+import { ENGINE_URL, engineDown, engineHeaders, relay } from "@/lib/server/engine";
+import { limitOr429 } from "@/lib/server/limiter";
 
 export const dynamic = "force-dynamic";
 
 /** The typed heads' own reading of one PDF or scan. Streams the multipart upload (file, params) to the engine. */
 export async function POST(req: Request) {
+  const limited = await limitOr429(req, "roles");
+  if (limited) return limited;
   const type = req.headers.get("content-type") ?? "";
   if (!type.startsWith("multipart/form-data")) {
     return Response.json({ error: "bad_request", message: "expected a multipart upload" }, { status: 415 });
@@ -14,7 +17,7 @@ export async function POST(req: Request) {
   try {
     const upstream = await fetch(`${ENGINE_URL}/v1/roles`, {
       method: "POST",
-      headers: { "content-type": type },
+      headers: engineHeaders({ "content-type": type }),
       body: req.body,
       signal: req.signal,
       // Required by Node's fetch to send a streaming request body.

@@ -7,7 +7,7 @@ import { createElement } from "react";
 
 describe("security headers", () => {
   it("sends CSP, nosniff and frame denial on every path", async () => {
-    const [rule] = await nextConfig.headers!();
+    const rule = (await nextConfig.headers!())[0]!;
     const h = Object.fromEntries(rule.headers.map((x) => [x.key, x.value]));
     expect(rule.source).toBe("/:path*");
     expect(h["Content-Security-Policy"]).toBe(CSP);
