@@ -21,7 +21,7 @@ CORE_FILES = {"__init__.py", "__main__.py", "builders.py", "cli.py", "errors.py"
 GATEWAYS_FILES = {"__init__.py", "parsers.py", "py.typed"}
 TAX_FILES = GATEWAYS_FILES | {"gates.py"}
 STATEMENTS_FILES = {"__init__.py", "assets.py", "calibration.py", "encoder.py", "frontend.py", "gates.py", "labels.py",
-                    "parsers.py", "pdf_backend.py", "pdf_front.py", "roles.py", "py.typed", "data/roles_head.pt", "data/roles_calibration.json",
+                    "parsers.py", "pdf_backend.py", "pdf_front.py", "pdf_words.py", "scan_decimals.py", "table_header.py", "roles.py", "py.typed", "data/roles_head.pt", "data/roles_calibration.json",
                     "data/roles_model_card.json"}
 DOCTOR_FILES = {"__init__.py", "__main__.py", "checks.py", "cli.py", "py.typed"}
 TOP_FILES = {"__init__.py", "__main__.py", "_version.py", "pipeline.py"}
