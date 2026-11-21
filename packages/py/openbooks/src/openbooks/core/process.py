@@ -17,6 +17,38 @@ from .schema import SCHEMA_VERSION, refusal_doc, validate_output
 STAGES = ("detect", "parse", "normalise", "balance", "validate")
 
 
+def _extract(path: Path, raw: bytes, p: Params, reg: Registry, stage: Callable[[str], None]) -> tuple:
+    """Detect the format and parse the file. Returns (data, evidence, format name, layout, method)."""
+    ext = path.suffix.lower()
+    method = "parser"
+    if ext in DOC_EXT:
+        data, ev, fmt_name, layout, method = reg.frontend("document").extract(path, p)
+        stage("detect")
+    elif ext == ".xlsx":
+        data, ev, fmt_name, layout = parse_xlsx(path, p, reg)
+        stage("detect")
+    else:
+        text = decode(raw)
+        det = detect(text)
+        fmt_name, layout = det.format, det.layout
+        stage("detect")
+        if det.args is None:
+            data, ev = reg.sniffer_parser(layout)(text, p)
+        else:
+            data, ev = reg.run_layout(layout, det.args, p)
+    return data, ev, fmt_name, layout, method
+
+
+def _require_balance(assertions: list[dict]) -> None:
+    """Refuse unless every balance assertion passes and at least one is independent evidence."""
+    failed = [a for a in assertions if not a["passed"]]
+    if failed:
+        raise Refusal("BALANCE_MISMATCH", "; ".join(
+            f"{a['rule']} (expected {a['expected']}, got {a['computed']})" for a in failed))
+    if not any(a["independent"] for a in assertions):
+        raise Refusal("BALANCE_MISMATCH", "no independent balance evidence in this file")
+
+
 def process(path: str | Path, params: Params | None = None, on_stage: Callable[[str], None] | None = None,
             *, registry: Registry | None = None, strict: bool = False) -> dict:
     """on_stage, if given, is called with each name in STAGES once that stage has succeeded.
@@ -31,31 +63,11 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
         reg = registry or default_registry()
         raw = guard(path)
         ext = path.suffix.lower()
-        method = "parser"
-        if ext in DOC_EXT:
-            data, ev, fmt_name, layout, method = reg.frontend("document").extract(path, p)
-            stage("detect")
-        elif ext == ".xlsx":
-            data, ev, fmt_name, layout = parse_xlsx(path, p, reg)
-            stage("detect")
-        else:
-            text = decode(raw)
-            det = detect(text)
-            fmt_name, layout = det.format, det.layout
-            stage("detect")
-            if det.args is None:
-                data, ev = reg.sniffer_parser(layout)(text, p)
-            else:
-                data, ev = reg.run_layout(layout, det.args, p)
+        data, ev, fmt_name, layout, method = _extract(path, raw, p, reg, stage)
         stage("parse")
         stage("normalise")
         assertions = run_gate(data, reg.gates({b["kind"] for b in data["batches"]}))
-        failed = [a for a in assertions if not a["passed"]]
-        if failed:
-            raise Refusal("BALANCE_MISMATCH", "; ".join(
-                f"{a['rule']} (expected {a['expected']}, got {a['computed']})" for a in failed))
-        if not any(a["independent"] for a in assertions):
-            raise Refusal("BALANCE_MISMATCH", "no independent balance evidence in this file")
+        _require_balance(assertions)
         stage("balance")
         model_id = None
         if p.model and ext in DOC_EXT:  # a --model release names the exact weights and calibration that cross-checked it
