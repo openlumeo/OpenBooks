@@ -18,8 +18,14 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same ref supersedes the run in flight (the full matrix takes ~10 min).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   package:
+    timeout-minutes: 15
     # The one public package with its base dependencies only: no PyMuPDF, PyTorch or NumPy.
     if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}
     strategy:
@@ -33,10 +39,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: packages/py/openbooks/pyproject.toml
       - run: python -m pip install -e packages/py/openbooks pytest hypothesis
       - run: python -m pytest -q packages/py/openbooks/tests
 
   full:
+    timeout-minutes: 30
     if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}
     strategy:
       fail-fast: false
@@ -51,15 +60,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            packages/py/*/pyproject.toml
+            server/pyproject.toml
       - name: CPU PyTorch on Linux (the default wheel is CUDA and several GB)
         if: runner.os == 'Linux'
         run: python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-      - run: python -m pip install -e "packages/py/openbooks[scan]" -e packages/py/openbooks-lab -e server pytest hypothesis httpx build
+      - run: python -m pip install -e "packages/py/openbooks[scan]" -e packages/py/openbooks-lab -e packages/py/openbooks-mcp -e server pytest hypothesis httpx build
       - name: Behaviour is frozen (868 results; the pdf section runs where PyMuPDF imports)
         run: |
           python tests/characterise/run.py verify --section main
           python tests/characterise/run.py verify --section pdf
-      - run: python -m pytest -q tests packages/py/openbooks/tests server/tests
+      - run: python -m pytest -q tests packages/py/openbooks/tests packages/py/openbooks-mcp/tests server/tests
 
   record-pdf-baseline:
     # Manual. The PDF/scan part of the characterisation baseline needs PyMuPDF, so it is recorded here, on the commit
@@ -85,6 +98,7 @@ jobs:
           path: tests/characterise/baseline_pdf.json
 
   js:
+    timeout-minutes: 20
     # The npm packages against the real engine. Python needs the engine installed; pnpm needs the committed lockfile.
     if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}
     strategy:

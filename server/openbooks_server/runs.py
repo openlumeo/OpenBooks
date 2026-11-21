@@ -97,7 +97,7 @@ class Run:
     """Owns the temp dir for one request. stage() copies uploads in; execute() processes and cleans up."""
 
     def __init__(self) -> None:
-        self.root = Path(tempfile.mkdtemp(prefix="openbooks-run-"))
+        self.root = Path(tempfile.mkdtemp(prefix="openbooks-run-")).resolve()  # resolved: Windows temp is an 8.3 short path
         self.files: list[Staged] = []
         self.cancelled = threading.Event()
 
