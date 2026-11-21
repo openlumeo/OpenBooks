@@ -1,8 +1,13 @@
 {
   "name": "@lumeo_hq/openbooks-gateways",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Open Books gateways wrapper: typed access to the Python engine, restricted to the gateways layouts",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sagexd08/openbooks-js.git",
+    "directory": "gateways"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

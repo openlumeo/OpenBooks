@@ -1,0 +1,48 @@
+name: publish
+
+# Publishes the six @lumeo_hq/openbooks* packages from a version tag (v0.2.3) with npm provenance.
+# Authentication is npm trusted publishing (OIDC): there is no token in this repository or its secrets.
+# One-time setup on npmjs.com, for each package: Settings > Trusted Publisher > GitHub Actions,
+# repository Sagexd08/openbooks-js, workflow filename publish.yml.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write # lets npm verify this workflow run and sign the provenance statement
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - name: Trusted publishing needs npm 11.5.1 or newer
+        run: npm install -g npm@latest
+      - run: pnpm install --frozen-lockfile
+      - name: The tag matches the package version
+        run: |
+          version=$(node -p "require('./core/package.json').version")
+          test "${GITHUB_REF_NAME}" = "v${version}"
+      - run: pnpm exec tsc -b
+      - name: Pack (workspace dependencies are resolved to real versions)
+        run: |
+          mkdir tarballs
+          for p in core statements gateways tax doctor cli; do (cd $p && pnpm pack --pack-destination ../tarballs); done
+      - name: Publish with provenance (dependencies first, the meta package last)
+        run: |
+          version=$(node -p "require('./core/package.json').version")
+          for name in openbooks-core openbooks-statements openbooks-gateways openbooks-tax openbooks-doctor openbooks; do
+            npm publish "tarballs/lumeo_hq-${name}-${version}.tgz" --access public --provenance
+          done

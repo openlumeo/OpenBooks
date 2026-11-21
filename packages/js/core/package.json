@@ -1,8 +1,13 @@
 {
   "name": "@lumeo_hq/openbooks-core",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Typed wrapper around the Open Books Python engine: run a financial document, get an openbooks.v1 document or a typed refusal. No parsing happens in JavaScript.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sagexd08/openbooks-js.git",
+    "directory": "core"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

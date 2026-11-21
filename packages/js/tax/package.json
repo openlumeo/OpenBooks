@@ -1,8 +1,13 @@
 {
   "name": "@lumeo_hq/openbooks-tax",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Open Books tax wrapper: typed access to the Python engine, restricted to the tax layouts",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sagexd08/openbooks-js.git",
+    "directory": "tax"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

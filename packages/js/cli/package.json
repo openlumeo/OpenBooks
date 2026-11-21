@@ -1,8 +1,13 @@
 {
   "name": "@lumeo_hq/openbooks",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Open Books: financial documents in, one proven JSON per file out (or a typed refusal). `npm i @lumeo_hq/openbooks` installs every JS package and the Python engine.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sagexd08/openbooks-js.git",
+    "directory": "cli"
+  },
   "type": "module",
   "bin": {
     "openbooks": "./dist/cli.js"
