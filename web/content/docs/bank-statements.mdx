@@ -1,0 +1,38 @@
+---
+title: Verify Bank Statements from CSV, OFX and MT940
+description: Integrate bank statement extraction, supply verified opening balances and dates, and use running-balance assertions before posting transactions.
+---
+
+Use a supported bank export and pass file-level context from your reconciliation job. [PDFs and scans](/docs/pdf-and-ocr) use the same release checks after a different extraction path.
+
+## Reconcile your first export
+
+<Steps>
+<Step>
+### Identify the layout and currency
+
+Use the original export with its running balance column and date fields. For a CSV without a source currency, pass the three-letter code. Set `date_order` to `dmy` or `mdy` if you know the format and the numeric dates are ambiguous.
+</Step>
+<Step>
+### Supply the opening balance
+
+Bank CSV and OFX need an opening balance from the caller when they lack one. Use the verified closing balance of the preceding statement or another authoritative source. MT940 carries opening and closing records. Keep money in exact decimal form.
+
+~~~bash
+python -m openbooks run statement.csv --currency INR --opening 1000.00 --date-order dmy
+~~~
+</Step>
+<Step>
+### Verify before posting
+
+Read the released `transactions`, `batches`, `assertions` and `evidence` together. Debit and credit are directions. Use the separate direction field when building a signed ledger value.
+</Step>
+</Steps>
+
+## Design for mismatches
+
+Quarantine a file that returns `BALANCE_MISMATCH`. Check the original for omitted rows, incorrect date order, a wrong opening balance, or an export that combines periods. Rerun only after you can verify a correction from the source. Treat a refusal as its own record in the job history.
+
+Derived openings are opt-in. A derived amount does not count as independent evidence. Start with a documented opening balance when you can verify one.
+
+For a runnable fixture and JSON output, use the [bank CSV quickstart](/docs/quickstart).

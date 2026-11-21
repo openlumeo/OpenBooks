@@ -1,0 +1,29 @@
+---
+title: Open Books Typed-Head Model and OCR Evidence
+description: Learn how local role inference, calibrated abstention and model hashes work when processing PDF and scanned statements.
+---
+
+The document model labels tokens using their text features, shape and bounding boxes. It has two heads: one predicts a column role such as debit, credit or balance, and one predicts a value type such as money or date. It runs locally in the Python engine with the `scan` extra.
+
+## From words to a cross-check
+
+1. The document front end produces words and boxes from the PDF text layer or OCR.
+2. Geometry reconstructs rows and columns. The optional model cross-check predicts the roles and value types.
+3. Calibration turns scores into sets of plausible classes. A role set with anything other than one candidate is an abstention. Where applicable, balance constraints can help resolve ambiguous readings.
+4. Deterministic verification decides release. An unsupported model reading can produce `LOW_CONFIDENCE`. A release requires the financial checks regardless of the model output.
+
+## Reproduce a model-checked run
+
+~~~bash
+python -m pip install "openbooks[scan]==0.2.0"
+python -m openbooks doctor --deep
+python -m openbooks run statement.pdf --currency INR --date-order dmy --model
+~~~
+
+The distribution ships weights and their calibrated companion file. Calibration is bound to the weights by SHA-256. Releases that used the model record both hashes under `file.model`. `OPENBOOKS_MODELS_DIR` can override the location for a compatible local pair.
+
+## Inspect model output
+
+[`POST /v1/roles`](/docs/engine-api) returns the model's view of a PDF or image in `openbooks.roles.v1`. Token records include `text`, a normalised `box`, `role`, `role_set`, `vtype`, `type_set` and `abstained`. Use this for inspection and layout debugging. It is a separate output from the verified document contract.
+
+Training, calibration and evaluation were carried out with synthetic data. Coverage depends on how closely future inputs resemble the calibration distribution. Measure release and refusal behavior on representative fixtures before expanding an integration. See the [source model guide](https://github.com/Sagexd08/OpenBooks/blob/main/docs/MODEL.md) for architecture, evaluation and shipping details.

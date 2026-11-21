@@ -1,0 +1,64 @@
+---
+title: Open Books Python API Reference
+description: Use process, Params and the schema helpers in Python for bank statements, settlements, tax documents and workpapers.
+---
+
+Install the `openbooks` distribution with Python 3.11+. Its public API at `openbooks` is also available from `openbooks.core`.
+
+## Process a file
+
+`process(path, params)` takes a path or path string and returns an `openbooks.v1` dictionary. Use an explicit `Params` object to capture any verified context you supplied with the job.
+
+~~~python
+from decimal import Decimal
+from pathlib import Path
+from openbooks import EngineFault, Params, process
+
+params = Params(
+    currency="INR",
+    opening=Decimal("1000.00"),
+    date_order="dmy",
+)
+
+try:
+    document = process(Path("statement.csv"), params, strict=True)
+except EngineFault as error:
+    raise RuntimeError("Open Books could not run") from error
+
+if document["status"] == "refused":
+    print(document["error"]["code"], document["error"]["message"])
+else:
+    for row in document["data"]["transactions"]:
+        amount = Decimal(row["amount"]["amount"])
+        print(row["date"], row["direction"], amount, row["amount"]["currency"])
+~~~
+
+With `strict=True`, engine-level failures can propagate. Handle file access failures at the job boundary, and inspect the refusal independently. With the default policy some internal failures become a refusal marked `error.internal`. Send those to operations for diagnosis.
+
+## Params
+
+| Field | Type and default | Use |
+| --- | --- | --- |
+| `currency` | `str or None`, `None` | Three-letter currency when the layout needs a supplied currency. |
+| `opening` | `Decimal or None`, `None` | Authoritative opening amount for layouts that accept it. |
+| `account` | `str or None`, `None` | Caller-provided account identifier where supported. |
+| `allow_derived_opening` | `bool`, `False` | Allow an opening balance derived from source rows where supported. |
+| `date_order` | `str or None`, `None` | `dmy` or `mdy` for numeric dates. Omit to use layout inference and defaults. |
+| `ocr` | `bool`, `True` | Allow OCR when the document front end needs it. |
+| `model` | `bool`, `False` | Request the optional typed-head check on PDFs or scans. |
+
+## Validate stored output
+
+Call `validate_output(document)` before consuming a released document received from another process. Use `load_schema()` to load the release schema and `SCHEMA_VERSION` when negotiating a contract with an integration.
+
+~~~python
+from openbooks import SCHEMA_VERSION, load_schema, validate_output
+
+if document["schema_version"] != SCHEMA_VERSION:
+    raise ValueError("Unsupported Open Books schema")
+if document["status"] == "ok":
+    validate_output(document)
+schema = load_schema()
+~~~
+
+See [the output contract](/docs/output-contract) for the refusal schema and money, assertion and evidence fields. See [the architecture guide](/docs/architecture) for provider registration and extension points.

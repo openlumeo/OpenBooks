@@ -1,0 +1,27 @@
+---
+title: Troubleshoot Open Books Installs and Document Runs
+description: Diagnose missing Python providers, mismatched engine versions, OCR and model setup, file refusals and interrupted streams.
+---
+
+## Check the installation
+
+~~~bash
+python -m openbooks engine-info
+python -m openbooks doctor --json
+~~~
+
+If you installed the npm CLI, run `openbooks doctor --deep` to test Node.js discovery and model loading. Use the Python command explicitly to find the interpreter that has the engine installed.
+
+| Symptom | Action |
+| --- | --- |
+| Node.js reports `python_not_found` or `engine_not_installed` | Set `OPENBOOKS_PYTHON` to the interpreter in the environment where `python -m openbooks engine-info` works. |
+| `engine_version` or schema mismatch | Compare the wrapper version and engine-info output, then reinstall compatible versions in the same job image. |
+| Layout provider is missing from an editable checkout | Install with `python -m pip install -e packages/py/openbooks` to register it. Check `engine-info` again. |
+| Scan requires OCR or model files | Install the `scan` extra, make language assets available, run `doctor --deep` and check any model directory override. |
+| Text-layer PDFs ask for the model when called from npm | Set `model: false` in the Node.js wrapper or pass `--no-model` to the npm CLI if that job uses the base engine. |
+| File refuses with a missing opening or date ambiguity | Use the authoritative balance or export date convention. Try the [sample run](/docs/quickstart) to check invocation. |
+| Stream ends without `run.done` | Preserve completed file decisions and mark missing ones interrupted. Check server timeouts and proxy buffering before retrying. |
+
+## Report a reproducible issue
+
+Capture the package and engine versions, input type and layout, command or options, and the exact refusal or error code. Reproduce with a synthetic file when possible. Remove account details and use a redacted excerpt if you need to explain a real layout. [Open an issue on GitHub](https://github.com/Sagexd08/OpenBooks/issues) with those details.

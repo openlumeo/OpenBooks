@@ -1,0 +1,58 @@
+---
+title: Open Books Node.js and TypeScript Package Reference
+description: Run the local Python engine from Node.js, integrate typed results and handle refusals separately from execution errors.
+---
+
+Use these packages in a Node.js process with Python 3.11+ and `openbooks` installed. The wrapper starts a child process on the same machine, checks schema compatibility, and validates the result. Keep calls in your application server or job runner.
+
+## Process a batch
+
+~~~ts
+import { EngineError, isReleased, runFiles } from "@lumeo_hq/openbooks-core";
+
+try {
+  const results = await runFiles(["january.csv", "february.csv"], {
+    currency: "INR",
+    dateOrder: "dmy",
+    opening: "1000.00",
+    runTimeoutMs: 120_000,
+  });
+  for (const result of results) {
+    if (isReleased(result)) {
+      console.log(result.file, result.document.data.transactions.length);
+    } else {
+      console.warn(result.file, result.code, result.message);
+    }
+  }
+} catch (error) {
+  if (!(error instanceof EngineError)) throw error;
+  console.error(error.kind, error.message, error.hint);
+  process.exitCode = 1;
+}
+~~~
+
+Batch options apply to every file in the call. The example assumes both files have the same verified opening amount. Use `runFile()` for each statement when its opening amount or currency differs. Results are returned in input order.
+
+## RunOptions
+
+| Options | Behavior |
+| --- | --- |
+| `currency`, `opening`, `account` | Context for the parser. Pass `opening` as a plain decimal string. |
+| `dateOrder`, `allowDerivedOpening` | Set numeric date order or permit a derived opening where supported. |
+| `ocr`, `model` | Enabled by default for document processing. Set `model: false` for text-layer PDF use with the base engine. |
+| `python` | Overrides the interpreter path. Otherwise discovery checks `OPENBOOKS_PYTHON`, a project `.venv`, then supported system Python candidates. |
+| `runTimeoutMs`, `signal`, `maxOutputBytes` | Bound runtime and process output and support cancellation. The run timeout defaults to 120,000 ms. |
+| `accept` | Layout ID allowlist. A withheld release is returned as `UNKNOWN_LAYOUT` with `restricted: true`. |
+
+## Pick the wrapper
+
+| Package | Exports and scope |
+| --- | --- |
+| `@lumeo_hq/openbooks-core` | `runFile`, `runFiles`, `isReleased`, `findEngine`, validation helpers and contract types. Supports the engine's installed layouts. |
+| `@lumeo_hq/openbooks-statements` | The runner and `LAYOUTS` for bank CSV, OFX/QFX, MT940 and bank statement PDFs/scans. |
+| `@lumeo_hq/openbooks-gateways` | The runner and `LAYOUTS` for Stripe, Razorpay, PayPal and Wise. |
+| `@lumeo_hq/openbooks-tax` | The runner and `LAYOUTS` for Form 26AS, AIS, FIRA, Form 1099-B and trial balance. |
+| `@lumeo_hq/openbooks-doctor` | `runDoctor(options)` returns checks, summary counts and `ok`. Set `deep: true` to load the model. |
+| `@lumeo_hq/openbooks` | CLI, engine installer and programmatic `main` and `installEngine` entry points. |
+
+A returned refusal has `kind: "refused"` with `code`, `message`, `document`, `internal` and `restricted`. A thrown `EngineError` has a `kind` such as `engine_not_installed`, `engine_version`, `timeout`, `aborted` or `bad_output`. Retry genuinely transient execution failures and keep document refusals in the review queue. Use `isReleased()` to narrow to `kind: "released"` before reading output data.

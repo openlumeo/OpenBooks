@@ -1,0 +1,51 @@
+---
+title: Self-Hosted Open Books Engine API
+description: Run the FastAPI engine on a private network, upload batches with multipart forms and consume server-sent release or refusal events.
+---
+
+The FastAPI service wraps the same engine used by the packages. Run it on loopback or a private network and put application authentication and rate limiting on your own front end. The hosted browser workspace calls its own same-origin proxy. The self-hosted API below is the integration surface documented here.
+
+## Start the service
+
+Activate your Python virtual environment and run these commands from the source checkout.
+
+~~~bash
+python -m pip install -e packages/py/openbooks -e server
+python -m uvicorn openbooks_server.app:app --host 127.0.0.1 --port 8765
+~~~
+
+Use the full [deployment guide](https://github.com/Sagexd08/OpenBooks/tree/main/deploy) for a web and engine deployment. If OCR is needed, install `server[scan]` and satisfy its model and OCR runtime requirements.
+
+## Endpoints
+
+| Method and path | Request and response |
+| --- | --- |
+| `GET /v1/health` | Engine and schema versions, OCR/model/link capabilities and limits. |
+| `GET /v1/formats` | Supported formats and layouts that are unverified on real exports. |
+| `GET /v1/samples` | Synthetic sample catalog, with file metadata and sample parameters. |
+| `GET /v1/samples/{id}` | Bytes of a bundled synthetic example. |
+| `POST /v1/runs` | Multipart `files` and optional JSON string fields `params` and `file_params`. Streams SSE. |
+| `POST /v1/roles` | Multipart `file` and optional `params`. Returns `openbooks.roles.v1`. Requires model availability. |
+| `POST /v1/link` | JSON `{"docs": [...]}` containing released documents. Optional linker returns `openbooks.links.v1`. |
+
+One run takes up to 20 files. Parameters include `currency`, `opening` as a decimal string, `account`, `date_order`, `allow_derived_opening`, `ocr` and `model`. Keys in `file_params` are zero-based file indexes. Their fields override the shared parameters for that file.
+
+## Stream a run
+
+<a href="/examples/statement.csv" download>Download the example CSV</a> into your current directory and run the following command in a POSIX shell.
+
+~~~bash
+curl -N http://127.0.0.1:8765/v1/runs \
+  -F 'files=@statement.csv' \
+  -F 'params={"currency":"INR","opening":"1000.00","date_order":"dmy"}'
+~~~
+
+| Event | Interpret it as |
+| --- | --- |
+| `file.started` | The file entered processing. Track it by `index`. |
+| `file.stage` | Stage progress. It carries no release decision. |
+| `file.done` | `doc` contains that file's full release or refusal. |
+| `run.done` | The run finished with aggregate counts. |
+| `run.error` | A run-level error interrupted processing. Inspect the reported cause. |
+
+Parse SSE frames across arbitrary network chunks. Inspect HTTP errors before reading events. A `422` response can indicate invalid input parameters, while `503` on roles or link can indicate an unavailable capability. On connection loss, track files lacking `file.done` as interrupted and retry those files. Expose only release documents to downstream accounting.

@@ -1,0 +1,45 @@
+---
+title: Extract Bank Statement PDFs and Scans with OCR
+description: Process text-layer PDFs and scanned bank statements, choose OCR and model settings, and inspect bounding-box evidence.
+---
+
+The document front end reads a PDF's text layer when available. For image-only pages or supported images it can run OCR. It reconstructs rows with page geometry and passes them through the same balance checks used by structured statements.
+
+| File | Requirements |
+| --- | --- |
+| Text-layer bank statement PDF | Base Python install and a recognised statement layout. |
+| Scanned PDF, PNG or JPEG | `openbooks[scan]` and working EasyOCR weights. |
+| Model cross-check | `openbooks[scan]` and the matching shipped weights and calibration. |
+
+<Tabs items={["Python CLI", "Node.js"]}>
+<Tab value="Python CLI">
+~~~bash
+python -m pip install "openbooks[scan]==0.2.0"
+python -m openbooks doctor --deep
+python -m openbooks run statement.pdf --currency INR --date-order dmy --model
+~~~
+
+OCR is enabled by default. Add `--no-ocr` if the job must use the PDF text layer only. Pass `--model` to request the optional cross-check.
+</Tab>
+<Tab value="Node.js">
+~~~ts
+import { runFile } from "@lumeo_hq/openbooks-statements";
+
+const result = await runFile("statement.pdf", {
+  currency: "INR",
+  dateOrder: "dmy",
+  ocr: false,
+  model: false,
+});
+console.log(result.kind);
+~~~
+
+This example processes a text-layer PDF with the base Python install. For scans, install the `scan` extra and enable OCR. The npm wrapper normally enables both OCR and model cross-checking for documents.
+</Tab>
+</Tabs>
+
+## Inspect source evidence
+
+When present, `page` is one-based and `bbox` contains top-left and bottom-right coordinates in the page coordinate space used for that evidence. Read `raw_text` alongside the normalised value. Evidence fields can be null when the source has no equivalent location. Role-inspection token boxes use coordinates normalised to the page.
+
+If a run refuses, check page orientation, legibility, embedded text, layout and the [refusal reason](/docs/refusals). For model configuration and limitations, see [the model guide](/docs/model).

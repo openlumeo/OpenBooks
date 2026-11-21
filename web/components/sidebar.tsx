@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, Plus, Trash2 } from "lucide-react";
+import { BookOpen, FlaskConical, Plus, Trash2 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import { ThemeToggle } from "@/components/brand/theme-toggle";
 import { fmtAgo } from "@/lib/format";
@@ -21,7 +21,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
   return (
     <aside className="ob-sidebar" data-open={open} aria-label="Threads">
       <div className="ob-sidebar-head">
-        <a href="/app" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); onNew(); }}>
+        <a href="/" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); onNew(); }}>
           <BrandLockup />
         </a>
         <button
@@ -105,6 +105,10 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
       </nav>
 
       <div className="ob-sidebar-foot">
+        <a className="ob-maturity" href="/docs">
+          <BookOpen size={15} aria-hidden="true" />
+          <span>Developer docs</span>
+        </a>
         <div className="ob-foot-row">
           <span className="ob-status mono-label" role="status" title={engine.message ?? (h?.model_issue ? `${status}. Model: ${h.model_issue}` : status)}>
             <span className={`dot ${engine.status === "up" ? "dot--live" : engine.status === "down" ? "dot--bad" : ""}`} aria-hidden="true" />

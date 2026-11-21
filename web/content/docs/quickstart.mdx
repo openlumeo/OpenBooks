@@ -1,0 +1,77 @@
+---
+title: Extract Your First Bank Statement CSV
+description: Run a real Open Books sample in the browser or locally, fix a missing opening balance, and inspect the verified JSON.
+---
+
+This synthetic statement has two transactions and printed running balances. It omits the opening balance so you can handle a refusal and then release the same file with a verified opening balance of `1000.00` INR.
+
+## Run in the browser
+
+<SampleTerminal />
+
+The first run returns `PARSE_ERROR`. The corrected run releases two transactions and reconciles the closing balance to `950.00` INR.
+
+## Run locally
+
+<a href="/examples/statement.csv" download>Download statement.csv</a> into your project, then choose your runtime. Use a fresh output directory if you want to keep both attempts. The Python CLI uses the file hash as the filename, so a second run to the same directory replaces the previous result for those bytes.
+
+<Tabs items={["Python CLI", "Python API", "Node.js"]}>
+<Tab value="Python CLI">
+~~~bash
+python -m pip install "openbooks==0.2.0"
+python -m openbooks run statement.csv --currency INR --date-order dmy --out refused
+python -m openbooks run statement.csv --currency INR --date-order dmy --opening 1000.00 --out released
+~~~
+
+The first command that processes the file exits `1`. The corrected run exits `0` and writes the released JSON under `released/`.
+</Tab>
+<Tab value="Python API">
+~~~python
+from decimal import Decimal
+from openbooks import Params, process
+
+doc = process("statement.csv", Params(
+    currency="INR", date_order="dmy", opening=Decimal("1000.00"),
+))
+if doc["status"] == "ok":
+    for transaction in doc["data"]["transactions"]:
+        print(transaction["date"], transaction["direction"], transaction["amount"])
+else:
+    print(doc["error"]["code"], doc["error"]["message"])
+~~~
+
+Install `openbooks==0.2.0` and run the file from the directory containing `statement.csv`.
+</Tab>
+<Tab value="Node.js">
+~~~bash
+python -m pip install "openbooks==0.2.0"
+npm install @lumeo_hq/openbooks-core@0.2.0
+~~~
+
+Save this as `quickstart.mjs` and run `node quickstart.mjs`.
+
+~~~js
+import { runFile } from "@lumeo_hq/openbooks-core";
+
+const result = await runFile("statement.csv", {
+  currency: "INR",
+  dateOrder: "dmy",
+  opening: "1000.00",
+});
+if (result.kind === "released") {
+  console.log(result.document.data.transactions);
+} else {
+  console.log(result.code, result.message);
+}
+~~~
+</Tab>
+</Tabs>
+
+## Check the result
+
+1. Read `status` before accessing `data`.
+2. Confirm the closing balance for the statement batch is `950.00` and the debit and credit directions are correct.
+3. Inspect `assertions` for passed checks and look up the corresponding raw text and rows in `evidence`.
+4. Try the same flow with a [supported format](/docs/formats), starting with a synthetic or redacted fixture.
+
+See [the output contract](/docs/output-contract) and [the refusal guide](/docs/refusals) before wiring releases to a ledger.

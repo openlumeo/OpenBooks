@@ -1,0 +1,66 @@
+---
+title: Install Open Books for Python, Node.js or the CLI
+description: Install the Open Books engine and npm wrappers, add OCR and model support, and verify engine discovery in your environment.
+---
+
+## Pick your runtime
+
+<Tabs items={["Python", "Node.js", "npm CLI"]}>
+<Tab value="Python">
+Python 3.11 or newer is required. Use a virtual environment for each application.
+
+~~~bash
+python -m venv .venv
+# macOS and Linux
+source .venv/bin/activate
+# PowerShell uses: .\.venv\Scripts\Activate.ps1
+python -m pip install "openbooks==0.2.0"
+python -m openbooks doctor
+~~~
+</Tab>
+<Tab value="Node.js">
+Install Python 3.11+ and Node.js 20+. Install the engine into the same project environment that the wrapper will discover at runtime.
+
+~~~bash
+python -m pip install "openbooks==0.2.0"
+npm install @lumeo_hq/openbooks-core@0.2.0
+~~~
+
+Use an explicit interpreter path through `OPENBOOKS_PYTHON` in CI when the runner has more than one Python installation.
+</Tab>
+<Tab value="npm CLI">
+The npm CLI can install the Python engine with scan and model support using its install hook. Use `npx openbooks` with a project-local installation.
+
+~~~bash
+npm install -g @lumeo_hq/openbooks@0.2.0
+openbooks doctor --deep
+~~~
+
+If your package manager skips lifecycle hooks, run `openbooks install-engine --scan`. Activate your project virtual environment first when system Python disallows global pip installs.
+</Tab>
+</Tabs>
+
+## Scan and model extras
+
+The base Python dependency set handles structured files and text-layer PDFs. Install the `scan` extra for image OCR and the local typed-head model. It adds EasyOCR and PyTorch, so allocate more disk and installation time.
+
+~~~bash
+python -m pip install "openbooks[scan]==0.2.0"
+python -m openbooks doctor --deep
+~~~
+
+See [PDF and OCR](/docs/pdf-and-ocr) for flag defaults. The Node.js wrapper enables model cross-checking for PDF and image runs by default.
+
+## Package map
+
+| Distribution | Purpose |
+| --- | --- |
+| [`openbooks` on PyPI](https://pypi.org/project/openbooks/) | Python engine, provider registry, Python API and CLI. |
+| [`@lumeo_hq/openbooks-core`](https://www.npmjs.com/package/@lumeo_hq/openbooks-core) | Typed runner, engine discovery and output validation. |
+| [`@lumeo_hq/openbooks-statements`](https://www.npmjs.com/package/@lumeo_hq/openbooks-statements) | Runner restricted to bank statement layouts. |
+| [`@lumeo_hq/openbooks-gateways`](https://www.npmjs.com/package/@lumeo_hq/openbooks-gateways) | Runner restricted to payment gateway layouts. |
+| [`@lumeo_hq/openbooks-tax`](https://www.npmjs.com/package/@lumeo_hq/openbooks-tax) | Runner restricted to tax and trial-balance layouts. |
+| [`@lumeo_hq/openbooks-doctor`](https://www.npmjs.com/package/@lumeo_hq/openbooks-doctor) | Programmatic diagnostics for Node.js. |
+| [`@lumeo_hq/openbooks`](https://www.npmjs.com/package/@lumeo_hq/openbooks) | Unified npm CLI and Python installer. |
+
+If you're upgrading Python from 0.1, remove the old split distributions before reinstalling. The 0.2 distribution owns all five Python modules. See the [migration instructions](https://github.com/Sagexd08/OpenBooks/blob/main/docs/PYTHONOPENBOOKSPACKAGES.md#upgrading-from-01).

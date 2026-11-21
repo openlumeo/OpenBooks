@@ -1,0 +1,32 @@
+---
+title: Reconcile Stripe and Razorpay Settlement Exports
+description: Check gateway settlement arithmetic and payout totals with Open Books, then reconcile released amounts against bank credits.
+---
+
+Open Books checks that settlement rows and printed totals agree. For gateway settlements, `gross − fees − tax = net` and the sum of the net amounts must match the payout. Check the [format matrix](/docs/formats) for Stripe, Razorpay, PayPal and Wise layout IDs.
+
+## Parse a gateway export in Node.js
+
+~~~ts
+import { runFile } from "@lumeo_hq/openbooks-gateways";
+
+const result = await runFile("razorpay-settlement.csv", { currency: "INR" });
+if (result.kind === "released") {
+  console.log(result.document.data.batches);
+  console.log(result.document.assertions);
+} else {
+  console.error(result.code, result.message);
+}
+~~~
+
+For Python, pass the same file to [`process()`](/docs/python). The gateway wrapper only accepts the layouts in its `LAYOUTS` export.
+
+## Reconcile with the receiving account
+
+1. Process the settlement export and bank statement separately. Keep each released file and its evidence.
+2. Compare payout and credit in the same currency using exact decimal amounts. Decide which accounting date and date window apply to your exports.
+3. Keep unmatched payouts and ties open for review. Dates and reference similarity can help rank candidates, and an exact amount match can still be ambiguous.
+
+Open Books' optional source-checkout linker applies exact amounts, same currency and a date window. It can report ties and grouped payouts. Check `link_available` in engine health before using [`POST /v1/link`](/docs/engine-api).
+
+PayPal activity and Wise statement layouts follow publicly documented export formats and have been exercised on synthetic files. Verify representative exports before scheduling imports.

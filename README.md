@@ -4,6 +4,8 @@
 
 Open Books reads bank statements (CSV, OFX, MT940, PDF, scans), payment-gateway settlements, Indian tax documents and Excel workpapers. It normalises them to a canonical schema and then **proves** the result with balance checks. If the numbers do not tie out, or the layout is unknown, it refuses with a typed error and writes nothing.
 
+[Developer documentation](https://openbooks.lumeo.co.in/docs) · [Interactive bank CSV quickstart](https://openbooks.lumeo.co.in/docs/quickstart) · [Workspace](https://openbooks.lumeo.co.in/)
+
 ![Open Books pipeline](docs/pipeline.jpeg)
 
 > **Status: early (v0.1).** All training and test data is **synthetic**. No real statements were used or scored, so synthetic results do not prove real-world accuracy. See [Limitations](#limitations).

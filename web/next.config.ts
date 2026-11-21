@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { createMDX } from "fumadocs-mdx/next";
 
 // Next injects inline bootstrap scripts, so script-src keeps 'unsafe-inline'; everything else is locked down.
 export const CSP = [
@@ -17,6 +18,14 @@ export const CSP = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  async redirects() {
+    return [
+      { source: "/app", destination: "/", permanent: true },
+      // Hide account entry points during the workspace preview.
+      { source: "/auth/sign-in", destination: "/", permanent: false },
+      { source: "/auth/sign-up", destination: "/", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {
@@ -32,4 +41,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default createMDX()(nextConfig);

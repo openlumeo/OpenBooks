@@ -1,0 +1,52 @@
+---
+title: Open Books CLI Commands and Exit Codes
+description: Run financial files through the Python or npm CLI with reproducible flags, JSON output and diagnostic commands.
+---
+
+The Python and npm installs both provide a command named `openbooks`. Use `python -m openbooks` to invoke the Python command explicitly when both are on your path.
+
+<Tabs items={["Python CLI", "npm CLI"]}>
+<Tab value="Python CLI">
+~~~bash
+python -m openbooks run statement.csv --opening 1000.00 --currency INR --date-order dmy --out output
+python -m openbooks engine-info
+python -m openbooks doctor --json
+~~~
+
+`run` writes one file per unique input content hash, including typed refusal JSON, under `--out` (default `out`). `--machine` writes newline-delimited run summaries and a final engine-info line to stdout. `report` processes a folder, `eval` checks golden fixtures, and `link` needs the optional linker.
+</Tab>
+<Tab value="npm CLI">
+~~~bash
+openbooks run statement.csv --opening 1000.00 --currency INR --date-order dmy --out output --json
+openbooks statements run statement.csv --opening 1000.00 --currency INR
+openbooks engine-info
+openbooks doctor --deep
+~~~
+
+The npm CLI also accepts a file directly, with `run` implied. Use `statements run`, `gateways run` or `tax run` to restrict allowed layouts. `--json` writes a JSON array of result wrappers to stdout. `--out` additionally writes the underlying engine documents as individual JSON files.
+</Tab>
+</Tabs>
+
+## Flags for reproducible runs
+
+| Flag | Effect |
+| --- | --- |
+| `--currency INR` | Supply a known currency where required. |
+| `--opening 1000.00` | Supply a verified opening balance. |
+| `--account <id>` | Supply an account identifier where supported. |
+| `--date-order dmy` | Interpret numeric dates as day-first. Use `mdy` for month-first. |
+| `--allow-derived-opening` | Opt into a calculated opening for supported layouts. |
+| `--no-ocr` | Disable OCR for document runs. |
+| `--model` (Python), `--no-model` (npm) | Python opts into the model. The npm CLI opts out of its default document cross-check. |
+| `--python <path>`, `--timeout <ms>` (npm) | Select the interpreter or bound runtime. |
+
+## Run exit codes
+
+| Code | Meaning | Batch job action |
+| --- | --- | --- |
+| `0` | Every file released. | Read the documents and retain their evidence. |
+| `1` | One or more files refused. | Read each result and route refusals to review. |
+| `2` | Invalid command, argument or input path. | Correct the invocation. |
+| `3` | The engine could not complete execution. | Diagnose the installation, timeout or execution failure. |
+
+Both CLIs use content-hash filenames for `--out`. Use separate output directories when comparing different options for the same file.

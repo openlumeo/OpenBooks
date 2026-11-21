@@ -22,11 +22,12 @@
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow: hidden;
   }
 
+  body:has(.ob-shell) { overflow: hidden; }
+
   /* Plum bloom, bottom-right; atmosphere only (Lumeo). */
-  body::before {
+  body:has(.ob-shell)::before {
     content: "";
     position: fixed;
     inset: 0;
@@ -37,12 +38,12 @@
       radial-gradient(ellipse 60% 50% at 0% 0%, var(--bloom-tint) 0%, transparent 58%);
     opacity: var(--bloom-opacity);
   }
-  :root[data-theme="light"] body::before {
+  :root[data-theme="light"] body:has(.ob-shell)::before {
     background: linear-gradient(to bottom, var(--mint-soft) 0%, transparent 38%);
   }
 
   /* Fine grain so large dark fields never band (Lumeo). */
-  body::after {
+  body:has(.ob-shell)::after {
     content: "";
     position: fixed;
     inset: 0;

@@ -1,0 +1,30 @@
+---
+title: Extract Tax Documents and Excel Workpapers
+description: Process Form 26AS, AIS, FIRA, Form 1099-B and trial balances, with source evidence and document-level reconciliation checks.
+---
+
+Tax and workpaper providers use layout-specific checks. A released document carries its assertions alongside the extracted records. Review those assertions and source fields before posting or reconciling results.
+
+| Input | Review after a release |
+| --- | --- |
+| Form 26AS | Check the tax amounts and group totals against the source statement. |
+| Annual Information Statement (AIS) | Review the source fields, reported values and any printed totals. |
+| Foreign Inward Remittance Advice (FIRA) | Inspect the remittance amount, currency and references before matching to a bank credit. |
+| Form 1099-B | Inspect proceeds, basis and dates. The layout is tested on synthetic data. |
+| Trial balance or supported Excel workpaper | Inspect the totals and the selected sheet's evidence. |
+
+~~~ts
+import { runFiles } from "@lumeo_hq/openbooks-tax";
+
+for (const result of await runFiles(["form-26as.csv", "trial-balance.xlsx"])) {
+  if (result.kind === "released") {
+    console.log(result.file, result.document.file.layout_version);
+  } else {
+    console.error(result.file, result.code, result.message);
+  }
+}
+~~~
+
+## Prepare a workbook
+
+Export one consistent table in the recognised layout. Use plain values for fields the engine must read and preserve the source totals. Check [supported formats](/docs/formats) when Excel is just the container for a bank or gateway export. Handle ambiguous spreadsheets and [refusals](/docs/refusals) in a review queue.

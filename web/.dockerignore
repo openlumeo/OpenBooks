@@ -3,6 +3,8 @@
 !app/**
 !components/
 !components/**
+!content/
+!content/**
 !lib/
 !lib/**
 !public/

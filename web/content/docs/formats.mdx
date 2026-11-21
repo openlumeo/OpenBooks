@@ -1,0 +1,32 @@
+---
+title: Supported Open Books File Formats and Layouts
+description: Find supported CSV, OFX, MT940, PDF, OCR and Excel formats, with layout identifiers and the requirements for each financial document.
+---
+
+Open Books detects a layout using file contents and extension rules. An extension alone does not identify a layout. Check the released `file.layout_version` when routing a document in your application.
+
+| Document | Layout ID | Inputs and requirements |
+| --- | --- | --- |
+| Bank statement CSV | `bank_csv.v1` | Recognised date, debit, credit and running-balance columns. Supply opening and currency when needed. |
+| OFX / QFX | `ofx.v1` | OFX content with currency and ledger balance. Supply the opening balance. |
+| SWIFT MT940 | `mt940.v1` | MT940 text, commonly `.sta`, `.mt940` or `.txt`. Opening and closing come from balance records. |
+| Bank statement PDF or scan | `bank_statement_pdf.v1` | `.pdf`, `.png`, `.jpg`, `.jpeg`. Scans need OCR. |
+| Stripe balance export | `stripe_balance.v1` | Recognised Stripe balance table and payout evidence. |
+| Razorpay settlement | `razorpay_settlement.v1` | Recognised settlement table with settlement arithmetic. |
+| PayPal activity | `paypal_activity.v1` | Public export layout, exercised on synthetic examples. |
+| Wise statement | `wise_statement.v1` | Public export layout, exercised on synthetic examples. |
+| Form 26AS | `tds_26as.v1` | Recognised Part A TDS table and proof checks. |
+| AIS | `ais.v1` | Recognised statement layout. |
+| FIRA | `fira.v1` | Recognised remittance advice table. |
+| Form 1099-B | `form_1099b.v1` | Public export layout, exercised on synthetic examples. Other 1099 forms have no provider. |
+| Trial balance | `trial_balance.v1` | Recognised debit and credit ledger table. |
+| Excel workpaper | The matching table's layout ID | `.xlsx` with exactly one matching sheet. Formula-only evidence is insufficient. |
+
+## Input limits
+
+- Maximum file size is 20 MiB in the engine. A hosting proxy may impose a smaller request limit.
+- Keep one supported source document per file. A workbook with multiple matching sheets is ambiguous.
+- Supply `dmy` or `mdy` when date order is known but the dates are ambiguous. The bank CSV parser defaults to day-first where it cannot infer order. PayPal and Form 1099-B can require an explicit order.
+- Inspect live engine capabilities through [`GET /v1/health` and `GET /v1/formats`](/docs/engine-api) when using the service.
+
+An unknown layout returns `UNKNOWN_LAYOUT`. A supported layout with unreadable fields can instead return `PARSE_ERROR`. See [refusals](/docs/refusals) for recovery.

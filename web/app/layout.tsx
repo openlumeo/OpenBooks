@@ -3,15 +3,14 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Inter } from "next/font/google";
 import { ThemeScript } from "@/components/brand/theme-script";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Open Books by Lumeo",
-  description:
-    "Turn bank statements, gateway settlements, tax documents and workpapers into one proven JSON per file, or a typed refusal.",
-  robots: { index: false, follow: false },
+  metadataBase: siteUrl,
+  title: { default: "Open Books by Lumeo", template: "%s | Open Books" },
 };
 
 export const viewport: Viewport = {
@@ -29,12 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <ThemeScript />
       </head>
-      <body>
-        <a href="#conversation" className="skip-link">
-          Skip to conversation
-        </a>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

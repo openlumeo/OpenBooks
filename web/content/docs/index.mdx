@@ -1,0 +1,42 @@
+---
+title: Developer Documentation
+description: Extract financial documents into verified JSON with the Open Books Python engine, Node.js packages, CLI, or self-hosted HTTP service.
+---
+
+Open Books reads bank statements, payment settlements, tax documents and workpapers. Each run returns either a released `openbooks.v1` document with verifiable checks and source evidence or a typed refusal.
+
+<Cards>
+  <Card title="Run your first statement" href="/docs/quickstart">
+    Run a synthetic CSV in your browser, then repeat the workflow in Python or Node.js.
+  </Card>
+  <Card title="Install the packages" href="/docs/installation">
+    Choose a local CLI, Python, or Node.js integration and check that the engine is ready.
+  </Card>
+  <Card title="Read the output contract" href="/docs/output-contract">
+    Use the document status, exact money amounts and source evidence in downstream software.
+  </Card>
+  <Card title="Check supported formats" href="/docs/formats">
+    Match your file to a known layout and find requirements for dates, currency and OCR.
+  </Card>
+</Cards>
+
+## From a file to a decision
+
+<ol className="ob-flow">
+  <li><strong>Detect</strong><span>Match a known document layout.</span></li>
+  <li><strong>Extract</strong><span>Read fields and record where they came from.</span></li>
+  <li><strong>Verify</strong><span>Reconcile the amounts and check independent evidence.</span></li>
+  <li><strong>Return</strong><span>Release the complete JSON or return a refusal.</span></li>
+</ol>
+
+## Choose an integration
+
+| Environment | Entry point | Use it for |
+| --- | --- | --- |
+| Python 3.11+ | [`openbooks`](/docs/python) | Run the engine inside a Python process with control over the extraction options. |
+| Node.js 20+ | [`@lumeo_hq/openbooks-core`](/docs/node) | Run the local Python engine from Node.js and consume typed results. |
+| Terminal | [Python and npm CLI commands](/docs/cli) | Convert files, run diagnostics and script batch jobs. |
+| Self-hosted HTTP | [FastAPI engine service](/docs/engine-api) | Stream batches from a trusted application server. |
+| Browser | [Open the workspace](/) | Try synthetic samples and inspect assertions, rows and source evidence. |
+
+The public packages are at 0.2.0. Training and evaluation use synthetic documents. Test the layouts you need before relying on the results in a production workflow.

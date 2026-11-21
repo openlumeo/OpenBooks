@@ -1,0 +1,26 @@
+---
+title: Handle Open Books Refusals and Execution Errors
+description: Find all six refusal codes, diagnose failed documents, and design retry and review behavior for reliable financial imports.
+---
+
+A refusal is a completed document decision with `data: null`. An execution failure means the run could not complete and needs operational handling. Keep both outcomes in your job history with their own states.
+
+| Code | Meaning | What to verify |
+| --- | --- | --- |
+| `UNKNOWN_LAYOUT` | No known layout matched, a required provider is missing, or a restricted npm runner withheld the layout. | Check the source export, the wrapper's `LAYOUTS` and the installed providers. |
+| `UNSUPPORTED_INPUT` | Type, size, encoding or document structure falls outside supported inputs. | Verify the extension and size, whether the PDF is locked, and whether OCR is available. |
+| `PARSE_ERROR` | The engine could not read or interpret a required field. | Check the opening balance, date order, currency and the field named in the message. Inspect `error.internal` for unexpected failures. |
+| `BALANCE_MISMATCH` | A reconciliation assertion failed or there was insufficient independent evidence. | Compare printed running balances and totals against the original. Check for missing rows and truncated exports. |
+| `LOW_CONFIDENCE` | The OCR or model-assisted reading could not be supported with enough confidence. | Review scan quality, orientation, column labels and source values. |
+| `OUTPUT_INVALID` | The result failed contract validation or a required output check could not run. | Record the engine version and diagnose the provider or report a minimal synthetic reproduction. |
+
+## Build a retry policy
+
+<ol className="ob-flow">
+  <li><strong>Record</strong><span>Store file hash, options, run version and the refusal or execution error.</span></li>
+  <li><strong>Review</strong><span>Separate operational faults from a source document or layout issue.</span></li>
+  <li><strong>Retry</strong><span>Rerun transient faults or supply verified document context.</span></li>
+  <li><strong>Reconcile</strong><span>Post only a released document after reviewing its checks.</span></li>
+</ol>
+
+For Node.js, branch on `result.kind` and catch [`EngineError`](/docs/node). For the self-hosted HTTP service, consume `file.done` and require a final `run.done` event. A disconnected stream may leave files without a decision. See [the engine API guide](/docs/engine-api) for event semantics.

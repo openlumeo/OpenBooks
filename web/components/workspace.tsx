@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Menu, Upload } from "lucide-react";
+import { BookOpen, Menu, Upload } from "lucide-react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import { Composer, type Pending } from "@/components/composer";
 import { EmptyState } from "@/components/empty-state";
@@ -138,7 +138,9 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
           <Menu size={16} />
         </button>
         <BrandLockup markSize={22} />
-        <span style={{ width: 40 }} />
+        <a className="icon-btn icon-btn--boxed" href="/docs" aria-label="Developer docs">
+          <BookOpen size={16} aria-hidden="true" />
+        </a>
       </header>
 
       <div

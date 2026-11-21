@@ -1,0 +1,59 @@
+---
+title: Open Books JSON Schema, Evidence and Assertions
+description: Integrate the openbooks.v1 release and refusal contract with exact decimal money, source evidence and verification assertions.
+---
+
+Every completed decision uses `schema_version: "openbooks.v1"`. Branch on `status` and preserve the complete decision as an audit record. The Python and Node.js APIs carry the same underlying JSON documents.
+
+## Released documents
+
+| Field | Contents |
+| --- | --- |
+| `status` | `"ok"` |
+| `file` | Input name and SHA-256, detected format, layout version and extraction method. A model-checked release also identifies the weights and calibration by SHA-256. |
+| `data` | `accounts`, `parties`, `batches`, `transactions` and `claims`. Collections can be empty and fields vary with the layout. |
+| `evidence` | Source locations and raw text indexed by record and field. |
+| `assertions` | Statement, settlement or layout-specific checks. All must pass with at least one independent check. |
+
+This transaction is from the [sample terminal](/docs/quickstart).
+
+~~~json
+{
+  "id": "txn-00001",
+  "batch_id": "batch-1",
+  "account_id": "acct-1",
+  "date": "2026-01-02",
+  "direction": "debit",
+  "amount": { "amount": "100.00", "currency": "INR" },
+  "balance_after": { "amount": "900.00", "currency": "INR" },
+  "description": "Sample payment",
+  "reference": null
+}
+~~~
+
+Retain money as decimal strings, and use a decimal library for arithmetic. Carry the currency alongside the amount. Date fields are ISO calendar dates where the layout supplies a date. Scope record IDs to their source document when combining files.
+
+## Evidence and independent checks
+
+Look up keys such as `txn-00001.amount` and `batch-1.closing` in `evidence`. An evidence entry contains `page`, `bbox`, `row`, `raw_text` and `method`. Location fields can be null. Extraction methods can identify structured parsing, a PDF text layer, OCR or a model cross-check.
+
+Each assertion reports `id`, `rule`, `expected`, `computed`, `passed` and `independent`. Independent evidence comes from the source, such as a printed running balance or payout total. Keep it in storage alongside the verified values.
+
+## Refused documents
+
+~~~json
+{
+  "schema_version": "openbooks.v1",
+  "status": "refused",
+  "data": null,
+  "error": {
+    "code": "PARSE_ERROR",
+    "message": "statement has no stated opening balance; supply --opening",
+    "file_sha256": "4cbb7e3f45dc4860ba6c14e51b32a2667fbb526b4f6f78e7861bc3d6b4f1f997"
+  }
+}
+~~~
+
+Read `error.code` for programmatic handling and `error.message` for review. The hash links the refusal to the exact bytes. Store processing parameters and versions too when the same bytes may be run with different settings.
+
+Validate unfamiliar output before processing it. The official [release schema](https://github.com/Sagexd08/OpenBooks/blob/main/packages/py/openbooks/src/openbooks/core/schema/openbooks.v1.schema.json) and [refusal schema](https://github.com/Sagexd08/OpenBooks/blob/main/packages/py/openbooks/src/openbooks/core/schema/openbooks.v1.refusal.schema.json) ship with Python and are mirrored by the Node.js validation helpers.

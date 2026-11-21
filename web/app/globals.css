@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
 
 /* Lumeo brand system, copied verbatim (see headers). DESIGN.md is binding. */
 @import "./brand/theme-tokens.css";
@@ -22,4 +24,83 @@
   --font-mono: var(--font-geist-mono);
   --font-body: var(--font-inter);
   --radius-glass: var(--glass-radius);
+}
+
+.ob-docs {
+  min-height: 100dvh;
+  background: var(--color-fd-background);
+  color: var(--color-fd-foreground);
+  --color-fd-primary: #275721;
+}
+
+.dark .ob-docs {
+  --color-fd-background: #10160e;
+  --color-fd-card: #192218;
+  --color-fd-primary: #afe78f;
+}
+
+.ob-terminal {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  margin-block: 1.5rem;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.5rem;
+  background: var(--color-fd-card);
+}
+
+.ob-terminal h3 { font-weight: 650; }
+.ob-terminal p { color: var(--color-fd-muted-foreground); }
+.ob-terminal form, .ob-terminal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.ob-terminal-actions { flex-wrap: wrap; }
+.ob-terminal input, .ob-terminal-command, .ob-terminal pre { font-family: var(--font-geist-mono), monospace; }
+.ob-terminal input, .ob-terminal button {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.375rem;
+  background: var(--color-fd-background);
+}
+
+.ob-terminal input { min-width: 0; flex: 1; font-size: 0.82rem; }
+.ob-terminal button { font-size: 0.85rem; cursor: pointer; }
+.ob-terminal button[type="submit"] {
+  font-weight: 650;
+  color: var(--color-fd-primary-foreground);
+  background: var(--color-fd-primary);
+}
+
+.ob-terminal button:disabled { opacity: 0.65; cursor: wait; }
+.ob-terminal :focus-visible { outline: 2px solid var(--color-fd-primary); outline-offset: 2px; }
+.ob-terminal-command { overflow-wrap: anywhere; font-size: 0.82rem; }
+.ob-terminal pre {
+  max-height: 24rem;
+  overflow: auto;
+  padding: 0.8rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-background);
+  font-size: 0.8rem;
+}
+
+.ob-docs .ob-flow {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  list-style: none;
+  padding: 0;
+  margin-block: 1rem 1.5rem;
+}
+
+.ob-flow li {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--color-fd-border);
+  border-top: 2px solid var(--color-fd-primary);
+  background: var(--color-fd-card);
 }
