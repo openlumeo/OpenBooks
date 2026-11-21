@@ -158,6 +158,7 @@ type RoleName = "other" | "date" | "desc" | "debit" | "credit" | "balance";
 type RoleToken = {
   text: string;
   ocr_confidence?: number | null;
+  ocr_text?: string;
   /** [x0, y0, x1, y1] as fractions of the page, origin top-left */
   box: [number, number, number, number];
   role: RoleName;

@@ -11,9 +11,35 @@ pytest.importorskip("pypdfium2")
 from openbooks.core import Params, process  # noqa: E402
 from openbooks.core.errors import Refusal  # noqa: E402
 from openbooks.statements.pdf_backend import open_document  # noqa: E402
+from openbooks.statements.pdf_front import Word  # noqa: E402
 from pdfmaker import ROWS, pdf_bytes, statement_page, statement_pdf, text  # noqa: E402
 
 INR = Params(currency="INR")
+
+
+@pytest.mark.parametrize(("last_balance", "expected"), [("84.75", "ok"), ("84.76", "refused")])
+def test_scanned_amount_decimal_comma_keeps_original_evidence_and_balance_checks(tmp_path, monkeypatch, last_balance, expected):
+    from PIL import Image
+
+    rows = [
+        ("Date", "Description", "Debit", "Credit", "Balance"),
+        ("01/01/2026", "Entry", "8.00", "", "92.00"),
+        ("02/01/2026", "Entry", "3.00", "", "89.00"),
+        ("03/01/2026", "Entry", "4,25", "", last_balance),
+    ]
+    words = [Word(value, x, y, x + 12, y + 9, 1, 0.9, 600, 200)
+             for y, row in zip(range(20, 100, 20), rows) for x, value in zip((10, 150, 300, 420, 540), row) if value]
+    monkeypatch.setattr("openbooks.statements.pdf_front._ocr_page", lambda *_: words)
+    image = tmp_path / "synthetic.jpeg"
+    Image.new("RGB", (600, 200), "white").save(image)
+    doc = process(image, Params(currency="INR", date_order="dmy", allow_derived_opening=True))
+    assert doc["status"] == expected
+    if expected == "refused":
+        assert doc["error"]["code"] == "BALANCE_MISMATCH"
+        return
+    txn = doc["data"]["transactions"][-1]
+    assert txn["amount"]["amount"] == "4.25"
+    assert doc["evidence"][f"{txn['id']}.amount"]["raw_text"] == "4,25"
 
 
 def words_of(pdf: bytes, tmp_path, page=0):

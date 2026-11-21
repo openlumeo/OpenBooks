@@ -40,7 +40,7 @@ export function ModelReading({ file, params, disabled }: { file: File; params: R
           {error ? "Retry model reading" : "Read with model"}
         </button>
       )}
-      {loading && <p role="status">Reading words and predicting roles…</p>}
+      {loading && <p role="status">Reading words and predicting roles. Scanned images can take a few minutes.</p>}
       {error && <p role="alert">{error}</p>}
       {reading && (
         <>
@@ -63,7 +63,10 @@ export function ModelReading({ file, params, disabled }: { file: File; params: R
                   <tbody>
                     {reading.pages[pageIndex]?.tokens.map((token, i) => (
                       <tr key={i}>
-                        <td>{token.text}</td>
+                        <td>
+                          {token.text}
+                          {token.ocr_text && <small> (OCR read {token.ocr_text})</small>}
+                        </td>
                         <td>{token.abstained ? `Uncertain (${token.role_set.join(", ") || "no candidates"})` : token.role_set[0]}</td>
                         <td>{token.type_set.join(", ") || "Uncertain"}</td>
                         <td>{token.ocr_confidence == null ? "—" : percent(token.ocr_confidence)}</td>
