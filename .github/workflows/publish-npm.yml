@@ -1,0 +1,53 @@
+name: publish-npm
+
+# Publishes the six @lumeo_hq/openbooks* packages on tags like js-v0.2.1, with provenance.
+# One-time setup: an npm automation token with publish rights on @lumeo_hq as the repo secret NPM_TOKEN,
+# and a GitHub environment `npm`. An npm version can never be re-published, only deprecated.
+
+on:
+  push:
+    tags: ["js-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: npm
+    permissions: { contents: read, id-token: write }
+    defaults:
+      run:
+        working-directory: packages/js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/check_versions.py "${GITHUB_REF_NAME}"
+        working-directory: .
+        if: github.ref_type == 'tag'
+      - run: python -m pip install -e ../py/openbooks
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsc -b
+      - run: pnpm exec vitest run
+        env:
+          OPENBOOKS_PYTHON: python
+      - name: Publish (dependencies first, the meta package last)
+        if: github.ref_type == 'tag'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
+        run: |
+          for p in core statements gateways tax doctor cli; do
+            (cd $p && pnpm publish --access public --no-git-checks)
+          done
