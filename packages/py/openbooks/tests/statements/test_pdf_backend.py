@@ -19,7 +19,7 @@ INR = Params(currency="INR")
 
 @pytest.mark.parametrize(("last_balance", "expected"), [("84.75", "ok"), ("84.76", "refused")])
 def test_scanned_amount_decimal_comma_keeps_original_evidence_and_balance_checks(tmp_path, monkeypatch, last_balance, expected):
-    from PIL import Image
+    Image = pytest.importorskip("PIL.Image")  # Pillow ships with the [scan] extra; the base-only CI job lacks it
 
     rows = [
         ("Date", "Description", "Debit", "Credit", "Balance"),
