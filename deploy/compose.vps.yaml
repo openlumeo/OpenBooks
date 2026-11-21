@@ -1,5 +1,6 @@
 services:
   web:
     environment:
+      OPENBOOKS_ENGINE_KEY: ${OPENBOOKS_ENGINE_KEY:?Set the shared engine key (same value as on the inference host)}
       OPENBOOKS_ENGINE_URL: ${OPENBOOKS_REMOTE_ENGINE_URL:?Set the private inference endpoint}
     depends_on: !reset {}

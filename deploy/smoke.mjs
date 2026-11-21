@@ -6,7 +6,10 @@ const args = process.argv.slice(2);
 const engineOnly = args[0] === "--engine";
 if (engineOnly) args.shift();
 const [address, image] = args;
-if (!address) throw new Error("Usage: node deploy/smoke.mjs [--engine] <URL> [statement image]");
+if (!address) {
+  console.error("Usage: node deploy/smoke.mjs [--engine] <URL> [statement image]");
+  process.exit(2);
+}
 const base = new URL(address);
 const endpoint = {
   catalog: engineOnly ? "/v1" : "/api/engine",
@@ -16,6 +19,7 @@ const endpoint = {
 async function request(path, body) {
   const response = await fetch(new URL(path, base), {
     ...(body ? { method: "POST", body } : {}),
+    headers: process.env.OPENBOOKS_ENGINE_KEY ? { "x-openbooks-key": process.env.OPENBOOKS_ENGINE_KEY } : {},
     signal: AbortSignal.timeout(180_000),
   });
   assert(response.ok, `${path} returned HTTP ${response.status}`);

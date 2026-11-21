@@ -16,6 +16,7 @@ import re
 import shutil
 import tempfile
 import threading
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
@@ -25,9 +26,12 @@ from typing import BinaryIO
 from openbooks.pipeline import MAX_BYTES, Params, process
 
 MAX_FILES = 20
+MAX_NAME_CHARS = 180
 _CURRENCY = re.compile(r"^[A-Za-z]{3}$")
 _AMOUNT = re.compile(r"^-?\d+(\.\d+)?$")
 _UNSAFE = re.compile(r"[^\w.\- ()\[\]]+")
+_WINDOWS_DEVICES = frozenset({"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(1, 10)),
+                              *(f"LPT{i}" for i in range(1, 10))})
 
 Emit = Callable[[str, dict], None]
 
@@ -81,8 +85,12 @@ def parse_params(raw: dict | None, base: Params | None = None) -> Params:
 
 
 def safe_name(name: str, index: int) -> str:
+    """A filename safe to create inside the run dir: no separators, no traversal, no Windows device names,
+    bounded length. Falls back to file-<index>. The name is only used on disk; the caller's name is reported as is."""
     base = Path((name or "").replace("\\", "/")).name.strip()
-    base = _UNSAFE.sub("_", base)[:180]
+    base = _UNSAFE.sub("_", base)[:MAX_NAME_CHARS]
+    if base.split(".", 1)[0].upper() in _WINDOWS_DEVICES:
+        base = "_" + base  # CON.csv would fail to create on Windows hosts
     return base if base not in ("", ".", "..") else f"file-{index}"
 
 
@@ -112,15 +120,29 @@ class Run:
             out.write(stream.read(MAX_BYTES + 1))
         self.files.append(Staged(name or path.name, path, path.stat().st_size))
 
-    def execute(self, params: Params, per_file: dict[int, Params], emit: Emit) -> None:
+    def execute(self, params: Params, per_file: dict[int, Params], emit: Emit,
+                observe: Callable[[str | None, str, dict[str, float]], None] | None = None) -> None:
+        """observe(engine method, file suffix, stage seconds) is called per file. Here `extract` is the detect stage (text layer or
+        OCR) and `parse` runs detect to balance; `serialization` is the validate stage."""
         released = refused = 0
         try:
             for i, f in enumerate(self.files):
                 if self.cancelled.is_set():
                     return
                 emit("file.started", {"index": i, "name": f.name, "size": f.size})
-                doc = process(f.path, per_file.get(i, params),
-                              on_stage=lambda s, i=i: emit("file.stage", {"index": i, "stage": s}))
+                marks: dict[str, float] = {}
+
+                def on_stage(s: str, i: int = i) -> None:
+                    marks[s] = time.perf_counter()
+                    emit("file.stage", {"index": i, "stage": s})
+
+                t0 = time.perf_counter()
+                doc = process(f.path, per_file.get(i, params), on_stage=on_stage)
+                if observe:
+                    end = time.perf_counter()
+                    d, b = marks.get("detect", end), marks.get("balance", end)
+                    observe(doc.get("file", {}).get("method"), f.path.suffix,
+                            {"extract": d - t0, "parse": b - d, "serialization": marks.get("validate", end) - b})
                 if doc["status"] == "ok":
                     released += 1
                 else:

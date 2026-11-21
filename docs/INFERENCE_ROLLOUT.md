@@ -39,6 +39,19 @@ Replace both example addresses. On a VPS with an existing reverse proxy, start o
 
 The inference service is deployed on the 2 vCPU VPS with one worker, two CPU threads and loopback binding. Through an SSH tunnel, the PDF fixture released 10 expected transactions with the model identity recorded and the screenshot produced 89 OCR words. The website connection is pending the website host details.
 
+## Rollout tooling in the repo
+
+| Piece | Where | What it does |
+| --- | --- | --- |
+| Admission control | `server/openbooks_server/admission.py`, `middleware.py`, `drain.py`, `metrics.py` | Bounds in-flight jobs, queue depth, in-flight bytes and OCR pages. Over a limit the caller gets `429` + `Retry-After` and a JSON body at once; queued work that waits past `OPENBOOKS_QUEUE_TIMEOUT_S` or whose client disconnects is dropped. Limits: `OPENBOOKS_MAX_INFLIGHT` (2), `_MAX_QUEUE` (8), `_MAX_INFLIGHT_BYTES` (256 MiB), `_MAX_OCR_PAGES` (60), `_RETRY_AFTER_S` (5). |
+| Request IDs and stage timing | same | `X-Request-ID` is accepted or generated, echoed and logged. Queue, extraction/OCR, model, calibration and serialization time are recorded per request. |
+| Metrics | `GET /metrics` | Prometheus histograms per stage and input kind (`pdf_text`, `ocr`), request and rejection counters, in-flight gauge. Combine replicas from the buckets. |
+| Liveness, readiness, drain | `/healthz`, `/readyz` | `SIGTERM` makes `/readyz` return `503`, lets in-flight work finish (`OPENBOOKS_DRAIN_TIMEOUT_S`), then exits. |
+| Replicas | `deploy/compose.replicas.yaml`, `deploy/Caddyfile.lb` | Two engine replicas behind a private load balancer that routes only to ready replicas. |
+| Cutover and rollback | `deploy/rollout.sh deploy <tag> \| rollback \| status` | Records the previous image tag and model identity, runs `smoke.mjs`, promotes only on a pass, and restores the previous tag on `rollback`. |
+| Load test and gate | `deploy/loadtest.mjs` | Open-loop warmup, sustained and burst modes. Writes the benchmark CSV columns above and exits non-zero when the promotion gate fails. |
+| Web proxy | `web/lib/server/engine.ts` | Forwards `X-Request-ID`, retries only connection-setup failures (never a started or streamed request), and passes `Retry-After` through to the browser. |
+
 ## Latency and responsiveness
 
 Measure upload, private link, queue wait, PDF or OCR extraction, feature preparation, model forward, calibration, validation, and response serialization separately. Break down p50, p95, and p99 by PDF text versus scan, page count, and token count. A prior local GPU profile of one six-page text PDF reported 101.5 ms for word extraction and 34.7 ms for a batched forward pass. Its parser and hardware differ from the target deployment. Use it to choose what to instrument first. [Open Books model profile](PROFILE_ROLES.md)

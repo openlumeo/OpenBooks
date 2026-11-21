@@ -57,7 +57,7 @@ def run(resolve) -> dict:
     tmp = ROOT / "data" / "_s2b.pdf"
     tmp.parent.mkdir(exist_ok=True)
     out = {"correct": 0, "wrong": 0, "abstained": 0, "other_refusal": 0, "files": N}
-    for seed, rows, pdf in cases(N):
+    for _seed, rows, pdf in cases(N):
         tmp.write_bytes(pdf)
         doc = process(tmp, Params("INR", Decimal(str(OPEN)), None, False, model=True))
         if doc["status"] == "ok":

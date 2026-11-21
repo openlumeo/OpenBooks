@@ -1,0 +1,41 @@
+# Two warm engine replicas behind a private Caddy load balancer that only routes to /readyz-healthy replicas.
+#   docker compose -f deploy/compose.replicas.yaml up -d --build --wait
+# The balancer listens on OPENBOOKS_INFERENCE_BIND_IP:8765; point OPENBOOKS_REMOTE_ENGINE_URL at it.
+x-engine: &engine
+  build:
+    context: ..
+    dockerfile: deploy/engine.Dockerfile
+  image: openbooks-engine:${OPENBOOKS_ENGINE_TAG:-local}
+  restart: unless-stopped
+  stop_grace_period: 130s
+  environment:
+    OMP_NUM_THREADS: ${OPENBOOKS_CPU_THREADS:-2}
+    MKL_NUM_THREADS: ${OPENBOOKS_CPU_THREADS:-2}
+    OPENBOOKS_ENGINE_KEY: ${OPENBOOKS_ENGINE_KEY:-}
+  healthcheck:
+    test: ["CMD", "python", "/app/ready.py"]
+    interval: 15s
+    timeout: 10s
+    retries: 5
+    start_period: 30s
+  networks: [engines]
+
+services:
+  engine-a:
+    <<: *engine
+  engine-b:
+    <<: *engine
+  lb:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile.lb:/etc/caddy/Caddyfile:ro
+    ports:
+      - "${OPENBOOKS_INFERENCE_BIND_IP:-127.0.0.1}:${OPENBOOKS_INFERENCE_PORT:-8765}:8765"
+    depends_on:
+      engine-a: {condition: service_healthy}
+    networks: [engines]
+
+networks:
+  engines:
+    internal: true

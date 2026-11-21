@@ -3,10 +3,13 @@ services:
     build:
       context: ..
       dockerfile: deploy/engine.Dockerfile
+    image: openbooks-engine:${OPENBOOKS_ENGINE_TAG:-local}
     restart: unless-stopped
+    stop_grace_period: 130s  # SIGTERM drains: readiness fails, in-flight work finishes
     environment:
       OMP_NUM_THREADS: ${OPENBOOKS_CPU_THREADS:-2}
       MKL_NUM_THREADS: ${OPENBOOKS_CPU_THREADS:-2}
+      OPENBOOKS_ENGINE_KEY: ${OPENBOOKS_ENGINE_KEY:-}
     ports:
       - "${OPENBOOKS_INFERENCE_BIND_IP:-127.0.0.1}:${OPENBOOKS_INFERENCE_PORT:-8765}:8765"
     healthcheck:

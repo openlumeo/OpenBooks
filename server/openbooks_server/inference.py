@@ -70,12 +70,18 @@ def logits_batched(model: RoleModel, words, max_tokens: int = MAX_BATCH_TOKENS) 
     return role, vt
 
 
-def predict_batched(model: RoleModel, pages) -> Predictions:
-    """RoleModel.predict with batched windows."""
+def predict_batched(model: RoleModel, pages, timings: dict | None = None) -> Predictions:
+    """RoleModel.predict with batched windows. timings gets `model` (features + forward) and `calibration` seconds."""
     words = [w for pg in pages for w in pg]
     if not words:
         return Predictions({})
-    return model.predictions(words, *logits_batched(model, words))
+    t0 = time.perf_counter()
+    logits = logits_batched(model, words)
+    t1 = time.perf_counter()
+    preds = model.predictions(words, *logits)
+    if timings is not None:
+        timings["model"], timings["calibration"] = t1 - t0, time.perf_counter() - t1
+    return preds
 
 
 def _page_json(page_no: int, words, preds: Predictions) -> dict:
@@ -94,15 +100,20 @@ def _page_json(page_no: int, words, preds: Predictions) -> dict:
     return {"page": page_no, "width": pw, "height": ph, "tokens": tokens}
 
 
-def infer_file(path: Path, params: Params, model: RoleModel) -> dict:
-    """Read one PDF or scan and return the loaded model's per-token reading."""
+def infer_file(path: Path, params: Params, model: RoleModel, timings: dict | None = None) -> dict:
+    """Read one PDF or scan and return the loaded model's per-token reading.
+    timings, if given, receives seconds for extract, model, calibration and serialization."""
+    t_start = time.perf_counter()
     pages, method = read_words(path, params)
     t0 = time.perf_counter()
+    if timings is not None:
+        timings["extract"] = t0 - t_start
     with _GPU:
-        preds = predict_batched(model, pages)
+        preds = predict_batched(model, pages, timings)
         if model.dev.type == "cuda":
             torch.cuda.synchronize()
     ms = (time.perf_counter() - t0) * 1000
+    t_ser = time.perf_counter()
     out_pages = [_page_json(pg[0].page, pg, preds) for pg in pages if pg]
     toks = [t for pg in out_pages for t in pg["tokens"]]
     by_role: dict[str, int] = {}
@@ -110,6 +121,8 @@ def infer_file(path: Path, params: Params, model: RoleModel) -> dict:
         by_role[t["role"]] = by_role.get(t["role"], 0) + 1
     n = len(toks)
     abstained = sum(t["abstained"] for t in toks)
+    if timings is not None:
+        timings["serialization"] = time.perf_counter() - t_ser
     return {
         "schema_version": "openbooks.roles.v1",
         "method": method,  # pdf_text | ocr

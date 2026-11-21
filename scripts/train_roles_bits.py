@@ -23,7 +23,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import train_roles as tr  # noqa: E402
 from openbooks_lab.bitenc import BITS, BitRoleNet, gather_head_bits, head_index, token_bits  # noqa: E402
 from openbooks_lab.calibration_fit import fit_calibrator  # noqa: E402
-from openbooks.statements.calibration import Calibrator  # noqa: E402
 from openbooks.statements.encoder import n_params, row_features, windows  # noqa: E402
 from openbooks.statements.roles import VTYPES  # noqa: E402
 from openbooks_lab.synth import ROLES  # noqa: E402

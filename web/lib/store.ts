@@ -55,8 +55,3 @@ export async function deleteThread(id: string): Promise<void> {
 export async function clearThreads(): Promise<void> {
   await (await db()).clear("threads");
 }
-
-/** Test hook: forget the open connection so a fresh fake IndexedDB can be used. */
-export function _resetForTests() {
-  dbp = null;
-}

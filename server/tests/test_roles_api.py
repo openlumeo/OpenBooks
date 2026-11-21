@@ -1,5 +1,8 @@
 """POST /v1/roles: the typed heads' own reading, served directly and batched across pages."""
 import json
+import threading
+import time
+import uuid
 
 import numpy as np
 import pytest
@@ -91,3 +94,47 @@ def test_broken_ocr_runtime_returns_an_actionable_error(client, pdf, model, monk
     response = post(client, pdf)
     assert response.status_code == 503
     assert response.json() == {"error": "engine_fault", "message": "Repair openbooks[scan]."}
+
+
+@pytest.mark.parametrize(("kind", "field", "terminal"), [("roles", "file", "roles"), ("runs", "files", "run.done")])
+def test_job_remains_available_after_upload_response(client, pdf, model, monkeypatch, kind, field, terminal):
+    allow_work = threading.Event()
+    if kind == "roles":
+        from openbooks_server.inference import infer_file as original
+        target = "openbooks_server.inference.infer_file"
+    else:
+        from openbooks_server.runs import process as original
+        target = "openbooks_server.runs.process"
+
+    def blocked(*args, **kwargs):
+        assert allow_work.wait(10)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(target, blocked)
+    path = f"/v1/{kind}"
+    headers = {"x-openbooks-job": uuid.uuid4().hex}
+    try:
+        with pdf.open("rb") as file:
+            started = client.post(path, files={field: (pdf.name, file)}, headers=headers)
+        assert started.status_code == 202
+        pending = client.get(path, headers=headers)
+        assert pending.headers["cache-control"] == "no-store"
+        assert not pending.json()["done"]
+        assert client.get(path).status_code == 400
+        assert client.get(path, headers={"x-openbooks-job": uuid.uuid4().hex}).status_code == 404
+    finally:
+        allow_work.set()
+
+    deadline = time.monotonic() + 5
+    cursor, events = 0, []
+    while time.monotonic() < deadline:
+        page = client.get(path, params={"cursor": cursor}, headers=headers).json()
+        cursor = page["cursor"]
+        events.extend(page["events"])
+        if page["done"]:
+            break
+        time.sleep(0.02)
+    assert page["done"]
+    assert events[-1]["event"] == terminal
+    if kind == "roles":
+        assert events[-1]["data"]["summary"]["tokens"] > 0

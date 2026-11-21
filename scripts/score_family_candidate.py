@@ -13,7 +13,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import train_roles as tr  # noqa: E402
 from openbooks_lab.calibration_fit import fit_calibrator  # noqa: E402
-from openbooks.statements.calibration import Calibrator  # noqa: E402
 from openbooks.statements.encoder import RoleNet, dequantize_state  # noqa: E402
 
 

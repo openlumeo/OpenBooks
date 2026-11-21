@@ -31,7 +31,7 @@ def truth_matches(doc: dict, rows: list[list[str]]) -> tuple[bool, list[float]]:
     if len(tx) != len(rows):
         return False, [0.0]
     ok, bad_date_conf = True, []
-    for t, r in zip(tx, sorted(rows, key=lambda r: r[0][6:] + r[0][3:5] + r[0][:2]) if False else rows):
+    for t, r in zip(tx, rows):
         d, m, y = r[0].split("/")
         if t["date"] != f"{y}-{m}-{d}":
             ok = False
