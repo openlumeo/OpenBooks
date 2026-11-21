@@ -96,8 +96,6 @@ def test_provider_gate_runs_only_for_its_kind():
     assert out[-1]["rule"] == "provider rule" and out[-1]["id"] == f"A{len(out)}"
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: an empty settlement batch sums to int 0, which fmt() cannot format "
-                                       "(AttributeError), so the document is refused as PARSE_ERROR instead of gated")
 def test_settlement_batch_with_zero_rows_is_gated_not_crashed():
     data = {"batches": [{"id": "s", "kind": "settlement", "currency": "USD", "payout": None}],
             "transactions": []}

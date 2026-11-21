@@ -7,6 +7,7 @@ Providers contribute gates per batch kind: gate(batch, transactions) -> iterable
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Sequence
+from decimal import Decimal
 
 from .builders import D
 from .errors import Refusal
@@ -74,8 +75,8 @@ def _settlement_rules(data: dict, add: Add) -> None:
         cur, tx = b["currency"], [t for t in data["transactions"] if t["batch_id"] == b["id"]]
         bad = [t["id"] for t in tx if D(t["gross"]) - D(t["fee"]) - (D(t["tax"]) if "tax" in t else 0) != D(t["net"])]
         add(f"{b['id']}: gross - fees - tax = net on every row", f"{len(tx)} rows", f"{len(tx) - len(bad)} rows", len(tx) > 0)
-        g, f, n = (sum(D(t[k]) for t in tx) for k in ("gross", "fee", "net"))
-        t_tax = sum(D(t["tax"]) for t in tx if "tax" in t)
+        g, f, n = (sum((D(t[k]) for t in tx), Decimal(0)) for k in ("gross", "fee", "net"))  # explicit start: an empty batch stays a Decimal
+        t_tax = sum((D(t["tax"]) for t in tx if "tax" in t), Decimal(0))
         add(f"{b['id']}: sum(gross) - sum(fees) - sum(tax) = sum(net)", amount_str(n, cur), amount_str(g - f - t_tax, cur), False)
         if b["payout"] is not None:
             add(f"{b['id']}: sum(net) = payout", amount_str(D(b["payout"]), cur), amount_str(n, cur), True)

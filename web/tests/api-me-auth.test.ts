@@ -55,7 +55,7 @@ describe("GET /api/me", () => {
     expect(Object.keys(meRoute).filter((k) => /^[A-Z]+$/.test(k))).toEqual(["GET"]);
   });
 
-  it.fails("marks the identity response no-store so a shared cache never keeps it", async () => {
+  it("marks the identity response no-store so a shared cache never keeps it", async () => {
     auth.getSession.mockResolvedValueOnce({ data: { user: { id: "u1", email: "a@b.co", name: "Ada" } } });
     const res = await meGet();
     expect(res.headers.get("cache-control")).toBe("no-store");
