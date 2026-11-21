@@ -9,52 +9,23 @@ from __future__ import annotations
 
 import re
 import threading
-from collections import Counter
-from dataclasses import dataclass, replace
 from pathlib import Path
 
 from openbooks.core.builders import statement_doc
 from openbooks.core.errors import EngineFault, Refusal
 from openbooks.core.normalise import date_order, to_date, to_dec
 from openbooks.core.params import Params
+from openbooks.statements.pdf_words import _EU, _MONEY, Word, _date_spans, _lines
+from openbooks.statements.scan_decimals import _OCR_COMMA_DECIMAL, _repair_scan_decimal_commas  # noqa: F401
+from openbooks.statements.table_header import HEADER, _IND, _header_cols, _near, find_header  # noqa: F401
 
 MAX_PAGES, MAX_WORDS_PER_PAGE = 60, 20_000
 OCR_DPI, OCR_MAX_PX = 200, 3200
 OCR_MIN_DATE_CONF = 0.50
 TEXT_LAYER_MIN_WORDS = 5
 KNOWN_CCY = {"INR", "USD", "EUR", "GBP", "AED", "SGD", "AUD", "CAD", "JPY"}
-_MONEY = re.compile(r"^\(?-?\d[\d,]*\.\d{2}\)?(?:Dr|Cr|DR|CR)?$")
-_EU = re.compile(r"^\d{1,3}(\.\d{3})+,\d{2}$")
-_MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
-_DATE_LIKE = re.compile(rf"^(\d{{1,2}}[/-]\d{{1,2}}[/-]\d{{2,4}}|\d{{4}}-\d{{2}}-\d{{2}}|\d{{1,2}}[ -][A-Za-z]{{3}}[ -]\d{{2,4}}"
-                        rf"|\d{{1,2}}[ -](?:{_MONTHS})[ -]\d{{4}})$")
 _OPEN_CLOSE = re.compile(r"opening balance|closing balance", re.I)
 
-
-@dataclass(frozen=True)
-class Word:
-    text: str
-    x0: float
-    y0: float
-    x1: float
-    y1: float
-    page: int
-    conf: float | None = None
-    pw: float = 1.0
-    ph: float = 1.0
-    orig: str | None = None
-
-    @property
-    def cx(self) -> float:
-        return (self.x0 + self.x1) / 2
-
-    @property
-    def cy(self) -> float:
-        return (self.y0 + self.y1) / 2
-
-    @property
-    def h(self) -> float:
-        return max(self.y1 - self.y0, 1.0)
 
 
 def _text(ln: list[Word]) -> str:
@@ -188,90 +159,6 @@ def _read_words(path: Path | bytes, p: Params) -> tuple[list[list[Word]], str]:
         doc.close()
 
 
-def _lines(words: list[Word]) -> list[list[Word]]:
-    if not words:
-        return []
-    heights = sorted(w.h for w in words)
-    tol = 0.5 * heights[len(heights) // 2]
-    lines: list[list[Word]] = []
-    for w in sorted(words, key=lambda w: (w.cy, w.x0)):
-        if lines and abs(w.cy - sum(x.cy for x in lines[-1]) / len(lines[-1])) <= tol:
-            lines[-1].append(w)
-        else:
-            lines.append([w])
-    return [sorted(ln, key=lambda w: w.x0) for ln in lines]
-
-
-HEADER = {"date": {"date"}, "desc": {"description", "narration", "particulars", "details", "remarks"},
-          "debit": {"debit", "debits", "withdrawal", "withdrawals", "dr"},
-          "credit": {"credit", "credits", "deposit", "deposits", "cr"}, "balance": {"balance"},
-          "amount": {"amount", "amt"}, "ind": {"crdr", "drcr", "dc", "cd", "type"}}
-_IND = {"cr": "credit", "credit": "credit", "dr": "debit", "debit": "debit"}
-
-
-def _header_cols(line: list[Word]):
-    """(mode, {role: Word}) for a header line. mode 'split' = Debit and Credit columns; 'single' = one Amount column
-    plus a Cr/Dr marker. None if the line is not a header."""
-    if any(_MONEY.match(w.text) for w in line):
-        return None
-    found: dict[str, list[tuple[int, Word]]] = {}
-    for i, w in enumerate(line):
-        t = re.sub(r"[^a-z]", "", w.text.lower())
-        for role, names in HEADER.items():
-            if t in names:
-                found.setdefault(role, []).append((i, w))
-    split = {"date", "debit", "credit", "balance"} <= found.keys()
-    single = {"date", "amount", "balance"} <= found.keys() and not ({"debit", "credit"} & found.keys())
-    if not (split or single):
-        return None
-    cols = {}
-    for role, hits in found.items():
-        pick = hits[0][1]
-        if role == "date":
-            pick = next((w for i, w in hits if not (i and line[i - 1].text.lower() == "value")), pick)
-        cols[role] = pick
-    return ("split" if split else "single"), cols
-
-
-def _near(w: Word, cols: dict[str, Word], roles: tuple[str, ...]) -> str:
-    return min(roles, key=lambda r: min(abs(w.cx - cols[r].cx), abs(w.x1 - cols[r].x1)))
-
-
-_OCR_COMMA_DECIMAL = re.compile(r"\d{1,3},\d{2}")
-
-
-def _repair_scan_decimal_commas(words: list[Word]) -> list[Word]:
-    """Use the printed table's decimal convention to repair a comma misread in an OCR transaction amount."""
-    lines = _lines(words)
-    heading = next(((i, h) for i, line in enumerate(lines) if (h := _header_cols(line))), None)
-    if heading is None:
-        return words
-    i, (mode, cols) = heading
-    amounts = ("debit", "credit") if mode == "split" else ("amount",)
-    roles = (*amounts, "balance")
-    tolerance = {r: min(abs(cols[r].cx - cols[other].cx) for other in roles if r != other) / 3 for r in amounts}
-    examples: Counter[str] = Counter()
-    candidates: list[tuple[Word, str]] = []
-    for line in lines[i + 1:]:
-        if not _date_spans(line):
-            continue
-        if any(_EU.fullmatch(w.text) for w in line):
-            return words
-        dotted = [_near(w, cols, roles) for w in line if _MONEY.fullmatch(w.text)]
-        if dotted.count("balance") != 1:
-            continue
-        present = [r for r in dotted if r in amounts]
-        if present:
-            if len(present) == 1:
-                examples.update(present)
-            continue
-        matches = [(w, r) for w in line if _OCR_COMMA_DECIMAL.fullmatch(w.text)
-                   for r in amounts if abs(w.cx - cols[r].cx) < tolerance[r]]
-        if len(matches) == 1:
-            candidates.extend(matches)
-    repaired = {w: replace(w, text=w.text.replace(",", "."), orig=w.orig or w.text)
-                for w, role in candidates if examples[role] >= 2}
-    return [repaired.get(w, w) for w in words] if repaired else words
 
 
 _CCY_PREFIX = re.compile(r"^(?:Rs\.?|INR|₹)\s*(\d[\d,]*\.\d{2})$")
@@ -300,18 +187,6 @@ def _merge_drcr(line: list[Word]) -> list[Word]:
     return out
 
 
-def _date_spans(line: list[Word]) -> list[tuple[int, int, str]]:
-    """Every date-like span in a line as (first word, word count, raw text)."""
-    out, i = [], 0
-    while i < len(line):
-        for n in (3, 2, 1):
-            raw = " ".join(w.text for w in line[i:i + n])
-            if i + n <= len(line) and _DATE_LIKE.match(raw):
-                out.append((i, n, raw))
-                i += n - 1
-                break
-        i += 1
-    return out
 
 
 def _dates(line: list[Word], order: str = "dmy") -> list[tuple[int, int, str, str]]:
@@ -423,13 +298,20 @@ def _attach_descriptions(page_rows: list[dict], frags: list[tuple[float, float, 
             r["frags"].append((cy, text))
 
 
+def _join_descriptions(rows: list[dict]) -> None:
+    """Set each row's description from its own words and its wrapped fragments, in reading order (in place)."""
+    for r in rows:
+        parts = sorted([(w.cy, w.x0, w.text) for w in r.pop("desc_words")] + [(cy, -1e9, t) for cy, t in r.pop("frags", [])])
+        r["desc"] = " ".join(t for _, _, t in parts)
+
+
 def _rows(all_lines, preds, prev=None, order: str = "dmy"):
     """Walk every page; returns (recs, noops, assigned, model_used). prev = opening balance if known: the
     header-less model path uses the running balance to resolve rows whose column sets are not a single role.
     order = day/month order of numeric dates for the whole document."""
     recs, noops, assigned, hdr, model_used = [], [], [], None, False
     for lines in all_lines:
-        found = next(((i, h) for i, ln in enumerate(lines) if (h := _header_cols(ln))), None)
+        found = find_header(lines)
         if found:
             hdr = found[1]
         elif hdr is None and preds is None:
@@ -470,9 +352,7 @@ def _rows(all_lines, preds, prev=None, order: str = "dmy"):
                 if words:
                     frags.append((sum(w.cy for w in words) / len(words), words[0].h, _text(words)))
         _attach_descriptions(page_rows, frags)
-    for r in recs + noops:
-        parts = sorted([(w.cy, w.x0, w.text) for w in r.pop("desc_words")] + [(cy, -1e9, t) for cy, t in r.pop("frags", [])])
-        r["desc"] = " ".join(t for _, _, t in parts)
+    _join_descriptions(recs + noops)
     return recs, noops, assigned, model_used
 
 

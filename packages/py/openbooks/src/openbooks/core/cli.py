@@ -135,7 +135,8 @@ def _plugin_commands(sub) -> dict:
     return out
 
 
-def main(argv: list[str] | None = None) -> int:
+def _build_parser() -> tuple[argparse.ArgumentParser, dict]:
+    """The argument parser with every built-in subcommand, then the plugin commands (returned by name)."""
     ap = argparse.ArgumentParser(prog="openbooks")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="write one openbooks.v1 JSON per input file")
@@ -153,7 +154,23 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--out", default="out")
     _add_params(rp)
     sub.add_parser("engine-info", help="print the engine version, contract version and installed layouts as JSON")
-    plugins = _plugin_commands(sub)
+    return ap, _plugin_commands(sub)
+
+
+def _link(a: argparse.Namespace) -> int:
+    linker = default_registry().linker()
+    if linker is None:
+        return _usage("link: no linker is installed (matching is not part of the open packages)")
+    if problems := _missing_files(a.files):
+        return _unreadable(problems)
+    try:
+        return linker.run_link(a.files, a.out)
+    except json.JSONDecodeError as e:
+        return _usage(f"link takes openbooks.v1 JSON documents (the files `run` wrote), not statements: {e}")
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap, plugins = _build_parser()
     a = ap.parse_args(argv)
     try:
         if a.cmd in plugins:
@@ -170,15 +187,7 @@ def main(argv: list[str] | None = None) -> int:
                 return _unreadable([f"cannot read {a.folder}: not a folder"])
             return run_report(Path(a.folder), Path(a.out), _params(ap, a))
         if a.cmd == "link":
-            linker = default_registry().linker()
-            if linker is None:
-                return _usage("link: no linker is installed (matching is not part of the open packages)")
-            if problems := _missing_files(a.files):
-                return _unreadable(problems)
-            try:
-                return linker.run_link(a.files, a.out)
-            except json.JSONDecodeError as e:
-                return _usage(f"link takes openbooks.v1 JSON documents (the files `run` wrote), not statements: {e}")
+            return _link(a)
         return _run(ap, a)
     except (json.JSONDecodeError, InvalidOperation) as e:  # a hand-written params.json or expected.json that is not valid
         return _usage(f"input file is malformed ({type(e).__name__}: {e})")

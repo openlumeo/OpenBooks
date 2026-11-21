@@ -73,7 +73,8 @@ def _mt_bal(v: str, where: str):
     return sign * Decimal(m.group(4).replace(",", ".")), _mt_date(m.group(2), where), m.group(3)
 
 
-def parse_mt940(text: str, p: Params):
+def _mt_statements(text: str) -> list[dict]:
+    """Group the tagged fields into statements (:20: starts one), each with its account, balances and :61:/:86: pairs."""
     stmts: list[dict] = []
     for tag, val in _mt_fields(text):
         if tag == "20":
@@ -93,36 +94,45 @@ def parse_mt940(text: str, p: Params):
             stmts[-1]["txns"].append({"m": m, "raw": val.split("\n")[0].strip(), "info": ""})
         elif tag == "86" and stmts[-1]["txns"]:
             stmts[-1]["txns"][-1]["info"] = " ".join(x.strip() for x in val.split("\n"))
+    return stmts
+
+
+def _mt_add_statement(data: dict, ev: dict, accts: dict, si: int, s: dict) -> None:
+    """Append statement si's account, batch, transactions and their evidence to data and ev (accts maps account numbers to ids)."""
+    if not (s.get("acct") and s["open"] and s["close"]):
+        raise Refusal("PARSE_ERROR", f"statement {si}: missing :25:, :60F: or :62F:")
+    (ob, od, ocur), oraw = s["open"]
+    (cb, cd, ccur), craw = s["close"]
+    if ocur != ccur:
+        raise Refusal("PARSE_ERROR", f"statement {si}: currency changes inside statement")
+    aid = accts.setdefault(s["acct"], f"acct-{len(accts) + 1}")
+    if not any(a["id"] == aid for a in data["accounts"]):
+        data["accounts"].append({"id": aid, "number": s["acct"], "currency": ocur})
+    bid = f"batch-{si}"
+    data["batches"].append({"id": bid, "kind": "statement", "account_id": aid, "currency": ocur,
+                            "period_start": od, "period_end": cd, "opening": money(ob, ocur),
+                            "closing": money(cb, ocur), "opening_derived": False})
+    for f, raw in (("opening", oraw), ("closing", craw), ("period_start", oraw), ("period_end", craw)):
+        evidence(ev, bid, f, None, raw)
+    for k, t in enumerate(s["txns"], 1):
+        m = t["m"]
+        tid = f"txn-{si}-{k:05d}"
+        credit = m.group(3) in ("C", "RD")
+        ref = m.group(7).split("//")[0].strip()
+        data["transactions"].append({
+            "id": tid, "batch_id": bid, "account_id": aid, "date": _mt_date(m.group(1), tid),
+            "direction": "credit" if credit else "debit",
+            "amount": money(Decimal(m.group(5).replace(",", ".")), ocur),
+            "description": t["info"], "reference": None if ref in ("", "NONREF") else ref,
+        })
+        evidence(ev, tid, "date", None, t["raw"])
+        evidence(ev, tid, "amount", None, t["raw"])
+
+
+def parse_mt940(text: str, p: Params):
     data, ev, accts = _empty_data(), {}, {}
-    for si, s in enumerate(stmts, 1):
-        if not (s.get("acct") and s["open"] and s["close"]):
-            raise Refusal("PARSE_ERROR", f"statement {si}: missing :25:, :60F: or :62F:")
-        (ob, od, ocur), oraw = s["open"]
-        (cb, cd, ccur), craw = s["close"]
-        if ocur != ccur:
-            raise Refusal("PARSE_ERROR", f"statement {si}: currency changes inside statement")
-        aid = accts.setdefault(s["acct"], f"acct-{len(accts) + 1}")
-        if not any(a["id"] == aid for a in data["accounts"]):
-            data["accounts"].append({"id": aid, "number": s["acct"], "currency": ocur})
-        bid = f"batch-{si}"
-        data["batches"].append({"id": bid, "kind": "statement", "account_id": aid, "currency": ocur,
-                                "period_start": od, "period_end": cd, "opening": money(ob, ocur),
-                                "closing": money(cb, ocur), "opening_derived": False})
-        for f, raw in (("opening", oraw), ("closing", craw), ("period_start", oraw), ("period_end", craw)):
-            evidence(ev, bid, f, None, raw)
-        for k, t in enumerate(s["txns"], 1):
-            m = t["m"]
-            tid = f"txn-{si}-{k:05d}"
-            credit = m.group(3) in ("C", "RD")
-            ref = m.group(7).split("//")[0].strip()
-            data["transactions"].append({
-                "id": tid, "batch_id": bid, "account_id": aid, "date": _mt_date(m.group(1), tid),
-                "direction": "credit" if credit else "debit",
-                "amount": money(Decimal(m.group(5).replace(",", ".")), ocur),
-                "description": t["info"], "reference": None if ref in ("", "NONREF") else ref,
-            })
-            evidence(ev, tid, "date", None, t["raw"])
-            evidence(ev, tid, "amount", None, t["raw"])
+    for si, s in enumerate(_mt_statements(text), 1):
+        _mt_add_statement(data, ev, accts, si, s)
     if not data["transactions"]:
         raise Refusal("PARSE_ERROR", "no :61: transactions")
     return data, ev

@@ -28,6 +28,17 @@ def _pdfium():
     return pdfium
 
 
+def _upright(angle: float) -> bool:
+    """True for a character whose baseline runs left to right (neither rotated nor vertical)."""
+    return not (math.cos(angle) < HORIZONTAL_COS or abs(math.sin(angle)) > HORIZONTAL_SIN)
+
+
+def _char_extent(tp, i: int, left: float, top: float) -> tuple[float, float, float, float]:
+    """Character i's loose box in page coordinates with a top-left origin, as (x0, y0, x1, y1)."""
+    x_left, y_bottom, x_right, y_top = tp.get_charbox(i, loose=True)
+    return x_left - left, top - y_top, x_right - left, top - y_bottom
+
+
 class PdfPage:
     def __init__(self, page: Any, pdfium: Any) -> None:
         self._page, self._pdfium = page, pdfium
@@ -62,9 +73,9 @@ class PdfPage:
                     code, high = 0x10000 + ((high - 0xD800) << 10) + (code - 0xDC00), 0
                     if cur:
                         cur[-1] = chr(code)  # replaces the high half appended at the previous index
-                        l, b, r, t = tp.get_charbox(i, loose=True)
-                        box[0], box[1] = min(box[0], l - self._left), min(box[1], self._top - t)
-                        box[2], box[3] = max(box[2], r - self._left), max(box[3], self._top - b)
+                        x0, y0, x1, y1 = _char_extent(tp, i, self._left, self._top)
+                        box[0], box[1] = min(box[0], x0), min(box[1], y0)
+                        box[2], box[3] = max(box[2], x1), max(box[3], y1)
                     continue
                 high = 0
                 if 0xD800 <= code <= 0xDBFF:
@@ -75,17 +86,14 @@ class PdfPage:
                 if ch.isspace() or code == 0:
                     flush()
                     continue
-                angle = raw.FPDFText_GetCharAngle(ptr, i)
-                if math.cos(angle) < HORIZONTAL_COS or abs(math.sin(angle)) > HORIZONTAL_SIN:
+                if not _upright(raw.FPDFText_GetCharAngle(ptr, i)):
                     flush()
                     continue
                 this_obj = ctypes.cast(raw.FPDFText_GetTextObject(ptr, i), ctypes.c_void_p).value
                 if cur and this_obj != obj:
                     flush()
                 obj = this_obj
-                l, b, r, t = tp.get_charbox(i, loose=True)
-                x0, x1 = l - self._left, r - self._left
-                y0, y1 = self._top - t, self._top - b
+                x0, y0, x1, y1 = _char_extent(tp, i, self._left, self._top)
                 if not cur:
                     box.extend([x0, y0, x1, y1])
                 else:
