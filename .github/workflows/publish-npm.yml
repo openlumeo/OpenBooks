@@ -1,6 +1,7 @@
 name: publish-npm
 
-# Publishes the six @lumeo_hq/openbooks* packages on tags like js-v0.2.1, with provenance.
+# Publishes the six @lumeo_hq/openbooks* packages on tags like js-v0.2.1.
+# No provenance: npm only accepts it from public source repositories. Re-enable NPM_CONFIG_PROVENANCE (and id-token: write) if the repo goes public.
 # One-time setup: an npm automation token with publish rights on @lumeo_hq as the repo secret NPM_TOKEN,
 # and a GitHub environment `npm`. An npm version can never be re-published, only deprecated.
 
@@ -17,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: npm
-    permissions: { contents: read, id-token: write }
+    permissions: { contents: read }
     defaults:
       run:
         working-directory: packages/js
@@ -46,7 +47,6 @@ jobs:
         if: github.ref_type == 'tag'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
         run: |
           for p in core statements gateways tax doctor cli; do
             (cd $p && pnpm publish --access public --no-git-checks)
