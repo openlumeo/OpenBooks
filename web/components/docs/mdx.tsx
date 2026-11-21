@@ -5,7 +5,8 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import type { MDXComponents } from "mdx/types";
 import { SampleTerminal } from "./sample-terminal";
+import { AgentOnboarding } from "./agent-onboarding";
 
 export const docsComponents = {
-  ...defaultComponents, Callout, Card, Cards, Step, Steps, Tab, Tabs, SampleTerminal,
+  ...defaultComponents, Callout, Card, Cards, Step, Steps, Tab, Tabs, SampleTerminal, AgentOnboarding,
 } satisfies MDXComponents;

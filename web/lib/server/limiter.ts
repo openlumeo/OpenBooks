@@ -12,6 +12,9 @@ export const LIMITS = {
   link: { capacity: 30, refillPerSec: 1 / 5 },
   ask: { capacity: 10, refillPerSec: 1 / 30 }, // calls the paid LLM
   subscribe: { capacity: 5, refillPerSec: 1 / 60 },
+  setupStart: { capacity: 8, refillPerSec: 1 / 30 },
+  setupStatus: { capacity: 80, refillPerSec: 1 },
+  setupMcp: { capacity: 40, refillPerSec: 1 / 2 },
 } as const satisfies Record<string, Limit>;
 
 /** Trust the final forwarded address added by the configured reverse proxy, not caller-supplied entries. */

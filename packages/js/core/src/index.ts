@@ -1,5 +1,5 @@
-export { runFile, runFiles, isReleased } from "./engine.js";
-export type { RunOptions, RunResult, Released, Refused } from "./engine.js";
+export { runFile, runFiles, runJobs, isReleased } from "./engine.js";
+export type { DocumentOptions, RunJob, RunOptions, RunResult, Released, Refused } from "./engine.js";
 export { findEngine, clearEngineCache, engineCommand, SUPPORTED_SCHEMA_VERSION, SUPPORTED_LAYOUT_API } from "./discover.js";
 export type { Engine, EngineInfo, DiscoverOptions } from "./discover.js";
 export { EngineError } from "./errors.js";

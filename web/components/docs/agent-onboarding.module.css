@@ -1,0 +1,83 @@
+.panel {
+  margin-block: 1rem 2rem;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.75rem;
+  background: var(--color-fd-card);
+  padding: clamp(0.9rem, 3vw, 1.4rem);
+}
+
+.clients {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+  gap: 0.6rem;
+}
+
+.clients legend { margin-bottom: 0.75rem; font-weight: 600; }
+
+.client {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  padding: 0.75rem 0.3rem;
+  position: relative;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.5rem;
+  background: var(--color-fd-background);
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.client input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  clip-path: inset(50%);
+}
+
+.client:has(:checked) {
+  border-color: var(--color-fd-primary);
+  background: color-mix(in srgb, var(--color-fd-primary) 11%, var(--color-fd-background));
+}
+
+.client:has(:focus-visible) { outline: 2px solid var(--color-fd-primary); outline-offset: 2px; }
+.client img { padding: 5px; border-radius: 0.42rem; background: white; object-fit: contain; }
+
+.setup {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-fd-border);
+}
+
+.setup h3 { font-weight: 650; }
+.setup p, .status { font-size: 0.9rem; color: var(--color-fd-muted-foreground); }
+.command, .prompt {
+  min-width: 0;
+  overflow: auto;
+  padding: 0.7rem;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.4rem;
+  background: var(--color-fd-background);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.8rem;
+}
+.prompt { min-height: 8rem; }
+
+.copy {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.4rem;
+  background: var(--color-fd-primary);
+  color: var(--color-fd-primary-foreground);
+  font-weight: 620;
+  cursor: pointer;
+}
+.copy:disabled { opacity: 0.65; cursor: default; }
+.status { display: flex; gap: 0.45rem; align-items: center; }
+.status:empty { display: none; }
+.status svg { flex-shrink: 0; color: var(--color-fd-primary); }

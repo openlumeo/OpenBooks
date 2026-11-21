@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { lstat, mkdtemp, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { engineCommand, findEngine, type DiscoverOptions, type Engine } from "./discover.js";
@@ -9,7 +9,7 @@ import type { OpenBooksDocument, OpenBooksRefusal } from "./generated/openbooks.
 import { checkAborted, run, validateTimeout } from "./spawn.js";
 import { validateDocument, validateRefusal } from "./validate.js";
 
-export interface RunOptions extends DiscoverOptions {
+export interface DocumentOptions {
   currency?: string;
   /** Opening balance as a plain decimal string, e.g. "1000.00". Never a number: money is not floating point. */
   opening?: string;
@@ -20,13 +20,23 @@ export interface RunOptions extends DiscoverOptions {
   ocr?: boolean;
   /** Cross-check PDFs and scans with the typed model heads (default true). */
   model?: boolean;
+}
+
+export interface RunOptions extends DiscoverOptions, DocumentOptions {
   /** Stop the engine after this long (default 120 000 ms). */
   runTimeoutMs?: number;
   signal?: AbortSignal;
   /** Kill the engine if it prints more than this many bytes on stdout or stderr (default 16 MiB). */
   maxOutputBytes?: number;
+  /** Maximum serialized bytes for one proof document (default 64 MiB). */
+  maxDocumentBytes?: number;
   /** Only these layout ids may be released; a file that proves out under another layout comes back refused (UNKNOWN_LAYOUT). */
   accept?: readonly string[];
+}
+
+export interface RunJob {
+  file: string;
+  options?: DocumentOptions;
 }
 
 export interface Released {
@@ -54,6 +64,8 @@ export const isReleased = (r: RunResult): r is Released => r.kind === "released"
 
 interface MachineLine { file: string; status: "ok" | "refused"; code: string | null; output: string; internal?: boolean }
 interface Input { path: string; sha: string }
+const DEFAULT_DOCUMENT_BYTES = 64 * 1024 * 1024;
+const DOCUMENT_OPTIONS = ["currency", "opening", "account", "allowDerivedOpening", "dateOrder", "ocr", "model"] as const;
 
 function isMachineLine(value: unknown): value is MachineLine {
   if (typeof value !== "object" || value === null) return false;
@@ -101,6 +113,10 @@ export async function runFiles(files: readonly string[], opts: RunOptions = {}):
   const runFlags = flags(opts);
   const timeoutMs = opts.runTimeoutMs ?? 120_000;
   validateTimeout(timeoutMs, "runTimeoutMs");
+  const maxDocument = opts.maxDocumentBytes ?? DEFAULT_DOCUMENT_BYTES;
+  if (!Number.isSafeInteger(maxDocument) || maxDocument < 1) {
+    throw new EngineError("input", "maxDocumentBytes must be a positive whole number of bytes");
+  }
   const batches: Input[][] = [];
   let batch: Input[] = [];
   let hashes = new Set<string>();
@@ -135,12 +151,24 @@ export async function runFiles(files: readonly string[], opts: RunOptions = {}):
     try {
       const remaining = Math.ceil(deadline - performance.now());
       if (remaining < 1) throw new EngineError("timeout", `the engine did not finish within ${timeoutMs} ms`);
-      results.push(...await runBatch(engine, dir, inputs, runFlags, opts, remaining));
+      results.push(...await runBatch(engine, dir, inputs, runFlags, opts, remaining, maxDocument));
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
   }
   return results;
+}
+
+/** Process a mixed batch in order, yielding each decision as it finishes. Job overrides are document options only. */
+export async function* runJobs(jobs: Iterable<RunJob> | AsyncIterable<RunJob>, opts: RunOptions = {}): AsyncGenerator<RunResult> {
+  for await (const job of jobs) {
+    checkAborted(opts.signal);
+    const overrides = Object.fromEntries(DOCUMENT_OPTIONS.flatMap((key) => {
+      const value = job.options?.[key];
+      return value === undefined ? [] : [[key, value]];
+    }));
+    yield await runFile(job.file, { ...opts, ...overrides });
+  }
 }
 
 async function discoverForRun(opts: RunOptions): Promise<Engine> {
@@ -160,7 +188,7 @@ async function discoverForRun(opts: RunOptions): Promise<Engine> {
 }
 
 async function runBatch(
-  engine: Engine, dir: string, inputs: Input[], flags: string[], opts: RunOptions, timeoutMs: number,
+  engine: Engine, dir: string, inputs: Input[], flags: string[], opts: RunOptions, timeoutMs: number, maxDocument: number,
 ): Promise<RunResult[]> {
   const argv = [...engineCommand(engine), "run", "--machine", "--out", dir, ...flags, ...inputs.map((input) => input.path)];
   let r;
@@ -200,8 +228,9 @@ async function runBatch(
       throw new EngineError("bad_output", `the engine's output for ${name} does not belong to that input file`);
     }
     let doc: unknown;
-    try { doc = JSON.parse(await readFile(target, { encoding: "utf8", signal: opts.signal })); } catch (cause) {
+    try { doc = await readDocument(target, maxDocument, opts.signal); } catch (cause) {
       checkAborted(opts.signal);
+      if (cause instanceof EngineError) throw cause;
       throw new EngineError("bad_output", `could not read the engine's output for ${name}`, undefined, { cause });
     }
     if (line.status === "ok") {
@@ -221,6 +250,21 @@ async function runBatch(
     results.push(toResult(line, doc, sha, opts.accept));
   }
   return results;
+}
+
+async function readDocument(path: string, limit: number, signal?: AbortSignal): Promise<unknown> {
+  const metadata = await lstat(path);
+  const invalid = () => new EngineError("bad_output", `expected a regular proof document no larger than ${limit} bytes`);
+  if (!metadata.isFile() || metadata.size > limit) throw invalid();
+
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of createReadStream(path, { signal })) {
+    size += chunk.length;
+    if (size > limit) throw invalid();
+    chunks.push(chunk);
+  }
+  return JSON.parse(Buffer.concat(chunks, size).toString("utf8"));
 }
 
 function checkDocument<T>(doc: unknown, validate: (value: unknown) => asserts value is T): asserts doc is T {

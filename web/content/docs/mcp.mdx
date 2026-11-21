@@ -5,6 +5,12 @@ description: Download and install the Open Books Model Context Protocol server t
 
 Use Open Books MCP to process bank statements, settlement exports, tax documents and workpapers from an MCP client. The local server uses the Python engine on your computer. It can read files from the input folder you approve and return released JSON, typed refusals, records and proof.
 
+## Onboard your agent
+
+Add the setup server in your client, then copy the prompt and paste it into the agent. The docs show confirmation after the agent calls `confirm_connection` with the setup code. Codes expire after ten minutes. This connection check uses a dedicated endpoint that accepts setup codes. For financial files, use the full server below.
+
+<AgentOnboarding />
+
 ## Install the server
 
 [Download the Open Books MCP wheel](/downloads/openbooks_mcp-0.1.0-py3-none-any.whl) · [SHA-256 checksum](/downloads/openbooks_mcp-0.1.0-py3-none-any.whl.sha256)

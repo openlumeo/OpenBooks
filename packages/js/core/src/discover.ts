@@ -42,6 +42,7 @@ export interface DiscoverOptions {
 }
 
 const cache = new Map<string, Promise<Engine>>();
+const CACHE_LIMIT = 64;
 
 function candidates(opts: DiscoverOptions): string[][] {
   const explicit = opts.python ?? process.env.OPENBOOKS_PYTHON;
@@ -53,6 +54,19 @@ function candidates(opts: DiscoverOptions): string[][] {
 
 function isNotFound(e: unknown): boolean {
   return typeof e === "object" && e !== null && (e as NodeJS.ErrnoException).code === "ENOENT";
+}
+
+function isEngineInfo(value: unknown): value is EngineInfo {
+  if (!value || typeof value !== "object") return false;
+  const info = value as Partial<EngineInfo>;
+  return typeof info.name === "string" && typeof info.version === "string"
+    && typeof info.schema_version === "string" && typeof info.layout_api === "number"
+    && typeof info.python === "string" && typeof info.linker === "boolean"
+    && Array.isArray(info.layouts) && info.layouts.every((x) => typeof x === "string")
+    && Array.isArray(info.frontends) && info.frontends.every((x) => typeof x === "string")
+    && Array.isArray(info.known_layouts) && info.known_layouts.every(
+      (x) => x && typeof x.id === "string" && typeof x.distribution === "string",
+    );
 }
 
 async function probe(python: string[], timeoutMs: number): Promise<Engine | "no_engine" | "not_python"> {
@@ -69,8 +83,10 @@ async function probe(python: string[], timeoutMs: number): Promise<Engine | "no_
       if (/No module named ['"]?openbooks/.test(r.stderr)) continue;
       return "not_python";
     }
-    let info: EngineInfo;
-    try { info = JSON.parse(r.stdout) as EngineInfo; } catch { return "not_python"; }
+    const invalid = () => new EngineError("bad_output", "the Python engine returned invalid engine-info");
+    let info: unknown;
+    try { info = JSON.parse(r.stdout); } catch { throw invalid(); }
+    if (!isEngineInfo(info)) throw invalid();
     return { python, info, module };
   }
   return "no_engine";
@@ -78,12 +94,17 @@ async function probe(python: string[], timeoutMs: number): Promise<Engine | "no_
 
 /** Find a Python that has the Open Books engine, and check it speaks the contract this package understands. */
 export function findEngine(opts: DiscoverOptions = {}): Promise<Engine> {
-  const key = JSON.stringify([opts.python ?? null, process.env.OPENBOOKS_PYTHON ?? null, process.cwd()]);
+  const key = JSON.stringify([opts.python ?? null, process.env.OPENBOOKS_PYTHON ?? null, process.cwd(), opts.timeoutMs ?? 30_000]);
   let p = cache.get(key);
   if (!p) {
     p = discover(opts);
-    p.catch(() => cache.delete(key)); // never cache a failure: the user may install the engine and retry
+    const discovery = p;
+    p.catch(() => { if (cache.get(key) === discovery) cache.delete(key); });
     cache.set(key, p);
+    if (cache.size > CACHE_LIMIT) {
+      const oldest = cache.keys().next().value;
+      if (oldest !== undefined) cache.delete(oldest);
+    }
   }
   return p;
 }

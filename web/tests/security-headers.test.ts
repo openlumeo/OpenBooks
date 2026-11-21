@@ -4,6 +4,32 @@ import { rejectOversize } from "../lib/guards";
 import { Markdown } from "../lib/markdown";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
+import { vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+
+describe("engine proxy boundary", () => {
+  it("blocks upstream redirects and refuses active response media", async () => {
+    const { engineFetch, relay } = await import("../lib/server/engine");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ status: "ok" }));
+    try {
+      await engineFetch("/v1/health");
+      expect(fetchMock.mock.calls[0]?.[1]?.redirect).toBe("error");
+    } finally {
+      fetchMock.mockRestore();
+    }
+    const rejected = relay(new Response("<html>unexpected gateway page</html>", {
+      headers: { "content-type": "text/html", "cache-control": "public" },
+    }));
+    expect(rejected.status).toBe(502);
+    expect(rejected.headers.get("content-type")).toContain("application/json");
+    const normal = relay(new Response("data: ok", {
+      headers: { "content-type": "text/event-stream", "cache-control": "public" },
+    }), { "cache-control": "no-store" });
+    expect(normal.headers.get("cache-control")).toBe("no-store");
+    expect(await normal.text()).toBe("data: ok");
+  });
+});
 
 describe("security headers", () => {
   it("sends CSP, nosniff and frame denial on every path", async () => {
