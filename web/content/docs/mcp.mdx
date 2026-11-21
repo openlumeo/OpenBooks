@@ -1,0 +1,112 @@
+---
+title: Open Books MCP Server for AI Agents
+description: Download and install the Open Books Model Context Protocol server to verify financial files with an AI agent and inspect the evidence in one batched call.
+---
+
+Use Open Books MCP to process bank statements, settlement exports, tax documents and workpapers from an MCP client. The local server uses the Python engine on your computer. It can read files from the input folder you approve and return released JSON, typed refusals, records and proof.
+
+## Install the server
+
+[Download the Open Books MCP wheel](/downloads/openbooks_mcp-0.1.0-py3-none-any.whl) · [SHA-256 checksum](/downloads/openbooks_mcp-0.1.0-py3-none-any.whl.sha256)
+
+Use Python 3.11 or newer in a virtual environment. Install the downloaded file, or install directly from the release URL.
+
+~~~bash
+python -m venv .openbooks-mcp
+# macOS and Linux
+source .openbooks-mcp/bin/activate
+# PowerShell uses: .\.openbooks-mcp\Scripts\Activate.ps1
+python -m pip install https://openbooks.lumeo.co.in/downloads/openbooks_mcp-0.1.0-py3-none-any.whl
+python -m openbooks_mcp --version
+~~~
+
+For [scans or model checks](/docs/pdf-and-ocr), install the optional extras.
+
+~~~bash
+python -m pip install "openbooks-mcp[scan] @ https://openbooks.lumeo.co.in/downloads/openbooks_mcp-0.1.0-py3-none-any.whl"
+~~~
+
+## Connect an MCP client
+
+For clients that use an `mcpServers` configuration, set the command to the absolute path of the virtual environment’s Python interpreter. Use the `--root` argument to limit file reads to a dedicated folder. On Windows, use the `Scripts/python.exe` interpreter and forward slashes in JSON paths.
+
+~~~json
+{
+  "mcpServers": {
+    "openbooks": {
+      "command": "/absolute/path/.openbooks-mcp/bin/python",
+      "args": ["-m", "openbooks_mcp", "--root", "/absolute/path/financial-inbox"]
+    }
+  }
+}
+~~~
+
+For Claude Code, register the same launch command.
+
+~~~bash
+claude mcp add openbooks -- /absolute/path/.openbooks-mcp/bin/python -m openbooks_mcp --root /absolute/path/financial-inbox
+~~~
+
+Restart the MCP client and check that it lists `search` and `execute`. Start with the synthetic sample. Omit `--root` to use just samples and uploaded bytes. The MCP client may send tool responses to its model provider. Check your client's data settings before exposing financial records.
+
+## Discover and run operations
+
+`search` returns operation names and descriptions for a keyword. Pass `details: true` to retrieve matching argument schemas. Clients load two tool definitions even as the operation catalogue grows. This follows the discovery-and-execution pattern in [Cloudflare’s Code Mode design](https://blog.cloudflare.com/code-mode-mcp/). Open Books accepts declarative batches of supported operations.
+
+| Operation | What it returns |
+| --- | --- |
+| `formats` | Installed layouts, supported extensions, engine contract and file limits. |
+| `process_sample` | Release or refusal summary for a synthetic bank CSV. |
+| `process_file` | A decision for a path relative to the approved local folder. Available with `--root` over stdio. |
+| `process_upload` | A decision for up to 1 MiB of standard base64 file bytes. |
+| `records` | A page of the specified collection from an earlier successful processing step. |
+| `document` | The entire release or refusal document from an earlier processing step, subject to the response limit. |
+
+### Process and inspect a statement in one call
+
+Send these arguments to `execute`. It processes two versions of the sample and reads the released batch balance and verification assertions in the same call.
+
+~~~json
+{
+  "steps": [
+    { "id": "missing", "operation": "process_sample" },
+    { "id": "statement", "operation": "process_sample", "arguments": { "opening": "1000.00" } },
+    { "id": "balance", "operation": "records", "arguments": { "from_step": "statement", "collection": "batches" } },
+    { "id": "checks", "operation": "records", "arguments": { "from_step": "statement", "collection": "assertions" } }
+  ]
+}
+~~~
+
+The first outcome is a `PARSE_ERROR` refusal. The second releases two transactions and the balance record shows a `950.00` INR closing amount. Each successful processing operation starts with a compact summary. Use `records` with `offset` and `limit` to retrieve only the needed items. For evidence, use `prefix` to match a record ID such as `txn-00001.`.
+
+### Process a local export
+
+~~~json
+{
+  "steps": [
+    {
+      "id": "bank",
+      "operation": "process_file",
+      "arguments": { "path": "january.csv", "currency": "INR", "opening": "1000.00", "date_order": "dmy" }
+    },
+    {
+      "id": "rows",
+      "operation": "records",
+      "arguments": { "from_step": "bank", "collection": "transactions", "limit": 5 }
+    }
+  ]
+}
+~~~
+
+One batch accepts up to eight uniquely named steps. Documents referenced by `from_step` are held for the current batch. Results retain the engine's exact decimal strings. A document refusal appears inside a result. An operation error such as `INVALID_PATH` or `RESPONSE_LIMIT` appears as an error on the affected step. HTTP uses a 2 MiB request limit and batched output is bounded to 48 KiB.
+
+## Private HTTP transport
+
+Use Streamable HTTP for an organisation-managed service. Run it with `OPENBOOKS_MCP_TOKEN` set to a high-entropy secret. It listens on loopback, requires that token as an `Authorization: Bearer …` header, and supports in-memory uploads and the synthetic sample. Connect using a private SSH tunnel or an authenticated TLS gateway managed by your organisation.
+
+~~~bash
+python -m openbooks_mcp --transport streamable-http
+ssh -N -L 8791:127.0.0.1:8791 developer@your-vps
+~~~
+
+Configure the MCP client for Streamable HTTP at `http://127.0.0.1:8791/mcp` and supply the bearer token via its secret store. The base installation handles structured files and text-layer PDFs. The local engine's `scan` extra adds the OCR and model runtime on deployments where those resources are available.

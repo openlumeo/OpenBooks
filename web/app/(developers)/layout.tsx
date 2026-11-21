@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { RootProvider } from "fumadocs-ui/provider/next";
-import { BookOpen, PanelTop } from "lucide-react";
+import { BookOpen, FileText, PanelTop } from "lucide-react";
 import { docs } from "@/lib/docs";
-import { repositoryUrl } from "@/lib/site";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
@@ -12,11 +11,13 @@ export default function Layout({ children }: { children: ReactNode }) {
         <DocsLayout
           tree={docs.getPageTree()}
           nav={{
-            url: "/docs",
+            url: "/",
             title: <span className="flex items-center gap-2 font-semibold"><BookOpen size={19} aria-hidden="true" /> Open Books for developers</span>,
           }}
-          links={[{ text: "Workspace", url: "/", icon: <PanelTop size={16} aria-hidden="true" /> }]}
-          githubUrl={repositoryUrl}
+          links={[
+            { text: "Open workspace", url: "/app", icon: <PanelTop size={16} aria-hidden="true" /> },
+            { text: "Docs for AI agents", url: "/llms.txt", icon: <FileText size={16} aria-hidden="true" /> },
+          ]}
         >
           {children}
         </DocsLayout>

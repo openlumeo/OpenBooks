@@ -138,7 +138,7 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
           <Menu size={16} />
         </button>
         <BrandLockup markSize={22} />
-        <a className="icon-btn icon-btn--boxed" href="/docs" aria-label="Developer docs">
+        <a className="icon-btn icon-btn--boxed" href="/" aria-label="Developer docs">
           <BookOpen size={16} aria-hidden="true" />
         </a>
       </header>

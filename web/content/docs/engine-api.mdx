@@ -14,7 +14,7 @@ python -m pip install -e packages/py/openbooks -e server
 python -m uvicorn openbooks_server.app:app --host 127.0.0.1 --port 8765
 ~~~
 
-Use the full [deployment guide](https://github.com/Sagexd08/OpenBooks/tree/main/deploy) for a web and engine deployment. If OCR is needed, install `server[scan]` and satisfy its model and OCR runtime requirements.
+The FastAPI service requires access to a source checkout. If OCR is needed, install `server[scan]` and satisfy its model and OCR runtime requirements. For a downloadable integration with local or streamable HTTP transport, use the [Open Books MCP server](/docs/mcp).
 
 ## Endpoints
 

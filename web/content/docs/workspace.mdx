@@ -1,0 +1,22 @@
+---
+title: Open Books Financial Document Workspace
+description: Upload bank statements, tax documents and payment settlements, review the source checks, and export the verified JSON in Open Books.
+---
+
+[Open the workspace](/app) to process a batch of documents in your browser. The workspace uses the same verification engine as the [Python package](/docs/python) and [MCP server](/docs/mcp).
+
+## Run and review a batch
+
+1. Attach files or select a synthetic sample in the workspace. Use [the format matrix](/docs/formats) to check whether your export is recognised.
+2. Supply currency, date order or an authoritative opening balance when the layout needs it. The sample picker uses parameters suited to each fixture.
+3. Run the batch. Check which files released, refused, or were interrupted before the run finished. Each file has its own decision.
+4. In a release, open the assertions and compare source evidence with the normalised records. Download the JSON if the input and checks are appropriate for your downstream workflow.
+5. In a refusal, use the code and message to locate a source issue or missing parameter. Retry after checking the correction. See [refusal handling](/docs/refusals).
+
+## Use the released records
+
+A release carries parsed transactions, balances, and other records for its layout. Evidence can show the source row, page or bounding box. Assertions record the checks that passed. Preserve all three when exporting records to a bookkeeping or reconciliation job.
+
+When Q&A is enabled, you can ask questions over released files in a thread. Application code computes totals and counts and the answer can cite files or record IDs. The service can also report payout links on deployments with the optional linker enabled.
+
+The hosted workspace processes uploads on the server and stores thread history in this browser. Use the local Python or MCP packages when your files should stay on your own machine. Try the [synthetic bank statement quickstart](/docs/quickstart) first.

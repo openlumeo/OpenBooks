@@ -1,9 +1,11 @@
 ---
-title: Developer Documentation
-description: Extract financial documents into verified JSON with the Open Books Python engine, Node.js packages, CLI, or self-hosted HTTP service.
+title: Open Books Developer Documentation
+description: Convert bank statements, payment settlements, tax documents and Excel workpapers to verified JSON with Open Books, Python, Node.js or MCP.
 ---
 
 Open Books reads bank statements, payment settlements, tax documents and workpapers. Each run returns either a released `openbooks.v1` document with verifiable checks and source evidence or a typed refusal.
+
+[Open the workspace](/app) to try a sample, upload financial files, and inspect release decisions. [Read the workspace guide](/docs/workspace) for upload, review, and export workflows.
 
 <Cards>
   <Card title="Run your first statement" href="/docs/quickstart">
@@ -15,8 +17,8 @@ Open Books reads bank statements, payment settlements, tax documents and workpap
   <Card title="Read the output contract" href="/docs/output-contract">
     Use the document status, exact money amounts and source evidence in downstream software.
   </Card>
-  <Card title="Check supported formats" href="/docs/formats">
-    Match your file to a known layout and find requirements for dates, currency and OCR.
+  <Card title="Connect an AI agent" href="/docs/mcp">
+    Install the Open Books MCP server and run multiple verification operations in one call.
   </Card>
 </Cards>
 
@@ -37,6 +39,9 @@ Open Books reads bank statements, payment settlements, tax documents and workpap
 | Node.js 20+ | [`@lumeo_hq/openbooks-core`](/docs/node) | Run the local Python engine from Node.js and consume typed results. |
 | Terminal | [Python and npm CLI commands](/docs/cli) | Convert files, run diagnostics and script batch jobs. |
 | Self-hosted HTTP | [FastAPI engine service](/docs/engine-api) | Stream batches from a trusted application server. |
-| Browser | [Open the workspace](/) | Try synthetic samples and inspect assertions, rows and source evidence. |
+| AI agent | [Model Context Protocol](/docs/mcp) | Process local financial files and inspect released records, assertions and evidence. |
+| Browser | [Open the workspace](/app) | Try synthetic samples and inspect assertions, rows and source evidence. |
 
-The public packages are at 0.2.0. Training and evaluation use synthetic documents. Test the layouts you need before relying on the results in a production workflow.
+Check [supported formats](/docs/formats) for the layouts, dates, currencies and OCR options each source needs. Agents can read the [documentation index](/llms.txt) or [complete Markdown export](/llms-full.txt).
+
+The public engine packages are at 0.2.0. Training and evaluation use synthetic documents. Test the layouts you need before relying on the results in a production workflow.

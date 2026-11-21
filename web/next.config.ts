@@ -20,10 +20,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async redirects() {
     return [
-      { source: "/app", destination: "/", permanent: true },
+      { source: "/docs", destination: "/", permanent: true },
       // Hide account entry points during the workspace preview.
-      { source: "/auth/sign-in", destination: "/", permanent: false },
-      { source: "/auth/sign-up", destination: "/", permanent: false },
+      { source: "/auth/sign-in", destination: "/app", permanent: false },
+      { source: "/auth/sign-up", destination: "/app", permanent: false },
     ];
   },
   async headers() {

@@ -1,0 +1,21 @@
+[Unit]
+Description=Open Books MCP server
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+EnvironmentFile=/etc/openbooks-mcp/environment
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/openbooks-mcp/venv/bin/openbooks-mcp --transport streamable-http
+Restart=on-failure
+RestartSec=3
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+NoNewPrivileges=yes
+MemoryMax=512M
+CPUQuota=100%
+
+[Install]
+WantedBy=multi-user.target

@@ -23,8 +23,32 @@ The public API uses a shared PostgreSQL rate limiter. Apply `web/migrations/001_
 
 ## Developer documentation and search
 
-The Open Books Netlify project serves the workspace at `https://openbooks.lumeo.co.in/` and Fumadocs at `/docs`. Edit public pages in `web/content/docs/` and add new pages to `meta.json` to place them in the sidebar. The sitemap is generated from the content collection. Keep descriptions specific to the question each page answers. Link related guides with descriptive text and keep examples aligned with the published package versions.
+The Open Books Netlify project opens Fumadocs at `https://openbooks.lumeo.co.in/` and serves the workspace at `/app`. `/docs` redirects to the docs homepage and article paths stay under `/docs/`. Edit public pages in `web/content/docs/` and add entries to `meta.json` for sidebar navigation. HTML, the sitemap, `/llms.txt`, `/llms-full.txt` and per-page Markdown share the same content. Keep page descriptions specific and examples aligned with released package versions.
 
-Before publishing, run `pnpm build` and `pnpm test` from `web/`. For the linked Netlify project, publish the website with `netlify deploy --prod --context production` from `web/`. After publication, check the homepage, `/docs/quickstart`, `/api/search?query=opening`, `/robots.txt` and `/sitemap.xml` on the custom domain. Run both terminal examples and verify their refusal and release. Canonical tags and sitemap entries should use the custom domain. Keep internal API paths out of the sitemap. [Google sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap) · [Canonical URL guidance](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls)
+Before publishing, run `python deploy/build-public-assets.py` from the repository root to generate the wheel, checksum and JSON schemas. The script needs Python 3.11+ and `python -m pip install build`. Run `pnpm build` and `pnpm test` from `web/`, then `netlify deploy --prod --context production`. Check the homepage, `/app`, `/docs/quickstart`, docs search, `/robots.txt`, `/sitemap.xml`, `/llms.txt` and the MCP download on the custom domain. Run both terminal examples. Use canonical HTML URLs in the sitemap and let crawlers read the `noindex` directive on the workspace. [Google sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap) · [Canonical URL guidance](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls)
 
 Submit `/sitemap.xml` once in the verified Google Search Console property. After a release, check the homepage and key docs in URL Inspection and review indexing errors as they appear. Compare query impressions, clicks and landing pages over rolling 28-day periods each week. Prioritise pages for relevant queries such as bank statement CSV to JSON, PDF statement OCR and Stripe settlement reconciliation. Improve pages with incomplete examples, support questions or low click-through rates. Keep page dates tied to substantive content changes. [Google SEO starter guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide) · [Search Console performance report](https://support.google.com/webmasters/answer/7576553)
+
+Keep public docs and AI exports reachable through the CDN and bot rules. Check the actual HTML Googlebot receives, including the canonical, content, and internal href links. Treat Markdown exports as an access path for agents and track Google visibility through the HTML pages and Search Console. [Google's guide to AI search visibility](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide)
+
+## Private MCP service
+
+Build the downloadable wheel with the command above and transfer it with `deploy/openbooks-mcp.service` to the VPS. Use a Linux host with Python 3.11+, venv support and systemd. As root, from the directory containing the verified artifacts:
+
+~~~sh
+sha256sum --check openbooks_mcp-0.1.0-py3-none-any.whl.sha256
+install -d -m 0755 /opt/openbooks-mcp
+python3 -m venv /opt/openbooks-mcp/venv
+/opt/openbooks-mcp/venv/bin/python -m pip install ./openbooks_mcp-0.1.0-py3-none-any.whl
+/opt/openbooks-mcp/venv/bin/python -m pip check
+install -d -m 0700 /etc/openbooks-mcp
+if [ ! -e /etc/openbooks-mcp/environment ]; then
+  umask 077
+  python3 -c 'import secrets; print("OPENBOOKS_MCP_TOKEN=" + secrets.token_urlsafe(48))' > /etc/openbooks-mcp/environment
+fi
+install -m 0644 openbooks-mcp.service /etc/systemd/system/openbooks-mcp.service
+systemctl daemon-reload
+systemctl enable --now openbooks-mcp
+~~~
+
+The service binds to `127.0.0.1:8791` and requires a bearer token. An unauthenticated request should receive `401`. Use a private tunnel and distribute the token through the organisation’s secret store. Test `initialize`, `tools/list` and `tools/call` using the [synthetic batch example](https://openbooks.lumeo.co.in/docs/mcp). The standalone service uses the base engine.

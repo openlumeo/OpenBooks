@@ -1,7 +1,7 @@
 {
   "title": "Open Books developer docs",
   "pages": [
-    "---Get started---", "index", "quickstart", "installation",
+    "---Get started---", "index", "quickstart", "installation", "workspace", "mcp",
     "---Workflows---", "bank-statements", "payment-settlements", "tax-and-workpapers", "pdf-and-ocr",
     "---Package reference---", "python", "node", "cli",
     "---Contracts and operations---", "formats", "output-contract", "refusals", "engine-api", "architecture", "model", "troubleshooting"

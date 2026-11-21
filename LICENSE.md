@@ -9,6 +9,8 @@ This is Lumeo's private repository. It contains two kinds of material.
 - `packages/js/*`
 - the model files `models/roles_head.pt`, `models/roles_calibration.json` and `models/roles_model_card.json`
 
+The downloadable `packages/py/openbooks-mcp` package has its own installation and use terms in its `LICENSE` file.
+
 **Everything else is proprietary to Lumeo, all rights reserved**: `server/`, `web/`, `packages/py/openbooks-lab/`, `scripts/`,
 `docs/`, `tests/` outside the open packages, the rest of `models/`, and this repository's history. Being able to read it here
 grants no licence to use, copy or publish it.

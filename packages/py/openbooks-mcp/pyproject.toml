@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openbooks-mcp"
+version = "0.1.0"
+description = "Connect MCP-compatible agents to the Open Books financial document verification engine."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "LicenseRef-Lumeo"
+license-files = ["LICENSE"]
+dependencies = [
+    "mcp>=2.2,<3",
+    "openbooks>=0.2,<0.3",
+    "pydantic>=2.12,<3",
+    "uvicorn>=0.30,<1",
+]
+
+[project.optional-dependencies]
+scan = ["openbooks[scan]>=0.2,<0.3"]
+
+[project.urls]
+Documentation = "https://openbooks.lumeo.co.in/docs/mcp"
+
+[project.scripts]
+openbooks-mcp = "openbooks_mcp.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/openbooks_mcp"]

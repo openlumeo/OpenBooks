@@ -6,8 +6,6 @@ import { ThemeToggle } from "@/components/brand/theme-toggle";
 import { fmtAgo } from "@/lib/format";
 import type { Workspace } from "@/lib/use-workspace";
 
-const LIMITATIONS_URL = "https://github.com/Sagexd08/OpenBooks#limitations";
-
 export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: boolean; onNavigate: () => void; onNew: () => void }) {
   const { engine } = ws;
   const h = engine.health;
@@ -21,7 +19,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
   return (
     <aside className="ob-sidebar" data-open={open} aria-label="Threads">
       <div className="ob-sidebar-head">
-        <a href="/" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); onNew(); }}>
+        <a href="/app" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); onNew(); }}>
           <BrandLockup />
         </a>
         <button
@@ -105,7 +103,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
       </nav>
 
       <div className="ob-sidebar-foot">
-        <a className="ob-maturity" href="/docs">
+        <a className="ob-maturity" href="/">
           <BookOpen size={15} aria-hidden="true" />
           <span>Developer docs</span>
         </a>
@@ -116,7 +114,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
           </span>
           <ThemeToggle />
         </div>
-        <a className="ob-maturity" href={LIMITATIONS_URL} target="_blank" rel="noreferrer">
+        <a className="ob-maturity" href="/docs/model">
           <FlaskConical size={13} aria-hidden="true" />
           <span>Early release · tested on synthetic data only</span>
         </a>

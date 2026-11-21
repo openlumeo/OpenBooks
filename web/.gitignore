@@ -1,3 +1,5 @@
 .neon
 node_modules/
 .source/
+/public/downloads/
+/public/schema/

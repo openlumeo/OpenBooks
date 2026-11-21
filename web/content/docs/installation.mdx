@@ -63,4 +63,4 @@ See [PDF and OCR](/docs/pdf-and-ocr) for flag defaults. The Node.js wrapper enab
 | [`@lumeo_hq/openbooks-doctor`](https://www.npmjs.com/package/@lumeo_hq/openbooks-doctor) | Programmatic diagnostics for Node.js. |
 | [`@lumeo_hq/openbooks`](https://www.npmjs.com/package/@lumeo_hq/openbooks) | Unified npm CLI and Python installer. |
 
-If you're upgrading Python from 0.1, remove the old split distributions before reinstalling. The 0.2 distribution owns all five Python modules. See the [migration instructions](https://github.com/Sagexd08/OpenBooks/blob/main/docs/PYTHONOPENBOOKSPACKAGES.md#upgrading-from-01).
+If you're upgrading Python from 0.1, install 0.2 in a fresh virtual environment. The `openbooks` distribution now owns all five Python modules. Existing code can still import `Params` and `process` from `openbooks.pipeline`, and new code can import them from `openbooks`.

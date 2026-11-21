@@ -30,4 +30,4 @@ The Python engine owns the parsing contract. The Node.js wrappers validate the d
 
 Providers are registered using Python distribution entry points such as `openbooks.layouts`, `openbooks.sniffers`, `openbooks.frontends` and `openbooks.gates`. Install editable packages with pip when developing so their entry points are available. Layout recognition and provider registration are separate: registering a parser does not by itself teach the detector a new header or signature.
 
-See [source architecture](https://github.com/Sagexd08/OpenBooks/blob/main/docs/ARCHITECTURE.md) and [server topology](https://github.com/Sagexd08/OpenBooks/blob/main/docs/SERVING.md) for implementation details.
+See the [engine HTTP API](/docs/engine-api), [model guide](/docs/model), and [MCP integration](/docs/mcp) for the other runtime paths.
