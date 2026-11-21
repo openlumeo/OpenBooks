@@ -14,3 +14,14 @@ Exit codes: `0` everything released, `1` something was refused, `2` usage error,
 PDF and image runs use the model on your machine by default. Pass `--no-model` to skip the cross-check.
 The npm install hook fetches `openbooks[scan]` 0.2.x for Python 3.11+, including PyTorch. If your package manager skips the hook or you set `OPENBOOKS_SKIP_PYTHON=1`, run `openbooks install-engine --scan`.
 If your system Python refuses global installs, create a `.venv` in your project and run `openbooks install-engine --scan` from that directory.
+
+## Automate a run
+
+~~~sh
+openbooks statements run statement.csv --currency INR --opening 1000.00 \
+  --date-order dmy --max-document-bytes 67108864 --out ./proofs --json
+~~~
+
+`--json` emits a result array on stdout. `--out` also writes the engine documents to hash-named files. Reusing the output directory replaces any result for identical input bytes. Use separate output directories to compare runs with different settings. An oversized proof reports an engine error. For per-file options and streaming decisions, use the [Node.js SDK](https://openbooks.lumeo.co.in/docs/node).
+
+[CLI command reference and troubleshooting](https://openbooks.lumeo.co.in/docs/cli)

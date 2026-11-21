@@ -25,6 +25,15 @@ export interface DoctorOptions extends DiscoverOptions {
 }
 
 const MIN_NODE = 20;
+const DOCTOR_STATUSES = new Set<string>(["pass", "warn", "fail", "skip"]);
+
+function isCheck(value: unknown): value is DoctorCheck {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Partial<DoctorCheck>;
+  return typeof item.id === "string" && typeof item.detail === "string"
+    && typeof item.status === "string" && DOCTOR_STATUSES.has(item.status)
+    && (item.fix === undefined || typeof item.fix === "string");
+}
 
 function report(checks: DoctorCheck[], strict: boolean): DoctorReport {
   const summary = { pass: 0, warn: 0, fail: 0, skip: 0 } as Record<DoctorStatus, number>;
@@ -64,8 +73,11 @@ export async function runDoctor(opts: DoctorOptions = {}): Promise<DoctorReport>
   if (r.code !== 0 && r.code !== 1) {
     throw new EngineError("engine_fault", `doctor failed (exit ${r.code ?? r.signal}): ${r.stderr.trim().slice(-500)}`);
   }
-  let py: DoctorReport;
-  try { py = JSON.parse(r.stdout) as DoctorReport; } catch { throw new EngineError("bad_output", "doctor printed something that is not JSON"); }
-  if (py.schema !== "openbooks.doctor.v1") throw new EngineError("bad_output", `unknown doctor report schema ${String(py.schema)}`);
+  let parsed: unknown;
+  try { parsed = JSON.parse(r.stdout); } catch { throw new EngineError("bad_output", "doctor printed something that is not JSON"); }
+  const py = parsed as Partial<DoctorReport> | null;
+  if (py?.schema !== "openbooks.doctor.v1" || !Array.isArray(py.checks) || !py.checks.every(isCheck)) {
+    throw new EngineError("bad_output", "the Python engine returned an invalid doctor report");
+  }
   return report([...checks, ...py.checks], opts.strict ?? false);
 }

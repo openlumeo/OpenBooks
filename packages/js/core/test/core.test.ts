@@ -3,13 +3,27 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
-import { clearEngineCache, EngineError, isReleased, runFile, runFiles } from "../src/index.js";
+import { clearEngineCache, EngineError, isReleased, runFile, runFiles, runJobs } from "../src/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../../../..");
 const venvPython = join(repo, ".venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
 const realPython = process.env.OPENBOOKS_PYTHON ?? (existsSync(venvPython) ? venvPython : undefined);
 const fake = [process.execPath, join(here, "fake-engine.mjs")];
+
+describe("proof output and mixed jobs", () => {
+  it("bounds serialized documents independently of subprocess output", async () => {
+    await expect(runFile(file("limited-output.csv", BANK), { python: fake, maxDocumentBytes: 8 }))
+      .rejects.toMatchObject({ kind: "bad_output" });
+  });
+
+  it("uses the typed protocol error when engine-info is malformed", async () => {
+    clearEngineCache();
+    process.env.FAKE_MODE = "null_info";
+    await expect(runFile(file("bad-info.csv", BANK), { python: fake }))
+      .rejects.toMatchObject({ kind: "bad_output" });
+  });
+});
 
 const BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2026,Pay,,5.00,1005.00\n";
 const STRIPE = "balance_transaction_id,created,currency,gross,fee,net\nt1,2026-01-15 10:00:00,usd,100.00,3.20,96.80\n";
@@ -28,6 +42,16 @@ afterEach(() => {
 
 describe.skipIf(!realPython)("with the real engine", () => {
   const opts = { python: realPython!, currency: "INR", opening: "1000.00" };
+
+  it("keeps per-file document options and preserves ordered decisions", async () => {
+    const input = file("mixed-job.csv", BANK);
+    const outcomes = [];
+    for await (const result of runJobs([
+      { file: input, options: { opening: "900.00" } },
+      { file: input, options: { opening: "1000.00" } },
+    ], opts)) outcomes.push(result.kind);
+    expect(outcomes).toEqual(["refused", "released"]);
+  });
 
   it("returns a released document with typed, validated content", async () => {
     const r = await runFile(file("a.csv", BANK), opts);

@@ -35,3 +35,26 @@ Options: `currency`, `opening`, `account`, `allowDerivedOpening`, `dateOrder` (`
 
 PDF and image runs cross-check with the local model by default and require the Python `openbooks[scan]` extra. Set `model: false` to skip the cross-check.
 (default 120000), `maxOutputBytes`, `signal`, `accept` (release only these layouts), `python`.
+
+## Mixed batches
+
+Use `runFiles` when every input shares its options. Use `runJobs` to stream ordered decisions from an iterable or async iterable of jobs with individual document parameters. Interpreter selection, layout restrictions and resource limits apply to the entire job stream.
+
+~~~ts
+import { isReleased, runJobs } from "@lumeo_hq/openbooks-core";
+
+for await (const result of runJobs([
+  { file: "january.csv", options: { opening: "1000.00" } },
+  { file: "february.csv", options: { opening: "1534.20" } },
+], { currency: "INR", dateOrder: "dmy" })) {
+  if (isReleased(result)) {
+    console.log(result.file, result.document.assertions);
+  } else {
+    console.warn(result.file, result.code, result.message);
+  }
+}
+~~~
+
+`maxDocumentBytes` bounds an individual serialized proof to 64 MiB by default. `maxOutputBytes` bounds each subprocess output stream. A caller can pass `AbortSignal` to cancel a job and stop waiting for engine discovery. Keep `EngineError` distinct from a refusal when routing retries.
+
+[API reference, input formats and verification contract](https://openbooks.lumeo.co.in/docs/node)

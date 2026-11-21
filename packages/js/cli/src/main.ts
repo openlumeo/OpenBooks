@@ -30,6 +30,7 @@ interface RunFlags {
   json?: boolean;
   python?: string;
   timeout?: string;
+  maxDocumentBytes?: string;
 }
 
 type Runner = (files: readonly string[], opts: RunOptions) => Promise<RunResult[]>;
@@ -47,7 +48,8 @@ function addRunOptions(c: Command): Command {
     .option("--out <dir>", "also write each document, named <sha256>.json, into this directory")
     .option("--json", "print the results as JSON instead of one line per file")
     .option("--python <path>", "the Python interpreter that has Open Books installed (default: OPENBOOKS_PYTHON, ./.venv, then the system Python)")
-    .option("--timeout <ms>", "stop the engine after this many milliseconds (default 120000)");
+    .option("--timeout <ms>", "stop the engine after this many milliseconds (default 120000)")
+    .option("--max-document-bytes <bytes>", "maximum bytes per proof document (default 67108864)");
 }
 
 function toOptions(f: RunFlags): RunOptions {
@@ -67,6 +69,13 @@ function toOptions(f: RunFlags): RunOptions {
       throw new CommanderError(2, "openbooks.badOption", `--timeout must be a whole number from 1 to ${MAX_TIMEOUT_MS} milliseconds`);
     }
     o.runTimeoutMs = n;
+  }
+  if (f.maxDocumentBytes !== undefined) {
+    const bytes = Number(f.maxDocumentBytes);
+    if (!/^[0-9]+$/.test(f.maxDocumentBytes) || !Number.isSafeInteger(bytes) || bytes < 1) {
+      throw new CommanderError(2, "openbooks.badOption", "--max-document-bytes must be a positive whole number");
+    }
+    o.maxDocumentBytes = bytes;
   }
   return o;
 }

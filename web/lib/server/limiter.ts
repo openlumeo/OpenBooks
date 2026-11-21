@@ -19,8 +19,7 @@ export const LIMITS = {
 
 /** Trust the final forwarded address added by the configured reverse proxy, not caller-supplied entries. */
 export function clientKey(req: Request): string {
-  const netlify = process.env.NETLIFY === "true" ? req.headers.get("x-nf-client-connection-ip")?.trim() : undefined;
-  if (netlify) return netlify;
+  if (process.env.NETLIFY === "true") return req.headers.get("x-nf-client-connection-ip")?.trim() || "unknown";
   const forwarded = req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
   return forwarded || "unknown";
 }

@@ -33,6 +33,21 @@ try {
 
 Batch options apply to every file in the call. The example assumes both files have the same verified opening amount. Use `runFile()` for each statement when its opening amount or currency differs. Results are returned in input order.
 
+## Stream jobs with per-file options
+
+The 0.2.1 packages expose `runJobs()` in core and the format wrappers. Pass an iterable or async iterable of files and per-file options. Each result arrives in input order without retaining the completed batch. Runtime settings such as the interpreter, layout allowlist and response limits apply across the stream.
+
+~~~ts
+import { runJobs } from "@lumeo_hq/openbooks-statements";
+
+for await (const result of runJobs([
+  { file: "jan.csv", options: { opening: "1000.00" } },
+  { file: "feb.csv", options: { opening: "1590.12" } },
+], { currency: "INR", dateOrder: "dmy", maxDocumentBytes: 64 * 1024 * 1024 })) {
+  console.log(result.file, result.kind);
+}
+~~~
+
 ## RunOptions
 
 | Options | Behavior |
@@ -42,6 +57,7 @@ Batch options apply to every file in the call. The example assumes both files ha
 | `ocr`, `model` | Enabled by default for document processing. Set `model: false` for text-layer PDF use with the base engine. |
 | `python` | Overrides the interpreter path. Otherwise discovery checks `OPENBOOKS_PYTHON`, a project `.venv`, then supported system Python candidates. |
 | `runTimeoutMs`, `signal`, `maxOutputBytes` | Bound runtime and process output and support cancellation. The run timeout defaults to 120,000 ms. |
+| `maxDocumentBytes` | Bounds the size of a serialized proof document separately from subprocess logs. Defaults to 64 MiB. |
 | `accept` | Layout ID allowlist. A withheld release is returned as `UNKNOWN_LAYOUT` with `restricted: true`. |
 
 ## Pick the wrapper

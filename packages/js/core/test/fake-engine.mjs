@@ -12,6 +12,7 @@ const info = { name: "openbooks", version: "0.0.0-fake", schema_version: "openbo
 
 if (cmd === "engine-info") {
   if (mode === "no_module") { console.error("No module named openbooks"); process.exit(1); }
+  if (mode === "null_info") { console.log("null"); process.exit(0); }
   console.log(JSON.stringify(info));
   process.exit(0);
 }
