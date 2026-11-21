@@ -132,7 +132,7 @@ export type Health = {
   allowed_extensions: string[];
 };
 
-export type FormatGroup = { id: string; title: string; inputs: string[]; layouts: string[]; extensions: string[] };
+type FormatGroup = { id: string; title: string; inputs: string[]; layouts: string[]; extensions: string[] };
 export type Formats = {
   groups: FormatGroup[];
   /** layouts built from public descriptions, tested on synthetic files only */
@@ -153,9 +153,9 @@ export type Sample = {
 
 // ---- typed heads' own reading (mirrors server/openbooks_server/inference.py infer_file) ------
 
-export type RoleName = "other" | "date" | "desc" | "debit" | "credit" | "balance";
+type RoleName = "other" | "date" | "desc" | "debit" | "credit" | "balance";
 
-export type RoleToken = {
+type RoleToken = {
   text: string;
   ocr_confidence?: number | null;
   /** [x0, y0, x1, y1] as fractions of the page, origin top-left */
@@ -228,7 +228,7 @@ export type RunTurn = {
 
 export type UserAskTurn = { id: string; kind: "user-ask"; at: number; text: string };
 
-export type ToolTrace = { name: string; summary: string };
+type ToolTrace = { name: string; summary: string };
 
 export type AnswerTurn = {
   id: string;

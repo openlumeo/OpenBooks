@@ -1,31 +1,21 @@
-import { MAX_FILE_BYTES, rejectOversize } from "@/lib/guards";
-import { engineDown, engineFetch, relay } from "@/lib/server/engine";
+import { MAX_FILE_BYTES, rejectNonMultipart, rejectOversize } from "@/lib/guards";
+import { NO_STORE_HEADERS } from "@/lib/http";
+import { proxyJobStatus, proxyUpload } from "@/lib/server/engine";
 import { limitOr429 } from "@/lib/server/limiter";
 
 export const dynamic = "force-dynamic";
+
+export function GET(req: Request) {
+  return proxyJobStatus(req, "/v1/roles");
+}
 
 /** The typed heads' own reading of one PDF or scan. Streams the multipart upload (file, params) to the engine. */
 export async function POST(req: Request) {
   const limited = await limitOr429(req, "roles");
   if (limited) return limited;
-  const type = req.headers.get("content-type") ?? "";
-  if (!type.startsWith("multipart/form-data")) {
-    return Response.json({ error: "bad_request", message: "expected a multipart upload" }, { status: 415 });
-  }
+  const notMultipart = rejectNonMultipart(req.headers.get("content-type") ?? "");
+  if (notMultipart) return notMultipart;
   const tooBig = rejectOversize(req, MAX_FILE_BYTES);
   if (tooBig) return tooBig;
-  try {
-    const upstream = await engineFetch("/v1/roles", {
-      method: "POST",
-      headers: { "content-type": type },
-      body: req.body,
-      signal: req.signal,
-      // Required by Node's fetch to send a streaming request body.
-      duplex: "half",
-    } as RequestInit & { duplex: "half" });
-    return relay(upstream, { "cache-control": "no-store" });
-  } catch {
-    if (req.signal.aborted) return new Response(null, { status: 499 });
-    return engineDown();
-  }
+  return proxyUpload(req, "/v1/roles", NO_STORE_HEADERS);
 }

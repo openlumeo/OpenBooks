@@ -1,13 +1,13 @@
-export type TakeResult = { allowed: boolean; retryAfterSec: number };
+type TakeResult = { allowed: boolean; retryAfterSec: number };
 
-export type TokenBucketOptions = {
+type TokenBucketOptions = {
   capacity: number;
   refillPerSec: number;
   now?: () => number;
   maxKeys?: number;
 };
 
-export type TokenBucket = {
+type TokenBucket = {
   take: (key: string) => TakeResult;
 };
 

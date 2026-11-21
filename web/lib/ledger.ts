@@ -20,11 +20,11 @@ export function groupAmount(amount: string, currency?: string): string {
   return (neg ? "-" : "") + grouped + (frac !== undefined ? "." + frac : "");
 }
 
-export function fmtMoney(m: Money | null | undefined): string {
+function fmtMoney(m: Money | null | undefined): string {
   return m ? groupAmount(m.amount, m.currency) : "";
 }
 
-export type Column = {
+type Column = {
   key: string;
   label: string;
   numeric?: boolean;
@@ -41,7 +41,7 @@ const text = (k: string) => (t: Transaction) => {
 
 const DATE: Column = { key: "date", label: "Date", field: "date", get: text("date") };
 
-export const COLUMNS: Record<BatchKind, Column[]> = {
+const COLUMNS: Record<BatchKind, Column[]> = {
   statement: [
     DATE,
     { key: "description", label: "Description", get: text("description") },

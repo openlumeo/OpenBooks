@@ -1,4 +1,4 @@
-export type ParseSubscribeResult =
+type ParseSubscribeResult =
   | { ok: true; email: string }
   | { ok: false; reason: "invalid" | "spam" };
 

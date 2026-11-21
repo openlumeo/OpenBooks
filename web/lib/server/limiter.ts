@@ -1,5 +1,6 @@
 import "server-only";
 import { neon } from "@neondatabase/serverless";
+import { jsonError, NO_STORE_HEADERS } from "@/lib/http";
 import { createTokenBucket } from "@/lib/token-bucket";
 
 export type Limit = { readonly capacity: number; readonly refillPerSec: number };
@@ -9,6 +10,7 @@ export type Verdict = { allowed: boolean; retryAfterSec: number };
 export const LIMITS = {
   runs: { capacity: 10, refillPerSec: 1 / 20 },
   roles: { capacity: 20, refillPerSec: 1 / 10 },
+  jobStatus: { capacity: 24, refillPerSec: 2 },
   link: { capacity: 30, refillPerSec: 1 / 5 },
   ask: { capacity: 10, refillPerSec: 1 / 30 }, // calls the paid LLM
   subscribe: { capacity: 5, refillPerSec: 1 / 60 },
@@ -66,8 +68,7 @@ export async function limitOr429(req: Request, name: keyof typeof LIMITS): Promi
   try {
     verdict = await takeShared(name, clientKey(req), LIMITS[name]);
   } catch {
-    return Response.json({ error: "limiter_unavailable", message: "Please try again shortly." },
-      { status: 503, headers: { "cache-control": "no-store" } });
+    return jsonError(503, "limiter_unavailable", "Please try again shortly.", NO_STORE_HEADERS);
   }
   if (verdict.allowed) return null;
   return Response.json(

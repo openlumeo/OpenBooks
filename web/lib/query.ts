@@ -5,7 +5,7 @@ import type { EngineDoc, Evidence, Money, ReleasedDoc, Transaction } from "./typ
 
 export type DocRef = { file: string; doc: EngineDoc };
 
-export type TxnFilter = {
+type TxnFilter = {
   file?: string;
   direction?: "credit" | "debit";
   kind?: string;
@@ -74,7 +74,7 @@ function exactSums(sums: Map<string, DecimalSum>): Record<string, string> {
   }));
 }
 
-export type QueryRow = {
+type QueryRow = {
   file: string;
   id: string;
   date?: string;
@@ -85,7 +85,7 @@ export type QueryRow = {
   amount?: Money;
 };
 
-export type QueryResult = {
+type QueryResult = {
   count: number;
   /** exact decimal strings, one per currency */
   sums: Record<string, string>;

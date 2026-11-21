@@ -1,7 +1,7 @@
 // Minimal text/event-stream reader for the engine's /v1/runs stream.
 // Handles events split across network chunks and CRLF line endings.
 
-export type SSEEvent = { event: string; data: string };
+type SSEEvent = { event: string; data: string };
 
 export async function* parseSSE(body: ReadableStream<Uint8Array>): AsyncGenerator<SSEEvent> {
   const reader = body.getReader();

@@ -2,7 +2,7 @@
 import { parseNDJSON, parseSSE } from "./sse";
 import type { EngineDoc, Formats, Health, LinkReport, ReleasedDoc, RolesDoc, RunParams, Sample, Stage } from "./types";
 
-export class ApiError extends Error {
+class ApiError extends Error {
   constructor(message: string, readonly status: number) {
     super(message);
   }
@@ -12,6 +12,65 @@ async function json<T>(res: Response): Promise<T> {
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError((body as { message?: string; detail?: string }).message ?? (body as { detail?: string }).detail ?? `HTTP ${res.status}`, res.status);
   return body as T;
+}
+
+type JobEvent = { event: string; data: unknown };
+type JobPage = { events: JobEvent[]; cursor: number; done: boolean };
+const JOB_HEADER = "x-openbooks-job";
+const POLL_MS = 2000;
+const JOB_TIMEOUT_MS = 30 * 60 * 1000;
+
+function jobHeaders(): Record<string, string> {
+  const key = Array.from(crypto.getRandomValues(new Uint8Array(16)), (n) => n.toString(16).padStart(2, "0")).join("");
+  return { [JOB_HEADER]: key };
+}
+
+function wait(ms: number, signal?: AbortSignal): Promise<void> {
+  signal?.throwIfAborted();
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      signal?.removeEventListener("abort", abort);
+      resolve();
+    }, ms);
+    function abort() {
+      clearTimeout(timer);
+      reject(signal?.reason);
+    }
+    signal?.addEventListener("abort", abort, { once: true });
+  });
+}
+
+async function* pollJob(path: string, headers: Record<string, string>, signal?: AbortSignal): AsyncGenerator<JobEvent> {
+  const deadline = Date.now() + JOB_TIMEOUT_MS;
+  let cursor = 0;
+  let retries = 0;
+  let delay = POLL_MS;
+  while (Date.now() < deadline) {
+    await wait(delay, signal);
+    const res = await fetch(`${path}?cursor=${cursor}`, { headers, signal, cache: "no-store" }).catch((error: unknown) => {
+      if (signal?.aborted) throw error;
+      return undefined;
+    });
+    if ((!res || [429, 502, 503, 504].includes(res.status)) && retries < 5) {
+      await res?.body?.cancel().catch(() => undefined);
+      retries += 1;
+      delay = Math.max(POLL_MS * retries, (Number(res?.headers.get("retry-after")) || 0) * 1000);
+      continue;
+    }
+    if (!res) throw new Error("Could not reconnect to the engine. Try again.");
+    const page = await json<JobPage>(res);
+    retries = 0;
+    cursor = page.cursor;
+    for (const event of page.events) yield event;
+    if (page.done) return;
+    delay = page.events.length ? POLL_MS : Math.min(6000, delay + 1000);
+  }
+  throw new Error("The engine is still processing this file. Try again with a shorter document.");
+}
+
+function jobError(data: unknown): Error {
+  const message = (data as { message?: string })?.message;
+  return new Error(message || "The engine could not finish this job.");
 }
 
 export const getHealth = () => fetch("/api/engine/health", { cache: "no-store" }).then((r) => json<Health>(r));
@@ -25,7 +84,7 @@ export async function fetchSampleFile(s: Sample, signal?: AbortSignal): Promise<
   return new File([await res.blob()], s.filename, { type: "application/octet-stream" });
 }
 
-export type RunEvent =
+type RunEvent =
   | { type: "started"; index: number; name: string; size: number }
   | { type: "stage"; index: number; stage: Stage }
   | { type: "done"; index: number; doc: EngineDoc }
@@ -42,20 +101,26 @@ export async function* runFiles(
   for (const f of files) fd.append("files", f, f.name);
   fd.append("params", JSON.stringify(params));
   if (Object.keys(perFile).length) fd.append("file_params", JSON.stringify(perFile));
-  const res = await fetch("/api/runs", { method: "POST", body: fd, signal });
+  const headers = jobHeaders();
+  const res = await fetch("/api/runs", { method: "POST", body: fd, headers, signal });
   if (!res.ok || !res.body) {
     const body = await res.json().catch(() => ({}));
     const msg = (body as { detail?: unknown; message?: string }).message ?? (body as { detail?: unknown }).detail;
     throw new ApiError(typeof msg === "string" ? msg : `The engine returned HTTP ${res.status}`, res.status);
   }
-  for await (const ev of parseSSE(res.body)) {
-    const d = JSON.parse(ev.data);
+  const events = res.status === 202 ? pollJob("/api/runs", headers, signal) : (async function* () {
+    for await (const event of parseSSE(res.body!)) yield { event: event.event, data: JSON.parse(event.data) };
+  })();
+  if (res.status === 202) await res.body.cancel().catch(() => undefined);
+  for await (const ev of events) {
+    const d = ev.data as { index: number; name: string; size: number; stage: Stage; doc: EngineDoc; released: number; refused: number };
     switch (ev.event) {
       case "file.started": yield { type: "started", index: d.index, name: d.name, size: d.size }; break;
       case "file.stage": yield { type: "stage", index: d.index, stage: d.stage }; break;
       case "file.done": yield { type: "done", index: d.index, doc: d.doc }; break;
       case "run.done": yield { type: "finished", released: d.released, refused: d.refused }; return;
-      case "run.error": throw new Error(d.message || "The engine could not finish this run.");
+      case "run.error":
+      case "error": throw jobError(ev.data);
     }
   }
   throw new Error("The connection ended before the engine confirmed the run.");
@@ -66,7 +131,15 @@ export async function predictRoles(file: File, params: Pick<RunParams, "ocr" | "
   const fd = new FormData();
   fd.append("file", file, file.name);
   fd.append("params", JSON.stringify(params));
-  return json<RolesDoc>(await fetch("/api/roles", { method: "POST", body: fd, signal }));
+  const headers = jobHeaders();
+  const res = await fetch("/api/roles", { method: "POST", body: fd, headers, signal });
+  if (res.status !== 202) return json<RolesDoc>(res);
+  await res.body?.cancel().catch(() => undefined);
+  for await (const event of pollJob("/api/roles", headers, signal)) {
+    if (event.event === "roles") return event.data as RolesDoc;
+    if (event.event === "error") throw jobError(event.data);
+  }
+  throw new Error("The engine finished without returning a model reading.");
 }
 
 export async function linkDocs(docs: ReleasedDoc[], signal?: AbortSignal): Promise<LinkReport> {
@@ -74,7 +147,7 @@ export async function linkDocs(docs: ReleasedDoc[], signal?: AbortSignal): Promi
   return json<LinkReport>(res);
 }
 
-export type AskEvent =
+type AskEvent =
   | { type: "text"; text: string }
   | { type: "tool"; name: string; summary: string }
   | { type: "error"; message: string }

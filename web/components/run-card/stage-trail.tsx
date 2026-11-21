@@ -4,7 +4,7 @@ import type { FileRun } from "@/lib/types";
 
 type State = "done" | "active" | "stopped" | "pending";
 
-export function stageStates(f: FileRun): State[] {
+function stageStates(f: FileRun): State[] {
   const doc = f.doc;
   if (doc?.status === "ok") return STAGES.map(() => "done");
   if (doc?.status === "refused") {
