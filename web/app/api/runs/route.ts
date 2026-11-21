@@ -1,5 +1,5 @@
 import { MAX_UPLOAD_BYTES, rejectOversize } from "@/lib/guards";
-import { ENGINE_URL, engineDown, engineHeaders, relay } from "@/lib/server/engine";
+import { engineDown, engineFetch, relay } from "@/lib/server/engine";
 import { limitOr429 } from "@/lib/server/limiter";
 
 export const dynamic = "force-dynamic";
@@ -15,17 +15,17 @@ export async function POST(req: Request) {
   const tooBig = rejectOversize(req, MAX_UPLOAD_BYTES);
   if (tooBig) return tooBig;
   try {
-    const upstream = await fetch(`${ENGINE_URL}/v1/runs`, {
+    const upstream = await engineFetch("/v1/runs", {
       method: "POST",
-      headers: engineHeaders({ "content-type": type }),
+      headers: { "content-type": type },
       body: req.body,
       signal: req.signal,
       // Required by Node's fetch to send a streaming request body.
       duplex: "half",
     } as RequestInit & { duplex: "half" });
     return relay(upstream, { "cache-control": "no-store", "x-accel-buffering": "no" });
-  } catch (err) {
+  } catch {
     if (req.signal.aborted) return new Response(null, { status: 499 });
-    return engineDown(err);
+    return engineDown();
   }
 }

@@ -128,7 +128,7 @@ function errorMessage(err: unknown): string {
   if (err instanceof OpenAI.AuthenticationError) return "The model API key on the web server was rejected.";
   if (err instanceof OpenAI.PermissionDeniedError) return "The model API key on the web server lacks access to this model.";
   if (err instanceof OpenAI.RateLimitError) return "The model is rate limited right now. Try again in a minute.";
-  if (err instanceof OpenAI.BadRequestError) return `The model rejected the request: ${err.message}`;
+  if (err instanceof OpenAI.BadRequestError) return "The model rejected this question. Try a shorter request.";
   if (err instanceof OpenAI.APIError && (err.status ?? 0) >= 500) return "The model is temporarily unavailable. Try again shortly.";
   if (err instanceof OpenAI.APIConnectionError) return "Could not reach the model API from the web server.";
   return "Something went wrong while answering.";

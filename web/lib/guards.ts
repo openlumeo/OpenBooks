@@ -4,8 +4,8 @@ export const MAX_JSON_BYTES = 4 * 1024 * 1024;
 
 export function rejectOversize(req: Request, maxBytes: number): Response | null {
   const raw = req.headers.get("content-length");
-  const length = raw === null ? Number.NaN : Number(raw);
-  if (!Number.isFinite(length) || length < 0) {
+  const length = raw !== null && /^[0-9]+$/.test(raw) ? Number(raw) : Number.NaN;
+  if (Number.isNaN(length)) {
     return Response.json({ error: "length_required", message: "Content-Length is required." }, { status: 411 });
   }
   if (length > maxBytes) {
@@ -15,6 +15,29 @@ export function rejectOversize(req: Request, maxBytes: number): Response | null 
     );
   }
   return null;
+}
+
+/** Cap the bytes read from callers that use chunked transfer or omit Content-Length. */
+export async function readSmallJson(request: Request, maxBytes: number): Promise<unknown> {
+  const reader = request.body?.getReader();
+  if (!reader) throw new Error("invalid_json");
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > maxBytes) {
+        void reader.cancel().catch(() => undefined);
+        throw new Error("body_limit");
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return JSON.parse(Buffer.concat(chunks, size).toString("utf8"));
 }
 
 type Window = { start: number; count: number };
