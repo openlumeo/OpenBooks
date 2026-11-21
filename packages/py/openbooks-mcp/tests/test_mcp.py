@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -10,7 +12,7 @@ import pytest
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-from openbooks_mcp.operations import MAX_RESPONSE, SAMPLE, Operations, Step
+from openbooks_mcp.operations import MAX_RESPONSE, MAX_UPLOAD, SAMPLE, Operations, Step
 from openbooks_mcp.server import private_http_app
 
 
@@ -120,6 +122,114 @@ def test_stdio_lists_two_tools_and_executes_a_batch() -> None:
                 assert all(row["passed"] for row in parsed[1]["result"]["items"])
 
     asyncio.run(run())
+
+
+def run_one(ops: Operations, operation: str, **arguments) -> dict:
+    return json.loads(ops.execute([step("only", operation, **arguments)]))["steps"][0]
+
+
+def test_search_matches_keywords_and_rejects_unknown_terms() -> None:
+    ops = Operations()
+    names = [op["name"] for op in json.loads(ops.search("upload", False))["operations"]]
+    assert names[0] == "process_upload"
+    assert json.loads(ops.search("zzzz-no-match", False))["operations"] == []
+    everything = json.loads(ops.search("", False))["operations"]
+    assert {op["name"] for op in everything} == {"formats", "process_sample", "process_upload", "records", "document"}
+    assert all("arguments" not in op for op in everything)
+
+
+def test_unknown_operation_and_extra_arguments_are_refused() -> None:
+    ops = Operations()
+    assert run_one(ops, "no_such_op")["error"]["code"] == "UNKNOWN_OPERATION"
+    assert run_one(ops, "process_sample", unexpected=1)["error"]["code"] == "INVALID_ARGUMENTS"
+    assert run_one(ops, "process_sample", opening="1e3")["error"]["code"] == "INVALID_ARGUMENTS"
+    assert run_one(ops, "process_sample", opening="1000.00")["result"]["status"] == "ok"
+
+
+def test_upload_rejects_oversized_data_urls_and_wrong_extensions() -> None:
+    ops = Operations()
+    oversized = base64.b64encode(b"x" * (MAX_UPLOAD + 1)).decode("ascii")
+    assert run_one(ops, "process_upload", filename="a.csv", content_base64=oversized)["error"]["code"] == "INPUT_LIMIT"
+    prefixed = "data:text/csv;base64," + base64.b64encode(SAMPLE).decode("ascii")
+    assert run_one(ops, "process_upload", filename="a.csv", content_base64=prefixed)["error"]["code"] == "INVALID_ENCODING"
+    encoded = base64.b64encode(SAMPLE).decode("ascii")
+    assert run_one(ops, "process_upload", filename="a.exe", content_base64=encoded)["error"]["code"] == "UNSUPPORTED_INPUT"
+
+
+def test_upload_accepts_unicode_descriptions_and_empty_payload_is_refused_cleanly() -> None:
+    ops = Operations()
+    unicode_rows = "02/01/2026,Café ₹ 支払い,100.00,,900.00\n".encode()
+    encoded = base64.b64encode(SAMPLE.splitlines(keepends=True)[0] + unicode_rows).decode()
+    result = run_one(ops, "process_upload", filename="unicode.csv", content_base64=encoded, currency="INR", opening="1000.00")
+    assert result["result"]["status"] in {"ok", "refused"}
+    empty = run_one(ops, "process_upload", filename="empty.csv", content_base64="")
+    assert empty["error"]["code"] == "INVALID_ARGUMENTS"
+
+
+def test_process_file_refuses_null_bytes_and_parent_segments(tmp_path: Path) -> None:
+    root = tmp_path / "allowed"
+    root.mkdir()
+    ops = Operations(root.resolve())
+    for path in ("sub/../../other.csv", "nul\x00.csv", "./missing.csv"):
+        error = run_one(ops, "process_file", path=path)
+        assert error["error"]["code"] == "INVALID_PATH", path
+    assert run_one(ops, "process_file", path="")["error"]["code"] == "INVALID_ARGUMENTS"
+
+
+def test_process_file_refuses_directories(tmp_path: Path) -> None:
+    root = tmp_path / "allowed"
+    (root / "folder.csv").mkdir(parents=True)
+    ops = Operations(root.resolve())
+    assert run_one(ops, "process_file", path="folder.csv")["error"]["code"] == "INVALID_PATH"
+
+
+def test_records_paging_handles_empty_and_out_of_range_offsets() -> None:
+    ops = Operations()
+    upload = step("verify", "process_sample", opening="1000.00")
+    beyond = json.loads(ops.execute([
+        upload,
+        step("page", "records", from_step="verify", collection="transactions", offset=999, limit=5),
+        step("prefix", "records", from_step="verify", collection="transactions", prefix="no-such-id"),
+    ]))["steps"]
+    assert beyond[1]["result"] == {"collection": "transactions", "items": [], "total": 2, "next_offset": None}
+    assert beyond[2]["result"]["total"] == 0
+
+
+def test_records_refuses_unknown_collections_and_bad_limits() -> None:
+    ops = Operations()
+    assert run_one(ops, "records", from_step="x", collection="secrets")["error"]["code"] == "INVALID_ARGUMENTS"
+    assert run_one(ops, "records", from_step="x", collection="transactions", limit=0)["error"]["code"] == "INVALID_ARGUMENTS"
+    assert run_one(ops, "records", from_step="x", collection="transactions", limit=11)["error"]["code"] == "INVALID_ARGUMENTS"
+
+
+def test_duplicate_step_ids_are_rejected_before_any_work() -> None:
+    ops = Operations()
+    response = json.loads(ops.execute([step("a", "formats"), step("a", "process_sample")]))
+    assert response["error"]["code"] == "DUPLICATE_STEP"
+    assert "steps" not in response
+
+
+def run_cli(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, "-m", "openbooks_mcp", *args],
+        capture_output=True, text=True, timeout=60, env={**os.environ, "OPENBOOKS_MCP_TOKEN": ""},
+    )
+
+
+def test_cli_rejects_root_for_http_and_missing_roots(tmp_path: Path) -> None:
+    http_with_root = run_cli("--transport", "streamable-http", "--root", str(tmp_path))
+    assert http_with_root.returncode == 2
+    assert "only available over stdio" in http_with_root.stderr
+    missing = run_cli("--root", str(tmp_path / "does-not-exist"))
+    assert missing.returncode == 2
+    assert "existing directory" in missing.stderr
+
+
+def test_cli_rejects_weak_tokens_and_out_of_range_ports() -> None:
+    weak = run_cli("--transport", "streamable-http")
+    assert weak.returncode == 2 and "OPENBOOKS_MCP_TOKEN" in weak.stderr
+    bad_port = run_cli("--transport", "streamable-http", "--port", "70000")
+    assert bad_port.returncode == 2 and "--port" in bad_port.stderr
 
 
 def test_http_requires_bearer_before_reading_body() -> None:

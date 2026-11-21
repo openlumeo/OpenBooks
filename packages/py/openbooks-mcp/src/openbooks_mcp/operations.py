@@ -20,6 +20,8 @@ MAX_STEPS = 8
 MAX_UPLOAD = 1024 * 1024
 MAX_ENCODED_UPLOAD = ((MAX_UPLOAD + 2) // 3) * 4
 MAX_RESPONSE = 48 * 1024
+# Reserved per step for the envelope and ids, so a batch of MAX_STEPS still fits MAX_RESPONSE.
+STEP_ENVELOPE_BYTES = 192
 SAMPLE = (
     b"Date,Description,Debit,Credit,Balance\n"
     b"02/01/2026,Sample payment,100.00,,900.00\n"
@@ -33,6 +35,10 @@ Documents = dict[str, Document]
 
 def compact(value: Any) -> str:
     return json.dumps(value, separators=(",", ":"), allow_nan=False)
+
+
+def _error_item(step_id: str, code: str, message: str) -> Document:
+    return {"id": step_id, "error": {"code": code, "message": message}}
 
 
 class Step(BaseModel):
@@ -140,12 +146,11 @@ class Operations:
         documents: Documents = {}
         results = []
         try:
+            budget = MAX_RESPONSE - MAX_STEPS * STEP_ENVELOPE_BYTES
             for step in steps:
                 item = self._run_step(step, documents)
-                if len(compact(results + [item])) > MAX_RESPONSE - MAX_STEPS * 192:
-                    item = {"id": step.id, "error": {
-                        "code": "RESPONSE_LIMIT", "message": "Request fewer records or a smaller page.",
-                    }}
+                if len(compact(results + [item])) > budget:
+                    item = _error_item(step.id, "RESPONSE_LIMIT", "Request fewer records or a smaller page.")
                 results.append(item)
             return compact({"steps": results})
         finally:
@@ -159,12 +164,11 @@ class Operations:
             parameters = operation.arguments.model_validate(step.arguments)
             return {"id": step.id, "result": operation.run(parameters, documents, step.id)}
         except ValidationError:
-            error = {"code": "INVALID_ARGUMENTS", "message": "Check the operation's argument schema with search."}
+            return _error_item(step.id, "INVALID_ARGUMENTS", "Check the operation's argument schema with search.")
         except OperationError as exc:
-            error = {"code": exc.code, "message": str(exc)}
+            return _error_item(step.id, exc.code, str(exc))
         except (EngineFault, OSError):
-            error = {"code": "ENGINE_ERROR", "message": "The engine could not complete this operation. Check the install and input."}
-        return {"id": step.id, "error": error}
+            return _error_item(step.id, "ENGINE_ERROR", "The engine could not complete this operation. Check the install and input.")
 
     @staticmethod
     def _formats(_args: Arguments, _documents: Documents, _step: str) -> Document:

@@ -9,6 +9,7 @@ import * as statements from "@lumeo_hq/openbooks-statements";
 import * as tax from "@lumeo_hq/openbooks-tax";
 import { runDoctor } from "@lumeo_hq/openbooks-doctor";
 import { installEngine } from "./install-engine.js";
+import { formatDoctorText, formatRunJson, formatRunText } from "./output.js";
 
 /** Exit codes match the Python CLI: 0 all released, 1 something was refused, 2 usage, 3 the engine could not run. */
 export const EXIT = { ok: 0, refused: 1, usage: 2, engine: 3 } as const;
@@ -63,21 +64,31 @@ function toOptions(f: RunFlags): RunOptions {
   if (f.ocr === false) o.ocr = false;
   if (f.model !== undefined) o.model = f.model;
   if (f.python) o.python = f.python;
-  if (f.timeout !== undefined) {
-    const n = Number(f.timeout);
-    if (!Number.isInteger(n) || n < 1 || n > MAX_TIMEOUT_MS) {
-      throw new CommanderError(2, "openbooks.badOption", `--timeout must be a whole number from 1 to ${MAX_TIMEOUT_MS} milliseconds`);
-    }
-    o.runTimeoutMs = n;
-  }
-  if (f.maxDocumentBytes !== undefined) {
-    const bytes = Number(f.maxDocumentBytes);
-    if (!/^[0-9]+$/.test(f.maxDocumentBytes) || !Number.isSafeInteger(bytes) || bytes < 1) {
-      throw new CommanderError(2, "openbooks.badOption", "--max-document-bytes must be a positive whole number");
-    }
-    o.maxDocumentBytes = bytes;
-  }
+  if (f.timeout !== undefined) o.runTimeoutMs = parseTimeout(f.timeout);
+  if (f.maxDocumentBytes !== undefined) o.maxDocumentBytes = parseMaxDocumentBytes(f.maxDocumentBytes);
   return o;
+}
+
+function usageError(message: string): CommanderError {
+  return new CommanderError(EXIT.usage, "openbooks.badOption", message);
+}
+
+/** Milliseconds from 1 to MAX_TIMEOUT_MS, as a whole number. Anything else is a usage error. */
+export function parseTimeout(raw: string): number {
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1 || n > MAX_TIMEOUT_MS) {
+    throw usageError(`--timeout must be a whole number from 1 to ${MAX_TIMEOUT_MS} milliseconds`);
+  }
+  return n;
+}
+
+/** Digits only, so "1e6", "-1" and "0x10" are refused rather than silently converted. */
+export function parseMaxDocumentBytes(raw: string): number {
+  const bytes = Number(raw);
+  if (!/^[0-9]+$/.test(raw) || !Number.isSafeInteger(bytes) || bytes < 1) {
+    throw usageError("--max-document-bytes must be a positive whole number");
+  }
+  return bytes;
 }
 
 async function writeAtomic(path: string, text: string): Promise<void> {
@@ -99,13 +110,7 @@ async function runAndReport(files: string[], flags: RunFlags, runner: Runner, io
       await writeAtomic(join(flags.out, `${sha}.json`), JSON.stringify(r.document, null, 2) + "\n");
     }
   }
-  if (flags.json) {
-    io.out(JSON.stringify(results.map((r) => ({ file: r.file, status: r.kind, ...(r.kind === "refused" ? { code: r.code, message: r.message } : {}), document: r.document })), null, 2) + "\n");
-  } else {
-    for (const r of results) {
-      io.out(r.kind === "released" ? `${r.file}: released ${r.document.file.layout_version}\n` : `${r.file}: refused ${r.code}: ${r.message}\n`);
-    }
-  }
+  io.out(flags.json ? formatRunJson(results) : formatRunText(results));
   return results.every((r) => r.kind === "released") ? EXIT.ok : EXIT.refused;
 }
 
@@ -135,11 +140,7 @@ export async function main(argv: string[], io: IO = { out: (s) => process.stdout
     .option("--python <path>", "the Python interpreter to check")
     .action(async (f: { json?: boolean; strict?: boolean; deep?: boolean; python?: string }) => {
       const rep = await runDoctor({ deep: f.deep, strict: f.strict, ...(f.python ? { python: f.python } : {}) });
-      if (f.json) io.out(JSON.stringify(rep, null, 2) + "\n");
-      else {
-        for (const c of rep.checks) io.out(`[${c.status.padEnd(4)}] ${c.id}: ${c.detail}\n${c.fix && (c.status === "fail" || c.status === "warn") ? `       fix: ${c.fix}\n` : ""}`);
-        io.out(`${rep.summary.pass} passed, ${rep.summary.warn} warnings, ${rep.summary.fail} failed, ${rep.summary.skip} skipped -> ${rep.ok ? "OK" : "NOT OK"}\n`);
-      }
+      io.out(f.json ? JSON.stringify(rep, null, 2) + "\n" : formatDoctorText(rep));
       set(rep.ok ? EXIT.ok : EXIT.refused);
     });
 

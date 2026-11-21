@@ -63,8 +63,11 @@ export type RunResult = Released | Refused;
 export const isReleased = (r: RunResult): r is Released => r.kind === "released";
 
 interface MachineLine { file: string; status: "ok" | "refused"; code: string | null; output: string; internal?: boolean }
-interface Input { path: string; sha: string }
+export interface Input { path: string; sha: string }
+const DEFAULT_RUN_TIMEOUT_MS = 120_000;
 const DEFAULT_DOCUMENT_BYTES = 64 * 1024 * 1024;
+const MAX_ERROR_TAIL_LINES = 6;
+const MAX_ERROR_TAIL_CHARS = 2000;
 const DOCUMENT_OPTIONS = ["currency", "opening", "account", "allowDerivedOpening", "dateOrder", "ocr", "model"] as const;
 
 function isMachineLine(value: unknown): value is MachineLine {
@@ -98,8 +101,59 @@ async function sha256(path: string, signal?: AbortSignal): Promise<string> {
   return h.digest("hex");
 }
 
-function lastLines(s: string, n = 6): string {
-  return s.trim().split(/\r?\n/).slice(-n).join("\n").slice(0, 2000);
+function lastLines(s: string): string {
+  return s.trim().split(/\r?\n/).slice(-MAX_ERROR_TAIL_LINES).join("\n").slice(0, MAX_ERROR_TAIL_CHARS);
+}
+
+async function hashInput(path: string, signal?: AbortSignal): Promise<string> {
+  try {
+    if (!(await stat(path)).isFile()) throw new Error("not a file");
+    return await sha256(path, signal);
+  } catch (cause) {
+    checkAborted(signal);
+    throw new EngineError("input", `cannot read ${basename(path)}: ${(cause as Error).message}`, undefined, { cause });
+  }
+}
+
+async function readInputs(files: readonly string[], signal?: AbortSignal): Promise<Input[]> {
+  const inputs: Input[] = [];
+  for (const file of files) {
+    const path = resolve(file);
+    inputs.push({ path, sha: await hashInput(path, signal) });
+  }
+  return inputs;
+}
+
+/**
+ * Each engine invocation writes one file per content hash, so a repeated input starts a new batch. Results of a batch are
+ * read before a later input can overwrite them.
+ */
+export function splitBatches(inputs: readonly Input[]): Input[][] {
+  const batches: Input[][] = [[]];
+  let hashes = new Set<string>();
+  for (const input of inputs) {
+    if (hashes.has(input.sha)) {
+      batches.push([]);
+      hashes = new Set();
+    }
+    batches[batches.length - 1]!.push(input);
+    hashes.add(input.sha);
+  }
+  return batches;
+}
+
+/** Parse the engine's JSON lines. The engine may end with a non-result trailer that carries its version, which is skipped. */
+export function parseMachineLines(stdout: string): MachineLine[] {
+  const records = stdout.trim().split(/\r?\n/).filter(Boolean);
+  const lines: MachineLine[] = [];
+  for (const [index, raw] of records.entries()) {
+    let value: unknown;
+    try { value = JSON.parse(raw); } catch { throw new EngineError("bad_output", "the engine printed something that is not JSON lines"); }
+    if (index === records.length - 1 && typeof value === "object" && value !== null && "engine" in value) continue;
+    if (!isMachineLine(value)) throw new EngineError("bad_output", `invalid engine result on line ${index + 1}`);
+    lines.push(value);
+  }
+  return lines;
 }
 
 /**
@@ -111,35 +165,13 @@ export async function runFiles(files: readonly string[], opts: RunOptions = {}):
   if (files.length === 0) return [];
   checkAborted(opts.signal);
   const runFlags = flags(opts);
-  const timeoutMs = opts.runTimeoutMs ?? 120_000;
+  const timeoutMs = opts.runTimeoutMs ?? DEFAULT_RUN_TIMEOUT_MS;
   validateTimeout(timeoutMs, "runTimeoutMs");
   const maxDocument = opts.maxDocumentBytes ?? DEFAULT_DOCUMENT_BYTES;
   if (!Number.isSafeInteger(maxDocument) || maxDocument < 1) {
     throw new EngineError("input", "maxDocumentBytes must be a positive whole number of bytes");
   }
-  const batches: Input[][] = [];
-  let batch: Input[] = [];
-  let hashes = new Set<string>();
-  for (const file of files) {
-    const path = resolve(file);
-    let sha: string;
-    try {
-      if (!(await stat(path)).isFile()) throw new Error("not a file");
-      sha = await sha256(path, opts.signal);
-    } catch (cause) {
-      checkAborted(opts.signal);
-      throw new EngineError("input", `cannot read ${basename(path)}: ${(cause as Error).message}`, undefined, { cause });
-    }
-    // Each engine invocation writes one file per hash. Read each result before a later input can overwrite it.
-    if (hashes.has(sha)) {
-      batches.push(batch);
-      batch = [];
-      hashes = new Set();
-    }
-    batch.push({ path, sha });
-    hashes.add(sha);
-  }
-  batches.push(batch);
+  const batches = splitBatches(await readInputs(files, opts.signal));
   checkAborted(opts.signal);
   const engine = await discoverForRun(opts);
   checkAborted(opts.signal);
@@ -202,15 +234,7 @@ async function runBatch(
     throw new EngineError("engine_fault", `the engine failed (exit ${r.code ?? r.signal}): ${lastLines(r.stderr) || "no message"}`,
       "run: openbooks doctor");
   }
-  const lines: MachineLine[] = [];
-  const records = r.stdout.trim().split(/\r?\n/).filter(Boolean);
-  for (const [index, raw] of records.entries()) {
-    let value: unknown;
-    try { value = JSON.parse(raw); } catch { throw new EngineError("bad_output", "the engine printed something that is not JSON lines"); }
-    if (index === records.length - 1 && typeof value === "object" && value !== null && "engine" in value) continue;
-    if (!isMachineLine(value)) throw new EngineError("bad_output", `invalid engine result on line ${index + 1}`);
-    lines.push(value);
-  }
+  const lines = parseMachineLines(r.stdout);
   if (lines.length !== inputs.length) {
     throw new EngineError("bad_output", `expected ${inputs.length} results from the engine, got ${lines.length}`);
   }
