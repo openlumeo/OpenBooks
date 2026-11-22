@@ -1,0 +1,148 @@
+/* HeroStage layers. Desktop (>= 900px): the stage fills the hero section behind the copy
+   (z-index 1, under the lead at z-index 2), and the instrument sits at --rest-top so its
+   lower part bleeds past the fold. Below 900px the stage is in flow under the copy. */
+
+.stage {
+  --rest-top: clamp(520px, 66svh, 720px);
+  position: relative;
+  margin-top: 40px;
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .stage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    margin-top: 0;
+  }
+}
+
+/* Plum atmosphere: bottom of the stage, dark theme only. */
+.atmos {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background: radial-gradient(90% 60% at 50% 100%, var(--plum-2) 0%, var(--plum) 42%, transparent 78%);
+}
+
+:global(:root[data-theme="light"]) .atmos {
+  display: none;
+}
+
+/* Restrained mint bloom behind the instrument. Opacity and colour only, no blur, no backdrop-filter. */
+.bloom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: -2;
+  height: 460px;
+  margin: 0 auto;
+  width: min(1100px, 100%);
+  pointer-events: none;
+  opacity: var(--bloom-opacity);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--mint) 18%, transparent),
+    color-mix(in srgb, var(--mint) 6%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+@media (min-width: 900px) {
+  .bloom {
+    top: calc(var(--rest-top) - 330px);
+  }
+}
+
+@media (max-width: 899px) {
+  .bloom {
+    top: 40px;
+  }
+}
+
+/* The instrument. Desktop: absolutely placed at the rest line. Mobile: in flow. */
+.rise {
+  position: relative;
+  z-index: 1;
+  width: min(960px, 88vw);
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  .rise {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--rest-top);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 1.7s var(--ease) 0.2s both;
+  }
+}
+
+/* Wrapper around HeroMonolith. Its perspective matches the monolith's own (1400px, centred),
+   so the dock layer projects exactly like the instrument's top edge. */
+.perspective {
+  position: relative;
+  perspective: 1400px;
+}
+
+/* Full-height layer carrying the same 18deg tilt as the instrument's plane (GSAP mirrors the
+   scrub onto it). The switch sits at the layer's top, which is the instrument's top edge. */
+.dockLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: rotateX(18deg);
+  transform-origin: 50% 100%;
+}
+
+/* AlterSwitch docked on the instrument's top edge, left, opposite the stamp slot.
+   It sits just above the edge (a tab on the same tilted plane), so the edge line never
+   runs through the switch track or its label. Hidden without JS (the page stays on the released still). */
+.dockLayer .dock {
+  position: absolute;
+  top: 0;
+  left: clamp(20px, 3vw, 44px);
+  transform: translateY(calc(-100% - 10px));
+  pointer-events: auto;
+}
+
+:global(html:not(.lp-js)) .dockLayer {
+  display: none;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes rise {
+  from {
+    transform: translate3d(0, 140px, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}

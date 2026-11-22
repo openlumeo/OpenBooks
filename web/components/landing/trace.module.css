@@ -1,0 +1,214 @@
+/* Section 4 (Trace). Flat instrument panel; radius 0; tokens only. */
+
+.lede {
+  max-width: 62ch;
+  color: var(--text-muted);
+}
+
+.figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.sampleTag {
+  border: 1px solid var(--hairline);
+  padding: 2px 6px;
+  color: var(--text);
+}
+
+.grid {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
+.txBlock {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+}
+
+/* The mint bar is the ReconRow border; the text sits 16px inside it so no label or value touches the bar. */
+.txRow {
+  min-height: 0;
+  padding: 0 0 0 16px;
+  border-bottom: 0;
+}
+
+.fields {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.field:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.value {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.unit {
+  margin-left: 6px;
+  color: var(--text-muted);
+}
+
+.status {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.meta {
+  margin: 0;
+  /* Same text inset as the transaction fields: bar (2px) + 16px. */
+  padding-left: 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  overflow-wrap: anywhere;
+}
+
+.evBlock {
+  min-width: 0;
+  border-top: 1px solid var(--hairline);
+  padding: 0;
+  overflow: auto;
+}
+
+.evBlock:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.table {
+  width: 100%;
+  min-width: 620px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.caption {
+  caption-side: top;
+  text-align: left;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  border-top: 1px solid var(--hairline-soft);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.table thead th {
+  border-top: 0;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--text-faint);
+}
+
+.key {
+  font-weight: 400;
+  color: var(--text);
+}
+
+.raw {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .txBlock {
+    align-content: start;
+    padding: 20px;
+  }
+
+  .evBlock {
+    border-top: 0;
+    border-left: 1px solid var(--hairline);
+  }
+}
+
+/* Reveal wrapper for the evidence figure. */
+.reveal {
+  min-width: 0;
+}
+
+/* FOLLOW THE BOX: a short mint arrow from the amount toward the evidence block. The note sits
+   to the right of the arrow, on the same line, so it never meets the status line or the column label. */
+.arrowAt > svg {
+  width: 5em;
+  height: 1em;
+  left: calc(100% + 0.25em);
+}
+
+.arrowAt > span:last-child {
+  top: 50%;
+  right: auto;
+  left: calc(100% + 5.5em);
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+/* Light theme: use the ink accent for the mint arrow on paper. */
+.arrowAt > svg {
+  stroke: var(--accent);
+}

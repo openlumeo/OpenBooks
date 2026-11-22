@@ -1,0 +1,44 @@
+/* Section 7 (Measured). Sober and small: one ledger panel and a caption. */
+
+.wrap {
+  display: grid;
+  gap: 14px;
+  max-width: 640px;
+  min-width: 0;
+}
+
+.line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.figure {
+  min-width: 3ch;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.caption {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 68ch;
+}
+
+/* Tick beside "false accepts": sits just after the label, on the row's empty right side. Decorative. */
+.tickAt > svg {
+  left: calc(100% + 0.6em);
+  top: 0.05em;
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* Light theme: use the ink accent for the mint tick on paper. */
+.tickAt > svg {
+  stroke: var(--accent);
+}

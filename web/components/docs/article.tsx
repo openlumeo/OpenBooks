@@ -31,7 +31,7 @@ export function DocArticle({ slug }: { slug: string[] }) {
   const Body = page.data.body;
   return (
     <DocsPage toc={page.data.toc}>
-      {page.url === "/" ? <StructuredData data={{
+      {page.url === "/docs" ? <StructuredData data={{
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: "Open Books by Lumeo",

@@ -1,0 +1,144 @@
+/* Section "reframe". Two flat panels side by side. Radius 0, tokens only, no blur,
+   no coloured side borders other than the ReconRow ledger rows on the right. */
+
+/* Tighter bottom padding: the next section ("how proven") already carries its own top padding,
+   so the two together would leave a large blank band after the paper stack. */
+.section.section {
+  padding-bottom: clamp(24px, 3vw, 40px);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 32px);
+  align-items: start;
+  min-width: 0;
+}
+
+.column {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.statement {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--font-body);
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* Scroll container for narrow widths. The panel keeps a readable minimum width and the
+   region scrolls inside itself; the page never scrolls horizontally. */
+.scroll {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.inner {
+  min-width: 18rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.illustrative {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/* Neutral row for the typical tool: no mint or rose border, so the contrast does not rest on colour alone. */
+.plainRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--hairline-soft);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.plainRow:last-child {
+  border-bottom: 0;
+}
+
+.score {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border: 1px solid var(--hairline);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.close {
+  margin: clamp(32px, 5vw, 56px) 0 0;
+  max-width: 60ch;
+  font-family: var(--font-body);
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.5;
+  color: var(--text);
+}
+
+@media (max-width: 720px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Paper stack interlude: full width, centred under the closing line. The scene carries its own
+   aspect-ratio (paper-stack.module.css), so the block reserves its height before the sheets load. */
+.interlude {
+  position: relative;
+  isolation: isolate;
+  margin-top: clamp(40px, 6vw, 72px);
+  min-width: 0;
+}
+
+.backdropLayer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Soft plum bloom, static apart from the one parallax drift. Atmosphere only. */
+.backdrop {
+  position: absolute;
+  inset: -6% -2%;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 45%, var(--plum-2) 0%, transparent 70%),
+    radial-gradient(ellipse 45% 40% at 70% 60%, var(--plum) 0%, transparent 75%);
+  opacity: 0.55;
+}
+
+/* Light theme: plum reads as a grey smudge on paper, so the bloom is kept very faint. */
+:root[data-theme="light"] .backdrop {
+  opacity: 0.12;
+}
+
+/* Mint underline under the right-hand ledger title. Decorative (see SketchAnnotation). */
+.openBooks {
+  display: inline-block;
+}
+
+/* Light theme: use the ink accent for the mint sketch on paper. */
+.openBooks > svg {
+  stroke: var(--accent);
+}

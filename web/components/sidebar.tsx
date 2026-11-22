@@ -103,7 +103,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
       </nav>
 
       <div className="ob-sidebar-foot">
-        <a className="ob-maturity" href="/">
+        <a className="ob-maturity" href="/docs">
           <BookOpen size={15} aria-hidden="true" />
           <span>Developer docs</span>
         </a>

@@ -1,0 +1,269 @@
+/* ScrollStory: steps (left) and the pinned laptop screen (right).
+   The default state is the composed end state, so no JS, narrow widths and reduced motion
+   all show the finished ledger. GSAP (scroll-story.tsx) sets the start states only on desktop
+   with motion allowed. Radius 0 inside the UI; the lavender stamp is the one lavender in the stage. */
+
+.stage {
+  display: grid;
+  gap: 40px;
+  min-width: 0;
+  align-items: center;
+}
+
+.steps {
+  position: relative;
+  min-width: 0;
+}
+
+.rule {
+  display: none;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 28px;
+  min-width: 0;
+}
+
+.step {
+  min-width: 0;
+  max-width: 44ch;
+}
+
+.stepLabel {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.job {
+  margin: 10px 0 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.screen {
+  min-width: 0;
+}
+
+/* ---------- Ledger screen (inside DeviceFrame, which reserves 16:10 / 4:5) ---------- */
+.ledger {
+  --gap: 14px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 24px;
+}
+
+.file {
+  padding: 3px 7px;
+  border: 1px solid var(--hairline);
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.layout {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.table {
+  display: grid;
+  min-width: 0;
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: auto auto auto minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: var(--gap);
+  align-items: center;
+  min-width: 0;
+}
+
+.head {
+  padding: 6px 0 6px 12px;
+  border-bottom: 1px solid var(--hairline-soft);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.row {
+  min-height: 22px;
+  padding: 4px 0 4px 14px;
+  border-bottom: 1px solid var(--hairline-soft);
+  border-left: 2px solid var(--accent);
+  color: var(--text);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.chip {
+  justify-self: start;
+  padding: 1px 5px;
+  border: 1px solid var(--hairline);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.num {
+  justify-self: end;
+  text-align: right;
+}
+
+/* Two children share one grid cell so a cross-fade needs only opacity. */
+.cell {
+  display: grid;
+  min-width: 0;
+}
+
+.cell > * {
+  grid-area: 1 / 1;
+}
+
+/* End state: the normalised labels show; the raw ones are hidden under them. */
+.cell > [data-fx="raw-head"],
+.cell > [data-fx="dir-raw"] {
+  opacity: 0;
+}
+
+.schema {
+  color: var(--text);
+}
+
+.equation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--gap);
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.equation b {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.verdict {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+  min-width: 0;
+}
+
+.tie {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+/* The one lavender element in this stage. Rotated 2 degrees, like the hero stamp. */
+.stamp {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  background: var(--accent-2);
+  color: var(--on-accent);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+  transform: rotate(2deg);
+}
+
+/* ---------- Desktop with motion: pinned by GSAP, two columns ---------- */
+@media (min-width: 900px) {
+  .stage {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(32px, 4vw, 56px);
+  }
+
+  .rule {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--hairline);
+  }
+
+  .ruleFill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: 50% 0;
+  }
+
+  .list {
+    padding-left: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ledger {
+    --gap: 8px;
+    padding: 10px;
+    gap: 8px;
+    font-size: 10px;
+  }
+
+  .head {
+    padding-left: 8px;
+  }
+
+  .row {
+    padding-left: 14px;
+  }
+}
+
+.checks {
+  margin-top: clamp(40px, 6vw, 64px);
+  max-width: 760px;
+}
