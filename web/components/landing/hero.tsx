@@ -11,7 +11,7 @@ export function Hero() {
         <div className={styles.leadIn}>
           <h1 id="hero-heading" className={`t-display t-h1 ${styles.title}`}>
             Every figure <SketchAnnotation kind="underline">proven</SketchAnnotation>, or{" "}
-            <SketchAnnotation kind="circle">refused</SketchAnnotation> with a reason.
+            <SketchAnnotation kind="underline" tone="rose">refused</SketchAnnotation> with a reason.
           </h1>
           <p className={`t-lede ${styles.lede}`}>
             Open Books checks each document&apos;s own arithmetic. Ties out: structured data, with the source of every
