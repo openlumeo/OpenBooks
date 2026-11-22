@@ -59,10 +59,6 @@ export function SampleTerminal() {
 
   return (
     <section className="ob-terminal not-prose" aria-labelledby={id + "-title"}>
-      <div className="ob-terminal-bar" aria-hidden="true">
-        <span /><span /><span />
-        <span className="ob-terminal-title">bash</span>
-      </div>
       <h3 id={id + "-title"}>Sample terminal</h3>
       <p id={id + "-hint"}>Commands run the bundled CSV through the live engine. Type <code>help</code> for the supported commands.</p>
       <form onSubmit={submit}>

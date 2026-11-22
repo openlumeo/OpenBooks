@@ -5,7 +5,6 @@ import { markdownPath } from "@/lib/docs-markdown";
 import { pageMetadata, siteUrl } from "@/lib/site";
 import { StructuredData } from "@/components/structured-data";
 import { docsComponents } from "./mdx";
-import { DocsBanner } from "./docs-banner";
 
 export function docMetadata(slug: string[]) {
   const page = docs.getPage(slug);
@@ -46,7 +45,6 @@ export function DocArticle({ slug }: { slug: string[] }) {
           { "@type": "ListItem", position: 2, name: page.data.title, item: new URL(page.url, siteUrl).href },
         ],
       }} />}
-      {page.url === "/docs" && <DocsBanner />}
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody><Body components={docsComponents} /></DocsBody>
