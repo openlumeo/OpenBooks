@@ -28,7 +28,8 @@
 .strip {
   display: block;
   transform: translateY(calc(var(--d, 0) * -1em));
-  transition: transform var(--roll-ms, 600ms) cubic-bezier(0.16, 1, 0.3, 1);
+  /* Quintic ease-out: a longer settle with no overshoot, so the reel glides into place. */
+  transition: transform var(--roll-ms, 600ms) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .strip > span {

@@ -95,6 +95,8 @@
   gap: clamp(28px, 4vw, 56px);
   align-items: start;
   margin-top: clamp(40px, 6vw, 64px);
+  perspective: 1200px;
+  perspective-origin: 50% 40%;
 }
 
 .fix {
@@ -152,5 +154,48 @@
 @media (max-width: 900px) {
   .proof {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Sketched refusal stamps ---------- */
+.codeCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stamp {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: var(--text-faint);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  transform: rotate(-8deg);
+  transition: stroke var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+tbody tr:hover .stamp {
+  stroke: var(--accent);
+  transform: rotate(0deg);
+}
+
+.table tbody tr {
+  transition: background-color var(--dur) var(--ease);
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+}
+
+.table tbody tr:focus-within {
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp,
+  .table tbody tr {
+    transition: none;
   }
 }

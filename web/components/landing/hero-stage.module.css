@@ -101,6 +101,13 @@
   perspective: 1400px;
 }
 
+.tilt {
+  position: relative;
+  /* .stage is pointer-events: none; the tilt needs to hear the pointer over the instrument. */
+  pointer-events: auto;
+  transform-style: preserve-3d;
+}
+
 /* Full-height layer carrying the same 18deg tilt as the instrument's plane (GSAP mirrors the
    scrub onto it). The switch sits at the layer's top, which is the instrument's top edge. */
 .dockLayer {
@@ -136,6 +143,65 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Hand-sketched ledger page, left of the instrument. Desktop only; hidden below 900px. */
+.ledgerSketch {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .ledgerSketch {
+    display: block;
+    position: absolute;
+    z-index: 0;
+    left: max(24px, calc(50% - 600px));
+    top: calc(var(--rest-top) + 40px);
+    width: 200px;
+    height: auto;
+    opacity: 0.55;
+    overflow: visible;
+    pointer-events: none;
+  }
+}
+
+.ledgerPage {
+  fill: var(--surface);
+  stroke: var(--hairline);
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.ledgerMargin,
+.ledgerRule {
+  fill: none;
+  stroke: var(--hairline);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.ledgerStamp {
+  fill: none;
+  stroke: var(--mint);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ledgerSketch {
+    animation: ledgerIn 900ms var(--ease) 0.6s both;
+  }
+}
+
+@keyframes ledgerIn {
+  /* Opacity only: a fill-both transform would override the GSAP parallax and scroll depth. */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.55;
+  }
 }
 
 @keyframes rise {

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata, siteUrl } from "@/lib/site";
 import { StructuredData } from "@/components/structured-data";
-import { Reveal } from "@/components/motion/reveal";
 import { NavSentinel, LandingNav } from "@/components/landing/landing-nav";
 import { Hero } from "@/components/landing/hero";
 import { Reframe } from "@/components/landing/reframe";
@@ -11,7 +10,6 @@ import { Trace } from "@/components/landing/trace";
 import { Inputs } from "@/components/landing/inputs";
 import { TryIt } from "@/components/landing/try-it";
 import { AskDemo } from "@/components/landing/ask-demo";
-import { Measured } from "@/components/landing/measured";
 import { FinalCta } from "@/components/landing/final-cta";
 import { SiteFooter } from "@/components/landing/site-footer";
 
@@ -34,14 +32,11 @@ export default function LandingPage() {
         <Hero />
         <Reframe />
         <ScrollStory />
-        <Reveal y={18}>
-          <Refusals />
-        </Reveal>
+        <Refusals />
         <Trace />
         <Inputs />
         <TryIt />
         <AskDemo />
-        <Measured />
         <FinalCta />
       </main>
       <SiteFooter />

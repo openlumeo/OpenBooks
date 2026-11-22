@@ -12,7 +12,7 @@ import { useRef, type ReactNode } from 'react';
 import { gsap, useGSAP, MOTION_OK, markMotionReady } from './gsap-setup';
 import styles from './sketch.module.css';
 
-export type SketchKind = 'underline' | 'circle' | 'arrow' | 'bracket' | 'tick';
+export type SketchKind = 'underline' | 'circle' | 'arrow' | 'bracket' | 'tick' | 'scribble' | 'stamp' | 'ledger-rule';
 export type SketchTone = 'mint' | 'muted' | 'rose';
 
 type SketchSpec = { viewBox: string; preserveAspectRatio: string; paths: string[] };
@@ -47,6 +47,24 @@ const SKETCHES: Record<SketchKind, SketchSpec> = {
     viewBox: '0 0 24 24',
     preserveAspectRatio: 'xMidYMid meet',
     paths: ['M3 13 C 6 14, 9 18, 10 20 C 13 13, 18 6, 22 3'],
+  },
+  scribble: {
+    viewBox: '0 0 200 30',
+    preserveAspectRatio: 'none',
+    paths: ['M3 18 C 20 6, 30 26, 48 14 C 64 4, 76 24, 94 14 C 110 4, 122 24, 140 14 C 156 5, 168 22, 197 11'],
+  },
+  stamp: {
+    viewBox: '0 0 160 56',
+    preserveAspectRatio: 'none',
+    paths: [
+      'M6 8 C 60 4, 110 6, 154 5 C 157 20, 155 36, 156 50 C 110 53, 60 51, 5 52 C 4 36, 7 22, 6 8 Z',
+      'M11 13 C 60 11, 105 12, 149 11 C 151 24, 150 36, 151 45 C 105 47, 60 46, 10 47 C 9 36, 12 24, 11 13 Z',
+    ],
+  },
+  'ledger-rule': {
+    viewBox: '0 0 400 12',
+    preserveAspectRatio: 'none',
+    paths: ['M0 3 C 100 2, 300 4, 400 3', 'M0 9 C 120 8.5, 260 9.5, 400 9'],
   },
 };
 
@@ -112,6 +130,9 @@ const OVERLAY_CLASS: Record<SketchKind, string | undefined> = {
   arrow: styles['at-arrow'],
   bracket: styles['at-bracket'],
   tick: styles['at-tick'],
+  scribble: styles['at-scribble'],
+  stamp: styles['at-stamp'],
+  'ledger-rule': undefined,
 };
 
 export type SketchAnnotationProps = {

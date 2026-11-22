@@ -1,88 +1,149 @@
-/* Section 5 (Inputs). Quiet two-column definition list; no cards; radius 0; tokens only. */
+/* Section 5 (Inputs). One ledger-sheet card per input group in a horizontal strip; tokens only. */
+
+.viewport {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  padding-bottom: 14px;
+  /* Hint that the strip continues; removed while the section is pinned. */
+  mask-image: linear-gradient(to right, #000 92%, transparent);
+}
+.viewport:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+.viewport[data-pinned="true"] { overflow: clip; scroll-snap-type: none; mask-image: none; padding-bottom: 0; }
 
 .list {
   display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(280px, 86%);
+  gap: 16px;
   margin: 0;
+  padding: 4px 4px 0;
+  list-style: none;
   min-width: 0;
-  border-top: 1px solid var(--hairline);
+}
+
+@media (min-width: 900px) {
+  .list { grid-auto-columns: 372px; gap: 20px; }
 }
 
 .group {
+  position: relative;
   display: grid;
-  gap: 14px;
-  min-width: 0;
-  padding-block: 20px;
-  border-bottom: 1px solid var(--hairline-soft);
-}
-
-.term {
-  margin: 0;
-  color: var(--text);
-}
-
-.def {
-  margin: 0;
-  min-width: 0;
-  display: grid;
+  align-content: start;
   gap: 12px;
-}
-
-.facts {
-  display: grid;
-  gap: 10px 20px;
-  margin: 0;
   min-width: 0;
+  padding: 20px 20px 22px;
+  scroll-snap-align: start;
+  border: 1px solid var(--hairline);
+  background:
+    linear-gradient(to bottom, var(--mint-soft) 0%, transparent 46px),
+    color-mix(in srgb, var(--surface) 70%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 6%, transparent);
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
 }
 
-.facts > dd {
-  margin: 0;
-  min-width: 0;
+.group:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--mint) 35%, var(--hairline));
+  box-shadow: 0 18px 30px -24px color-mix(in srgb, var(--text) 55%, transparent);
 }
 
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.term { margin: 0; color: var(--text); }
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+}
+
+/* Section label followed by a ledger rule. */
 .label {
-  margin: 0;
-  padding-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 0;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-faint);
 }
-
-.inputs {
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--text-muted);
-  overflow-wrap: anywhere;
+.label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hairline-soft);
 }
 
-.input {
-  display: inline;
-}
-
-.sep {
-  margin-right: 0.35em;
-}
-
-.ids {
+.files, .ids, .exts {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 16px;
   margin: 0;
   padding: 0;
   list-style: none;
+  min-width: 0;
+}
+
+.files { gap: 8px; }
+
+.file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid var(--hairline-soft);
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+  transition: border-color 200ms ease-out, color 200ms ease-out;
+}
+.file:hover { border-color: var(--hairline); color: var(--text); }
+
+.ids { gap: 6px; }
+.ids li {
+  padding: 2px 8px;
+  border: 1px solid var(--hairline);
+  background: var(--surface-2);
   font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.6;
   font-variant-numeric: tabular-nums;
   color: var(--text);
   overflow-wrap: anywhere;
 }
 
+.exts { gap: 4px 12px; }
+.exts li {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.glyph {
+  flex-shrink: 0;
+  color: var(--text-faint);
+  transition: transform 200ms ease-out, color 200ms ease-out;
+}
+.group:hover .glyph { transform: translateY(-2px); color: var(--accent); }
+
 .tag {
   display: inline-block;
-  margin-left: 8px;
+  margin-left: 2px;
   padding: 1px 6px;
   border: 1px solid var(--text-muted);
   background: var(--surface-2);
@@ -92,12 +153,13 @@
   line-height: 1.6;
   text-transform: uppercase;
   color: var(--text);
-  vertical-align: 1px;
   white-space: nowrap;
 }
 
 .note {
-  margin: 0;
+  margin: 4px 0 0;
+  padding-top: 12px;
+  border-top: 1px dashed var(--hairline);
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.6;
@@ -109,16 +171,11 @@
   display: grid;
   gap: 8px;
   min-width: 0;
+  margin-top: 16px;
 }
+.footnotes .note { margin: 0; padding-top: 0; border-top: 0; }
+.footnotes .tag { margin-left: 0; margin-right: 8px; }
 
-.footnotes .tag {
-  margin-left: 0;
-  margin-right: 8px;
-}
-
-@media (min-width: 760px) {
-  .group {
-    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
-    gap: 32px;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .group, .group:hover, .glyph, .group:hover .glyph, .file { transition: none; transform: none; }
 }

@@ -16,6 +16,13 @@ export function TryIt() {
           </p>
         </header>
         <div className={styles.frame}>
+          <svg aria-hidden="true" focusable="false" className={styles.sketchEdge} viewBox="0 0 1100 600" preserveAspectRatio="none">
+            <path
+              d="M3 4 C300 1 700 6 1097 2 S1098 300 1096 596 C800 599 400 594 4 597 S2 300 3 4"
+              fill="none"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
           <DeviceFrame label="Open Books workspace">
             <LiveDemo autoplay />
           </DeviceFrame>

@@ -108,8 +108,10 @@ export function RunCard({
         {!doc && file.state !== "interrupted" && (
           <div aria-live="polite" className="panel">
             <span className="t-body-sm">{file.state === "queued" ? "Waiting for the files before it." : "Reading and checking this file."}</span>
-            <div className="skeleton" style={{ width: "62%" }} />
-            <div className="skeleton" style={{ width: "38%" }} />
+            <div className="skeleton-run" aria-hidden="true">
+              <div className="skeleton" style={{ width: "62%" }} />
+              <div className="skeleton" style={{ width: "38%" }} />
+            </div>
           </div>
         )}
 

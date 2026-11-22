@@ -145,7 +145,12 @@ export function AnswerView({ turn, onStop }: { turn: AnswerTurn; onStop: () => v
           </ul>
         )}
         <div className="answer-text" aria-live={turn.state === "streaming" ? "polite" : undefined} aria-busy={turn.state === "streaming"}>
-          {turn.text ? <Markdown text={turn.text} /> : turn.state === "streaming" ? <span className="t-body-sm">Reading the documents…</span> : null}
+          {turn.text ? <Markdown text={turn.text} /> : turn.state === "streaming" ? (
+            <>
+              <span className="t-body-sm">Reading the documents…</span>
+              <span className="turn-skeleton" aria-hidden="true"><span /><span /><span /></span>
+            </>
+          ) : null}
           {turn.state === "streaming" && turn.text && <span className="caret" aria-hidden="true" />}
         </div>
         {turn.error && <p className="error-line"><span className="dot" />{turn.error}</p>}

@@ -7,6 +7,8 @@ import { STAGES, stageForRefusal } from "@/lib/stages";
 import type { RefusalCode } from "@/lib/types";
 import { Section } from "./section";
 import { ReconPanel, ReconRow } from "./reconciliation";
+import { RefusalStamp } from "./refusal-stamp";
+import { RefusalPush } from "./refusal-push";
 import styles from "./refusals.module.css";
 
 type EngineRefusal = { readonly code: RefusalCode; readonly message: string };
@@ -93,7 +95,10 @@ export function Refusals() {
             {CODES.map(({ code, meaning }) => (
               <tr key={code}>
                 <th scope="row" className={styles.code}>
-                  {code}
+                  <span className={styles.codeCell}>
+                    <RefusalStamp />
+                    {code}
+                  </span>
                 </th>
                 <td className={styles.stage}>{stageLabel(code)}</td>
                 <td className={styles.meaning}>{meaning}</td>
@@ -107,13 +112,13 @@ export function Refusals() {
         Balance.
       </p>
 
-      <div className={styles.proof}>
+      <RefusalPush className={styles.proof}>
         <p className={styles.fix}>
           A refusal names the stage, the code and the engine&apos;s own reason. There is no partial output to
           second-guess, and where the fix is known, such as a missing opening balance, the workspace offers it inline.
         </p>
 
-        <div className={styles.panelWrap}>
+        <div className={styles.panelWrap} data-push="">
           <ReconPanel
             title={
               <span className={styles.panelTitle}>
@@ -129,9 +134,9 @@ export function Refusals() {
               </span>
             </ReconRow>
           </ReconPanel>
-          <p className={styles.panelCaption}>Engine output, unedited.</p>
+          <p className={styles.panelCaption} data-push-caption="">Engine output, unedited.</p>
         </div>
-      </div>
+      </RefusalPush>
     </Section>
   );
 }

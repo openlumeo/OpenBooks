@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { SketchAnnotation } from "@/components/motion/sketch";
 import { MEASURED } from "./measured-data";
+import { MeasuredCounter } from "./measured-counter";
 import { ReconPanel } from "./reconciliation";
 import rec from "./reconciliation.module.css";
 import { Section } from "./section";
@@ -23,9 +24,11 @@ export function Measured() {
       <Reveal as="div" y={10} stagger={0.08} className={`lp-figure ${styles.wrap}`}>
         <ReconPanel title="END-TO-END">
           {ROWS.map((row) => (
-            <div key={row.label} data-state="matched" className={rec.row} data-reveal-child>
+            <div key={row.label} data-state="matched" className={`${rec.row} ${styles.row}`} data-reveal-child>
               <span className={styles.line}>
-                <span className={styles.figure}>{row.value}</span>{" "}
+                <span className={styles.figure}>
+                  <MeasuredCounter to={row.value} />
+                </span>{" "}
                 {row.tick ? (
                   <SketchAnnotation kind="tick" tone="mint" className={styles.tickAt}>
                     {row.label}

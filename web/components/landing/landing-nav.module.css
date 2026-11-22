@@ -11,9 +11,9 @@
   padding-block: 14px;
   padding-inline: 18px;
   transition:
-    width 300ms var(--ease),
-    padding 300ms var(--ease),
-    top 300ms var(--ease);
+    width 200ms var(--ease),
+    padding 200ms var(--ease),
+    top 200ms var(--ease);
 }
 
 .nav[data-scrolled="true"] {
@@ -54,13 +54,30 @@
   font-weight: 500;
   font-size: 14px;
   color: var(--text-muted);
-  text-underline-offset: 0.22em;
-  transition: color var(--dur) var(--ease);
+  transition: color 200ms var(--ease);
 }
 
-.link:hover {
+.link::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 9px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 200ms var(--ease);
+}
+
+.link:hover,
+.link:focus-visible {
   color: var(--text);
-  text-decoration: underline;
+}
+
+.link:hover::after,
+.link:focus-visible::after {
+  transform: scaleX(1);
 }
 
 .cta {
@@ -106,7 +123,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav {
+  .nav,
+  .link,
+  .link::after {
     transition-duration: 0ms;
   }
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { FlaskConical, Plus } from "lucide-react";
+import { EmptyArt } from "@/components/empty-art";
+import { Sketch } from "@/components/motion/sketch";
 import { STAGES } from "@/lib/stages";
 import type { Formats, Sample } from "@/lib/types";
 
@@ -18,15 +20,21 @@ export function EmptyState({
   const featured = samples.filter((s) => s.featured);
   return (
     <div className="ob-empty">
-      <div className="ob-empty-head">
-        <h1 className="t-display t-h2">Proven JSON, or a typed refusal.</h1>
-        <p className="t-lede">
-          Drop in bank statements, gateway settlements, tax documents or workpapers. Each file comes back as one openbooks.v1
-          document whose own numbers tie out, or a refusal that says exactly why. Then ask about what was released.
-        </p>
-        <span className="ob-empty-maturity mono-label">
-          <FlaskConical size={13} aria-hidden="true" /> Early release · tested on synthetic data only
-        </span>
+      <div className="ob-empty-hero">
+        <div className="ob-empty-head">
+          <h1 className="t-display t-h2">
+            Proven JSON, or a typed refusal.
+            <Sketch kind="underline" className="ob-empty-sketch" />
+          </h1>
+          <p className="t-lede">
+            Drop in bank statements, gateway settlements, tax documents or workpapers. Each file comes back as one openbooks.v1
+            document whose own numbers tie out, or a refusal that says exactly why. Then ask about what was released.
+          </p>
+          <span className="ob-empty-maturity mono-label">
+            <FlaskConical size={13} aria-hidden="true" /> Early release · tested on synthetic data only
+          </span>
+        </div>
+        <EmptyArt />
       </div>
 
       <ol className="ob-pipeline" aria-label="What happens to each file">

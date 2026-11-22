@@ -1,0 +1,293 @@
+/* Docs reading surface. Built only from the fumadocs variables set in globals.css (.ob-docs).
+ * Motion: transform/opacity or colour only, 150-300ms ease-out; reduced motion gets static styles. */
+
+.ob-docs {
+  isolation: isolate;
+  position: relative;
+  --docs-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --docs-sketch-line: color-mix(in srgb, var(--color-fd-primary) 70%, transparent);
+  --docs-hair: color-mix(in srgb, var(--color-fd-foreground) 9%, transparent);
+  --docs-inner: inset 0 1px 0 color-mix(in srgb, var(--color-fd-foreground) 5%, transparent);
+  --docs-wobble: 0.9rem 0.5rem 0.8rem 0.45rem / 0.5rem 0.9rem 0.45rem 0.8rem;
+}
+
+/* Paper grain: decorative, pointer-free, no raster. */
+.ob-docs::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* Typography rhythm */
+.ob-docs .prose {
+  font-size: 1rem;
+  line-height: 1.72;
+  letter-spacing: 0.005em;
+}
+
+.ob-docs .prose > * + * { margin-top: 1.1em; }
+.ob-docs .prose p { text-wrap: pretty; }
+.ob-docs .prose :is(h2, h3, h4) {
+  scroll-margin-top: 6rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.ob-docs .prose h2 {
+  position: relative;
+  margin-top: 2.6em;
+  padding-bottom: 0.55rem;
+  font-size: 1.6rem;
+}
+
+/* Hand-sketched underline accent under every h2. Mask keeps it theme-aware. */
+.ob-docs .prose h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(7.5rem, 42%);
+  height: 0.55rem;
+  background-color: var(--color-fd-primary);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 C 30 2, 60 8, 88 4 S 114 5, 118 3' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left center / 100% 100%;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 C 30 2, 60 8, 88 4 S 114 5, 118 3' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left center / 100% 100%;
+}
+
+.ob-docs .prose :is(h3, h4) { margin-top: 2em; }
+.ob-docs .prose ul,
+.ob-docs .prose ol { padding-left: 1.25rem; }
+.ob-docs .prose li + li { margin-top: 0.35em; }
+
+.ob-docs .prose :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: 0.3rem;
+  border: 1px solid var(--docs-hair);
+  background: color-mix(in srgb, var(--color-fd-card) 80%, transparent);
+  font-size: 0.86em;
+  overflow-wrap: anywhere;
+}
+
+.ob-docs .prose a:not([data-card]) {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 200ms var(--docs-ease), color 200ms var(--docs-ease);
+}
+
+/* Code blocks: keep fumadocs structure, add depth and a subtle line highlight. */
+.ob-docs .prose .shiki {
+  border-radius: var(--docs-wobble);
+  border-color: var(--docs-hair);
+  box-shadow: var(--docs-inner), 0 14px 30px -22px rgb(0 0 0 / 0.6);
+}
+
+.ob-docs .prose .shiki pre { line-height: 1.65; }
+
+.ob-docs .prose .shiki .line.highlighted {
+  display: inline-block;
+  width: 100%;
+  background: color-mix(in srgb, var(--color-fd-primary) 11%, transparent);
+  box-shadow: inset 2px 0 0 var(--color-fd-primary);
+}
+
+/* Copy button: hover, focus and copied feedback. Fumadocs sets data-checked on success. */
+.ob-docs .prose .shiki button {
+  transition: color 180ms var(--docs-ease), background-color 180ms var(--docs-ease), opacity 180ms var(--docs-ease);
+  border-radius: 0.45rem;
+}
+
+.ob-docs .prose .shiki button:hover,
+.ob-docs .prose .shiki button:focus-visible {
+  color: var(--color-fd-foreground);
+  background-color: color-mix(in srgb, var(--color-fd-foreground) 10%, transparent);
+}
+
+.ob-docs .prose .shiki button:focus-visible {
+  outline: 2px solid var(--color-fd-primary);
+  outline-offset: 2px;
+}
+
+.ob-docs .prose .shiki button[data-checked] {
+  color: var(--color-fd-primary);
+  background-color: color-mix(in srgb, var(--color-fd-primary) 14%, transparent);
+}
+
+.ob-docs .prose .shiki button:active { opacity: 0.75; }
+
+@media (pointer: coarse) {
+  .ob-docs .prose .shiki button { min-width: 2.75rem; min-height: 2.75rem; }
+}
+
+/* Sidebar and TOC active states. fumadocs sets data-active and aria-current. */
+.ob-docs aside a,
+.ob-docs nav a {
+  transition: background-color 200ms var(--docs-ease), color 200ms var(--docs-ease), box-shadow 200ms var(--docs-ease);
+}
+
+.ob-docs aside a[data-active="true"],
+.ob-docs nav a[data-active="true"],
+.ob-docs a[aria-current="page"] {
+  color: var(--color-fd-primary);
+  font-weight: 600;
+}
+
+.ob-docs aside a[data-active="true"] {
+  box-shadow: inset 2px 0 0 var(--color-fd-primary);
+  background: color-mix(in srgb, var(--color-fd-primary) 8%, transparent);
+}
+
+.ob-docs aside a:focus-visible,
+.ob-docs nav a:focus-visible {
+  outline: 2px solid var(--color-fd-primary);
+  outline-offset: -2px;
+}
+
+/* Smooth anchor scroll, only while the docs surface is on the page. */
+:root:has(.ob-docs) { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root:has(.ob-docs) { scroll-behavior: auto; }
+  .ob-docs *,
+  .ob-docs *::before,
+  .ob-docs *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Sketch callouts: wobbled border, corner marks drawn by inline SVG. */
+.ob-callout {
+  position: relative;
+  margin-block: 1.5rem;
+}
+
+.ob-callout > .ob-callout-body {
+  border-radius: var(--docs-wobble);
+  border-color: var(--docs-hair);
+  box-shadow: var(--docs-inner);
+}
+
+.ob-callout-corners {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  color: var(--docs-sketch-line);
+}
+
+.ob-callout[data-type="warn"] .ob-callout-corners,
+.ob-callout[data-type="error"] .ob-callout-corners { color: color-mix(in srgb, #e6adad 75%, transparent); }
+
+.ob-callout[data-type="idea"] .ob-callout-corners,
+.ob-callout[data-type="success"] .ob-callout-corners { color: color-mix(in srgb, var(--color-fd-primary) 90%, transparent); }
+
+/* Sketch hero banner for the docs index: ledger sheet, rules and tick marks. */
+.ob-banner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-block: 0 2rem;
+  padding: 1.25rem;
+  min-height: 11rem;
+  border: 1px solid var(--docs-hair);
+  border-radius: var(--docs-wobble);
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 1.9rem, color-mix(in srgb, var(--color-fd-foreground) 6%, transparent) 1.9rem 2rem),
+    var(--color-fd-card);
+  box-shadow: var(--docs-inner), 0 22px 40px -30px rgb(0 0 0 / 0.7);
+  overflow: hidden;
+}
+
+.ob-banner svg {
+  width: min(100%, 34rem);
+  height: auto;
+  color: var(--color-fd-primary);
+}
+
+.ob-banner .ob-banner-ink { stroke: var(--color-fd-foreground); opacity: 0.55; }
+.ob-banner .ob-banner-tick { stroke: var(--color-fd-primary); }
+
+/* Terminal sample polish. */
+.ob-terminal {
+  border-radius: var(--docs-wobble);
+  border-color: var(--docs-hair);
+  box-shadow: var(--docs-inner), 0 18px 36px -26px rgb(0 0 0 / 0.7);
+  padding: 0;
+  overflow: hidden;
+}
+
+.ob-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--docs-hair);
+  background: color-mix(in srgb, var(--color-fd-foreground) 4%, var(--color-fd-card));
+  color: var(--color-fd-muted-foreground);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ob-terminal-bar > span:not(.ob-terminal-title) {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-fd-foreground) 22%, transparent);
+}
+
+.ob-terminal-bar .ob-terminal-title { margin-left: auto; }
+
+.ob-terminal > h3,
+.ob-terminal > p,
+.ob-terminal > form,
+.ob-terminal > .ob-terminal-actions,
+.ob-terminal > .ob-terminal-command,
+.ob-terminal > pre,
+.ob-terminal > [role="status"] {
+  margin-inline: 1rem;
+}
+
+.ob-terminal > h3 { margin-top: 0.9rem; }
+.ob-terminal > [role="status"] { margin-bottom: 1rem; font-size: 0.86rem; }
+
+.ob-terminal input,
+.ob-terminal button {
+  transition: border-color 180ms var(--docs-ease), background-color 180ms var(--docs-ease), color 180ms var(--docs-ease);
+  min-height: 2.5rem;
+}
+
+.ob-terminal input:hover:not(:disabled),
+.ob-terminal button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-fd-primary) 60%, transparent);
+}
+
+.ob-terminal button[type="submit"]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-fd-primary) 88%, var(--color-fd-foreground));
+}
+
+.ob-terminal button:active:not(:disabled) { transform: translateY(1px); }
+.ob-terminal button { transition-property: border-color, background-color, color, transform; }
+
+@media (pointer: coarse) {
+  .ob-terminal button { min-height: 2.75rem; }
+}
+
+/* Flow cards: same wobble as callouts. */
+.ob-docs .ob-flow li {
+  border-radius: var(--docs-wobble);
+  box-shadow: var(--docs-inner);
+  transition: border-color 200ms var(--docs-ease), background-color 200ms var(--docs-ease);
+}
+
+.ob-docs .ob-flow li:hover {
+  border-color: color-mix(in srgb, var(--color-fd-primary) 45%, var(--color-fd-border));
+}

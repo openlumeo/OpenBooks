@@ -68,3 +68,35 @@
 .underline > svg {
   stroke: var(--accent);
 }
+
+/* ---------- Depth and focus ---------- */
+.action {
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.action:hover {
+  transform: translateY(-1px);
+}
+
+.action:active {
+  transform: translateY(0);
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.media {
+  box-shadow: 0 1px 0 var(--hairline-soft) inset, 0 28px 60px -36px color-mix(in srgb, var(--plum, #000) 70%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action {
+    transition: none;
+  }
+
+  .action:hover {
+    transform: none;
+  }
+}

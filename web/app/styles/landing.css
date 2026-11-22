@@ -168,3 +168,28 @@ input, textarea, [contenteditable="true"] {
   min-height: 100dvh;
   overflow-x: clip;
 }
+
+/* ---------- Depth and focus utilities ---------- */
+/* Ledger rule: a hairline with small tick marks along its top edge. */
+.lp-ledger-rule {
+  border-top: 1px solid var(--hairline);
+  background-image: linear-gradient(to right, var(--hairline-soft) 1px, transparent 1px);
+  background-size: 12px 5px;
+  background-repeat: repeat-x;
+  background-position: left top;
+}
+
+/* Sheet: a raised paper panel with a fine edge and a soft layered shadow. */
+.lp-sheet {
+  background: var(--surface-2);
+  border: 1px solid var(--hairline-soft);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text) 6%, transparent),
+    0 18px 40px -28px color-mix(in srgb, var(--text) 40%, transparent);
+}
+
+/* Focus ring for custom focusable regions. */
+.lp-focusable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}

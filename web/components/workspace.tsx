@@ -46,6 +46,31 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
   const scroller = useRef<HTMLDivElement>(null);
   const stick = useRef(true);
   const dragDepth = useRef(0);
+
+  // Clear the drop overlay when a drag leaves the window, is cancelled, dropped, or Escape is pressed.
+  useEffect(() => {
+    if (!dragging) return;
+    const reset = () => {
+      dragDepth.current = 0;
+      setDragging(false);
+    };
+    const onLeaveWindow = (e: DragEvent) => {
+      if (!e.relatedTarget) reset();
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") reset();
+    };
+    window.addEventListener("dragend", reset);
+    window.addEventListener("drop", reset);
+    window.addEventListener("keydown", onKeyDown);
+    document.addEventListener("dragleave", onLeaveWindow);
+    return () => {
+      window.removeEventListener("dragend", reset);
+      window.removeEventListener("drop", reset);
+      window.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("dragleave", onLeaveWindow);
+    };
+  }, [dragging]);
   const sampleRequests = useRef(new Set<AbortController>());
   const attachInput = useRef<HTMLInputElement>(null);
   const inputLocked = ws.busy || !ws.loaded;

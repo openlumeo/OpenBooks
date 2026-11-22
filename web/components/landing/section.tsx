@@ -1,6 +1,7 @@
 // Shared section wrapper. Heading only, no eyebrow. Server-safe (no hooks).
 import type { ReactNode } from "react";
 import styles from "./section.module.css";
+import { LineReveal } from "@/components/motion/line-reveal";
 
 export type SectionProps = {
   /** Anchor id. When set, the heading is labelled for assistive tech via `${id}-heading`. */
@@ -14,11 +15,11 @@ export type SectionProps = {
 export function Section({ id, heading, children, className }: SectionProps) {
   const headingId = id ? `${id}-heading` : undefined;
   return (
-    <section id={id} aria-labelledby={headingId} className={[styles.section, className].filter(Boolean).join(" ")}>
+    <section id={id} aria-labelledby={headingId} className={[styles.section, "lp-ledger-rule", className].filter(Boolean).join(" ")}>
       <div className={styles.container}>
-        <h2 id={headingId} className={`t-display t-h2 ${styles.heading}`}>
+        <LineReveal as="h2" id={headingId} className={`t-display t-h2 ${styles.heading}`}>
           {heading}
-        </h2>
+        </LineReveal>
         {children ? <div className={styles.body}>{children}</div> : null}
       </div>
     </section>

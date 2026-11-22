@@ -3,6 +3,7 @@
 import { BookOpen, FlaskConical, Plus, Trash2 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import { ThemeToggle } from "@/components/brand/theme-toggle";
+import { Sketch } from "@/components/motion/sketch";
 import { fmtAgo } from "@/lib/format";
 import type { Workspace } from "@/lib/use-workspace";
 
@@ -78,6 +79,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
                     }
                   }}
                 >
+                  {t.id === ws.activeId && <Sketch kind="tick" tone="mint" className="ob-thread-marker" />}
                   <span className="ob-thread-title">{t.title}</span>
                   <span className="ob-thread-meta">
                     {fmtAgo(t.updatedAt)}

@@ -115,6 +115,7 @@ export function ScrollStory() {
         const eq = q("[data-fx='eq']");
         const tie = q("[data-fx='tie']");
         const stamp = q("[data-fx='stamp']");
+        const connector = q("[data-fx='connector']");
 
         // Start state: the screen is empty and only the first step is lit. The CSS default is the end state.
         gsap.set(steps, { opacity: 0.35 });
@@ -143,6 +144,9 @@ export function ScrollStory() {
         });
 
         // Left column: one step lit at a time, and the progress rule. One unit per step.
+        // The hand-drawn connector strokes down alongside the rule. Without this branch the path is fully drawn (CSS default).
+        gsap.set(connector, { drawSVG: "0% 0%" });
+        tl.to(connector, { drawSVG: "0% 100%", duration: steps.length, ease: "power1.out" }, 0);
         tl.to(rule, { scaleY: 1, duration: steps.length }, 0);
         steps.forEach((step, i) => {
           tl.to(step, { opacity: 1, duration: 0.5 }, i);
@@ -180,6 +184,9 @@ export function ScrollStory() {
           <span className={styles.rule} aria-hidden="true">
             <span className={styles.ruleFill} data-fx="rule" />
           </span>
+          <svg className={styles.connector} viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path data-fx="connector" d="M5 0 C 2 22, 8 40, 5 52 C 2 66, 8 82, 5 100" vectorEffect="non-scaling-stroke" />
+          </svg>
           <ol className={styles.list} aria-label="Pipeline stages">
             {TRAIL.map((id, i) => (
               <li key={id} className={styles.step} data-step={i}>

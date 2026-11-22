@@ -32,7 +32,7 @@ export function HeroMonolith({ state }: { state: "released" | "refused" }): JSX.
       <div className={styles.back} data-hero-plane="back" aria-hidden="true" />
 
       <div className={styles.tilt} data-hero-plane="instrument">
-        <figure className={styles.instrument} aria-label={refused ? REFUSED_LABEL : RELEASED_LABEL}>
+        <figure className={`${styles.instrument} lp-paper`} aria-label={refused ? REFUSED_LABEL : RELEASED_LABEL}>
           <ol className={styles.rail} aria-label="Engine stages">
             {ENGINE_STAGES.map((stage, i) => {
               const isBalance = i === stageCount - 1;

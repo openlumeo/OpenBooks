@@ -72,7 +72,7 @@ function Ledger({
 }) {
   return (
     <div
-      className={`lp-scroll ${styles.scroll}`}
+      className={`lp-scroll lp-focusable ${styles.scroll}`}
       tabIndex={0}
       role="region"
       aria-label={`${label}, ledger rows`}
@@ -112,7 +112,7 @@ export function ProofPair({ className }: ProofPairProps) {
   return (
     <div className={[styles.pair, className].filter(Boolean).join(" ")}>
       <figure
-        className={`lp-figure ${styles.figure}`}
+        className={`lp-figure lp-sheet ${styles.figure}`}
         aria-label={`Released statement, ${released.fileName}: ${released.transactionCount} transactions tie to the closing balance`}
       >
         <ReconPanel className={styles.panel} title={`${released.fileName} · RELEASED`}>
@@ -137,7 +137,7 @@ export function ProofPair({ className }: ProofPairProps) {
       </figure>
 
       <figure
-        className={`lp-figure ${styles.figure}`}
+        className={`lp-figure lp-sheet ${styles.figure}`}
         aria-label={`Refused twin, ${REFUSED_FILE_LABEL}: ${refused.code}`}
       >
         <ReconPanel className={styles.panel} title={`${REFUSED_FILE_LABEL} · REFUSED`}>
@@ -154,7 +154,7 @@ export function ProofPair({ className }: ProofPairProps) {
               hiddenCount={refused.hiddenRowCount}
               unmatchedId={refused.offendingRowId}
             />
-            <div className={styles.verdict}>
+            <div className={`${styles.verdict} lp-ledger-rule`}>
               <p className={styles.verdictLine}>
                 REFUSED · {refused.code}
               </p>

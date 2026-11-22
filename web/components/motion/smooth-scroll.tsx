@@ -76,9 +76,15 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     void document.fonts?.ready.then(() => {
       if (alive) ScrollTrigger.refresh();
     });
+    // Images change layout height too; refresh once the page has fully loaded.
+    const onLoad = () => {
+      if (alive) ScrollTrigger.refresh();
+    };
+    if (document.readyState !== 'complete') window.addEventListener('load', onLoad, { once: true });
 
     return () => {
       alive = false;
+      window.removeEventListener('load', onLoad);
       window.clearTimeout(failsafe);
       teardown?.();
     };

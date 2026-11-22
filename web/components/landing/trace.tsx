@@ -1,9 +1,10 @@
 // Section 4: one real evidence record. Server component.
 import { Reveal } from "@/components/motion/reveal";
-import { SketchAnnotation } from "@/components/motion/sketch";
+import { Sketch, SketchAnnotation } from "@/components/motion/sketch";
 import { ReconPanel, ReconRow } from "./reconciliation";
 import { Section } from "./section";
 import { TRACE_SAMPLE, type TraceEvidence } from "./trace-data";
+import { TraceLine } from "./trace-line";
 import styles from "./trace.module.css";
 
 const tx = TRACE_SAMPLE.transaction;
@@ -45,6 +46,7 @@ export function Trace() {
           <div className={styles.grid}>
             <section className={styles.txBlock} aria-label="Transaction as emitted">
               <ReconRow className={styles.txRow} state="matched">
+                <TraceLine />
                 <dl className={styles.fields}>
                   {TX_FIELDS.map((f) => {
                     const ev = evidenceFor(f.field);
@@ -77,7 +79,11 @@ export function Trace() {
               </p>
             </section>
 
-            <div className={`lp-scroll ${styles.evBlock}`} role="region" aria-label="Evidence entries, scrollable" tabIndex={0}>
+            <div aria-hidden="true" className={styles.connector}>
+              <Sketch kind="arrow" tone="muted" start="top 85%" triggerSelector="figure" className={styles.connectorMark} />
+            </div>
+
+            <div className={`lp-scroll lp-focusable ${styles.evBlock}`} role="region" aria-label="Evidence entries, scrollable" tabIndex={0}>
               <table className={styles.table}>
                 <caption className={styles.caption}>Evidence entries for {tx.id}</caption>
                 <thead>

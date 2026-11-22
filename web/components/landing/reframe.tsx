@@ -26,7 +26,7 @@ export function Reframe() {
             Returns its best reading. Attaches a score. Leaves you to check the rest.
           </p>
           <div className={`lp-scroll ${styles.scroll}`} tabIndex={0} role="region" aria-label="A typical extraction tool, illustrative">
-            <div className={styles.inner}>
+            <div className={`${styles.inner} lp-paper`}>
               <ReconPanel
                 title={
                   <span className={styles.titleRow}>
@@ -50,9 +50,14 @@ export function Reframe() {
         </div>
 
         <div className={styles.column}>
-          <p className={styles.statement}>Returns a proven document, or a refusal. Nothing in between.</p>
+          <p className={styles.statement}>
+            Returns a proven document, or a refusal.{" "}
+            <SketchAnnotation kind="scribble" tone="mint">
+              Nothing in between.
+            </SketchAnnotation>
+          </p>
           <div className={`lp-scroll ${styles.scroll}`} tabIndex={0} role="region" aria-label="Open Books, tied out">
-            <div className={styles.inner}>
+            <div className={`${styles.inner} lp-paper`}>
               <ReconPanel
                 title={
                   <SketchAnnotation kind="underline" tone="mint" className={styles.openBooks}>
