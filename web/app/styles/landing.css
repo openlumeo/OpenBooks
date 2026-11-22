@@ -1,0 +1,170 @@
+/* =========================================================
+   OPEN BOOKS LANDING — shared primitives, built only from the
+   Lumeo tokens in app/brand/theme-tokens.css. Class prefix lp-.
+   Component-scoped styles live in components/landing/*.module.css.
+   Radius stays 0 everywhere except the glass surface.
+   ========================================================= */
+
+/* ---------- Selection, caret, links ---------- */
+::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--text);
+}
+
+input, textarea, [contenteditable="true"] {
+  caret-color: var(--accent);
+}
+
+.lp-link {
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: color var(--dur) var(--ease), text-decoration-color var(--dur) var(--ease);
+}
+
+.lp-link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+/* ---------- Hairlines ---------- */
+.lp-hairline { border: 1px solid var(--hairline); }
+.lp-hairline-t { border-top: 1px solid var(--hairline); }
+.lp-hairline-b { border-bottom: 1px solid var(--hairline); }
+.lp-hairline-x { border-inline: 1px solid var(--hairline); }
+.lp-hairline-soft-b { border-bottom: 1px solid var(--hairline-soft); }
+
+/* ---------- Glass ----------
+   .lp-glass: translucent fill and brighter top edge, no blur (safe to repeat).
+   .lp-glass--blur: adds the one backdrop blur (budget: 2 per viewport, nav spends 1).
+   .lp-glass--dense: stronger fill for panels with running text.
+   Without backdrop-filter support the fill becomes solid. Radius is 0 on the
+   landing page, the nav included (owner decision: square edges; this overrides
+   the DESIGN.md glass exception). */
+.lp-glass {
+  border-radius: 0;
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-top);
+  background: var(--glass-fill);
+  color: var(--text);
+}
+
+.lp-glass--dense {
+  background: var(--glass-fill-strong);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lp-glass,
+  .lp-glass--dense {
+    background: var(--glass-fill-fallback);
+  }
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lp-glass--blur {
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: blur(var(--glass-blur));
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lp-glass--blur {
+    background: var(--glass-fill-fallback);
+  }
+}
+
+/* ---------- Atmosphere ----------
+   One fixed element, rendered first in the landing page. Sits at z-index -1
+   so content paints above it (no ancestor may create a stacking context).
+   Dark: one plum bloom bottom-right at low opacity. Light: a mint-soft wash
+   at the top, no purple. Grain is static. */
+.lp-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 70% 55% at 100% 100%,
+    color-mix(in srgb, var(--plum) 60%, transparent) 0%,
+    transparent 62%
+  );
+  opacity: var(--bloom-opacity);
+}
+
+:root[data-theme="light"] .lp-atmosphere {
+  background: linear-gradient(to bottom, var(--mint-soft) 0%, transparent 38%);
+}
+
+.lp-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ---------- Scrollable panels ---------- */
+.lp-scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 30%, transparent) transparent;
+}
+
+.lp-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.lp-scroll::-webkit-scrollbar-track { background: transparent; }
+.lp-scroll::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* ---------- Figures ---------- */
+.lp-figure,
+.lp-figure * {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Scroll reveal ----------
+   Visible by default. Motion only where view() timelines exist and the
+   visitor has not asked for reduced motion. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .lp-reveal {
+      animation: lp-reveal var(--dur-reveal, 800ms) var(--ease) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+}
+
+@keyframes lp-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Floating nav sentinel ----------
+   1px element at the very top of the page. LandingNav watches it. */
+.lp-nav-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+/* ---------- Page reset for landing ---------- */
+.lp-page {
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: clip;
+}

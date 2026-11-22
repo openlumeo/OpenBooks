@@ -1,0 +1,519 @@
+/* Concept C, "The Equation". Tokens come from vendor/theme-tokens.css (dark on :root,
+   light on [data-theme="light"]). Radius is 0 everywhere except the glass nav. */
+
+@font-face {
+  font-family: "Geist Local";
+  src: url("vendor/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono Local";
+  src: url("vendor/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --font-geist-sans: "Geist Local", system-ui, sans-serif;
+  --font-geist-mono: "Geist Mono Local", ui-monospace, Menlo, monospace;
+  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Atmosphere (behind everything, hairlines and bloom only) ---------- */
+.c-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.c-grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to bottom, var(--guide-line) 1px, transparent 1px);
+  background-size: 100% 64px;
+  background-position: 0 86px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 52%, #000 35%, transparent 100%);
+          mask-image: radial-gradient(ellipse 75% 65% at 50% 52%, #000 35%, transparent 100%);
+}
+
+.c-glow {
+  position: absolute;
+  left: 56%;
+  top: 38%;
+  width: 46vw;
+  height: 34vh;
+  background: radial-gradient(closest-side, var(--glow-mint), transparent);
+  opacity: 0.22;
+  filter: blur(24px);
+}
+
+.c-bloom {
+  position: absolute;
+  right: -16vw;
+  bottom: -30vh;
+  width: 78vw;
+  height: 82vh;
+  background: radial-gradient(closest-side, var(--plum-2) 0%, var(--plum) 48%, transparent 100%);
+  opacity: 0.95;
+  filter: blur(28px);
+}
+
+:root[data-theme="light"] .c-bloom,
+:root[data-theme="light"] .c-glow { display: none; }
+
+.c-grain {
+  position: absolute;
+  inset: 0;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+:root[data-theme="light"] .c-grain { opacity: 0.03; }
+
+/* ---------- Nav: the existing floating glass pill ---------- */
+.c-nav {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  width: min(100% - 2 * var(--gutter), 1120px);
+  height: 74px;
+  padding: 0 14px 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: var(--glass-radius);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-top);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+          backdrop-filter: blur(var(--glass-blur));
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .c-nav { background: var(--glass-fill-fallback); }
+}
+
+.c-brand { display: inline-flex; align-items: center; min-height: 44px; }
+.c-nav a { text-decoration: none; }
+.c-brand { gap: 12px; }
+.c-brand img { height: 30px; width: auto; display: block; }
+.brand-word { display: inline-flex; flex-direction: column; gap: 3px; }
+.brand-name { font-family: var(--font-body); font-weight: 500; font-size: 15px; line-height: 1; letter-spacing: -0.01em; color: var(--text); }
+.brand-by { font-family: var(--font-geist-mono); font-size: 10px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+.c-brand .brand-light { display: none; }
+:root[data-theme="light"] .c-brand .brand-dark { display: none; }
+:root[data-theme="light"] .c-brand .brand-light { display: block; }
+
+.c-nav-actions { display: flex; align-items: center; gap: 6px; }
+
+.c-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-underline-offset: 0.22em;
+  transition: color var(--dur) var(--ease);
+}
+.c-link:hover { color: var(--text); text-decoration: underline; }
+
+.c-toggle {
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--surface-2);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.c-toggle:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+
+/* ---------- Buttons ---------- */
+.c-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 13px 22px;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.c-btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.c-btn-primary:hover {
+  background: color-mix(in srgb, var(--accent) 88%, var(--accent-lift));
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px var(--accent), 0 10px 28px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.c-btn-primary:active { transform: none; box-shadow: none; }
+.c-btn-hero { min-height: 48px; padding: 14px 24px; }
+
+.c-text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text);
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, var(--text) 35%, transparent);
+  transition: text-decoration-color var(--dur) var(--ease);
+}
+.c-text-link:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+
+.c-nav a:focus-visible,
+.c-nav button:focus-visible,
+.c-hero a:focus-visible,
+.c-hero button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---------- Hero ---------- */
+.c-hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100svh;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 130px var(--gutter) 88px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.c-h1 {
+  margin: 0;
+  max-width: 22ch;
+  font-size: clamp(28px, 2.6vw, 38px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+/* The equation. --F is the mono figure size, fitted to the container (cqi) so the
+   line spans the 1280px content box at every desktop width without overflowing. */
+.c-eq-wrap {
+  container-type: inline-size;
+  width: 100%;
+  margin-top: clamp(40px, 5vw, 68px);
+}
+
+.c-eq {
+  --F: clamp(26px, 4.4cqi, 66px);
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto minmax(0, 1fr);
+  column-gap: 0;
+  row-gap: 20px;
+  align-items: end;
+  position: relative;
+}
+
+.term {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-self: start;
+  min-width: 0;
+  outline-offset: 10px;
+  cursor: default;
+  transition: opacity 220ms var(--ease);
+}
+
+.fig {
+  font-family: var(--font-geist-mono);
+  font-size: var(--F);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text);
+  transition: color 220ms var(--ease);
+}
+
+.op {
+  font-family: var(--font-geist-mono);
+  font-size: var(--F);
+  font-weight: 400;
+  line-height: 0.95;
+  color: var(--text-faint);
+  padding: 0 0.24em;
+  text-align: center;
+}
+
+.op-add { grid-column: 2; grid-row: 1; }
+.op-sub { grid-column: 4; grid-row: 1; }
+.op-eq  { grid-column: 6; grid-row: 1; }
+
+.t-open  { grid-column: 1; grid-row: 1; }
+.t-cr    { grid-column: 3; grid-row: 1; }
+.t-dr    { grid-column: 5; grid-row: 1; }
+.t-close { grid-column: 7; grid-row: 1; justify-self: start; align-items: center; gap: 0.3em; }
+
+/* Closing figure: Geist sans, the largest size, resolves last. */
+.t-close .fig {
+  font-family: var(--font-geist-sans);
+  font-size: calc(var(--F) * 1.5);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+}
+
+/* The mint equals rule: one hairline-weight bar under the terms. */
+.eq-rule {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: 0% 50%;
+}
+
+/* Legend as a subgrid so each word sits under its own term. */
+.legend {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: start;
+  margin-top: -8px;
+  font-family: var(--font-geist-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+.lg:nth-child(1) { grid-column: 1; }
+.lg:nth-child(3) { grid-column: 3; }
+.lg:nth-child(5) { grid-column: 5; }
+.lg:nth-child(7) { grid-column: 7; }
+.lg-sep { text-align: center; }
+.lg-sep:nth-child(2) { grid-column: 2; }
+.lg-sep:nth-child(4) { grid-column: 4; }
+.lg-sep:nth-child(6) { grid-column: 6; }
+
+/* Source chip: appears in each term's slot, then gives way to the figure. */
+.src {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  padding: 7px 10px 6px;
+  border: 1px solid var(--text-faint);
+  background: var(--surface);
+  font-family: var(--font-geist-mono);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Stamp: the one lavender moment. */
+.stamp {
+  flex: none;
+  display: inline-block;
+  padding: 9px 13px 8px;
+  border: 1.5px solid var(--accent-2);
+  background: var(--lav-soft);
+  color: var(--accent-2);
+  font-family: var(--font-geist-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(2deg);
+  transform-origin: 50% 50%;
+}
+
+/* Tooltip: 1 to 2 real rows, shown on hover or keyboard focus. */
+.tip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 16px);
+  left: 0;
+  z-index: 10;
+  min-width: 260px;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-top);
+  background: var(--surface);
+  box-shadow: var(--module-shadow);
+  font-family: var(--font-geist-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  text-align: left;
+  letter-spacing: 0.02em;
+  white-space: normal;
+}
+.t-close .tip { left: auto; right: 0; }
+
+.tip-h {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.tip-row {
+  display: grid;
+  grid-template-columns: 58px 26px 1fr 1.2fr;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.tip-row b { font-weight: 500; color: var(--text); }
+.tip-foot {
+  display: block;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid var(--hairline);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.term:is(:hover, :focus-visible) .tip { display: block; }
+.term:is(:hover, :focus-visible) .fig { color: var(--accent); }
+
+/* While one term is under the pointer or focus, the others step back. */
+.c-eq:has(.term:is(:hover, :focus-visible)) .term:not(:is(:hover, :focus-visible)) { opacity: 0.4; }
+
+.c-copy {
+  margin-top: clamp(48px, 6vw, 80px);
+}
+
+.c-lede {
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--font-body);
+  font-size: clamp(16px, 1.3vw, 17px);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.c-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-top: 28px;
+}
+
+/* ---------- Mobile: the terms become a ledger column with the equals rule ---------- */
+@media (max-width: 680px) {
+  .c-hero { padding: 116px var(--gutter) 64px; justify-content: flex-start; padding-top: 128px; }
+
+  .c-h1 { font-size: clamp(30px, 8.4vw, 36px); max-width: 16ch; }
+
+  .c-eq-wrap { margin-top: 44px; }
+
+  .c-eq {
+    --F: 11.2vw;
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 6px;
+    column-gap: 0;
+    align-items: start;
+    padding-right: 6px;
+  }
+
+  .t-open  { grid-column: 2; grid-row: 1; justify-self: end; }
+  .op-add  { grid-column: 1; grid-row: 2; }
+  .t-cr    { grid-column: 2; grid-row: 2; justify-self: end; }
+  .op-sub  { grid-column: 1; grid-row: 3; }
+  .t-dr    { grid-column: 2; grid-row: 3; justify-self: end; }
+  .eq-rule { grid-column: 1 / -1; grid-row: 4; margin: 10px 0 8px; }
+  .op-eq   { grid-column: 1; grid-row: 5; }
+  .t-close { grid-column: 2; grid-row: 5; justify-self: end; flex-direction: column; align-items: flex-end; gap: 14px; }
+  .legend  { grid-column: 1 / -1; grid-row: 6; display: block; margin-top: 18px; white-space: normal; }
+  .lg-sep  { display: inline-block; padding: 0 0.5em; }
+  .lg, .lg-sep { font-size: 10px; }
+  .lg-sep:nth-child(n) { grid-column: auto; }
+
+  .op { padding: 0 0.3em 0 0; text-align: left; }
+  .t-close .fig { font-size: calc(var(--F) * 1.4); }
+
+  .tip { min-width: 0; width: min(280px, 80vw); left: auto; right: 0; }
+  .t-close .tip { right: 0; }
+
+  .c-copy { margin-top: 48px; }
+  .c-lede { font-size: 16px; }
+  .c-ctas { margin-top: 24px; }
+  .c-btn-hero { width: 100%; }
+  .c-text-link { min-height: 44px; }
+  .c-nav-actions { gap: 2px; }
+  .c-link { padding: 0 8px; }
+  .c-btn { padding: 13px 16px; }
+  .c-nav { padding: 0 10px 0 12px; }
+  .c-brand img { height: 24px; }
+  .brand-word { display: none; }
+}
+
+/* Mobile: no hover, so the tooltips open on focus or tap only. */
+@media (hover: none) {
+  .term:hover .tip { display: none; }
+}
+
+/* ---------- Entrance: JS takes over only when motion is allowed ---------- */
+.pre .c-nav,
+.pre .c-h1,
+.pre .c-copy { opacity: 0; }
+
+.pre .fig { visibility: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-btn, .c-toggle, .c-link, .term, .fig, .op { transition: none; }
+}

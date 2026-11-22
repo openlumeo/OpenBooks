@@ -1,0 +1,459 @@
+/* The Monolith instrument (concept B) with the refused twin (concept A).
+   Tokens only, radius 0. The hero stage owns the pin, entrance and bloom; the
+   static pose here is the finished composition (JS off, reduced motion). */
+
+.scene {
+  --state-dur: 600ms;
+  position: relative;
+  width: 100%;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  overflow-x: clip;
+}
+
+/* Back plane: faint ledger lines, decorative, behind the instrument. */
+.back {
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  top: -60px;
+  height: 700px;
+  transform-origin: 50% 100%;
+  transform: translate3d(0, 0, -200px) rotateX(18deg);
+  background-image:
+    repeating-linear-gradient(180deg, color-mix(in srgb, var(--text) 6%, transparent) 0 1px, transparent 1px 38px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--text) 3.5%, transparent) 0 1px, transparent 1px 120px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 30%, black 70%, transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0%, black 30%, black 70%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Tilt wrapper: the static pose is the perspective tilt; the stage flattens it on scroll. */
+.tilt {
+  position: relative;
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%;
+  transform: rotateX(18deg);
+}
+
+.instrument {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-top-color: var(--glass-border-top);
+  box-shadow: var(--recon-shadow), inset 0 1px 0 color-mix(in srgb, var(--text) 6%, transparent);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* Rail along the top edge: four labelled engine stages on one mint line. */
+.rail {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  margin: 0;
+  padding: 0 22px;
+  list-style: none;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.link {
+  flex: 1 1 12px;
+  min-width: 10px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.tail {
+  flex: 1 1 12px;
+  min-width: 10px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.6;
+  transition: opacity var(--state-dur) var(--ease);
+}
+
+.stage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-muted);
+  transition: color var(--state-dur) var(--ease);
+}
+
+.node {
+  display: block;
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  background: var(--accent);
+  transition: background-color var(--state-dur) var(--ease);
+}
+
+.tagSlot {
+  display: inline-grid;
+  margin-left: 4px;
+}
+
+.tagPass,
+.tagFail {
+  grid-area: 1 / 1;
+  padding: 8px;
+  border: 1px solid currentColor;
+  line-height: 1;
+  transition: opacity 500ms var(--ease);
+}
+
+.tagPass { color: var(--accent); opacity: 1; }
+.tagFail { color: var(--unmatched); opacity: 0; }
+
+/* Head: file name left, the verdict slot right (stamp and plate share one box). */
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.slot {
+  display: grid;
+  height: 34px;
+  margin-left: auto;
+}
+
+.slot > * {
+  grid-area: 1 / 1;
+  justify-self: end;
+  align-self: center;
+}
+
+/* RELEASED stamp: the only lavender in the hero. */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border: 1.5px solid var(--accent-2);
+  background: var(--surface);
+  color: var(--accent-2);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-2deg);
+  opacity: 1;
+  transition: opacity var(--state-dur) var(--ease), transform var(--state-dur) var(--ease);
+}
+
+/* REFUSED verdict plate: rose outline, same slot as the stamp. */
+.plate {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border: 1.5px solid var(--unmatched);
+  background: var(--surface);
+  color: var(--unmatched);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translate3d(0, 12px, 0) rotate(-2deg);
+  opacity: 0;
+  transition: opacity var(--state-dur) var(--ease), transform var(--state-dur) var(--ease);
+}
+
+/* Ledger: one grid template shared by the column header and the rows. */
+.ledger {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.colHead,
+.row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) 44px 124px 124px;
+  column-gap: 14px;
+  align-items: center;
+  padding: 0 22px;
+}
+
+.colHead {
+  height: 34px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.row {
+  position: relative;
+  height: 44px;
+  border-bottom: 1px solid var(--hairline-soft);
+  color: var(--text);
+}
+
+/* The tie: a 2px left bar per row. Mint when tied; rose only on the refused break rows. */
+.tie {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--accent);
+  transition: background-color var(--state-dur) var(--ease);
+}
+
+.date,
+.dir {
+  color: var(--text-muted);
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sum {
+  grid-template-columns: minmax(0, 1fr) auto;
+  height: 46px;
+}
+
+.sumLabel {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.close {
+  height: 52px;
+  border-bottom-color: var(--hairline);
+}
+
+.close .num {
+  font-size: 15px;
+}
+
+.gap {
+  height: 30px;
+  padding: 0 22px;
+  font-size: 12px;
+  line-height: 30px;
+  color: var(--text-faint);
+}
+
+/* Equation and the engine caption. Both states share one box, so nothing moves. */
+.foot {
+  padding: 20px 22px 22px;
+  border-top: 1px solid var(--hairline);
+}
+
+.eqRow {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.eqLabel {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  line-height: 1.9;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.eqStack {
+  display: grid;
+  min-width: 0;
+}
+
+.eqStack > p {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+  transition: opacity var(--state-dur) var(--ease), transform var(--state-dur) var(--ease);
+}
+
+.eqReleased {
+  color: var(--text);
+  opacity: 1;
+  transform: none;
+}
+
+.eqRefused {
+  color: var(--text);
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+}
+
+.caption {
+  margin: 12px 0 0;
+  min-height: 36px;
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--unmatched);
+  opacity: 0;
+  overflow-wrap: anywhere;
+  transition: opacity var(--state-dur) var(--ease);
+}
+
+/* ---------- Refused state (data-state on the scene root) ---------- */
+
+.scene[data-state="refused"] [data-hero-node="balance"] {
+  color: var(--unmatched);
+}
+
+.scene[data-state="refused"] [data-hero-node="balance"] .node {
+  background: var(--unmatched);
+}
+
+.scene[data-state="refused"] .tagPass { opacity: 0; }
+.scene[data-state="refused"] .tagFail { opacity: 1; }
+
+.scene[data-state="refused"] .tail { opacity: 0.12; }
+
+.scene[data-state="refused"] [data-hero-row="txn-4"] .tie,
+.scene[data-state="refused"] [data-hero-row="closing"] .tie {
+  background: var(--unmatched);
+}
+
+.scene[data-state="refused"] [data-hero-stamp] {
+  opacity: 0;
+  transform: translate3d(0, -18px, 0) rotate(-2deg);
+}
+
+.scene[data-state="refused"] [data-hero-verdict] {
+  opacity: 1;
+  transform: rotate(-2deg);
+}
+
+.scene[data-state="refused"] .eqReleased {
+  opacity: 0;
+  transform: translate3d(0, -6px, 0);
+}
+
+.scene[data-state="refused"] .eqRefused {
+  opacity: 1;
+  transform: none;
+}
+
+.scene[data-state="refused"] .caption { opacity: 1; }
+
+/* Reduced motion: every transition collapses to instant. */
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .scene *,
+  .scene *::before,
+  .scene *::after {
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* ---------- Small screens (<= 640px): the Direction column goes, nothing overlaps ---------- */
+@media (max-width: 640px) {
+  .back {
+    left: -4%;
+    right: -4%;
+  }
+
+  .rail {
+    padding: 0 14px;
+  }
+
+  .stage {
+    gap: 5px;
+    letter-spacing: 0.04em;
+  }
+
+  .link,
+  .tail {
+    flex-basis: 4px;
+    min-width: 4px;
+  }
+
+  .tagPass,
+  .tagFail {
+    padding: 8px;
+  }
+
+  .head {
+    padding: 14px 16px;
+  }
+
+  .stamp,
+  .plate {
+    padding: 0 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Phone: the date column goes too (desc, amount, balance), so the header and rows align. */
+  .colHead,
+  .row {
+    grid-template-columns: minmax(0, 1fr) 84px 84px;
+    column-gap: 10px;
+    padding: 0 16px 0 18px;
+  }
+
+  .date {
+    display: none;
+  }
+
+  .row {
+    font-size: 12px;
+  }
+
+  .dir {
+    display: none;
+  }
+
+  .sum {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .foot {
+    padding: 18px 16px 20px;
+  }
+
+  .eqLabel {
+    display: none;
+  }
+
+  .eqStack > p {
+    font-size: 12px;
+  }
+
+  .caption {
+    min-height: 54px;
+  }
+}

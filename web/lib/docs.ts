@@ -8,6 +8,6 @@ const content = defineDocs({
 
 export const docs = loader({
   baseUrl: "/docs",
-  url: (slugs) => slugs.length === 0 ? "/" : "/docs/" + slugs.join("/"),
+  url: (slugs) => slugs.length === 0 ? "/docs" : "/docs/" + slugs.join("/"),
   source: content.toFumadocsSource(),
 });

@@ -1,0 +1,124 @@
+/* Section 5 (Inputs). Quiet two-column definition list; no cards; radius 0; tokens only. */
+
+.list {
+  display: grid;
+  margin: 0;
+  min-width: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.group {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding-block: 20px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.term {
+  margin: 0;
+  color: var(--text);
+}
+
+.def {
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.facts {
+  display: grid;
+  gap: 10px 20px;
+  margin: 0;
+  min-width: 0;
+}
+
+.facts > dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.label {
+  margin: 0;
+  padding-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.inputs {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.input {
+  display: inline;
+}
+
+.sep {
+  margin-right: 0.35em;
+}
+
+.ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  border: 1px solid var(--text-muted);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--text);
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+
+.note {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 68ch;
+}
+
+.footnotes {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.footnotes .tag {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+@media (min-width: 760px) {
+  .group {
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    gap: 32px;
+  }
+}

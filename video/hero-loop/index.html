@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1200" />
+    <script src="assets/gsap.min.js"></script>
+    <script src="assets/CustomEase.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Geist Sans";
+        src: url("assets/fonts/Geist-Regular.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Geist Mono";
+        src: url("assets/fonts/GeistMono-Regular.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Geist Mono";
+        src: url("assets/fonts/GeistMono-Medium.woff2") format("woff2");
+        font-weight: 500;
+        font-style: normal;
+      }
+      :root {
+        --ground: #0b0f08;
+        --surface: #1e2820;
+        --lifted: #2d3f31;
+        --text: #eef0f3;
+        --text-faint: rgba(238, 240, 243, 0.56);
+        --mint: #ade6c4;
+        --lavender: #ad8fd5;
+        --hairline: rgba(238, 240, 243, 0.08);
+        --plum: #231d29;
+        --plum-2: #352c41;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1200px;
+        overflow: hidden;
+        background: var(--ground);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--ground);
+        color: var(--text);
+        font-family: "Geist Mono", monospace;
+        font-variant-numeric: tabular-nums;
+        text-transform: uppercase;
+      }
+      /* Plum bloom, bottom-right, low opacity. Static. */
+      #bloom {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          62% 62% at 100% 100%,
+          var(--plum-2) 0%,
+          var(--plum) 48%,
+          transparent 78%
+        );
+        opacity: 0.6;
+      }
+      /* Static grain at ~16%. Never animated. */
+      #grain {
+        position: absolute;
+        inset: 0;
+        background: url("assets/grain.png") repeat;
+        opacity: 0.16;
+        pointer-events: none;
+      }
+      #ledger {
+        position: absolute;
+        left: 330px;
+        top: 170px;
+        width: 1260px;
+        height: 860px;
+        background: var(--surface);
+        border: 1px solid var(--hairline);
+        transform-origin: 50% 50%;
+      }
+      .abs {
+        position: absolute;
+      }
+      #header {
+        left: 56px;
+        right: 56px;
+        top: 40px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 20px;
+        letter-spacing: 0.18em;
+      }
+      #header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      #live-dot {
+        width: 12px;
+        height: 12px;
+        background: var(--mint);
+      }
+      #header-right {
+        color: var(--text-faint);
+        font-size: 16px;
+      }
+      .hairline-h {
+        position: absolute;
+        left: 56px;
+        right: 56px;
+        height: 1px;
+        background: var(--hairline);
+      }
+      #stages {
+        left: 56px;
+        right: 56px;
+        top: 116px;
+        height: 44px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+      .stage {
+        border: 1px solid var(--hairline);
+        color: var(--text-faint);
+        font-size: 16px;
+        letter-spacing: 0.16em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #thead {
+        left: 56px;
+        right: 56px;
+        top: 196px;
+        height: 30px;
+        display: grid;
+        grid-template-columns: 150px 1fr 70px 200px 200px;
+        font-size: 14px;
+        letter-spacing: 0.18em;
+        color: var(--text-faint);
+        align-items: center;
+      }
+      #thead .r,
+      .row .r {
+        text-align: right;
+      }
+      #rows {
+        left: 56px;
+        right: 56px;
+        top: 230px;
+      }
+      .row {
+        position: relative;
+        height: 54px;
+        display: grid;
+        grid-template-columns: 150px 1fr 70px 200px 200px;
+        align-items: center;
+        border-bottom: 1px solid var(--hairline);
+        font-size: 20px;
+      }
+      .mark {
+        position: absolute;
+        left: -56px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--lifted);
+      }
+      .row .bal {
+        color: var(--text);
+      }
+      #eq-line {
+        left: 56px;
+        top: 600px;
+        height: 30px;
+        font-size: 20px;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+        color: var(--text);
+      }
+      #counter {
+        left: 56px;
+        top: 646px;
+        height: 110px;
+        display: flex;
+        align-items: baseline;
+        gap: 18px;
+        font-family: "Geist Sans", sans-serif;
+        font-weight: 400;
+        font-size: 96px;
+        letter-spacing: -0.02em;
+        text-transform: none;
+        line-height: 1;
+      }
+      #counter-unit {
+        font-family: "Geist Mono", monospace;
+        font-size: 20px;
+        letter-spacing: 0.18em;
+        color: var(--text-faint);
+      }
+      #footer {
+        left: 56px;
+        top: 784px;
+        height: 24px;
+        font-size: 16px;
+        letter-spacing: 0.16em;
+        color: var(--text-faint);
+      }
+      /* One lavender moment: the RELEASED stamp, rotated 2deg. */
+      #stamp {
+        position: absolute;
+        right: 64px;
+        bottom: 64px;
+        padding: 14px 34px;
+        border: 4px solid var(--lavender);
+        color: var(--lavender);
+        font-family: "Geist Mono", monospace;
+        font-weight: 500;
+        font-size: 52px;
+        letter-spacing: 0.2em;
+        line-height: 1.1;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="8"
+      data-width="1920"
+      data-height="1200"
+    >
+      <div id="bloom" class="clip" data-start="0" data-duration="8" data-track-index="0"></div>
+
+      <div id="ledger-wrap">
+        <div id="ledger" class="clip" data-start="0" data-duration="8" data-track-index="1">
+          <div id="header" class="abs">
+            <div id="header-left">
+              <span id="live-dot"></span>
+              <span>STATEMENT · BANK CSV</span>
+            </div>
+            <span id="header-right">STATEMENT.CSV · INR</span>
+          </div>
+          <div class="hairline-h" style="top: 92px"></div>
+
+          <div id="stages" class="abs">
+            <div class="stage" id="st-detect">DETECT</div>
+            <div class="stage" id="st-parse">PARSE</div>
+            <div class="stage" id="st-normalise">NORMALISE</div>
+            <div class="stage" id="st-balance">BALANCE</div>
+          </div>
+
+          <div id="thead" class="abs">
+            <span>DATE</span>
+            <span>DESCRIPTION</span>
+            <span>TYPE</span>
+            <span class="r">AMOUNT</span>
+            <span class="r">BALANCE</span>
+          </div>
+
+          <div id="rows" class="abs">
+            <div class="row" id="r0">
+              <span class="mark" id="r0-mark"></span>
+              <span></span>
+              <span>OPENING</span>
+              <span></span>
+              <span class="r bal" id="r0-bal">1000.00</span>
+            </div>
+            <div class="row" id="r1">
+              <span class="mark" id="r1-mark"></span>
+              <span>2026-01-01</span>
+              <span>TXN 0 · CR</span>
+              <span class="r">1698.81</span>
+              <span class="r bal" id="r1-bal">2698.81</span>
+            </div>
+            <div class="row" id="r2">
+              <span class="mark" id="r2-mark"></span>
+              <span>2026-01-02</span>
+              <span>TXN 1 · DR</span>
+              <span class="r">2071.01</span>
+              <span class="r bal" id="r2-bal">627.80</span>
+            </div>
+            <div class="row" id="r3">
+              <span class="mark" id="r3-mark"></span>
+              <span>2026-01-03</span>
+              <span>TXN 2 · DR</span>
+              <span class="r">380.77</span>
+              <span class="r bal" id="r3-bal">247.03</span>
+            </div>
+            <div class="row" id="r4">
+              <span class="mark" id="r4-mark"></span>
+              <span>2026-01-04</span>
+              <span>TXN 3 · CR</span>
+              <span class="r">494.51</span>
+              <span class="r bal" id="r4-bal">741.54</span>
+            </div>
+            <div class="row" id="r5">
+              <span class="mark" id="r5-mark"></span>
+              <span>2026-01-05</span>
+              <span>TXN 4 · DR</span>
+              <span class="r">305.08</span>
+              <span class="r bal" id="r5-bal">436.46</span>
+            </div>
+          </div>
+
+          <div id="eq-line" class="abs"></div>
+          <div id="counter" class="abs">
+            <span id="counter-value">0.00</span>
+            <span id="counter-unit">INR</span>
+          </div>
+
+          <div id="footer" class="abs">+ 3 MORE ROWS · 8 TRANSACTIONS</div>
+
+          <div id="stamp">RELEASED</div>
+        </div>
+      </div>
+
+      <div id="grain" class="clip" data-start="0" data-duration="8" data-track-index="2"></div>
+    </div>
+
+    <script>
+      gsap.registerPlugin(CustomEase);
+      const EASE = CustomEase.create("hfOut", "M0,0 C0.16,1 0.3,1 1,1");
+      const tl = gsap.timeline({ paused: true });
+
+      const EQ_TEXT = "OPENING 1000.00 + CREDITS 6857.26 - DEBITS 2756.86 = CLOSING";
+      const CLOSING = 5100.4;
+
+      // 0.0 - 0.8: ledger panel fades up from the empty ground.
+      tl.fromTo(
+        "#ledger",
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.8, ease: EASE },
+        0,
+      );
+
+      // Live dot pulses for the whole loop (finite: 16 half-cycles of 0.5s = 8.0s).
+      tl.fromTo(
+        "#live-dot",
+        { opacity: 1 },
+        { opacity: 0.25, duration: 0.5, ease: "sine.inOut", repeat: 15, yoyo: true },
+        0,
+      );
+
+      // 0.9 - 3.4: stage trail lights mint in sequence.
+      [
+        ["#st-detect", 0.9],
+        ["#st-parse", 1.6],
+        ["#st-normalise", 2.3],
+        ["#st-balance", 3.4],
+      ].forEach(([sel, t]) => {
+        tl.to(sel, { color: "#ade6c4", borderColor: "#ade6c4", duration: 0.3, ease: "power2.out" }, t);
+      });
+
+      // 0.8 - 3.8: rows land one by one (OPENING, then 5 transactions); each is checked after landing.
+      for (let i = 0; i <= 5; i++) {
+        const land = 0.8 + 0.5 * i;
+        tl.fromTo(
+          "#r" + i,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.35, ease: EASE },
+          land,
+        );
+        tl.fromTo(
+          "#r" + i + "-bal",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.2, ease: "steps(2)" },
+          land + 0.2,
+        );
+        tl.to(
+          "#r" + i + "-mark",
+          { backgroundColor: "#ade6c4", duration: 0.2, ease: "power1.out" },
+          land + 0.35,
+        );
+      }
+
+      // 3.8 - 4.6: equation types left to right.
+      const eq = { n: 0 };
+      tl.to(
+        eq,
+        {
+          n: EQ_TEXT.length,
+          duration: 0.8,
+          ease: "none",
+          onUpdate: () => {
+            document.getElementById("eq-line").textContent = EQ_TEXT.slice(0, Math.round(eq.n));
+          },
+        },
+        3.8,
+      );
+
+      // 4.6 - 5.4: closing figure appears and counts up to the exact string 5100.40.
+      tl.fromTo("#counter", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, 4.6);
+      const counter = { v: 0 };
+      tl.to(
+        counter,
+        {
+          v: CLOSING,
+          duration: 0.8,
+          ease: "power2.out",
+          onUpdate: () => {
+            document.getElementById("counter-value").textContent = counter.v.toFixed(2);
+          },
+        },
+        4.6,
+      );
+
+      // 5.4 - 5.9: RELEASED stamp slams in at 2deg, 1-frame hold, tiny settle.
+      tl.fromTo(
+        "#stamp",
+        { opacity: 0, scale: 1.35, rotation: 2 },
+        { opacity: 1, scale: 1, rotation: 2, duration: 0.2, ease: "expo.out" },
+        5.4,
+      );
+      tl.to("#stamp", { scale: 0.985, duration: 0.1, ease: "power2.out" }, 5.633);
+      tl.to("#stamp", { scale: 1, duration: 0.17, ease: "power2.out" }, 5.733);
+
+      // 6.2 - 7.2: hold with a slow camera push (3% max).
+      tl.fromTo(
+        "#ledger",
+        { scale: 1 },
+        { scale: 1.03, duration: 1.0, ease: "sine.inOut", immediateRender: false },
+        6.2,
+      );
+
+      // 7.2 - 7.75: everything eases back out to the empty first-frame state, then rests empty to 8.0.
+      tl.fromTo(
+        "#ledger",
+        { scale: 1.03, opacity: 1 },
+        { scale: 1, opacity: 0, duration: 0.55, ease: "sine.inOut", immediateRender: false },
+        7.2,
+      );
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

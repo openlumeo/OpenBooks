@@ -1,0 +1,167 @@
+/* Generic hardware frame. Colours come from the Lumeo tokens, so dark and light both read as aluminium on the page ground. */
+
+.frame {
+  --frame-shadow: rgba(0, 0, 0, 0.62);
+  position: relative;
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  min-width: 0;
+  width: 100%;
+}
+
+:global([data-theme="light"]) .frame {
+  --frame-shadow: rgba(11, 15, 8, 0.2);
+}
+
+.body {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+}
+
+/* Lid: aluminium bezel around the screen. Rounded outside only. */
+.lid {
+  position: relative;
+  padding: 18px 14px 14px;
+  border-radius: 18px 18px 4px 4px;
+  background: linear-gradient(
+    180deg,
+    var(--surface-2) 0%,
+    var(--surface) 56%,
+    color-mix(in srgb, var(--surface) 78%, #000 22%) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px var(--hairline),
+    0 40px 60px -34px var(--frame-shadow);
+}
+
+.camera {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text) 38%, transparent);
+}
+
+/* Screen: the only place content lives. Square, clipped, 16:10 reserved up front (no layout shift). */
+.screen {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: var(--bg);
+  box-shadow: 0 0 0 1px var(--hairline);
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Static glass reflection: a single diagonal wash, no animation. */
+.glare {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 34%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* Hinge base: a slightly wider slab under the lid with a centred lip. */
+.base {
+  position: relative;
+  height: 12px;
+  margin: 0 -3.5%;
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(180deg, var(--surface) 0%, color-mix(in srgb, var(--surface) 70%, #000 30%) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 1px 0 var(--hairline),
+    0 20px 26px -14px var(--frame-shadow);
+}
+
+.lip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 14%;
+  height: 5px;
+  transform: translateX(-50%);
+  border-radius: 0 0 6px 6px;
+  background: color-mix(in srgb, var(--surface) 62%, #000 38%);
+  box-shadow: inset 0 -1px 0 var(--hairline);
+}
+
+/* Soft contact shadow: offset below the device and blurred. */
+.shadow {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: -12px;
+  height: 26px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, var(--frame-shadow), transparent);
+  filter: blur(8px);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* Phone: portrait, no base, a tighter bezel with a larger corner radius. */
+.phone {
+  max-width: 340px;
+  margin-inline: auto;
+}
+
+.phone .lid {
+  padding: 14px 10px;
+  border-radius: 44px;
+}
+
+.phone .camera {
+  top: 6px;
+}
+
+.phone .screen {
+  aspect-ratio: 9 / 19.5;
+  border-radius: 0;
+}
+
+.phone .shadow {
+  left: 12%;
+  right: 12%;
+  bottom: -8px;
+  height: 20px;
+}
+
+/* Narrow phones: the laptop screen grows taller so the live demo has room. Still reserved, still no shift. */
+@media (max-width: 640px) {
+  .laptop .lid {
+    padding: 14px 10px 12px;
+    border-radius: 14px 14px 4px 4px;
+  }
+
+  .laptop .screen {
+    aspect-ratio: 4 / 5;
+  }
+
+  .laptop .base {
+    margin: 0 -2%;
+  }
+}

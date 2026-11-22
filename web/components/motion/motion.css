@@ -1,0 +1,28 @@
+/* Motion layer for the marketing shell. Imported by smooth-scroll.tsx.
+   Hidden states apply only when html.lp-js is set (inline script, before paint)
+   AND motion is allowed. Without JS, or with reduced motion, every element is in its
+   final visible state. Inline GSAP styles override these rules by design. */
+
+:root {
+  /* Clearance under the floating nav for anchor targets. Lenis reads scroll-margin-top. */
+  --lp-nav-clearance: 96px;
+}
+
+main [id] {
+  scroll-margin-top: var(--lp-nav-clearance);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lp-js [data-reveal],
+  .lp-js [data-reveal-child] {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+}
+
+/* Failsafe: GSAP never started (script error, very slow load). Show everything. */
+html.lp-motion-failsafe [data-reveal],
+html.lp-motion-failsafe [data-reveal-child] {
+  opacity: 1;
+  transform: none;
+}

@@ -1,0 +1,24 @@
+/* Checks ledger that sits under the ScrollStory. Radius 0, tokens only. */
+
+.checks {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  max-width: 760px;
+}
+
+.note {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.footnote {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}

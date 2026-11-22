@@ -1,0 +1,38 @@
+# BRIEF: Open Books hero loop
+
+- Message: a financial document proves itself. Opening plus transactions equals closing, every row ties, a stamp lands: RELEASED.
+- Destination: loops silently inside the device frame on a marketing landing page (autoplay, muted, loop). No audio.
+- Aspect: 16:10, 1920x1200, 30 fps, duration 8.0s. SEAMLESS loop: last frame matches first frame; end with a fade/reset beat landing exactly on the first frame.
+- Visual world (binding; from docs/DESIGN.md and web/app/brand/theme-tokens.css):
+  - Ground #0B0F08, surface #1E2820, lifted #2D3F31, text #EEF0F3.
+  - Mint #ADE6C4 (brand green). Lavender #AD8FD5 ONLY for the RELEASED stamp (rotated 2deg). Rose #E6ADAD only for an unmatched row.
+  - Radius 0 everywhere. 1px hairlines at ~8% opacity. No shadows beyond soft low-opacity depth.
+  - Fine static grain ~16% opacity. One plum bloom (#231D29 to #352C41) bottom-right at low opacity.
+  - Type: Geist Mono uppercase, wide tracking, tabular-nums for ledger and labels. Geist Sans 400 for big figures. Fonts copied from web/node_modules/geist into the composition, loaded via @font-face.
+  - No emoji, no stock imagery, no gradient text.
+- Content (REAL DATA, from web/components/landing/proof-data.ts, RELEASED):
+  - Header: STATEMENT · BANK CSV, pulsing mint live dot.
+  - Opening 1000.00, closing 5100.40, currency INR.
+  - Rows (5 shown, 3 hidden, 8 total):
+    - 2026-01-01 CR TXN 0 1698.81 bal 2698.81
+    - 2026-01-02 DR TXN 1 2071.01 bal 627.80
+    - 2026-01-03 DR TXN 2 380.77 bal 247.03
+    - 2026-01-04 CR TXN 3 494.51 bal 741.54
+    - 2026-01-05 DR TXN 4 305.08 bal 436.46
+  - Credits 6857.26, debits 2756.86. Equation: 1000.00 + 6857.26 - 2756.86 = 5100.40 INR.
+  - Strings only. Never recompute or reformat amounts.
+- Storyboard (one shot, autonomous):
+  - 0.0-0.8s: ledger panel fades up; header `STATEMENT · BANK CSV` with pulsing mint live dot.
+  - 0.8-3.8s: rows land one by one (OPENING, then 5 transactions). Each row's 2px left border turns rose to mint as it is checked (rest state mint). Running-balance column ticks.
+  - 3.8-5.4s: equation line resolves left to right: opening + credits - debits = closing. Closing figure counts up to exactly 5100.40 (finish on the exact string). Four-step stage trail along top (DETECT, PARSE, NORMALISE, BALANCE) lights mint in sequence under the rows.
+  - 5.4-6.2s: lavender RELEASED stamp slams in at 2deg, subtle scale, 1-frame hold, tiny settle.
+  - 6.2-7.4s: hold with slow camera push (<=3% scale); live dot pulsing.
+  - 7.4-8.0s: everything eases back to the exact first-frame state so the loop is seamless.
+  - Easing: exponential ease-out, cubic-bezier(0.16,1,0.3,1). No bounce.
+- Deliverables (written to d:\Code\openbooks\OpenBooks\web\public\motion\):
+  - hero-loop.mp4 (H.264, yuv420p, faststart), under 2.5 MB.
+  - hero-loop.webm (VP9), under 2.5 MB.
+  - hero-loop-poster.jpg (RELEASED hold frame at ~6.8s, 1920x1200).
+  - Also a 1-frame first-frame PNG for seam checking (kept in project, not web/).
+- Project location: d:\Code\openbooks\OpenBooks\video\hero-loop. Do NOT put the project inside web/. Do not touch web/ except the three output files.
+- Do not git commit.

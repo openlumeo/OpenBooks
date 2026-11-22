@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <DocsLayout
           tree={docs.getPageTree()}
           nav={{
-            url: "/",
+            url: "/docs",
             title: <span className="flex items-center gap-2 font-semibold"><BookOpen size={19} aria-hidden="true" /> Open Books for developers</span>,
           }}
           links={[

@@ -1,0 +1,112 @@
+/* Floating nav. Glass surface comes from .lp-glass .lp-glass--blur (landing.css).
+   Square edges: radius 0 like every other landing surface (owner decision, overrides the glass exception). */
+
+.nav {
+  position: fixed;
+  top: 12px;
+  inset-inline: 0;
+  margin-inline: auto;
+  z-index: 50;
+  width: min(100% - 2 * var(--gutter), 1120px);
+  padding-block: 14px;
+  padding-inline: 18px;
+  transition:
+    width 300ms var(--ease),
+    padding 300ms var(--ease),
+    top 300ms var(--ease);
+}
+
+.nav[data-scrolled="true"] {
+  top: 8px;
+  width: min(100% - 2 * var(--gutter), 720px);
+  padding-block: 8px;
+  padding-inline: 14px;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 12px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-underline-offset: 0.22em;
+  transition: color var(--dur) var(--ease);
+}
+
+.link:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.cta {
+  min-height: 44px;
+}
+
+.toggle {
+  width: 44px;
+  height: 44px;
+}
+
+.nav a:focus-visible,
+.nav button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* The lockup's wordmark text goes away at small widths; the mark stays. */
+@media (max-width: 560px) {
+  .nav {
+    padding-inline: 12px;
+  }
+
+  .nav[data-scrolled="true"] {
+    padding-inline: 10px;
+  }
+
+  .brand :global(.ob-lockup-text) {
+    display: none;
+  }
+
+  .link {
+    padding-inline: 8px;
+  }
+
+  .cta {
+    padding-inline: 16px;
+  }
+
+  .actions {
+    gap: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    transition-duration: 0ms;
+  }
+}

@@ -9,6 +9,7 @@
 
 /* Open Books workspace, built only from the tokens above. */
 @import "./styles/app.css";
+@import "./styles/landing.css";
 
 @theme inline {
   --color-bg: var(--bg);

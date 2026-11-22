@@ -1,0 +1,208 @@
+/* VERBATIM COPY of Lumeo frontend/web/app/theme-tokens.css (Lumeo DESIGN.md is binding for Open Books).
+   Do not edit here. To update: re-copy from Lumeo, keeping this header.
+   Drift check: tail -n +4 this-file | diff - <lumeo>/frontend/web/app/theme-tokens.css */
+/* =========================================================
+   LUMEO THEME TOKENS — the single source of truth for the palette.
+
+   Imported by BOTH route groups:
+     app/(marketing)/globals.css   the marketing + blog surface
+     app/(docs)/docs.css           the Fumadocs developer docs
+
+   It lives here because it used to live in globals.css alone, and the
+   docs group kept its own near-copy under a --lm-* prefix. The two
+   drifted: docs put LIGHT on :root and dark behind a .dark class, the
+   exact inverse of this file, so a first paint with no JS gave a light
+   docs page next to a dark marketing page. One definition, imported
+   twice, is what stops that happening again.
+
+   Everything below is moved verbatim from globals.css. See DESIGN.md
+   for what the tokens mean and which rules are load-bearing.
+   ========================================================= */
+
+/* =========================================================
+   LUMEO — dark-first brand system, with an opt-in light theme.
+
+   Dark lives on :root, so it is what paints when no preference is
+   stored and when JS never runs. Light is an override keyed to
+   [data-theme="light"], stamped on <html> before first paint by the
+   inline script in layout.tsx.
+
+   Semantic rule that makes both themes work: --accent is "the brand
+   green", not "mint". Mint is a LIGHT colour — it carries text on
+   green-black but fails contrast on paper (~1.4:1). So in light mode
+   --accent becomes deep ledger green and --on-accent flips to white.
+   Anything painting text on an accent fill must use --on-accent,
+   never a hardcoded near-black.
+   ========================================================= */
+:root {
+  color-scheme: dark;
+  /* Surfaces */
+  --bg: #0b0f08; /* page background, near-black green */
+  --surface: #1e2820; /* cards, nav, elevated panels */
+  --surface-2: #2d3f31; /* hover states, secondary panels, borders on surface */
+
+  /* Text */
+  --text: #eef0f3;
+  --text-muted: rgba(238, 240, 243, 0.64);
+  /* meta/labels only. Alpha is set so it still clears 4.5:1 on --bg and
+     --surface — do not lower it. */
+  --text-faint: rgba(238, 240, 243, 0.56);
+
+  /* Accents. --accent/--accent-2 are the SEMANTIC roles components use.
+     --mint/--lav are the literal brand pales, for FILLS. On dark they
+     coincide; on light they diverge (see the light block). */
+  --accent: #ade6c4; /* mint: primary CTAs, links, key highlights, logo */
+  --accent-2: #ad8fd5; /* lavender: ONE emphasis moment per viewport */
+
+  /* Brand pales — fills, chips, washes. Never text on light. */
+  --mint: #ade6c4;
+  --mint-soft: rgba(173, 230, 196, 0.12);
+  --lav: #ad8fd5;
+  --lav-soft: rgba(173, 143, 213, 0.14);
+
+  /* Deep purples — background atmosphere only, never UI */
+  --plum: #231d29;
+  --plum-2: #352c41;
+
+  /* Derived (not new brand colors) */
+  --on-accent: #0b0f08; /* text on an --accent fill. Never white on mint. */
+  --rule: rgba(238, 240, 243, 0.08); /* hairline role; light overrides with a solid */
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --unmatched: #e6adad; /* faint red tint for the unmatched ledger row */
+  --hairline: rgba(238, 240, 243, 0.08);
+  --hairline-soft: rgba(238, 240, 243, 0.05);
+
+  /* Theme-dependent surfaces/effects. Every value that used to be a
+     hardcoded light-on-dark rgba() now resolves through one of these. */
+  --grid-dot: rgba(238, 240, 243, 0.05);
+  --grid-dot-soft: rgba(238, 240, 243, 0.045);
+  --guide-line: rgba(238, 240, 243, 0.028);
+  --module-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+  --module-inset: inset 0 1px 0 rgba(238, 240, 243, 0.04);
+  --recon-shadow: 0 30px 70px -40px rgba(0, 0, 0, 0.9);
+  --accent-lift: #ffffff; /* mixed into --accent for the button hover */
+  /* Rail marks: flatten each logo to a single tone, then tint to the theme.
+     brightness(0) crushes every brand colour to black (alpha preserved);
+     invert(1) lifts it to the light ink used on dark surfaces. */
+  /* ═══ Glass + stripe field ═══════════════════════════════════════
+     RADIUS EXCEPTION — DOCUMENTED, DO NOT GENERALISE.
+     This system is 0-radius everywhere. Glass surfaces are the ONLY
+     rounded elements, at --glass-radius (20px). Buttons, inputs,
+     images, chips, icons and every non-glass element stay at 0.
+     Do not round anything else. */
+  --glass-fill: rgba(238, 240, 243, 0.09);
+  --glass-fill-strong: rgba(238, 240, 243, 0.14);
+  --glass-fill-fallback: #1b211b;
+  --glass-border: rgba(238, 240, 243, 0.17);
+  --glass-border-top: rgba(238, 240, 243, 0.30); /* light catching the edge */
+  --glass-blur: 20px;
+  --glass-blur-dense: 12px;
+  --glass-radius: 20px;
+
+  /* Bands ~3.6% apart in lightness: texture, never stripes. */
+  --stripe-band-a: rgba(238, 240, 243, 0.035);
+  --stripe-band-b: rgba(0, 0, 0, 0.12);
+  --stripe-divider: rgba(238, 240, 243, 0.07);
+  --stripe-wash-from: rgba(11, 15, 8, 0.72);
+  --stripe-wash-to: rgba(11, 15, 8, 0.10);
+  --glow-mint: rgba(173, 230, 196, 0.22);
+  --rail-logo-filter: brightness(0) invert(1);
+  --rail-logo-opacity: 0.62;
+  --rail-logo-opacity-hover: 0.95;
+  --grain-opacity: 0.16;
+  --bloom-opacity: 0.75;
+  --bloom-tint: rgba(173, 230, 196, 0.028);
+
+  /* Layout */
+  --content-max: 1280px;
+  --gutter: 24px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 150ms;
+
+  /* Fonts (wired in layout.tsx) */
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+}
+
+/* ---------------------------------------------------------
+   LIGHT — per the Lumeo light-theme brand spec. A complete
+   counterpart theme, not a tint of the dark one.
+
+   The load-bearing rule: mint and lavender are PALE. They carry
+   text on green-black but wash out on white (1.4:1 and 2.7:1).
+   So light keeps the pales for FILLS (--mint/--lav) and uses the
+   ink variants for TEXT/LINKS/CTAs (--accent/--accent-2, which
+   resolve to mint-ink / lav-ink here). Never pale-as-text.
+
+   All pairs verified: text 18.3:1, muted 6.2:1, mint-ink 6.3:1,
+   white-on-mint-ink 6.6:1, lav-ink 6.0:1 — all AA or better.
+   --------------------------------------------------------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces */
+  --bg: #f7f9f6; /* warm off-white, faint green cast */
+  --surface: #ffffff;
+  --surface-2: #eef2ed;
+
+  /* Text — the dark theme's background becomes the ink. */
+  --text: #0b0f08; /* 18.3:1 on bg */
+  --text-muted: #52605a; /* 6.2:1 on bg, 6.6:1 on surface */
+  --text-faint: #5e6b65; /* 5.3:1 on bg, 5.6:1 on surface */
+
+  /* Semantic accents resolve to the INK variants on light. */
+  --accent: #0e6a47; /* mint-ink: CTAs, links, active states */
+  --accent-2: #6e4fa6; /* lav-ink: the one emphasis moment, >=16px */
+  --on-accent: #ffffff; /* 6.6:1 on mint-ink */
+
+  /* Brand pales stay available as FILLS. */
+  --mint: #ade6c4;
+  --mint-soft: #e7f4ec;
+  --lav: #ad8fd5;
+  --lav-soft: #f0e9f7;
+
+  /* Atmosphere — no purple bloom on light. A whisper of mint-soft
+     at the top of the page instead; the page reads clean off-white. */
+  --bloom-opacity: 1;
+  --grain-opacity: 0.03;
+
+  /* Lines + flat depth. Light should feel precise, never floaty:
+     the spec caps shadow at 0 1px 2px. */
+  --rule: #e2e8e1;
+  --shadow-color: rgba(11, 15, 8, 0.06);
+  --hairline: var(--rule);
+  --hairline-soft: #edf1ec;
+  --grid-dot: rgba(11, 15, 8, 0.07);
+  --grid-dot-soft: rgba(11, 15, 8, 0.055);
+  --guide-line: rgba(11, 15, 8, 0.04);
+  --module-shadow: 0 1px 2px var(--shadow-color);
+  --module-inset: none;
+  --recon-shadow: 0 1px 2px var(--shadow-color);
+
+  --unmatched: #c0574f; /* unmatched-row left border */
+  --accent-lift: #000000; /* hover darkens the ink, never lightens */
+  /* On paper the marks stay dark: crush to black, no invert. */
+  /* Glass + stripe field — light. Border is what sells it; never drop it. */
+  --glass-fill: rgba(255, 255, 255, 0.35);
+  --glass-fill-strong: rgba(255, 255, 255, 0.58);
+  --glass-fill-fallback: #fbfcfa;
+  --glass-border: rgba(255, 255, 255, 0.42);
+  --glass-border-top: rgba(255, 255, 255, 0.80);
+  --glass-blur: 20px;
+  --glass-blur-dense: 12px;
+  --glass-radius: 20px;
+
+  --stripe-band-a: rgba(255, 255, 255, 0.75);
+  --stripe-band-b: rgba(11, 15, 8, 0.015);
+  --stripe-divider: rgba(255, 255, 255, 0.95);
+  --stripe-wash-from: rgba(247, 249, 246, 0.55);
+  --stripe-wash-to: rgba(173, 230, 196, 0.42);
+  --glow-mint: rgba(173, 230, 196, 0.26);
+  --rail-logo-filter: brightness(0);
+  --rail-logo-opacity: 0.6;
+  --rail-logo-opacity-hover: 0.92;
+}
