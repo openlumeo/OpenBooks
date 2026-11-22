@@ -1,7 +1,10 @@
 [build]
   base = "web"
-  command = "pnpm run build"
+  command = "python -m pip install --disable-pip-version-check build==1.6.1 && python ../deploy/build-public-assets.py && pnpm run build"
   publish = ".next"
+
+[build.environment]
+  PYTHON_VERSION = "3.13"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
