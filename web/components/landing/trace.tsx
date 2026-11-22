@@ -3,6 +3,7 @@ import { Sketch, SketchAnnotation } from "@/components/motion/sketch";
 import { ReconPanel, ReconRow } from "./reconciliation";
 import { Section } from "./section";
 import { TRACE_SAMPLE, type TraceEvidence } from "./trace-data";
+import { WipeReveal } from "@/components/motion/wipe-reveal";
 import { TraceLine } from "./trace-line";
 import styles from "./trace.module.css";
 
@@ -40,6 +41,7 @@ export function Trace() {
         voucher: by looking at the original.
       </p>
       <Reveal as="div" y={14} className={styles.reveal}>
+      <WipeReveal from="top">
       <figure className={`lp-figure ${styles.figure}`} aria-label={`Evidence record ${tx.id}`}>
         <ReconPanel title={`EVIDENCE · ${tx.id}`}>
           <div className={styles.grid}>
@@ -116,6 +118,7 @@ export function Trace() {
           </div>
         </ReconPanel>
       </figure>
+      </WipeReveal>
       </Reveal>
     </Section>
   );

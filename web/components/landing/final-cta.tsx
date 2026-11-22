@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 import { SketchAnnotation } from "@/components/motion/sketch";
+import { BalanceLine } from "./balance-line";
 import { LoopFrame, type LoopSource } from "./media-frame";
 import styles from "./final-cta.module.css";
 
@@ -47,6 +48,7 @@ export function FinalCta() {
           <p data-reveal-child className={`t-lede ${styles.lede}`}>
             Open the workspace, drop a file, and watch it released or refused with the reason on the page.
           </p>
+          <BalanceLine />
           <div data-reveal-child className={styles.actions}>
             <Link href="/app" className={`btn btn-primary-landing ${styles.action}`}>
               Open workspace

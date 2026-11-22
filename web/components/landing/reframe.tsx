@@ -3,6 +3,7 @@ import { SketchAnnotation } from "@/components/motion/sketch";
 import { ParallaxLayer } from "@/components/motion/parallax";
 import { PaperStack } from "./paper-stack";
 import { Section } from "./section";
+import { FileRoute } from "./file-route";
 import { ReconPanel } from "./reconciliation";
 import rec from "./reconciliation.module.css";
 import { RELEASED } from "./proof-data";
@@ -76,6 +77,8 @@ export function Reframe() {
       <p className={styles.close}>
         A figure at 97% still sends you back to the other 3%. Open Books does not score a document. It checks it.
       </p>
+
+      <FileRoute />
 
       <div className={styles.interlude}>
         <ParallaxLayer depth={1} className={styles.backdropLayer} aria-hidden="true">

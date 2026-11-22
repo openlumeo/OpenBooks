@@ -5,6 +5,7 @@ import { Section } from "./section";
 import { ReconPanel, ReconRow } from "./reconciliation";
 import { RefusalStamp } from "./refusal-stamp";
 import { RefusalPush } from "./refusal-push";
+import { RefusalStops } from "./refusal-stops";
 import styles from "./refusals.module.css";
 
 type EngineRefusal = { readonly code: RefusalCode; readonly message: string };
@@ -93,6 +94,7 @@ export function Refusals() {
         Schema validation is folded into the Balance stage in the workspace, so OUTPUT_INVALID shows as stopping at
         Balance.
       </p>
+      <RefusalStops codes={CODES.map((c) => c.code)} initial="BALANCE_MISMATCH" />
 
       <RefusalPush className={styles.proof}>
         <p className={styles.fix}>

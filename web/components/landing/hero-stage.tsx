@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { gsap, useGSAP, DESKTOP_MOTION, markMotionReady } from "@/components/motion/gsap-setup";
 import { usePointerTilt } from "@/components/motion/use-pointer-tilt";
 import { useHeroDepth } from "./hero-depth";
+import { useHeroIntro } from "./hero-intro";
 import { HeroMonolith } from "./hero-monolith";
 import { AlterSwitch } from "./alter-switch";
 import styles from "./hero-stage.module.css";
@@ -35,12 +36,12 @@ function LedgerSketch() {
       aria-hidden="true"
       focusable="false"
     >
-      <path className={styles.ledgerPage} d="M14 10 C 80 6, 160 8, 228 12 C 231 120, 229 230, 232 326 C 160 330, 80 328, 10 331 C 12 240, 9 120, 14 10 Z" />
-      <path className={styles.ledgerMargin} d="M46 16 C 46 120, 47 240, 46 324 M50 16 C 50 120, 51 240, 50 324" />
+      <path data-intro-line className={styles.ledgerPage} d="M14 10 C 80 6, 160 8, 228 12 C 231 120, 229 230, 232 326 C 160 330, 80 328, 10 331 C 12 240, 9 120, 14 10 Z" />
+      <path data-intro-line className={styles.ledgerMargin} d="M46 16 C 46 120, 47 240, 46 324 M50 16 C 50 120, 51 240, 50 324" />
       {rules.map((y) => (
-        <path key={y} className={styles.ledgerRule} d={`M56 ${y} C 110 ${y - 2}, 170 ${y + 2}, 224 ${y}`} />
+        <path key={y} data-intro-line className={styles.ledgerRule} d={`M56 ${y} C 110 ${y - 2}, 170 ${y + 2}, 224 ${y}`} />
       ))}
-      <path className={styles.ledgerStamp} d="M88 250 C 120 246, 160 247, 188 251 C 191 266, 189 282, 190 296 C 160 300, 120 298, 86 297 C 85 282, 88 266, 88 250 Z" />
+      <path data-intro-stamp className={styles.ledgerStamp} d="M88 250 C 120 246, 160 247, 188 251 C 191 266, 189 282, 190 296 C 160 300, 120 298, 86 297 C 85 282, 88 266, 88 250 Z" />
     </svg>
   );
 }
@@ -52,6 +53,7 @@ export function HeroStage() {
   const tiltRef = useRef<HTMLDivElement>(null);
   usePointerTilt(tiltRef, { max: 3 });
   useHeroDepth(scope);
+  useHeroIntro(scope);
 
   useGSAP(
     () => {

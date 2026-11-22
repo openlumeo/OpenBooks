@@ -2,6 +2,7 @@
   position: relative;
   border-top: 1px solid var(--hairline);
   padding-block: clamp(64px, 9vw, 116px);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, color-mix(in oklab, currentColor 6%, transparent) 31px 32px);
 }
 
 .container {

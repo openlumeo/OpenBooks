@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/components/motion/gsap-setup";
 import { Reveal } from "@/components/motion/reveal";
+import { ScrambleLabel } from "@/components/motion/scramble-label";
 import { Section } from "./section";
 import { DeviceFrame } from "./device-frame";
 import { JOB, ProvenChecks, TRAIL, labelOf } from "./how-proven";
@@ -174,7 +175,7 @@ export function ScrollStory() {
           <ol className={styles.list} aria-label="Pipeline stages">
             {TRAIL.map((id, i) => (
               <li key={id} className={styles.step} data-step={i}>
-                <span className={styles.stepLabel}>{labelOf(id)}</span>
+                <span className={styles.stepLabel}><ScrambleLabel text={labelOf(id)} /></span>
                 <p className={styles.job}>{JOB[id as Exclude<Stage, "validate">]}</p>
               </li>
             ))}

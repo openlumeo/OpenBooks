@@ -1,10 +1,22 @@
 import Link from "next/link";
 import { BrandLockup } from "@/components/brand/brand-lockup";
+import { FormatMarquee } from "./format-marquee";
 import styles from "./site-footer.module.css";
 
 export function SiteFooter() {
   return (
     <footer className={styles.footer}>
+      <FormatMarquee />
+      <svg
+        className={styles.closeRule}
+        viewBox="0 0 100 6"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M0 1 H100" />
+        <path d="M0 5 H100" />
+      </svg>
       <div className={styles.inner}>
         <div className={styles.left}>
           <BrandLockup markSize={24} />
