@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hero concepts</title>
+<style>
+:root{color-scheme:dark}body{margin:0;background:#0B0F08;color:#EEF0F3;font:15px/1.55 Inter,system-ui,sans-serif;padding:40px 24px}
+main{max-width:1280px;margin:0 auto}h1{font-weight:400;letter-spacing:-.03em;font-size:34px;margin:0 0 8px}
+p.lede{color:rgba(238,240,243,.66);max-width:62ch;margin:0 0 36px}
+.grid{display:grid;gap:28px}
+.card{border:1px solid rgba(238,240,243,.1);background:#1E2820}
+.card header{padding:18px 22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(238,240,243,.1)}
+.card h2{font-size:20px;font-weight:500;margin:0}
+.tag{font:12px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#ADE6C4}
+.card img{display:block;width:100%;height:auto}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1px;background:rgba(238,240,243,.1)}
+.card .row img{background:#0B0F08}
+.card p{margin:0;padding:16px 22px;color:rgba(238,240,243,.66)}
+a{color:#ADE6C4;text-underline-offset:3px}
+@media(max-width:800px){.card .row{grid-template-columns:1fr}}
+</style></head><body><main>
+<h1>Hero concepts</h1>
+<p class="lede">Three directions for the Open Books hero. Click a title to open the live mock (animations and interactions work). Screenshots show 1440x900 dark first, then the alternate states.</p>
+<div class="grid">
+<section class="card"><header><h2><a href="concept-a.html">A. The Twin</a></h2><span class="tag">One instrument · alter one balance · it refuses</span></header>
+<img src="shots/a-1440-dark-released.png" alt="Concept A released state">
+<div class="row"><img src="shots/a-1440-dark-refused.png" alt="Concept A refused state"><img src="shots/a-390-dark.png" alt="Concept A mobile"></div>
+<p>Notes: a-notes.md</p></section>
+<section class="card"><header><h2><a href="concept-b.html">B. The Monolith</a></h2><span class="tag">Centred launch · ledger rises from the fold · tilts flat on scroll</span></header>
+<img src="shots/b-1440x900-dark.png" alt="Concept B at rest">
+<div class="row"><img src="shots/b-scroll-flat-dark.png" alt="Concept B scrolled flat"><img src="shots/b-390x844-dark.png" alt="Concept B mobile"></div>
+<p>Notes: b-notes.md</p></section>
+<section class="card"><header><h2><a href="concept-c.html">C. The Equation</a></h2><span class="tag">The arithmetic is the headline · terms resolve from their source rows</span></header>
+<img src="shots/c-1440x900-dark.png" alt="Concept C">
+<div class="row"><img src="shots/c-hover-credits.png" alt="Concept C hover"><img src="shots/c-390x844-dark.png" alt="Concept C mobile"></div>
+<p>Notes: c-notes.md</p></section>
+</div></main></body></html>

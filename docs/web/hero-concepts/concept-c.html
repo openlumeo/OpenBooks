@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Books: The Equation</title>
+<meta name="description" content="Concept C hero: the document's own arithmetic is the headline.">
+<script>
+  /* Runs before first paint. Light theme is restored from storage; the entrance
+     hides content only when motion is allowed AND the script below is going to run. */
+  (function () {
+    var root = document.documentElement;
+    try { if (localStorage.getItem('ob-theme') === 'light') root.setAttribute('data-theme', 'light'); } catch (e) {}
+    var reduced = false;
+    try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    if (!reduced) root.classList.add('pre');
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/theme-tokens.css">
+<link rel="stylesheet" href="vendor/type-scale.css">
+<link rel="stylesheet" href="concept-c.css">
+</head>
+<body>
+
+<div class="c-stage" aria-hidden="true">
+  <div class="c-grid"></div>
+  <div class="c-glow"></div>
+  <div class="c-bloom"></div>
+  <div class="c-grain"></div>
+</div>
+
+<header class="c-nav">
+  <a class="c-brand" href="#top" aria-label="Open Books by Lumeo">
+    <img class="brand-dark" src="c-assets/mark-white.png" alt="" width="185" height="196">
+    <img class="brand-light" src="c-assets/mark-black.png" alt="" width="185" height="196">
+    <span class="brand-word"><span class="brand-name">Open Books</span><span class="brand-by">by Lumeo</span></span>
+  </a>
+  <div class="c-nav-actions">
+    <a class="c-link" href="/docs">Docs</a>
+    <a class="c-btn c-btn-primary" href="/app">Open workspace</a>
+    <button class="c-toggle" type="button" aria-pressed="false" aria-label="Switch to light theme">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.25"/>
+        <path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main class="c-hero" id="top">
+  <h1 class="c-h1 t-display">Every figure proven, or refused with a reason.</h1>
+
+  <div class="c-eq-wrap">
+    <div class="c-eq">
+      <span class="term t-open" tabindex="0" aria-describedby="tip-open" data-term="open">
+        <span class="fig" data-final="1000.00">1000.00</span>
+        <span class="tip" id="tip-open" role="tooltip">
+          <span class="tip-h">Statement opening</span>
+          <span class="tip-row"><b>ROW 1</b><span>CR</span><span>1698.81</span><span>BAL 2698.81</span></span>
+        </span>
+      </span>
+
+      <span class="op op-add">+</span>
+
+      <span class="term t-cr" tabindex="0" aria-describedby="tip-cr" data-term="credits">
+        <span class="fig" data-final="6857.26">6857.26</span>
+        <span class="tip" id="tip-cr" role="tooltip">
+          <span class="tip-h">Contributing credits</span>
+          <span class="tip-row"><b>ROW 1</b><span>CR</span><span>1698.81</span><span>BAL 2698.81</span></span>
+          <span class="tip-row"><b>ROW 4</b><span>CR</span><span>494.51</span><span>BAL 741.54</span></span>
+          <span class="tip-foot">3 of 8 rows not shown here</span>
+        </span>
+      </span>
+
+      <span class="op op-sub">&minus;</span>
+
+      <span class="term t-dr" tabindex="0" aria-describedby="tip-dr" data-term="debits">
+        <span class="fig" data-final="2756.86">2756.86</span>
+        <span class="tip" id="tip-dr" role="tooltip">
+          <span class="tip-h">Contributing debits</span>
+          <span class="tip-row"><b>ROW 2</b><span>DR</span><span>2071.01</span><span>BAL 627.80</span></span>
+          <span class="tip-row"><b>ROW 3</b><span>DR</span><span>380.77</span><span>BAL 247.03</span></span>
+          <span class="tip-foot">3 of 8 rows not shown here</span>
+        </span>
+      </span>
+
+      <span class="op op-eq">=</span>
+
+      <span class="term t-close" tabindex="0" aria-describedby="tip-close" data-term="closing">
+        <span class="fig" data-final="5100.40">5100.40</span>
+        <span class="stamp">Released</span>
+        <span class="tip" id="tip-close" role="tooltip">
+          <span class="tip-h">Statement closing</span>
+          <span class="tip-row"><b>ROW 5</b><span>DR</span><span>305.08</span><span>BAL 436.46</span></span>
+          <span class="tip-foot">3 of 8 rows not shown here</span>
+        </span>
+      </span>
+
+      <span class="eq-rule" aria-hidden="true"></span>
+
+      <div class="legend" aria-hidden="true">
+        <span class="lg">Opening</span><span class="lg-sep">&middot;</span><span class="lg">Credits</span><span class="lg-sep">&middot;</span><span class="lg">Debits</span><span class="lg-sep">&middot;</span><span class="lg">Closing</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="c-copy">
+    <p class="c-lede">Open Books checks each document's own arithmetic. If it ties out, you get sourced, structured data. If not, the reason, never a guess.</p>
+    <div class="c-ctas">
+      <a class="c-btn c-btn-primary c-btn-hero" href="/app">Open workspace</a>
+      <a class="c-text-link" href="/docs">Read the docs</a>
+    </div>
+  </div>
+</main>
+
+<script src="vendor/js/gsap.min.js"></script>
+<script src="concept-c.js"></script>
+</body>
+</html>

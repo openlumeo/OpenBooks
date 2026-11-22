@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en-GB" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Books, hero concept A</title>
+<meta name="description" content="Every figure proven, or refused with a reason.">
+<script>
+  // Before first paint: hold the instrument hidden only when the entrance will run.
+  (function () {
+    var r = document.documentElement;
+    r.classList.remove("no-js");
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    r.classList.add("js-enter");
+    setTimeout(function () { r.classList.remove("js-enter"); }, 3000);
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="vendor/theme-tokens.css">
+<link rel="stylesheet" href="vendor/type-scale.css">
+<link rel="stylesheet" href="a-concept.css">
+</head>
+<body>
+<div class="atmos" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="Primary">
+  <a class="brand" href="/" aria-label="Open Books by Lumeo, home">
+    <img class="mark mark--dark" src="a-assets/mark-white.png" alt="" aria-hidden="true" width="26" height="28">
+    <img class="mark mark--light" src="a-assets/mark-black.png" alt="" aria-hidden="true" width="26" height="28">
+    <span class="lock"><span class="lock-name">Open Books</span><span class="lock-by">BY LUMEO</span></span>
+  </a>
+  <div class="nav-actions">
+    <a class="nav-link" href="/docs">Docs</a>
+    <a class="btn btn-primary nav-cta" href="/app">Open workspace</a>
+    <button class="theme" id="theme" type="button" aria-label="Switch light or dark theme">
+      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</nav>
+
+<main>
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap grid">
+
+    <div class="copy">
+      <h1 id="hero-title" class="t-display hero-h1">Every figure proven, or refused with a reason.</h1>
+      <p class="lede">Open Books checks each document&rsquo;s own arithmetic. If it ties out, you get data with the source of every figure. If not, the reason.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="/app">Open workspace</a>
+        <a class="text-link" href="/docs">Read the docs</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="tilt">
+        <div class="bloom" aria-hidden="true"></div>
+
+        <figure class="instrument" data-state="released">
+          <figcaption class="sr">Released statement, statement.csv, INR. The switch below alters the TXN 4 balance and shows the refusal.</figcaption>
+
+          <header class="head"><span>statement.csv &middot; INR</span></header>
+
+          <ol class="rail" aria-label="Engine stages, all passed when released">
+            <li><i class="node"></i>Detect</li>
+            <li><i class="node"></i>Parse</li>
+            <li><i class="node"></i>Normalise</li>
+            <li data-stage="balance"><i class="node"></i>Balance<span class="fail">Fail</span></li>
+          </ol>
+
+          <ul class="ledger">
+            <li class="row row--label">
+              <span class="bar"></span>
+              <span class="desc">Opening balance</span><span></span><span></span>
+              <span class="bal">1000.00</span>
+            </li>
+            <li class="row">
+              <span class="bar"></span>
+              <span class="desc">TXN 0</span><span class="dir">CR</span><span class="amt">1698.81</span>
+              <span class="bal">2698.81</span>
+            </li>
+            <li class="row">
+              <span class="bar"></span>
+              <span class="desc">TXN 1</span><span class="dir">DR</span><span class="amt">2071.01</span>
+              <span class="bal">627.80</span>
+            </li>
+            <li class="row">
+              <span class="bar"></span>
+              <span class="desc">TXN 2</span><span class="dir">DR</span><span class="amt">380.77</span>
+              <span class="bal">247.03</span>
+            </li>
+            <li class="row">
+              <span class="bar"></span>
+              <span class="desc">TXN 3</span><span class="dir">CR</span><span class="amt">494.51</span>
+              <span class="bal">741.54</span>
+            </li>
+            <li class="row" data-flag="break">
+              <span class="bar"></span>
+              <span class="desc">TXN 4</span><span class="dir">DR</span><span class="amt">305.08</span>
+              <span class="bal"><span class="sr" data-sr-balance>436.46</span><span class="figure" aria-hidden="true"><span class="reel-wrap"><span class="reel" data-d="4"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span></span><span class="reel-wrap"><span class="reel" data-d="3"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span></span><span class="reel-wrap"><span class="reel" data-d="6"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span></span><span class="dot">.</span><span class="reel-wrap"><span class="reel" data-d="4"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span></span><span class="reel-wrap"><span class="reel reel-last"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span></span></span>
+              </span>
+            </li>
+            <li class="row row--label" data-flag="break">
+              <span class="bar"></span>
+              <span class="desc">Closing balance</span><span></span><span></span>
+              <span class="bal">5100.40</span>
+            </li>
+          </ul>
+
+          <div class="verdict">
+            <p class="stamp stamp--released">Released</p>
+            <p class="stamp stamp--refused">Refused &middot; BALANCE_MISMATCH</p>
+          </div>
+
+          <div class="foot">
+            <div class="state state--released">
+              <p class="eq">1000.00 + 6857.26 &minus; 2756.86 = 5100.40</p>
+              <p class="eq-note"><span class="pass">A1 PASS</span> opening + sum(txns) = closing</p>
+            </div>
+            <div class="state state--refused" aria-hidden="true">
+              <p class="eq">741.54 &minus; 305.08 = 436.46 <span class="neq">&ne; 436.47</span></p>
+              <p class="eq-msg">batch-1: running balance ties on every row (expected 8 rows, got 7 rows)</p>
+            </div>
+          </div>
+        </figure>
+      </div>
+
+      <div class="control">
+        <button id="alter" class="switch" type="button" role="switch" aria-checked="false" aria-describedby="alter-hint">
+          <span class="track" aria-hidden="true"><span class="knob"></span></span>
+          <span class="switch-label">ALTER ONE BALANCE</span>
+        </button>
+        <span id="alter-hint" class="sr">Turns TXN 4 printed balance from 436.46 to 436.47.</span>
+        <span id="live" class="sr" aria-live="polite"></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+</main>
+
+<div class="grain" aria-hidden="true"></div>
+
+<script src="vendor/js/gsap.min.js"></script>
+<script src="vendor/js/CustomEase.min.js"></script>
+<script src="a-concept.js"></script>
+</body>
+</html>

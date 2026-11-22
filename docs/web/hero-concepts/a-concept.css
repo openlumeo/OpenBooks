@@ -1,0 +1,445 @@
+/* Concept A, "The Twin". Standalone mock. Tokens come from vendor/theme-tokens.css. */
+
+@font-face {
+  font-family: "GeistVar";
+  src: url("vendor/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GeistMonoVar";
+  src: url("vendor/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --font-geist-sans: "GeistVar", system-ui, -apple-system, sans-serif;
+  --font-geist-mono: "GeistMonoVar", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+img { display: block; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.sr {
+  position: absolute !important;
+  width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- atmosphere ---------- */
+.atmos {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 52% at 90% 102%, var(--plum-2) 0%, transparent 100%),
+    radial-gradient(70% 64% at 96% 110%, var(--plum) 0%, transparent 100%);
+  opacity: 0.9;
+}
+:root[data-theme="light"] .atmos { display: none; }
+
+/* fine grain, the Lumeo token at 16% so large dark fields never band */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.93  0 0 0 0 0.94  0 0 0 0 0.95  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+}
+:root[data-theme="light"] .grain { opacity: 0.05; }
+
+/* ---------- nav: the existing floating glass pill, 74px, 12px from top ---------- */
+.nav {
+  position: fixed;
+  top: 12px;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  z-index: 50;
+  width: min(100% - 48px, 1120px);
+  height: 74px;
+  padding: 0 14px 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: var(--glass-radius);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-top);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav { background: var(--glass-fill-fallback); }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  text-decoration: none;
+  min-width: 0;
+}
+.mark { width: auto; height: 28px; }
+.mark--light { display: none; }
+:root[data-theme="light"] .mark--dark { display: none; }
+:root[data-theme="light"] .mark--light { display: block; }
+
+.lock { display: inline-flex; flex-direction: column; gap: 3px; line-height: 1; }
+.lock-name { font-family: var(--font-geist-sans); font-weight: 400; font-size: 17px; letter-spacing: -0.02em; color: var(--text); }
+.lock-by { font-family: var(--font-geist-mono); font-size: 9.5px; letter-spacing: 0.18em; color: var(--text-muted); }
+
+.nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.nav-link {
+  display: inline-flex; align-items: center; min-height: 44px; padding-inline: 12px;
+  font-weight: 500; font-size: 14px; color: var(--text-muted); text-decoration: none;
+  transition: color var(--dur) var(--ease);
+}
+.nav-link:hover { color: var(--text); text-decoration: underline; text-underline-offset: 0.22em; }
+.nav-cta { min-height: 44px; }
+.theme {
+  width: 44px; height: 44px; display: inline-grid; place-items: center;
+  background: transparent; border: 1px solid var(--rule); border-radius: 0; cursor: pointer; color: var(--text-muted);
+}
+.theme:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 13px 22px; border: 0; border-radius: 0;
+  font-family: var(--font-body); font-weight: 500; font-size: 14px; line-height: 1;
+  text-decoration: none; cursor: pointer;
+  transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--accent) 88%, var(--accent-lift));
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px var(--accent), 0 14px 30px -14px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.btn-primary:active { transform: none; }
+
+.text-link {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-family: var(--font-body); font-weight: 500; font-size: 14px;
+  color: var(--text-muted); text-decoration: none; text-underline-offset: 0.3em;
+  transition: color var(--dur) var(--ease);
+}
+.text-link:hover { color: var(--text); text-decoration: underline; }
+
+/* ---------- hero layout ---------- */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 86px 0 56px;
+  display: flex;
+  align-items: center;
+}
+.wrap {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4.5vw, 72px);
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 500px);
+  gap: clamp(40px, 5vw, 80px);
+  align-items: center;
+}
+
+/* Headline: Geist 400, -0.04em. Sized below the Lumeo H1 scale on purpose so it holds two lines beside the instrument. */
+.hero-h1 {
+  margin: 0;
+  font-family: var(--font-geist-sans);
+  font-weight: 400;
+  font-size: clamp(40px, 4.05vw, 60px);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 24px 0 0;
+  max-width: 56ch;
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.ctas { margin-top: 36px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+
+/* ---------- the instrument ---------- */
+.stage { position: relative; min-width: 0; }
+
+.tilt {
+  position: relative;
+  transform: perspective(1600px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 900ms var(--ease);
+  will-change: transform;
+}
+
+/* a soft mint bloom sits behind the instrument, low opacity, never a ring */
+.bloom {
+  position: absolute;
+  inset: -18% -30% -16% -30%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(173, 230, 196, 0.34), rgba(173, 230, 196, 0.1) 55%, transparent 100%);
+  opacity: 1;
+  filter: blur(28px);
+}
+:root[data-theme="light"] .bloom { opacity: 0.6; }
+
+.instrument {
+  position: relative;
+  margin: 0;
+  isolation: isolate;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow:
+    inset 0 1px 0 rgba(238, 240, 243, 0.07),
+    0 70px 110px -60px rgba(0, 0, 0, 0.9),
+    0 26px 50px -30px rgba(0, 0, 0, 0.65);
+}
+:root[data-theme="light"] .instrument {
+  box-shadow: 0 1px 2px rgba(11, 15, 8, 0.06), 0 34px 64px -40px rgba(11, 15, 8, 0.22);
+}
+
+.js-enter .instrument { opacity: 0; }
+
+.head {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 46px; padding: 0 20px;
+  border-bottom: 1px solid var(--hairline);
+  font-family: var(--font-mono); font-size: 11px; line-height: 1; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* the single stage rail: slim, one line, drawn once */
+.rail {
+  list-style: none; margin: 0; height: 40px;
+  padding: 0 20px;
+  display: flex; align-items: center; gap: 14px;
+  border-bottom: 1px solid var(--hairline);
+  font-family: var(--font-mono); font-size: 10.5px; line-height: 1; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); white-space: nowrap;
+}
+.rail li { display: inline-flex; align-items: center; gap: 8px; transition: color 600ms var(--ease); }
+.rail li + li::before {
+  content: ""; width: 14px; height: 1px; background: var(--rule); margin-right: 6px;
+}
+.rail .node {
+  width: 6px; height: 6px; flex-shrink: 0;
+  background: var(--accent);
+  transition: background-color 600ms var(--ease);
+}
+.rail .fail {
+  margin-left: 6px; padding: 3px 6px 2px;
+  border: 1px solid currentColor;
+  opacity: 0; transition: opacity 500ms var(--ease);
+  line-height: 1;
+}
+.instrument[data-state="refused"] .rail [data-stage="balance"] { color: var(--unmatched); }
+.instrument[data-state="refused"] .rail [data-stage="balance"] .node { background: var(--unmatched); }
+.instrument[data-state="refused"] .rail .fail { opacity: 1; }
+
+/* ledger */
+.ledger { list-style: none; margin: 0; padding: 0; }
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px 92px 104px;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 20px 0 22px;
+  border-bottom: 1px solid var(--hairline-soft);
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.row:last-child { border-bottom: 0; }
+.row .bar {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: var(--accent);
+  transition: background-color 700ms var(--ease);
+}
+.row .dir { color: var(--text-muted); }
+.row .amt { text-align: right; }
+.row .bal { text-align: right; white-space: nowrap; }
+.row--label .desc {
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted);
+}
+.row--label .bal { color: var(--text); }
+
+.instrument[data-state="refused"] .row[data-flag="break"] .bar { background: var(--unmatched); }
+
+/* digit reels: the TXN 4 balance rolls mechanically, only the changed digit moves */
+.figure { display: inline-flex; align-items: flex-start; }
+.dot { display: inline-block; }
+.reel-wrap { display: inline-block; height: 1em; line-height: 1em; overflow: hidden; vertical-align: top; }
+.reel {
+  display: block;
+  transform: translateY(0);
+  transition: transform 640ms cubic-bezier(0.3, 1.22, 0.42, 1);
+}
+.reel span { display: block; height: 1em; line-height: 1em; }
+.reel[data-d="0"] { transform: translateY(0em); }
+.reel[data-d="1"] { transform: translateY(-1em); }
+.reel[data-d="2"] { transform: translateY(-2em); }
+.reel[data-d="3"] { transform: translateY(-3em); }
+.reel[data-d="4"] { transform: translateY(-4em); }
+.reel[data-d="5"] { transform: translateY(-5em); }
+.reel[data-d="6"] { transform: translateY(-6em); }
+.reel[data-d="7"] { transform: translateY(-7em); }
+.reel-last { transform: translateY(-6em); }
+.instrument[data-state="refused"] .reel-last { transform: translateY(-7em); }
+
+/* stamps: the lavender RELEASED lands once; the rose verdict replaces it */
+.verdict {
+  position: absolute;
+  top: -17px;
+  right: 22px;
+  width: 0;
+  height: 34px;
+  z-index: 3;
+  pointer-events: none;
+}
+.stamp {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  display: inline-flex; align-items: center;
+  height: 34px; padding: 0 14px;
+  border: 1.5px solid currentColor;
+  background: var(--surface);
+  font-family: var(--font-mono); font-weight: 500; font-size: 11.5px; line-height: 1;
+  letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap;
+  transition: opacity 460ms var(--ease), transform 560ms var(--ease);
+}
+.stamp--released { color: var(--accent-2); transform: rotate(-2deg); }
+.stamp--refused { color: var(--unmatched); opacity: 0; transform: translate(0, 14px) rotate(-4deg); }
+.instrument[data-state="refused"] .stamp--released { opacity: 0; transform: translate(-8px, -20px) rotate(-8deg); }
+.instrument[data-state="refused"] .stamp--refused { opacity: 1; transform: rotate(-2deg); }
+
+/* footer: equation line, two states in one grid cell so the height never jumps */
+.foot {
+  display: grid;
+  padding: 22px 20px 22px;
+  border-top: 1px solid var(--hairline);
+  min-height: 112px;
+}
+.state { grid-area: 1 / 1; transition: opacity 460ms var(--ease), transform 560ms var(--ease); }
+.state--refused { opacity: 0; transform: translateY(6px); }
+.instrument[data-state="refused"] .state--released { opacity: 0; transform: translateY(-6px); }
+.instrument[data-state="refused"] .state--refused { opacity: 1; transform: none; }
+
+.eq {
+  margin: 0;
+  font-family: var(--font-mono); font-size: 15px; line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.eq-note, .eq-msg {
+  margin: 10px 0 0;
+  font-family: var(--font-mono); font-size: 10.5px; line-height: 1.5;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.eq-note .pass { color: var(--accent); margin-right: 8px; }
+.eq-msg {
+  font-size: 12px; letter-spacing: 0; line-height: 1.5;
+  color: var(--unmatched);
+}
+.neq { color: var(--unmatched); }
+
+/* the one control */
+.control { margin-top: 26px; display: flex; align-items: center; min-height: 44px; }
+.switch {
+  display: inline-flex; align-items: center; gap: 14px;
+  min-height: 44px; padding: 0 16px 0 0;
+  background: none; border: 0; border-radius: 0; cursor: pointer;
+  font-family: var(--font-mono); font-weight: 500; font-size: 11.5px; line-height: 1;
+  letter-spacing: 0.16em; color: var(--text-muted);
+  transition: color var(--dur) var(--ease);
+}
+.switch:hover { color: var(--text); }
+.track {
+  position: relative; width: 38px; height: 18px; flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--text) 40%, transparent);
+  transition: border-color 500ms var(--ease);
+}
+.knob {
+  position: absolute; top: 2px; left: 2px; width: 12px; height: 12px;
+  background: var(--text);
+  transition: transform 520ms var(--ease), background-color 500ms var(--ease);
+}
+.switch[aria-checked="true"] .track { border-color: var(--unmatched); }
+.switch[aria-checked="true"] .knob { transform: translateX(20px); background: var(--unmatched); }
+.no-js .switch { display: none; }
+
+/* pointer parallax is a wrapper transform, so the entrance can own the instrument itself */
+@media (max-width: 900px) {
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 56px; }
+  .hero { align-items: flex-start; padding-top: 120px; padding-bottom: 72px; }
+  .instrument { max-width: 560px; }
+}
+
+@media (max-width: 560px) {
+  .nav { width: calc(100% - 24px); padding: 0 10px 0 12px; gap: 8px; }
+  .lock { display: none; }
+  .nav-link { padding-inline: 8px; }
+  .nav-cta { padding-inline: 14px; }
+  .nav-actions { gap: 4px; }
+  .hero-h1 { font-size: 40px; }
+  .wrap { padding-inline: 16px; }
+  .head, .rail, .foot { padding-inline: 14px; }
+  .rail { gap: 10px; font-size: 9.5px; letter-spacing: 0.08em; overflow: hidden; }
+  .rail li + li::before { width: 8px; margin-right: 0; }
+  .row { grid-template-columns: minmax(0, 1fr) 24px 78px 88px; gap: 8px; padding: 0 14px 0 16px; font-size: 12px; }
+  .row--label .desc { font-size: 10px; }
+  .eq { font-size: 12.5px; }
+  .stamp { font-size: 10px; height: 30px; padding: 0 10px; }
+  .verdict { top: -15px; right: 12px; height: 30px; }
+  .stamp--released, .stamp--refused { height: 30px; }
+  .ctas { gap: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+  .tilt { transform: none !important; }
+}
