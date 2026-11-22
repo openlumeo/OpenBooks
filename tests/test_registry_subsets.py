@@ -15,12 +15,12 @@ from openbooks.core.process import dumps, process  # noqa: E402
 from run import _params  # noqa: E402
 
 DISTRIBUTIONS = ("openbooks.statements", "openbooks.gateways", "openbooks.tax")
-SUBSETS = [c for n in range(len(DISTRIBUTIONS)) for c in itertools.combinations(DISTRIBUTIONS, n)]  # every proper subset
+SUBSETS = [c for n in range(len(DISTRIBUTIONS)) for c in itertools.combinations(DISTRIBUTIONS, n)]
 
 
 @pytest.fixture(scope="module")
 def cases():
-    return [c for c in build_corpus("main") if "mutate/" not in c.id]  # mutations all share one layout; covered by the baseline
+    return [c for c in build_corpus("main") if "mutate/" not in c.id]
 
 
 @pytest.fixture(scope="module")

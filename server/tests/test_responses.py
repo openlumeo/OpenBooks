@@ -59,7 +59,7 @@ def test_unauthorised_response_is_401_without_retry_after():
 
 
 def test_excess_work_gets_429_with_retry_after(gate):
-    held = gate.admit(10, 0)  # engine is full
+    held = gate.admit(10, 0)
     client = TestClient(app)
     try:
         r = client.post("/v1/runs", files=[("files", CSV)])
@@ -74,7 +74,7 @@ def test_excess_work_gets_429_with_retry_after(gate):
 def test_queue_timeout_over_http_is_429_queue_timeout(monkeypatch):
     gate = Admission(max_inflight=1, max_queue=2, queue_timeout=0.05, retry_after=3)
     monkeypatch.setattr(adm, "current", gate)
-    gate.try_start(gate.admit(0, 0))  # a job holds the only slot
+    gate.try_start(gate.admit(0, 0))
     client = TestClient(app)
 
     r = client.post("/v1/runs", files=[("files", CSV)])
@@ -82,4 +82,4 @@ def test_queue_timeout_over_http_is_429_queue_timeout(monkeypatch):
     assert r.status_code == 429
     assert r.headers["retry-after"] == "3"
     assert r.json()["reason"] == "queue_timeout"
-    assert gate.queued == 0  # the timed-out ticket gave back its place
+    assert gate.queued == 0

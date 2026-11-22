@@ -1,4 +1,3 @@
-// Sober landing footer. Claims are limited to the processing statement and the model link.
 import Link from "next/link";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import styles from "./site-footer.module.css";

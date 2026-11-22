@@ -11,7 +11,6 @@ import { runDoctor } from "@lumeo_hq/openbooks-doctor";
 import { installEngine } from "./install-engine.js";
 import { formatDoctorText, formatRunJson, formatRunText } from "./output.js";
 
-/** Exit codes match the Python CLI: 0 all released, 1 something was refused, 2 usage, 3 the engine could not run. */
 export const EXIT = { ok: 0, refused: 1, usage: 2, engine: 3 } as const;
 
 export interface IO {
@@ -73,7 +72,6 @@ function usageError(message: string): CommanderError {
   return new CommanderError(EXIT.usage, "openbooks.badOption", message);
 }
 
-/** Milliseconds from 1 to MAX_TIMEOUT_MS, as a whole number. Anything else is a usage error. */
 export function parseTimeout(raw: string): number {
   const n = Number(raw);
   if (!Number.isInteger(n) || n < 1 || n > MAX_TIMEOUT_MS) {
@@ -82,7 +80,6 @@ export function parseTimeout(raw: string): number {
   return n;
 }
 
-/** Digits only, so "1e6", "-1" and "0x10" are refused rather than silently converted. */
 export function parseMaxDocumentBytes(raw: string): number {
   const bytes = Number(raw);
   if (!/^[0-9]+$/.test(raw) || !Number.isSafeInteger(bytes) || bytes < 1) {

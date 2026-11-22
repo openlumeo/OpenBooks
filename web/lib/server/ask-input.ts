@@ -91,7 +91,6 @@ const Refused = z.object({
   }),
 });
 
-// Browser-supplied documents need the shape consumed by the digest and tools. Source verification belongs to the engine.
 const Document: z.ZodType<EngineDoc> = z.discriminatedUnion("status", [Released, Refused]);
 export const AskBody = z.object({
   question: Text.trim().min(1).max(4000),

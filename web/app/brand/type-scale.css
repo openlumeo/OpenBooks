@@ -1,16 +1,4 @@
-/* VERBATIM COPY of Lumeo frontend/web/app/type-scale.css (Lumeo DESIGN.md is binding for Open Books).
-   Do not edit here. To update: re-copy from Lumeo, keeping this header.
-   Drift check: tail -n +4 this-file | diff - <lumeo>/frontend/web/app/type-scale.css */
-/* Lumeo type roles (DESIGN.md section 3), in one file so the marketing
-   site and the app group encode the scale once. Moved verbatim from
-   (marketing)/globals.css; imported by (marketing) and (site). Tokens come
-   from theme-tokens.css. */
-
 @layer components {
-  /* =========================================================
-     Typography roles (brand §3)
-     Geist Regular for H1/H2 — never above 500.
-     ========================================================= */
   .t-display {
     font-family: var(--font-geist-sans), var(--font-sans);
     font-weight: 400;
@@ -39,7 +27,6 @@
     color: var(--text);
   }
 
-  /* Card/step title scale. One value, encoded once — do not override inline. */
   .t-card-title {
     font-family: var(--font-body);
     font-weight: 500;
@@ -76,7 +63,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Eyebrow: mono caps, letterspaced (brand §3) */
   .eyebrow {
     display: inline-flex;
     align-items: center;
@@ -98,7 +84,6 @@
     flex-shrink: 0;
   }
 
-  /* Eyebrow chip — mono caps pill on a hairline border */
   .eyebrow-chip {
     display: inline-flex;
     align-items: center;

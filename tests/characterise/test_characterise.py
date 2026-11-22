@@ -30,7 +30,7 @@ def test_baseline_is_not_trivially_small():
 def test_harness_detects_a_behaviour_change(monkeypatch):
     from openbooks import pipeline
 
-    monkeypatch.setitem(pipeline.EXPONENT, "INR", 0)  # INR amounts with paise now refuse
+    monkeypatch.setitem(pipeline.EXPONENT, "INR", 0)
     assert char.diff(_baseline("main"), char.collect("main"))
 
 

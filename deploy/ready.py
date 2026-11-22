@@ -4,7 +4,7 @@ import os
 from urllib.request import Request, urlopen
 
 BASE = "http://127.0.0.1:8765"
-with urlopen(f"{BASE}/readyz", timeout=8):  # raises (non-zero exit) on 503
+with urlopen(f"{BASE}/readyz", timeout=8):
     pass
 KEY = os.environ.get("OPENBOOKS_ENGINE_KEY", "")
 with urlopen(Request(f"{BASE}/v1/health", headers={"x-openbooks-key": KEY} if KEY else {}), timeout=8) as response:

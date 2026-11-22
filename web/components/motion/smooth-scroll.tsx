@@ -1,13 +1,3 @@
-/* docs: Marketing-only smooth scroll and motion bootstrap. Mount once around marketing children:
- *   <SmoothScroll>{children}</SmoothScroll>
- * - Lenis drives smoothing from gsap.ticker; ScrollTrigger.update runs on every Lenis scroll.
- * - Not created under prefers-reduced-motion or on coarse pointers: native scroll is used.
- * - Same-page anchor clicks scroll through Lenis. Nav clearance comes from CSS scroll-margin-top
- *   (motion.css), which Lenis reads, so the offset is never counted twice.
- * - Adds html.lp-js (also inline in the layout, before paint). After 4s with no GSAP effect
- *   mounted, adds html.lp-motion-failsafe so hidden reveals show.
- * - useLenis() returns the instance, or null before mount and when Lenis is not active.
- * Do not set CSS scroll-behavior: smooth on the page. It fights Lenis. */
 'use client';
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
@@ -72,11 +62,9 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       };
     }
 
-    // Fonts change layout height; recompute trigger positions once they settle.
     void document.fonts?.ready.then(() => {
       if (alive) ScrollTrigger.refresh();
     });
-    // Images change layout height too; refresh once the page has fully loaded.
     const onLoad = () => {
       if (alive) ScrollTrigger.refresh();
     };

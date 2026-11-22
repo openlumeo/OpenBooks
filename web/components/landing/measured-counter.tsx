@@ -1,5 +1,3 @@
-// Animated figure: counts from 0 to `to` once it scrolls into view (ease-out cubic, ~900ms).
-// SSR and no-JS render the final value. Reduced motion keeps the final value and never animates.
 'use client';
 
 import { useEffect, useRef } from "react";

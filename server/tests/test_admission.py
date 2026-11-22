@@ -234,7 +234,7 @@ def test_font_less_pdf_is_counted_by_its_page_objects(tmp_path):
     pdf = tmp_path / "scan.pdf"
     pdf.write_bytes(b"/Type /Page\n/Type/Page\n/Type /Pages\n")
 
-    assert estimate_ocr_pages(pdf) == 2  # /Pages is the tree root, not a page
+    assert estimate_ocr_pages(pdf) == 2
 
 
 def test_font_less_pdf_without_page_objects_still_counts_one_page(tmp_path):

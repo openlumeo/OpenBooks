@@ -9,7 +9,6 @@ export function GET(req: Request) {
   return proxyJobStatus(req, "/v1/runs");
 }
 
-/** Streams the multipart upload straight to the engine and the engine's SSE straight back. */
 export async function POST(req: Request) {
   const limited = await limitOr429(req, "runs");
   if (limited) return limited;

@@ -1,7 +1,6 @@
 import type { RunResult } from "@lumeo_hq/openbooks-core";
 import type { DoctorReport } from "@lumeo_hq/openbooks-doctor";
 
-/** One line per file: "<file>: released <layout>" or "<file>: refused <CODE>: <message>". */
 export function formatRunText(results: readonly RunResult[]): string {
   return results
     .map((r) => (r.kind === "released"
@@ -10,7 +9,6 @@ export function formatRunText(results: readonly RunResult[]): string {
     .join("");
 }
 
-/** The JSON array printed by --json. Refusals carry their code and message next to the document. */
 export function formatRunJson(results: readonly RunResult[]): string {
   const items = results.map((r) => ({
     file: r.file,
@@ -23,7 +21,6 @@ export function formatRunJson(results: readonly RunResult[]): string {
 
 const FIX_STATUSES = new Set(["fail", "warn"]);
 
-/** The human-readable doctor report: one line per check, a fix line under failures and warnings, then a summary. */
 export function formatDoctorText(report: DoctorReport): string {
   const checks = report.checks.map((c) => {
     const fix = c.fix && FIX_STATUSES.has(c.status) ? `       fix: ${c.fix}\n` : "";

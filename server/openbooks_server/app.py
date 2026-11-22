@@ -46,7 +46,7 @@ async def lifespan(_app: FastAPI):
     prev = signal.getsignal(signal.SIGTERM)
     try:
         signal.signal(signal.SIGTERM, lambda n, _f: begin_drain(loop, prev, n))
-    except ValueError:  # not the main thread (tests)
+    except ValueError:
         pass
     yield
 

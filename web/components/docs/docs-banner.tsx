@@ -1,6 +1,5 @@
 import { Sketch } from "@/components/motion/sketch";
 
-/* Decorative sketched ledger for the docs index. No text: meaning stays in the page copy. */
 export function DocsBanner() {
   return (
     <div className="ob-banner" aria-hidden="true">

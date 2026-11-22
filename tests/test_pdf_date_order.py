@@ -22,7 +22,6 @@ def _dates(doc) -> list[str]:
 
 
 def test_forced_month_first_is_honoured(tmp_path):
-    # 10 rows span 1-5 January: written month-first, every date is also a valid (wrong) day-first date.
     path, _ = _pdf(tmp_path, 10, "%m/%d/%Y")
     doc = process(path, Params(currency="INR", date_order="mdy"))
     assert doc["status"] == "ok", doc.get("error")
@@ -30,7 +29,7 @@ def test_forced_month_first_is_honoured(tmp_path):
 
 
 def test_month_first_is_proven_from_a_day_above_12(tmp_path):
-    path, _ = _pdf(tmp_path, 30, "%m/%d/%Y")  # reaches 01/15/2026, which only month-first can read
+    path, _ = _pdf(tmp_path, 30, "%m/%d/%Y")
     doc = process(path, Params(currency="INR"))
     assert doc["status"] == "ok", doc.get("error")
     assert _dates(doc)[-1] == "2026-01-15"
@@ -43,6 +42,6 @@ def test_unproven_pdf_defaults_to_day_first(tmp_path):
 
 
 def test_forced_order_that_cannot_read_the_file_refuses(tmp_path):
-    path, _ = _pdf(tmp_path, 30, "%d/%m/%Y")  # 15/01/2026 is not a month-first date
+    path, _ = _pdf(tmp_path, 30, "%d/%m/%Y")
     doc = process(path, Params(currency="INR", date_order="mdy"))
     assert doc["status"] == "refused" and doc["error"]["code"] == "PARSE_ERROR"

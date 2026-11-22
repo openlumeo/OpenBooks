@@ -1,5 +1,3 @@
-/* Checks ledger that sits under the ScrollStory. Radius 0, tokens only. */
-
 .checks {
   display: grid;
   gap: 14px;

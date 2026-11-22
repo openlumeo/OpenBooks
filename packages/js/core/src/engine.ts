@@ -11,26 +11,19 @@ import { validateDocument, validateRefusal } from "./validate.js";
 
 export interface DocumentOptions {
   currency?: string;
-  /** Opening balance as a plain decimal string, e.g. "1000.00". Never a number: money is not floating point. */
   opening?: string;
   account?: string;
   allowDerivedOpening?: boolean;
   dateOrder?: "dmy" | "mdy";
-  /** Read scans with OCR (default true). */
   ocr?: boolean;
-  /** Cross-check PDFs and scans with the typed model heads (default true). */
   model?: boolean;
 }
 
 export interface RunOptions extends DiscoverOptions, DocumentOptions {
-  /** Stop the engine after this long (default 120 000 ms). */
   runTimeoutMs?: number;
   signal?: AbortSignal;
-  /** Kill the engine if it prints more than this many bytes on stdout or stderr (default 16 MiB). */
   maxOutputBytes?: number;
-  /** Maximum serialized bytes for one proof document (default 64 MiB). */
   maxDocumentBytes?: number;
-  /** Only these layout ids may be released; a file that proves out under another layout comes back refused (UNKNOWN_LAYOUT). */
   accept?: readonly string[];
 }
 
@@ -48,13 +41,10 @@ export interface Released {
 export interface Refused {
   kind: "refused";
   file: string;
-  /** REFUSAL code: UNKNOWN_LAYOUT, UNSUPPORTED_INPUT, PARSE_ERROR, BALANCE_MISMATCH, LOW_CONFIDENCE, OUTPUT_INVALID. */
   code: string;
   message: string;
   document: OpenBooksRefusal;
-  /** True when the engine refused because of an unexpected internal exception rather than something in the document. */
   internal: boolean;
-  /** True when this package withheld a document that proved out, because it is not one of the layouts `accept` allows. */
   restricted: boolean;
 }
 
@@ -124,10 +114,6 @@ async function readInputs(files: readonly string[], signal?: AbortSignal): Promi
   return inputs;
 }
 
-/**
- * Each engine invocation writes one file per content hash, so a repeated input starts a new batch. Results of a batch are
- * read before a later input can overwrite them.
- */
 export function splitBatches(inputs: readonly Input[]): Input[][] {
   const batches: Input[][] = [[]];
   let hashes = new Set<string>();
@@ -142,7 +128,6 @@ export function splitBatches(inputs: readonly Input[]): Input[][] {
   return batches;
 }
 
-/** Parse the engine's JSON lines. The engine may end with a non-result trailer that carries its version, which is skipped. */
 export function parseMachineLines(stdout: string): MachineLine[] {
   const records = stdout.trim().split(/\r?\n/).filter(Boolean);
   const lines: MachineLine[] = [];
@@ -156,11 +141,6 @@ export function parseMachineLines(stdout: string): MachineLine[] {
   return lines;
 }
 
-/**
- * Run the engine on one or more files. Every file yields a value: Released, or Refused with its typed code. The promise
- * rejects with EngineError only when the engine itself could not do its job (no Python, no engine, crash, timeout, output
- * that does not match the contract). A refusal is never thrown.
- */
 export async function runFiles(files: readonly string[], opts: RunOptions = {}): Promise<RunResult[]> {
   if (files.length === 0) return [];
   checkAborted(opts.signal);
@@ -191,7 +171,6 @@ export async function runFiles(files: readonly string[], opts: RunOptions = {}):
   return results;
 }
 
-/** Process a mixed batch in order, yielding each decision as it finishes. Job overrides are document options only. */
 export async function* runJobs(jobs: Iterable<RunJob> | AsyncIterable<RunJob>, opts: RunOptions = {}): AsyncGenerator<RunResult> {
   for await (const job of jobs) {
     checkAborted(opts.signal);
@@ -212,7 +191,6 @@ async function discoverForRun(opts: RunOptions): Promise<Engine> {
     signal.addEventListener("abort", onAbort, { once: true });
   });
   try {
-    // The discovery probe can be shared with other callers, so cancel this wait without stopping the probe.
     return await Promise.race([findEngine(opts), aborted]);
   } finally {
     signal.removeEventListener("abort", onAbort);

@@ -13,7 +13,7 @@ KEY = "s3cret"
 @pytest.fixture(autouse=True)
 def forget_middleware_stack_after_each_test():
     yield
-    app.middleware_stack = None  # the engine key is read when the stack is built; never leak one test's key
+    app.middleware_stack = None
 
 
 def guarded_client(monkeypatch, key: str | None) -> TestClient:
@@ -21,7 +21,7 @@ def guarded_client(monkeypatch, key: str | None) -> TestClient:
         monkeypatch.delenv("OPENBOOKS_ENGINE_KEY", raising=False)
     else:
         monkeypatch.setenv("OPENBOOKS_ENGINE_KEY", key)
-    app.middleware_stack = None  # rebuild OpsMiddleware so it reads the key set above
+    app.middleware_stack = None
     return TestClient(app)
 
 
@@ -56,7 +56,7 @@ def test_probes_are_exempt_and_need_no_key(monkeypatch):
     client = guarded_client(monkeypatch, KEY)
 
     assert client.get("/healthz").status_code == 200
-    assert client.get("/readyz").status_code in (200, 503)  # 503 only if model weights are absent
+    assert client.get("/readyz").status_code in (200, 503)
 
 
 def test_probe_exemption_is_exact_and_does_not_cover_lookalike_paths(monkeypatch):

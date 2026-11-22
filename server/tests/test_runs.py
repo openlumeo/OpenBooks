@@ -22,7 +22,7 @@ class BrokenStream:
     ("nul", "_nul"),
     ("com1.txt", "_com1.txt"),
     ("LPT9", "_LPT9"),
-    ("CONSOLE.csv", "CONSOLE.csv"),  # only the exact device stem is reserved
+    ("CONSOLE.csv", "CONSOLE.csv"),
     ("lpt0.csv", "lpt0.csv"),
 ])
 def test_safe_name_prefixes_windows_device_names(name, expected):

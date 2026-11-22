@@ -1,5 +1,3 @@
-// Deterministic answers for the Q&A model. The model never adds money; these functions do,
-// over the engine's decimal strings, and return exact strings.
 import Decimal from "decimal.js";
 import type { EngineDoc, Evidence, Money, ReleasedDoc, Transaction } from "./types";
 
@@ -14,7 +12,6 @@ type TxnFilter = {
   date_to?: string;
   min_amount?: string;
   max_amount?: string;
-  /** sum this money field instead of the row's default amount, e.g. proceeds, cost_basis, fee, tax_deducted */
   field?: string;
   limit?: number;
 };
@@ -29,9 +26,6 @@ function moneyAt(t: Transaction, k: string): Money | undefined {
   return undefined;
 }
 
-/** The single money value that represents a row's size, per batch kind:
- *  amount (statements), net (settlements), inr_amount (FIRA), reported_value (AIS), gain_loss (1099-B),
- *  or debit/credit (trial balance, debits negative). */
 export function rowAmount(t: Transaction): Money | undefined {
   for (const k of ["amount", "net", "inr_amount", "reported_value", "gain_loss"] as const) {
     const m = moneyAt(t, k);
@@ -87,7 +81,6 @@ type QueryRow = {
 
 type QueryResult = {
   count: number;
-  /** exact decimal strings, one per currency */
   sums: Record<string, string>;
   by_direction: Record<string, { count: number; sums: Record<string, string> }>;
   rows: QueryRow[];
@@ -163,7 +156,6 @@ export function getEvidence(docs: DocRef[], file: string, recordId: string, fiel
   return Object.keys(out).length ? out : { error: `no evidence for ${prefix}${field ? "" : "*"} in ${file}` };
 }
 
-/** Keep original names and give repeated names an unused numeric suffix. */
 export function fileKeys(names: string[]): string[] {
   const used = new Set(names);
   const nextSuffix = new Map<string, number>();

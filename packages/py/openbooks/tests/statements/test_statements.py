@@ -70,7 +70,7 @@ def test_bank_csv_tampering_is_refused(run, old, new):
 
 def test_a_statement_without_an_opening_balance_is_not_guessed(run):
     assert run(BANK, currency="INR")["error"]["code"] == "PARSE_ERROR"
-    derived = run(BANK, currency="INR", allow_derived_opening=True)  # allowed only when the caller says so, and then not independent
+    derived = run(BANK, currency="INR", allow_derived_opening=True)
     assert derived["status"] == "ok" and derived["data"]["batches"][0]["opening_derived"] is True
 
 
@@ -97,7 +97,7 @@ def test_ocr_dates_gate_only_applies_to_ocr_statements():
     tx = [{"date": "2026-01-02"}, {"date": "2026-01-01"}]
     assert list(ocr_dates({"id": "b", "source_method": "parser"}, tx)) == []
     rule = list(ocr_dates({"id": "b", "source_method": "ocr"}, tx))[0]
-    assert rule[1] != rule[2] and rule[3] is False  # out-of-order dates fail, and the check is not independent evidence
+    assert rule[1] != rule[2] and rule[3] is False
 
 
 def test_statements_alone_refuse_a_stripe_file_and_name_the_package(tmp_path):
@@ -110,7 +110,7 @@ def test_statements_alone_refuse_a_stripe_file_and_name_the_package(tmp_path):
 def test_a_pdf_without_pypdfium2_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch):
     from openbooks.statements.frontend import FRONTEND
 
-    monkeypatch.setitem(sys.modules, "pypdfium2", None)  # makes `import pypdfium2` raise ImportError
+    monkeypatch.setitem(sys.modules, "pypdfium2", None)
     pdf = tmp_path / "in.pdf"
     pdf.write_bytes(b"%PDF-1.4")
     with pytest.raises(EngineFault, match=r"pypdfium2: pip install openbooks"):

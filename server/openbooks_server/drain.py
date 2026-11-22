@@ -11,8 +11,8 @@ from . import admission as adm
 from .settings import env_number
 
 log = logging.getLogger("openbooks_server")
-DEFAULT_GRACE_S = 5.0  # keep answering /readyz=503 this long even when idle, so load balancers notice
-DEFAULT_TIMEOUT_S = 120.0  # hard cap on waiting for in-flight jobs
+DEFAULT_GRACE_S = 5.0
+DEFAULT_TIMEOUT_S = 120.0
 POLL_INTERVAL_S = 0.25
 SignalHandler = Callable[[int, object], object] | int | None
 

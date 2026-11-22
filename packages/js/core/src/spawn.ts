@@ -11,7 +11,6 @@ export interface SpawnResult {
 export interface SpawnOptions {
   timeoutMs: number;
   signal?: AbortSignal;
-  /** Output beyond this many bytes (per stream) kills the process: a runaway engine must not exhaust memory. */
   maxBytes?: number;
   cwd?: string;
 }
@@ -28,7 +27,6 @@ export function checkAborted(signal?: AbortSignal): void {
   if (signal?.aborted) throw new EngineError("aborted", "the run was aborted");
 }
 
-/** Kill a process and its children. Node's own kill() only ends the direct child, which on Windows leaves grandchildren running. */
 export function killTree(pid: number | undefined): void {
   if (pid === undefined) return;
   try {
@@ -37,11 +35,10 @@ export function killTree(pid: number | undefined): void {
       if (result.status !== 0) process.kill(pid, "SIGKILL");
     } else process.kill(-pid, "SIGKILL");
   } catch {
-    try { process.kill(pid, "SIGKILL"); } catch { /* already gone */ }
+    try { process.kill(pid, "SIGKILL"); } catch { }
   }
 }
 
-/** Run argv (no shell) and collect its output. Rejects with ENOENT-style errors untouched so callers can try the next interpreter. */
 export async function run(argv: readonly string[], opts: SpawnOptions): Promise<SpawnResult> {
   checkAborted(opts.signal);
   validateTimeout(opts.timeoutMs, "timeoutMs");
@@ -56,7 +53,7 @@ export async function run(argv: readonly string[], opts: SpawnOptions): Promise<
       shell: false,
       windowsHide: true,
       cwd: opts.cwd,
-      detached: process.platform !== "win32", // own process group on POSIX so the whole tree can be killed
+      detached: process.platform !== "win32",
       stdio: ["ignore", "pipe", "pipe"],
       env: { ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1" },
     });

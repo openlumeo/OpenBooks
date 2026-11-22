@@ -1,12 +1,9 @@
-/* Section 5 (Inputs). One ledger-sheet card per input group in a horizontal strip; tokens only. */
-
 .viewport {
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   scrollbar-width: thin;
   padding-bottom: 14px;
-  /* Hint that the strip continues; removed while the section is pinned. */
   mask-image: linear-gradient(to right, #000 92%, transparent);
 }
 .viewport:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
@@ -67,7 +64,6 @@
   color: var(--text-faint);
 }
 
-/* Section label followed by a ledger rule. */
 .label {
   display: flex;
   align-items: center;

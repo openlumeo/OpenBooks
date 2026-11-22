@@ -1,12 +1,3 @@
-/* docs: Scroll-in reveal. Final state is the default; JS adds motion.
- *   <Reveal as="div" delay={0} stagger={0.1} y={16} once>...</Reveal>
- *     Sets data-reveal on the wrapper. It animates opacity 0 -> 1 and y -> 0 when its top
- *     reaches 85% of the viewport (expo.out, 0.9s). Children marked data-reveal-child
- *     animate in sequence (stagger) instead of the wrapper.
- *   useReveal(scopeRef, opts)
- *     Animates every [data-reveal] inside scopeRef, for markup you do not wrap.
- * Times (delay, stagger) are seconds. y is px. The hidden state is CSS only
- * (motion.css, under html.lp-js and no-preference), so no JS means no hidden content. */
 'use client';
 
 import { useRef, type ElementType, type HTMLAttributes, type ReactNode, type RefObject } from 'react';
@@ -24,7 +15,6 @@ type ResolvedRevealOptions = Required<RevealOptions>;
 function playReveal(el: HTMLElement, o: ResolvedRevealOptions): void {
   const kids = gsap.utils.toArray<HTMLElement>(el.querySelectorAll('[data-reveal-child]'));
   const staggered = kids.length > 0;
-  // The wrapper stays visible when children carry the hidden state.
   if (staggered) gsap.set(el, { opacity: 1, y: 0 });
   gsap.fromTo(
     staggered ? kids : [el],

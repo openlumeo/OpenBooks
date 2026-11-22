@@ -26,7 +26,6 @@ function errorMessage(err: unknown): string {
   return "Something went wrong while answering.";
 }
 
-/** Reads one streamed completion, forwarding text as it arrives and collecting any tool calls. */
 async function readTurn(stream: AsyncIterable<OpenAI.Chat.ChatCompletionChunk>, send: Send): Promise<Turn> {
   let text = "";
   let finish: string | null = null;
@@ -64,7 +63,6 @@ function runCall(docs: DocRef[], call: ToolCall, messages: Messages, send: Send)
   messages.push({ role: "tool", tool_call_id: call.id, content: outcome.content });
 }
 
-/** Runs the model turn by turn, answering tool calls from the released documents, until it stops or hits a limit. */
 async function runTurns(
   client: OpenAI,
   model: string,
@@ -103,7 +101,6 @@ async function runTurns(
   }
 }
 
-/** NDJSON stream of the answer: text, tool lookups, errors, then a single done. Aborted requests end silently. */
 export function answerStream(
   client: OpenAI,
   model: string,

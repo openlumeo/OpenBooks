@@ -1,6 +1,5 @@
 export const NO_STORE_HEADERS = { "cache-control": "no-store" } as const;
 
-/** The shared error envelope: { error, message }. */
 export function jsonError(
   status: number,
   error: string,

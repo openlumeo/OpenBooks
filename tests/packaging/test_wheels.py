@@ -144,7 +144,7 @@ def run_machine(py: str, tmp: Path, *files_and_text: str):
 
 def test_every_public_wheel_ships_the_apache_licence_and_declares_it(wheels):
     here = ROOT / "tools" / "public" / "LICENSE"
-    master = (here if here.exists() else ROOT / "LICENSE").read_text(encoding="utf-8").splitlines()  # the private repo, or the export
+    master = (here if here.exists() else ROOT / "LICENSE").read_text(encoding="utf-8").splitlines()
     for dist in PUBLIC:
         z = zipfile.ZipFile(wheels[dist])
         lic = [n for n in z.namelist() if n.endswith("LICENSE") and ".dist-info/" in n]

@@ -1,11 +1,3 @@
-/* =========================================================
-   OPEN BOOKS LANDING — shared primitives, built only from the
-   Lumeo tokens in app/brand/theme-tokens.css. Class prefix lp-.
-   Component-scoped styles live in components/landing/*.module.css.
-   Radius stays 0 everywhere except the glass surface.
-   ========================================================= */
-
-/* ---------- Selection, caret, links ---------- */
 ::selection {
   background: color-mix(in srgb, var(--accent) 30%, transparent);
   color: var(--text);
@@ -28,20 +20,12 @@ input, textarea, [contenteditable="true"] {
   text-decoration-color: currentColor;
 }
 
-/* ---------- Hairlines ---------- */
 .lp-hairline { border: 1px solid var(--hairline); }
 .lp-hairline-t { border-top: 1px solid var(--hairline); }
 .lp-hairline-b { border-bottom: 1px solid var(--hairline); }
 .lp-hairline-x { border-inline: 1px solid var(--hairline); }
 .lp-hairline-soft-b { border-bottom: 1px solid var(--hairline-soft); }
 
-/* ---------- Glass ----------
-   .lp-glass: translucent fill and brighter top edge, no blur (safe to repeat).
-   .lp-glass--blur: adds the one backdrop blur (budget: 2 per viewport, nav spends 1).
-   .lp-glass--dense: stronger fill for panels with running text.
-   Without backdrop-filter support the fill becomes solid. Radius is 0 on the
-   landing page, the nav included (owner decision: square edges; this overrides
-   the DESIGN.md glass exception). */
 .lp-glass {
   border-radius: 0;
   border: 1px solid var(--glass-border);
@@ -74,11 +58,6 @@ input, textarea, [contenteditable="true"] {
   }
 }
 
-/* ---------- Atmosphere ----------
-   One fixed element, rendered first in the landing page. Sits at z-index -1
-   so content paints above it (no ancestor may create a stacking context).
-   Dark: one plum bloom bottom-right at low opacity. Light: a mint-soft wash
-   at the top, no purple. Grain is static. */
 .lp-atmosphere {
   position: fixed;
   inset: 0;
@@ -104,7 +83,6 @@ input, textarea, [contenteditable="true"] {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
-/* ---------- Scrollable panels ---------- */
 .lp-scroll {
   overflow: auto;
   overscroll-behavior: contain;
@@ -121,15 +99,11 @@ input, textarea, [contenteditable="true"] {
   background-clip: padding-box;
 }
 
-/* ---------- Figures ---------- */
 .lp-figure,
 .lp-figure * {
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Scroll reveal ----------
-   Visible by default. Motion only where view() timelines exist and the
-   visitor has not asked for reduced motion. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .lp-reveal {
@@ -151,8 +125,6 @@ input, textarea, [contenteditable="true"] {
   }
 }
 
-/* ---------- Floating nav sentinel ----------
-   1px element at the very top of the page. LandingNav watches it. */
 .lp-nav-sentinel {
   position: absolute;
   top: 0;
@@ -162,15 +134,12 @@ input, textarea, [contenteditable="true"] {
   pointer-events: none;
 }
 
-/* ---------- Page reset for landing ---------- */
 .lp-page {
   position: relative;
   min-height: 100dvh;
   overflow-x: clip;
 }
 
-/* ---------- Depth and focus utilities ---------- */
-/* Ledger rule: a hairline with small tick marks along its top edge. */
 .lp-ledger-rule {
   border-top: 1px solid var(--hairline);
   background-image: linear-gradient(to right, var(--hairline-soft) 1px, transparent 1px);
@@ -179,7 +148,6 @@ input, textarea, [contenteditable="true"] {
   background-position: left top;
 }
 
-/* Sheet: a raised paper panel with a fine edge and a soft layered shadow. */
 .lp-sheet {
   background: var(--surface-2);
   border: 1px solid var(--hairline-soft);
@@ -188,7 +156,6 @@ input, textarea, [contenteditable="true"] {
     0 18px 40px -28px color-mix(in srgb, var(--text) 40%, transparent);
 }
 
-/* Focus ring for custom focusable regions. */
 .lp-focusable:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;

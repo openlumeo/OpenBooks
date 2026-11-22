@@ -1,7 +1,3 @@
-/* HeroStage layers. Desktop (>= 900px): the stage fills the hero section behind the copy
-   (z-index 1, under the lead at z-index 2), and the instrument sits at --rest-top so its
-   lower part bleeds past the fold. Below 900px the stage is in flow under the copy. */
-
 .stage {
   --rest-top: clamp(520px, 66svh, 720px);
   position: relative;
@@ -18,7 +14,6 @@
   }
 }
 
-/* Plum atmosphere: bottom of the stage, dark theme only. */
 .atmos {
   position: absolute;
   inset: 0;
@@ -30,7 +25,6 @@
   display: none;
 }
 
-/* Restrained mint bloom behind the instrument. Opacity and colour only, no blur, no backdrop-filter. */
 .bloom {
   position: absolute;
   left: 0;
@@ -71,7 +65,6 @@
   }
 }
 
-/* The instrument. Desktop: absolutely placed at the rest line. Mobile: in flow. */
 .rise {
   position: relative;
   z-index: 1;
@@ -94,8 +87,6 @@
   }
 }
 
-/* Wrapper around HeroMonolith. Its perspective matches the monolith's own (1400px, centred),
-   so the dock layer projects exactly like the instrument's top edge. */
 .perspective {
   position: relative;
   perspective: 1400px;
@@ -103,13 +94,10 @@
 
 .tilt {
   position: relative;
-  /* .stage is pointer-events: none; the tilt needs to hear the pointer over the instrument. */
   pointer-events: auto;
   transform-style: preserve-3d;
 }
 
-/* Full-height layer carrying the same 18deg tilt as the instrument's plane (GSAP mirrors the
-   scrub onto it). The switch sits at the layer's top, which is the instrument's top edge. */
 .dockLayer {
   position: absolute;
   inset: 0;
@@ -118,9 +106,6 @@
   transform-origin: 50% 100%;
 }
 
-/* AlterSwitch docked on the instrument's top edge, left, opposite the stamp slot.
-   It sits just above the edge (a tab on the same tilted plane), so the edge line never
-   runs through the switch track or its label. Hidden without JS (the page stays on the released still). */
 .dockLayer .dock {
   position: absolute;
   top: 0;
@@ -145,7 +130,6 @@
   border: 0;
 }
 
-/* Hand-sketched ledger page, left of the instrument. Desktop only; hidden below 900px. */
 .ledgerSketch {
   display: none;
 }
@@ -195,7 +179,6 @@
 }
 
 @keyframes ledgerIn {
-  /* Opacity only: a fill-both transform would override the GSAP parallax and scroll depth. */
   from {
     opacity: 0;
   }

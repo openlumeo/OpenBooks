@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "docs" / "evidence" / "roles_metrics_calibrated.json"
 MIN_SHIFTED_COVERAGE = 0.98
 MAX_TEST_ACCURACY_DROP = 0.005
-MAX_TEST_ABSTAIN_RISE = 0.40  # abstain only routes to refusal, never a release; >=98% coverage via calibration costs ~+0.38 (26% -> 64%)
+MAX_TEST_ABSTAIN_RISE = 0.40
 
 
 def load(path: Path) -> dict:

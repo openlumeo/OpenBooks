@@ -75,7 +75,6 @@
   outline-offset: 2px;
 }
 
-/* ---------- Refined states ---------- */
 .link {
   position: relative;
   transition: color var(--dur) var(--ease);

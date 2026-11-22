@@ -3,11 +3,8 @@ import { join } from "node:path";
 import { clearEngineCache, EngineError, findEngine, runProcess } from "@lumeo_hq/openbooks-core";
 
 export interface InstallOptions {
-  /** Also install OCR and the typed heads (EasyOCR, PyTorch, Pillow). Large. */
   scan?: boolean;
-  /** Install into this interpreter instead of searching for one. */
   python?: string;
-  /** Reinstall even when a working engine is already present. */
   force?: boolean;
   timeoutMs?: number;
   log?: (line: string) => void;
@@ -18,7 +15,6 @@ export type InstallResult =
   | { status: "installed"; detail: string }
   | { status: "failed"; detail: string; hint?: string };
 
-/** npm and PyPI share a major.minor line (the contract version); patch releases are independent. So 0.1.x of this CLI takes any openbooks 0.1.x. */
 export function engineRange(): string {
   const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
   const [major, minor] = pkg.version.split(".");
@@ -33,7 +29,6 @@ function pythonCandidates(explicit?: string): string[][] {
   return [...(existsSync(venv) ? [[venv]] : []), ...(win ? [["python"], ["py", "-3"]] : [["python3"], ["python"]])];
 }
 
-/** The first interpreter that is Python 3.11 or newer, or why none was. */
 async function pickPython(explicit?: string): Promise<{ python: string[] } | { problem: string }> {
   let sawOld = false;
   for (const python of pythonCandidates(explicit)) {
@@ -42,19 +37,18 @@ async function pickPython(explicit?: string): Promise<{ python: string[] } | { p
       if (r.code !== 0) continue;
       if (r.stdout.trim() === "1") return { python };
       sawOld = true;
-    } catch { /* not found or not runnable: try the next one */ }
+    } catch { }
   }
   return { problem: sawOld ? "Python was found but it is older than 3.11" : "no Python interpreter was found" };
 }
 
-/** Install the Python engine (the `openbooks` PyPI package: core, statements with PDF, gateways, tax, doctor) so the JS packages can run. Never throws. */
 export async function installEngine(opts: InstallOptions = {}): Promise<InstallResult> {
   const log = opts.log ?? (() => {});
   const range = engineRange();
   const versionPrefix = range.slice(2, -1);
   let existingPython: string[] | undefined;
 
-  if (!opts.force && !opts.scan) { // --scan adds an extra to an existing engine, so it always runs pip (which is a no-op when nothing is missing)
+  if (!opts.force && !opts.scan) {
     try {
       const e = await findEngine(opts.python ? { python: opts.python } : {});
       if (e.info.version.startsWith(versionPrefix)) {
@@ -62,7 +56,6 @@ export async function installEngine(opts: InstallOptions = {}): Promise<InstallR
       }
       existingPython = e.python;
     } catch (e) {
-      // A version mismatch is fixed by installing the matching release; anything else means "not there yet".
       if (!(e instanceof EngineError)) return { status: "failed", detail: (e as Error).message };
     }
   }

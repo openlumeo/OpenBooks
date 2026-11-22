@@ -1,7 +1,3 @@
-// Hero: one headline, one lede, two actions, then the ledger monolith (HeroStage).
-// Concept B "The Monolith" with the "Alter one balance" toggle from concept A.
-// The copy block is a server component. The instrument, bloom, toggle and scroll
-// scrub live in hero-stage.tsx (client). Section id "hero" is the pin trigger.
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SketchAnnotation } from "@/components/motion/sketch";

@@ -49,7 +49,7 @@ def test_each_layout_releases_with_evidence_and_an_independent_assertion(run, te
     doc = run(text, **params)
     assert doc["status"] == "ok" and doc["file"]["layout_version"] == layout, doc.get("error")
     assert any(a["independent"] for a in doc["assertions"]) and all(a["passed"] for a in doc["assertions"])
-    assert doc["evidence"]  # every amount and date has its raw text
+    assert doc["evidence"]
 
 
 @pytest.mark.parametrize("old,new", [("96.80", "96.81"), ("100.00", "100.01"), ("125.05", "125.06")])

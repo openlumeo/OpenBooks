@@ -1,6 +1,3 @@
-/* Sketch marks. Stroke colour comes from brand tokens; no lavender.
-   Overlay placements are used only by SketchAnnotation (absolute, no layout shift). */
-
 .sketch {
   display: block;
   width: 100%;
@@ -25,7 +22,6 @@
   stroke: var(--unmatched);
 }
 
-/* Overlay placements (positioned against a relative SketchAnnotation wrapper). */
 .at-underline {
   position: absolute;
   left: 0;
@@ -83,7 +79,6 @@
   height: calc(100% + 0.7em);
 }
 
-/* Standalone rule between ledger blocks. Full width, block level. */
 .ledger-rule {
   display: block;
   width: 100%;

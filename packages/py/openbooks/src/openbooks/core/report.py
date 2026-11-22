@@ -20,7 +20,7 @@ def run_report(folder: Path, out: Path, p: Params, registry: Registry | None = N
 
     linker = (registry or default_registry()).linker()
     files = sorted(f for f in folder.iterdir() if f.is_file() and f.suffix.lower() in ALLOWED_EXT)
-    if not files:  # nothing to process is not a clean "0 of 0 released"
+    if not files:
         sys.stderr.write(f"openbooks: no supported files in {folder} (looked for {', '.join(sorted(ALLOWED_EXT))})\n")
         return 2
     out.mkdir(parents=True, exist_ok=True)

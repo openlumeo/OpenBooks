@@ -19,7 +19,7 @@ INR = Params(currency="INR")
 
 @pytest.mark.parametrize(("last_balance", "expected"), [("84.75", "ok"), ("84.76", "refused")])
 def test_scanned_amount_decimal_comma_keeps_original_evidence_and_balance_checks(tmp_path, monkeypatch, last_balance, expected):
-    Image = pytest.importorskip("PIL.Image")  # Pillow ships with the [scan] extra; the base-only CI job lacks it
+    Image = pytest.importorskip("PIL.Image")
 
     rows = [
         ("Date", "Description", "Debit", "Credit", "Balance"),
@@ -47,7 +47,7 @@ def words_of(pdf: bytes, tmp_path, page=0):
     f.write_bytes(pdf)
     doc = open_document(f)
     try:
-        for i, pg in enumerate(doc.pages()):  # a page is only valid while the generator is on it
+        for i, pg in enumerate(doc.pages()):
             if i == page:
                 return pg.words()
     finally:
@@ -60,15 +60,13 @@ def run(pdf: bytes, tmp_path, params=INR):
     return process(f, params)
 
 
-# ---- words: what the engine is given ------------------------------------------------------------------------------------
-
 def test_words_come_back_with_top_left_coordinates_in_points(tmp_path):
     (hello, world) = words_of(pdf_bytes([text(72, 700, "Hello world", 12)]), tmp_path)
     assert (hello[0], world[0]) == ("Hello", "world")
     _, x0, y0, x1, y1 = hello
     assert 71 <= x0 <= 73 and x1 > x0
-    assert y0 < 792 - 700 < y1  # the baseline is 92pt from the top of a 792pt page, inside the word's box
-    assert world[1] > hello[3] - 1  # the second word starts to the right of the first
+    assert y0 < 792 - 700 < y1
+    assert world[1] > hello[3] - 1
 
 
 def test_page_size_follows_the_media_box(tmp_path):
@@ -84,7 +82,7 @@ def test_page_size_follows_the_media_box(tmp_path):
 
 def test_a_media_box_that_does_not_start_at_the_origin_is_measured_from_its_own_corner(tmp_path):
     (w,) = words_of(pdf_bytes([text(150, 250, "Hi")], media_box=b"[100 200 400 500]"), tmp_path)
-    assert 49 <= w[1] <= 51 and 0 <= w[2] <= 300 and w[3] < 300  # 150-100 from the left; inside the 300-wide page
+    assert 49 <= w[1] <= 51 and 0 <= w[2] <= 300 and w[3] < 300
 
 
 def test_words_break_at_whitespace_and_where_one_text_object_ends(tmp_path):
@@ -93,7 +91,7 @@ def test_words_break_at_whitespace_and_where_one_text_object_ends(tmp_path):
 
 
 def test_text_that_is_not_horizontal_is_ignored(tmp_path):
-    rotated = b"BT /F1 20 Tf 0 1 -1 0 300 300 Tm (WATERMARK) Tj ET\n"  # 90 degrees
+    rotated = b"BT /F1 20 Tf 0 1 -1 0 300 300 Tm (WATERMARK) Tj ET\n"
     slanted = b"BT /F1 20 Tf 0.707 0.707 -0.707 0.707 100 100 Tm (DIAGONAL) Tj ET\n"
     assert [w[0] for w in words_of(pdf_bytes([rotated + slanted + text(36, 700, "kept")]), tmp_path)] == ["kept"]
 
@@ -121,11 +119,9 @@ def test_a_character_outside_the_basic_plane_is_one_character_not_two_lone_halve
     ws = [w[0] for w in words_of(pdf, tmp_path)]
     assert ws[0] == "A\U0001f600"
     assert not any(0xD800 <= ord(c) <= 0xDFFF for w in ws for c in w), "a lone surrogate cannot be written as UTF-8"
-    json.dumps(ws, ensure_ascii=False).encode("utf-8")  # what writing the output would do
-    assert ws[1] == "A�"  # an unpaired half becomes the replacement character
+    json.dumps(ws, ensure_ascii=False).encode("utf-8")
+    assert ws[1] == "A�"
 
-
-# ---- whole statements ---------------------------------------------------------------------------------------------------
 
 def test_a_text_pdf_statement_is_released_with_page_and_box_evidence(tmp_path):
     doc = run(statement_pdf(closing="1295.00"), tmp_path)
@@ -165,8 +161,6 @@ def test_a_statement_that_does_not_state_its_currency_is_refused_not_guessed(tmp
     doc = run(statement_pdf(title="Statement of Account"), tmp_path, Params())
     assert doc["status"] == "refused" and doc["error"]["code"] == "PARSE_ERROR"
 
-
-# ---- things a PDF reader must refuse, never crash on --------------------------------------------------------------------
 
 @pytest.mark.parametrize("rotate", [90, 180, 270])
 def test_a_rotated_page_is_refused_with_a_reason(tmp_path, rotate):
@@ -231,8 +225,6 @@ def test_the_input_file_is_never_modified(tmp_path):
     assert (f.read_bytes(), f.stat().st_mtime_ns) == before
 
 
-# ---- images -------------------------------------------------------------------------------------------------------------
-
 needs_pil = pytest.mark.skipif(importlib.util.find_spec("PIL") is None, reason="images need Pillow (openbooks[scan])")
 
 
@@ -251,7 +243,7 @@ def test_an_image_is_one_page_with_no_text_layer(tmp_path):
     try:
         (page,) = list(doc.pages())
         assert doc.page_count == 1 and page.words() == []
-        assert (page.width, page.height) == (200, 100)  # no DPI stated: one pixel per point
+        assert (page.width, page.height) == (200, 100)
         assert page.render_rgb(2.0).shape == (200, 400, 3)
     finally:
         doc.close()
@@ -262,7 +254,7 @@ def test_an_images_size_in_points_follows_its_dpi(tmp_path):
     doc = open_document(_png(tmp_path, size=(1200, 1800), dpi=(300, 300)), image=True)
     try:
         (page,) = list(doc.pages())
-        assert (round(page.width), round(page.height)) == (288, 432)  # 4 x 6 inches
+        assert (round(page.width), round(page.height)) == (288, 432)
     finally:
         doc.close()
 
@@ -324,5 +316,5 @@ def test_a_scan_without_the_ocr_extra_is_an_engine_problem_with_an_install_hint(
     f.write_bytes(pdf_bytes([text(36, 700, "two words")]))
     with pytest.raises(EngineFault, match=r"openbooks\[scan\]"):
         process(f, INR, strict=True)
-    doc = process(f, Params(currency="INR", ocr=False), strict=True)  # the caller can ask for a refusal instead
+    doc = process(f, Params(currency="INR", ocr=False), strict=True)
     assert doc["status"] == "refused" and doc["error"]["code"] == "UNSUPPORTED_INPUT"

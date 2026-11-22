@@ -7,7 +7,6 @@ const IMAGE_NAME = /\.(png|jpe?g)$/i;
 
 export type Pending = { id: string; file: File; params?: RunParams; sample?: string };
 
-/** Lower-case extension including the dot, or "" when the name has none. */
 export function fileExtension(name: string): string {
   return name.includes(".") ? name.slice(name.lastIndexOf(".")).toLowerCase() : "";
 }
@@ -16,13 +15,11 @@ export function isImageName(name: string): boolean {
   return IMAGE_NAME.test(name);
 }
 
-/** True when a file cannot be checked: wrong type for the engine, or over the size limit. Empty `allowed` accepts any type. */
 export function isOverLimit(pending: Pending, allowed: string[], maxBytes: number): boolean {
   const unsupported = allowed.length > 0 && !allowed.includes(fileExtension(pending.file.name));
   return pending.file.size > maxBytes || unsupported;
 }
 
-/** The first thing wrong with the queued files, as a user-facing sentence, or null when the run can go ahead. */
 export function problemsFor(pending: Pending[], allowed: string[], maxBytes: number): string | null {
   if (pending.length > MAX_FILES) return `At most ${MAX_FILES} files per run. Remove ${pending.length - MAX_FILES}.`;
   const unsupported = pending.find((p) => allowed.length > 0 && !allowed.includes(fileExtension(p.file.name)));
@@ -44,7 +41,6 @@ export type HintInput = {
   ocrIssue?: string | null;
 };
 
-/** The one-line status under the composer. The first matching condition wins. */
 export function composerHint(input: HintInput): string {
   if (input.operation === "link") return "Checking links across released files.";
   if (input.operation === "history") return "Updating browser history.";

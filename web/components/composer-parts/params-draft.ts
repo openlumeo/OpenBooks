@@ -1,6 +1,5 @@
 import type { RunParams } from "../../lib/types";
 
-/** The text the user typed into the parameter fields. Empty fields mean "take it from the file". */
 export type ParamsDraft = { currency: string; opening: string; account: string };
 
 const CURRENCY_PATTERN = /^[A-Za-z]{3}$/;
@@ -9,7 +8,6 @@ const AMOUNT_PATTERN = /^-?\d+(\.\d+)?$/;
 export const isCurrencyInvalid = (currency: string): boolean =>
   currency !== "" && !CURRENCY_PATTERN.test(currency.trim());
 
-/** Thousands separators are allowed: "1,000.00" is read as "1000.00". */
 export const isOpeningInvalid = (opening: string): boolean =>
   opening !== "" && !AMOUNT_PATTERN.test(opening.replace(/,/g, "").trim());
 
@@ -19,7 +17,6 @@ export function draftError(draft: ParamsDraft): string | null {
   return null;
 }
 
-/** The run parameters a valid draft stands for. Blank fields are removed, not sent as empty strings. */
 export function draftToParams(params: RunParams, draft: ParamsDraft): RunParams {
   const next: RunParams = { ...params };
   if (draft.currency.trim()) next.currency = draft.currency.trim().toUpperCase();

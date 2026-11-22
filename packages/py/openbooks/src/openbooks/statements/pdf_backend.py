@@ -17,7 +17,7 @@ from typing import Any
 
 from openbooks.core.errors import EngineFault, Refusal
 
-HORIZONTAL_COS, HORIZONTAL_SIN = 0.9, 0.05  # a line within ~2.9 degrees of horizontal counts as horizontal
+HORIZONTAL_COS, HORIZONTAL_SIN = 0.9, 0.05
 
 
 def _pdfium():
@@ -66,13 +66,13 @@ class PdfPage:
                 cur.clear()
                 box.clear()
 
-            high = 0  # pdfium reports UTF-16 code units: a character outside the BMP (an emoji in a payee name) is two of them
+            high = 0
             for i in range(n):
                 code = raw.FPDFText_GetUnicode(ptr, i)
                 if 0xDC00 <= code <= 0xDFFF and high:
                     code, high = 0x10000 + ((high - 0xD800) << 10) + (code - 0xDC00), 0
                     if cur:
-                        cur[-1] = chr(code)  # replaces the high half appended at the previous index
+                        cur[-1] = chr(code)
                         x0, y0, x1, y1 = _char_extent(tp, i, self._left, self._top)
                         box[0], box[1] = min(box[0], x0), min(box[1], y0)
                         box[2], box[3] = max(box[2], x1), max(box[3], y1)
@@ -81,7 +81,7 @@ class PdfPage:
                 if 0xD800 <= code <= 0xDBFF:
                     high = code
                 if 0xD800 <= code <= 0xDFFF:
-                    code = 0xFFFD  # kept only if a low half follows; a lone half is never passed on (it cannot be encoded)
+                    code = 0xFFFD
                 ch = chr(code) if code else " "
                 if ch.isspace() or code == 0:
                     flush()
@@ -118,7 +118,7 @@ class ImagePage:
         self.width, self.height = image.width * 72 / dpi, image.height * 72 / dpi
 
     def words(self) -> list[tuple[str, float, float, float, float]]:
-        return []  # an image has no text layer
+        return []
 
     def render_rgb(self, scale: float):
         import numpy as np

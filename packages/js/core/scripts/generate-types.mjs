@@ -1,4 +1,3 @@
-// Generates src/generated/openbooks.ts from the JSON Schemas. `--check` fails if the committed file is stale.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

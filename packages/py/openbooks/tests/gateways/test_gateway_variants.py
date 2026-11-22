@@ -31,7 +31,7 @@ def test_a_spelling_variant_releases_the_same_data(tmp_path, layout, variant):
     assert base["status"] == "ok", base.get("error")
     doc = run(tmp_path, VARIANTS[variant](text), params)
     assert doc["status"] == "ok", f"{layout}/{variant}: {doc.get('error')}"
-    if variant == "cp1252":  # the only intended difference is the accent in a name
+    if variant == "cp1252":
         assert [t["amount"] if "amount" in t else t["net"] for t in doc["data"]["transactions"]] == \
                [t["amount"] if "amount" in t else t["net"] for t in base["data"]["transactions"]]
     else:
@@ -59,8 +59,6 @@ def test_a_cut_off_export_never_releases_a_row_whose_numbers_are_not_in_the_whol
     for cut in range(0, len(text), 5):
         doc = run(tmp_path, text[:cut].encode("utf-8"), params)
         assert not doc.get("error", {}).get("internal"), (layout, cut)
-        # A cut inside the last field ("...,pa" for "...,payout") cannot be told from a short last field, so only a cut on a row boundary
-        # is held to the subset rule; every cut is held to "refuse or release, never crash".
         if doc["status"] == "ok" and (cut == 0 or text[cut - 1] == chr(10)):
             assert {money_key(t) for t in doc["data"]["transactions"]} <= full, (layout, cut, text[:cut][-30:])
 
@@ -75,7 +73,7 @@ def test_a_nul_byte_anywhere_is_refused_as_binary(tmp_path, layout):
 def test_a_gateway_file_with_a_second_currency_is_refused_or_kept_separate(tmp_path):
     mixed = STRIPE.replace("txn_2,2026-01-06 11:00:00,usd", "txn_2,2026-01-06 11:00:00,eur")
     doc = run(tmp_path, mixed.encode("utf-8"), {})
-    if doc["status"] == "ok":  # allowed only if each currency proves itself on its own
+    if doc["status"] == "ok":
         assert {b["currency"] for b in doc["data"]["batches"]} == {"USD", "EUR"}
     else:
         assert doc["error"]["code"] in {"PARSE_ERROR", "BALANCE_MISMATCH"} and not doc["error"].get("internal")

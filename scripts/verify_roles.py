@@ -26,7 +26,6 @@ def main() -> int:
     except (OSError, KeyError, TypeError, ValueError) as e:
         cli.error(str(e))
 
-    # The engine resolves the asset directory when it imports its model module.
     os.environ["OPENBOOKS_MODELS_DIR"] = str(folder)
     import torch
 

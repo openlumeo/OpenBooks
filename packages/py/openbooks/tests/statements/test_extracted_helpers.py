@@ -32,8 +32,6 @@ def txn_line(y, debit=None, balance="100.00", date="01/01/2024", credit=None):
     return line
 
 
-# ---- pdf_words -------------------------------------------------------------------------------------------------------
-
 def test_lines_of_nothing_is_nothing():
     assert _lines([]) == []
 
@@ -62,8 +60,6 @@ def test_word_is_immutable_and_its_centre_is_the_midpoint():
 def test_word_height_is_never_below_one_point():
     assert Word("x", 0, 5, 1, 5, 1).h == 1.0
 
-
-# ---- table_header ----------------------------------------------------------------------------------------------------
 
 def test_a_split_debit_credit_header_is_recognised_with_its_columns():
     mode, cols = table_header._header_cols(header_line())
@@ -100,8 +96,6 @@ def test_near_picks_the_closest_role_by_centre_or_right_edge():
     assert table_header._near(w("1.00", 300, 0, 340), cols, roles) == "debit"
     assert table_header._near(w("1.00", 480, 0, 552), cols, roles) == "balance"
 
-
-# ---- scan_decimals (OCR comma-as-decimal repair) ---------------------------------------------------------------------
 
 def repaired_texts(words):
     return [x.text for x in scan_decimals._repair_scan_decimal_commas(words)]
@@ -164,8 +158,6 @@ def test_repair_is_done_by_the_same_objects_the_pdf_front_module_exposes():
     assert pdf_front.Word is Word and pdf_front.HEADER is table_header.HEADER
 
 
-# ---- pdf_front._join_descriptions ------------------------------------------------------------------------------------
-
 def test_description_words_and_fragments_join_in_reading_order():
     row = {"desc_words": [w("Card", 100, 20), w("payment", 160, 20)], "frags": [(5.0, "Ref 1")]}
     pdf_front._join_descriptions([row])
@@ -184,8 +176,6 @@ def test_joining_nothing_is_a_no_op():
     assert rows == []
 
 
-# ---- pdf_front._rows edge cases --------------------------------------------------------------------------------------
-
 def test_rows_over_no_pages_yields_no_rows_and_no_model_use():
     assert pdf_front._rows([], None) == ([], [], [], False)
 
@@ -193,8 +183,6 @@ def test_rows_over_no_pages_yields_no_rows_and_no_model_use():
 def test_rows_with_no_header_and_no_model_are_skipped_silently():
     assert pdf_front._rows([[txn_line(0, debit="4.25")]], None) == ([], [], [], False)
 
-
-# ---- pdf_backend helpers ---------------------------------------------------------------------------------------------
 
 @pytest.mark.parametrize("angle,upright", [
     (0.0, True), (-0.0, True), (1e-9, True), (math.radians(2.0), True),
@@ -223,8 +211,6 @@ def test_a_char_box_can_sit_left_of_the_page_origin_and_stays_a_tuple_of_four():
     box = pdf_backend._char_extent(tp, 0, 100.0, 10.0)
     assert box == (-10.0, 0.0, -5.0, 10.0) and len(box) == 4
 
-
-# ---- parsers: MT940 helpers ------------------------------------------------------------------------------------------
 
 def test_mt_fields_of_empty_text_is_empty():
     assert parsers._mt_fields("") == []
@@ -340,14 +326,11 @@ def test_a_large_statement_is_read_in_full_with_padded_transaction_ids():
 
 
 def test_a_negative_zero_debit_balance_is_formatted_the_same_as_zero():
-    # D0,00 parses to Decimal('-0.00'), but fmt drops the sign of zero, so the released amount is the same as for 0.
     from openbooks.core.normalise import fmt
 
     value, _, _ = parsers._mt_bal("D240101INR0,00", "x")
     assert fmt(value, "INR") == fmt(Decimal("0"), "INR")
 
-
-# ---- cli helpers -----------------------------------------------------------------------------------------------------
 
 def test_the_parser_has_every_builtin_command_and_returns_plugins_by_name(monkeypatch):
     from openbooks.core import cli

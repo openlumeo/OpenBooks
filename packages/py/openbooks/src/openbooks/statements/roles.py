@@ -116,7 +116,6 @@ class RoleModel:
                 except ModelUnavailable as e:
                     model, issue = None, e.message
                 except OSError as e:
-                    # Files may change during a deployment. Try again on the next call.
                     raise ModelUnavailable(f"Cannot read model weights ({type(e).__name__}). Check OPENBOOKS_MODELS_DIR.") from e
                 else:
                     issue = None
@@ -138,7 +137,6 @@ class RoleModel:
                 raise ValueError("invalid weights_sha256")
         except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as e:
             raise ModelUnavailable("Invalid model calibration. Restore roles_calibration.json for these weights.") from e
-        # Hash and deserialize the same bytes so a replacement on disk cannot misidentify a loaded checkpoint.
         weights_bytes = weights.read_bytes()
         w_sha = hashlib.sha256(weights_bytes).hexdigest()
         if fitted != w_sha:

@@ -1,6 +1,3 @@
-/* Floating nav. Glass surface comes from .lp-glass .lp-glass--blur (landing.css).
-   Square edges: radius 0 like every other landing surface (owner decision, overrides the glass exception). */
-
 .nav {
   position: fixed;
   top: 12px;
@@ -95,7 +92,6 @@
   outline-offset: 3px;
 }
 
-/* The lockup's wordmark text goes away at small widths; the mark stays. */
 @media (max-width: 560px) {
   .nav {
     padding-inline: 12px;

@@ -1,4 +1,3 @@
-// The default mode tests an isolated branch. --apply only installs the migration.
 import { neon } from '@neondatabase/serverless';
 import { readFile } from 'node:fs/promises';
 

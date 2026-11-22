@@ -1,9 +1,5 @@
 "use client";
 
-// The Monolith instrument (hero concept B, with concept A's refused twin).
-// Presentational only: renders the instrument and its back plane. The hero stage
-// owns the scroll pin, the entrance and the bloom; this component owns the pose and
-// the released/refused visuals, driven by the data attributes below.
 import { Fragment, type JSX } from "react";
 import { DigitRoll } from "./digit-roll";
 import { ENGINE_STAGES, RELEASED, TAMPERED } from "./proof-data";

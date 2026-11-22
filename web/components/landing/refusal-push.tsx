@@ -4,7 +4,6 @@ import { gsap, useGSAP, DESKTOP_MOTION, markMotionReady } from '@/components/mot
 
 const PUSH_DISTANCE = '+=70%';
 
-/** Desktop only: pins the proof block and pushes the camera in on the engine's refusal message. */
 export function RefusalPush({ className, children }: { className?: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(() => {
@@ -15,7 +14,7 @@ export function RefusalPush({ className, children }: { className?: string; child
       const panel = root.querySelector<HTMLElement>('[data-push]');
       const caption = root.querySelector<HTMLElement>('[data-push-caption]');
       if (!panel) return;
-      const fits = root.offsetHeight < window.innerHeight * 0.9; // never pin a block taller than the viewport
+      const fits = root.offsetHeight < window.innerHeight * 0.9;
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: fits

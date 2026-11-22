@@ -21,7 +21,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PY = ROOT / "packages" / "py"
 
-# Order is cosmetic; pip resolves them together.
 PY_PACKAGES = [
     PY / "openbooks-lab",
     PY / "openbooks",

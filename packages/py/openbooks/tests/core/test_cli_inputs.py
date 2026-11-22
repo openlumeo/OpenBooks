@@ -27,8 +27,6 @@ def code(argv, capsys):
     return rc, cap.out, cap.err
 
 
-# ---- bad arguments are exit 2, unreadable inputs exit 3, and neither leaves a trace -----------------------------------------------------------------
-
 def test_a_missing_file_is_an_engine_problem_never_a_refusal(tmp_path, capsys):
     rc, _, err = code(["run", str(tmp_path / "nope.csv"), "--out", str(tmp_path / "o")], capsys)
     assert rc == 3 and "engine error" in err and "no such file" in err and "nope.csv" in err and "Traceback" not in err
@@ -75,7 +73,7 @@ def test_an_opening_balance_must_be_a_plain_number(good, bad, capsys):
 @pytest.mark.parametrize("ok", ["1000", "1000.00", "+1000.00", "-5.25", ".5", "5.", " 1000.00 ", "0", "0.00", "123456789012345678.99"])
 def test_plain_numbers_are_accepted_as_opening_balances(good, ok, tmp_path, capsys):
     rc, _, _ = code(["run", str(good), "--currency", "INR", "--opening", ok, "--out", str(tmp_path / "o")], capsys)
-    assert rc in (0, 1)  # released, or refused because that opening does not tie: never a usage error
+    assert rc in (0, 1)
 
 
 @pytest.mark.parametrize("bad", ["rupees", "", "IN", "INRR", "I1R", "₹", "12 ", "in r"])
@@ -102,8 +100,6 @@ def test_a_date_order_must_be_dmy_or_mdy(good):
     assert e.value.code == 2
 
 
-# ---- eval, report and link: same contract -------------------------------------------------------------------------------
-
 def test_eval_of_a_missing_folder_is_exit_3_without_a_traceback(tmp_path, capsys):
     rc, _, err = code(["eval", str(tmp_path / "none")], capsys)
     assert rc == 3 and "Traceback" not in err
@@ -128,9 +124,9 @@ def test_report_exit_code_follows_the_documented_contract(good, tmp_path, capsys
     folder = tmp_path / "in"
     folder.mkdir()
     (folder / "a.csv").write_text(GOOD, encoding="utf-8")
-    assert code(["report", str(folder), "--out", str(tmp_path / "r1"), *RUN], capsys)[0] == 0  # everything released
+    assert code(["report", str(folder), "--out", str(tmp_path / "r1"), *RUN], capsys)[0] == 0
     (folder / "b.csv").write_text(GOOD.replace("900.00", "901.00"), encoding="utf-8")
-    assert code(["report", str(folder), "--out", str(tmp_path / "r2"), *RUN], capsys)[0] == 1  # one refused
+    assert code(["report", str(folder), "--out", str(tmp_path / "r2"), *RUN], capsys)[0] == 1
     report = json.loads((tmp_path / "r2" / "report.json").read_text(encoding="utf-8"))
     assert report["released"] == 1 and report["refused"] == {"BALANCE_MISMATCH": 1}
 
@@ -180,7 +176,7 @@ def test_link_given_a_statement_instead_of_a_document_is_exit_2_not_a_traceback(
 
     class Linker:
         def run_link(self, files, out):
-            json.loads(open(files[0], encoding="utf-8").read())  # what a real linker does first
+            json.loads(open(files[0], encoding="utf-8").read())
             return 0
 
     class Reg:
@@ -191,8 +187,6 @@ def test_link_given_a_statement_instead_of_a_document_is_exit_2_not_a_traceback(
     rc, _, err = code(["link", str(good)], capsys)
     assert rc == 2 and "openbooks.v1" in err and "Traceback" not in err
 
-
-# ---- what the engine does with hostile bytes: a typed refusal, exit 1, never a crash ------------------------------------
 
 HOSTILE = {
     "empty.csv": b"",
@@ -238,7 +232,7 @@ def test_a_file_over_the_size_limit_is_refused_without_being_read(tmp_path, caps
     f = tmp_path / "big.csv"
     with open(f, "wb") as fh:
         fh.seek(20 * 1024 * 1024)
-        fh.write(b"x")  # 20 MB + 1 byte, sparse
+        fh.write(b"x")
     rc, out, _ = code(["run", str(f), "--machine", "--out", str(tmp_path / "o")], capsys)
     assert rc == 1 and json.loads(out.splitlines()[0])["code"] == "UNSUPPORTED_INPUT"
 
@@ -259,8 +253,6 @@ def test_paths_with_spaces_and_unicode_work(tmp_path, capsys):
     rc, out, _ = code(["run", str(f), *RUN, "--out", str(d / "out dir"), "--machine"], capsys)
     assert rc == 0 and json.loads(out.splitlines()[0])["file"] == "jan 2026 (final).csv"
 
-
-# ---- the same input twice, and files that must never be touched ---------------------------------------------------------
 
 def test_the_same_file_gives_byte_identical_output_every_time(good, tmp_path, capsys):
     outputs = []
@@ -321,12 +313,12 @@ def test_engine_info_lists_every_known_layout_and_the_contract(capsys):
 def test_a_workbook_without_openpyxl_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch, capsys):
     import sys
 
-    monkeypatch.setitem(sys.modules, "openpyxl", None)  # makes `import openpyxl` raise ImportError
+    monkeypatch.setitem(sys.modules, "openpyxl", None)
     f = tmp_path / "book.xlsx"
     import zipfile
 
-    with zipfile.ZipFile(f, "w") as z:  # a real zip, so the size check passes and openpyxl is actually needed
+    with zipfile.ZipFile(f, "w") as z:
         z.writestr("xl/workbook.xml", "<workbook/>")
     rc, _, err = code(["run", str(f), "--out", str(tmp_path / "o")], capsys)
     assert rc == 3 and "pip install openpyxl" in err and "Traceback" not in err
-    assert "EngineFault: EngineFault" not in err  # one prefix, not the fault wrapped in itself
+    assert "EngineFault: EngineFault" not in err

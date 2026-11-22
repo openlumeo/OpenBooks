@@ -1,4 +1,3 @@
-// Section 4: one real evidence record. Server component.
 import { Reveal } from "@/components/motion/reveal";
 import { Sketch, SketchAnnotation } from "@/components/motion/sketch";
 import { ReconPanel, ReconRow } from "./reconciliation";

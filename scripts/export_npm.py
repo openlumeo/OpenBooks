@@ -24,9 +24,7 @@ ROOT = ex.ROOT
 SOURCE = ROOT / "packages" / "js"
 PACKAGES = ("core", "statements", "gateways", "tax", "doctor", "cli")
 ROOT_FILES = ("package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "tsconfig.base.json", "tsconfig.json")
-# Left out of the mirror: build output, tests (they need the private engine), and the schema-sync tooling that reads private paths.
 EXCLUDE = ["**/node_modules/**", "**/dist/**", "**/*.tsbuildinfo", "**/test/**", "**/tests/**", "core/scripts/**", "**/vitest.config.ts"]
-# tools/public-npm/<src> -> <dest> in the mirror
 OVERLAY = {"README.md": "README.md", "publish.yml": ".github/workflows/publish.yml", "gitignore": ".gitignore"}
 
 

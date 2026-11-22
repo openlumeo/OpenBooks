@@ -1,14 +1,11 @@
-// Data for the live demo. Pure, server-safe. Amounts stay decimal strings from the engine: never Number().
 import { stageForRefusal } from "@/lib/stages";
 import type { EngineDoc, RefusalCode, Stage } from "@/lib/types";
 import { RELEASED, TAMPERED } from "./proof-data";
 
-/** A ledger row as the demo draws it. Direction is CR, DR, or empty when the engine omits it. */
 export type DemoRow = { id: string; date: string; direction: string; description: string; amount: string; balance: string };
 
 export type DemoSampleId = "ok_bank_csv" | "bad_bank_balance_break";
 
-/** The two chips. Labels are the visitor-facing names; ids are the engine's golden-set case ids. */
 export const DEMO_SAMPLES: readonly { id: DemoSampleId; chip: string }[] = [
   { id: "ok_bank_csv", chip: "statement.csv" },
   { id: "bad_bank_balance_break", chip: "statement.csv, one balance altered" },
@@ -33,10 +30,8 @@ export type DemoVerdict =
     }
   | { kind: "refused"; code: RefusalCode; message: string; stopAt: Stage };
 
-/** Rows shown in the ledger before the rest are counted. */
 export const LEDGER_PREVIEW = 5;
 
-/** Map a live engine document to the verdict the demo draws. Strings pass through untouched. */
 export function verdictFromDoc(doc: EngineDoc): DemoVerdict {
   if (doc.status === "refused") {
     return { kind: "refused", code: doc.error.code, message: doc.error.message, stopAt: stageForRefusal(doc.error.code) };
@@ -64,7 +59,6 @@ export function verdictFromDoc(doc: EngineDoc): DemoVerdict {
 
 export type DemoReplay = { verdict: DemoVerdict; stagesReached: Stage[] };
 
-/** Recorded real runs (proof-data.ts), replayed when the engine cannot be reached. */
 export const REPLAYS: Record<DemoSampleId, DemoReplay> = {
   ok_bank_csv: {
     stagesReached: ["detect", "parse", "normalise", "balance"],

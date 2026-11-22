@@ -29,7 +29,7 @@ from openbooks.statements.pdf_front import read_words  # noqa: E402
 from openbooks.statements.roles import RoleModel  # noqa: E402
 
 DEFAULT_PDF = ROOT / "data/raw/agami_indian_bank_statements/train/India_Bank_Statement_Digital_Type1/00001.pdf"
-ACT_FLOATS_PER_TOKEN_LAYER = 24 * D  # est. unfused activation reads+writes per token per layer (LN, qkv, proj, 4D MLP up/down, GELU, residuals)
+ACT_FLOATS_PER_TOKEN_LAYER = 24 * D
 
 
 def sync() -> None:
@@ -50,10 +50,10 @@ def timeit(f, n: int = 15, warm: int = 3) -> float:
 
 
 def peak_bandwidth_gbs(dev) -> float:
-    x = torch.empty(64 * 1024 * 1024, device=dev)  # 256 MB
+    x = torch.empty(64 * 1024 * 1024, device=dev)
     y = torch.empty_like(x)
     ms = timeit(lambda: y.copy_(x), 20)
-    return 2 * x.numel() * 4 / (ms / 1000) / 1e9  # read + write
+    return 2 * x.numel() * 4 / (ms / 1000) / 1e9
 
 
 def peak_tflops(dev, dtype) -> float:
@@ -63,7 +63,7 @@ def peak_tflops(dev, dtype) -> float:
 
 
 def flops(b: int, t: int) -> float:
-    per_tok = 2 * 12 * D * D * LAYERS + 4 * t * D * LAYERS  # linears + QK^T and PV
+    per_tok = 2 * 12 * D * D * LAYERS + 4 * t * D * LAYERS
     return b * t * per_tok
 
 
@@ -125,7 +125,6 @@ def main() -> None:
     out(f"| matmul fp16 4096^3 | {tf16:.1f} TFLOP/s |")
     out(f"| ridge point fp32 / fp16 (FLOP per byte to leave the bandwidth-bound region) | {ridge32:.0f} / {ridge16:.0f} |\n")
 
-    # ---- stage times on one real file
     pages, method = read_words(a.pdf, Params())
     words = [w for pg in pages for w in pg]
     wins = windows(words)
@@ -149,7 +148,6 @@ def main() -> None:
     out(f"| logits end to end, one window at a time (RoleModel.logits) | {t_all_seq:.1f} | |")
     out(f"| logits end to end, batched (inference.logits_batched) | {t_all_bat:.1f} | |\n")
 
-    # ---- sweep
     half = copy.deepcopy(model.net).half()
     out("## GPU forward sweep (random ids, masks off)\n")
     out("| batch x tokens | fp32 ms | fp32 GFLOP/s | fp32 GB/s implied | FLOP/byte | fp16 ms | fp16 GFLOP/s | fp16 speedup |\n|---|---|---|---|---|---|---|---|")
@@ -162,7 +160,6 @@ def main() -> None:
                 f"{fl / m16 / 1e6:.0f} | {m32 / m16:.2f}x |")
     out("\nFLOP/byte uses an *estimated* activation traffic (24 floats per token per layer); treat it as an order of magnitude.\n")
 
-    # ---- kernel split
     inp = rand_inputs(8, 512, dev)
     top, gemm, tot = kernel_split(model.net, inp)
     out("## Kernel time, 8 x 512 fp32 (torch.profiler)\n")
@@ -171,7 +168,6 @@ def main() -> None:
     for k, ms in top:
         out(f"| `{k[:90]}` | {ms:.2f} |")
 
-    # ---- fp16 agreement
     h = RoleModel(half, model.role_cal, model.type_cal, dev)
     r32, _ = logits_batched(model, words)
     r16, _ = logits_batched(h, words)

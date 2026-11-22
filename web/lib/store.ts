@@ -1,4 +1,3 @@
-// Thread history lives only in this browser (IndexedDB). Results are kept; original file bytes are not.
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type { FileRun, Thread, Turn } from "./types";
 

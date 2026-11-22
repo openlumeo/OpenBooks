@@ -1,4 +1,3 @@
-// Decorative stamp for a refusal row. Inline SVG, no text: the code next to it carries the meaning.
 import type { CSSProperties } from "react";
 import styles from "./refusals.module.css";
 

@@ -15,7 +15,6 @@ engine = re.search(r'"(.*)"', (ROOT / "packages/py/openbooks/src/openbooks/_vers
 mcp = tomllib.loads((ROOT / "packages/py/openbooks-mcp/pyproject.toml").read_text(encoding="utf-8"))["project"]
 mcp_version = mcp["version"]
 
-# openbooks-mcp pins the engine as ">=X.Y,<X.(Y+1)": the released engine must satisfy it.
 major_minor = tuple(int(x) for x in engine.split(".")[:2])
 for dep in mcp["dependencies"]:
     m = re.fullmatch(r"openbooks>=(\d+)\.(\d+),<(\d+)\.(\d+)", dep.replace(" ", ""))
@@ -24,7 +23,6 @@ for dep in mcp["dependencies"]:
         if not lo <= major_minor < hi:
             errors.append(f"openbooks-mcp requires {dep} but the engine is {engine}")
 
-# The npm packages are released together at one version, and depend on each other by workspace:*.
 js = {p.parent.name: json.loads(p.read_text(encoding="utf-8")) for p in (ROOT / "packages/js").glob("*/package.json")}
 js_versions = {pkg["version"] for pkg in js.values()}
 if len(js_versions) != 1:

@@ -16,7 +16,7 @@ from ..params import Params
 from ..registry import Registry, default_registry, find_header
 
 MAX_SHEETS, MAX_ROWS = 20, 100_000
-MAX_UNCOMPRESSED_BYTES = 200 * 1024 * 1024  # a workbook is a zip: a few KB can claim to hold gigabytes
+MAX_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
 
 
 def _to_str(v) -> str:
@@ -52,7 +52,6 @@ def _open_workbook(path: Path, *, data_only: bool):
     except ImportError as e:
         raise EngineFault("reading .xlsx needs openpyxl: pip install openpyxl") from e
 
-    # Own the source handle even if row iteration stops with a partially read ZIP entry.
     with ExitStack() as stack:
         try:
             source = stack.enter_context(path.open("rb"))
@@ -85,7 +84,7 @@ def parse_xlsx(path: Path, p: Params, registry: Registry | None = None):
     import zipfile
 
     try:
-        with zipfile.ZipFile(path) as z:  # declared sizes only: nothing is decompressed to find out
+        with zipfile.ZipFile(path) as z:
             declared = sum(i.file_size for i in z.infolist())
     except Exception:
         raise Refusal("UNSUPPORTED_INPUT", "unreadable workbook") from None

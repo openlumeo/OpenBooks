@@ -1,7 +1,3 @@
-/* Hero shell. Desktop (>= 900px): the copy sits in flow and HeroStage is absolutely
-   placed over the whole section, so the instrument can bleed past the fold.
-   Below 900px the section is a plain flow: copy, then the finished instrument. */
-
 .hero {
   position: relative;
   isolation: isolate;
@@ -10,7 +6,6 @@
   min-height: 100svh;
 }
 
-/* Top padding clears the 74px floating nav (12px inset, so the nav ends at 86px). */
 .lead {
   position: relative;
   z-index: 2;

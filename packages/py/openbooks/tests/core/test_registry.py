@@ -34,7 +34,7 @@ def test_combined_headers_resolve_to_the_lowest_rank(a, b):
     union = HEADERS[a] + [h for h in HEADERS[b] if h not in HEADERS[a]]
     matching = [lid for lid in ORDER if R.LAYOUT_BY_ID[lid].matches(union, frozenset(union))]
     got = R.detect(csv_of(union, ["1"] * len(union)))
-    assert got.layout == matching[0]  # first in order among everything the headers satisfy
+    assert got.layout == matching[0]
 
 
 def test_an_earlier_row_beats_a_higher_ranked_layout_on_a_later_row():
@@ -76,7 +76,6 @@ def _must_not_run(args, params):
 
 
 def test_a_missing_provider_never_falls_through_to_a_looser_layout(tmp_path):
-    # Stripe's headers plus bank columns: bank CSV would also match, but Stripe outranks it.
     cols = sorted(R.STRIPE_REQ) + ["description", "debit", "credit", "balance", "date"]
     reg = R.Registry(layouts={"bank_csv.v1": _must_not_run})
     doc = process(write(tmp_path, csv_of(cols, ["1"] * len(cols))), Params(currency="INR"), registry=reg)

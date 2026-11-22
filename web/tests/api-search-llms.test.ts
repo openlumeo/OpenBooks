@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-// A fake docs source stands in for the fumadocs MDX macro, which needs the Next build pipeline.
 const docsFake = vi.hoisted(() => {
   const page = (slugs: string[], title: string, description: string, body: string) => ({
     url: slugs.length === 0 ? "/docs" : "/docs/" + slugs.join("/"),

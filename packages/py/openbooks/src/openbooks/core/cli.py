@@ -39,14 +39,13 @@ def _add_params(p: argparse.ArgumentParser) -> None:
     p.add_argument("--model", action="store_true", help="typed-head cross-check on PDFs/scans (needs the model assets)")
 
 
-_PLAIN_NUMBER = re.compile(r"[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)")  # ASCII digits only: Decimal() would also take Arabic-Indic ones
+_PLAIN_NUMBER = re.compile(r"[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)")
 _CURRENCY = re.compile(r"[A-Za-z]{3}")
 
 
 def _params(ap: argparse.ArgumentParser, a: argparse.Namespace) -> Params:
     opening = None
     if a.opening is not None:
-        # Decimal() also accepts "NaN", "Infinity" and "1e400"; an opening balance is a plain number, nothing else.
         if not _PLAIN_NUMBER.fullmatch(a.opening.strip()):
             ap.error(f"--opening must be a plain number like 1000.00, got {a.opening!r}")
         opening = Decimal(a.opening.strip())
@@ -90,7 +89,6 @@ def _has_frontend(reg, name: str) -> bool:
 
 
 def _run(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
-    # Every path is checked before anything is read or written, so a batch is never half-processed because its last file name had a typo.
     if problems := _missing_files(a.files):
         return _unreadable(problems)
     out = Path(a.out)
@@ -100,8 +98,6 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     for f in a.files:
         sha = sha256_file(Path(f))
         target = out / f"{sha}.json"
-        # No reuse of an earlier <sha>.json: the same bytes give a different result under another --currency,
-        # --opening or --model, and a stale refusal or release must never be returned silently.
         doc = process(f, p, strict=True)
         write_atomic(target, dumps(doc))
         err = doc.get("error", {})
@@ -189,7 +185,7 @@ def main(argv: list[str] | None = None) -> int:
         if a.cmd == "link":
             return _link(a)
         return _run(ap, a)
-    except (json.JSONDecodeError, InvalidOperation) as e:  # a hand-written params.json or expected.json that is not valid
+    except (json.JSONDecodeError, InvalidOperation) as e:
         return _usage(f"input file is malformed ({type(e).__name__}: {e})")
     except (EngineFault, OSError, MemoryError) as e:
         sys.stderr.write(f"openbooks: engine error: {type(e).__name__}: {e}\n")

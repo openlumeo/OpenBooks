@@ -27,7 +27,6 @@ export function uid(): string {
     : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 }
 
-/** Trigger a download of text as a file. */
 export function downloadText(filename: string, text: string, type = "application/json") {
   const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement("a");

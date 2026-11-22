@@ -90,7 +90,7 @@ def safe_name(name: str, index: int) -> str:
     base = Path((name or "").replace("\\", "/")).name.strip()
     base = _UNSAFE.sub("_", base)[:MAX_NAME_CHARS]
     if base.split(".", 1)[0].upper() in _WINDOWS_DEVICES:
-        base = "_" + base  # CON.csv would fail to create on Windows hosts
+        base = "_" + base
     return base if base not in ("", ".", "..") else f"file-{index}"
 
 
@@ -105,7 +105,7 @@ class Run:
     """Owns the temp dir for one request. stage() copies uploads in; execute() processes and cleans up."""
 
     def __init__(self) -> None:
-        self.root = Path(tempfile.mkdtemp(prefix="openbooks-run-")).resolve()  # resolved: Windows temp is an 8.3 short path
+        self.root = Path(tempfile.mkdtemp(prefix="openbooks-run-")).resolve()
         self.files: list[Staged] = []
         self.cancelled = threading.Event()
 
@@ -114,8 +114,6 @@ class Run:
         d = self.root / str(i)
         d.mkdir()
         path = d / safe_name(name, i)
-        # Never write more than the engine limit + 1 byte to disk: the extra byte still makes process()
-        # refuse the file as oversize, but a hostile upload cannot fill the disk.
         with open(path, "wb") as out:
             out.write(stream.read(MAX_BYTES + 1))
         self.files.append(Staged(name or path.name, path, path.stat().st_size))

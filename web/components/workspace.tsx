@@ -47,7 +47,6 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
   const stick = useRef(true);
   const dragDepth = useRef(0);
 
-  // Clear the drop overlay when a drag leaves the window, is cancelled, dropped, or Escape is pressed.
   useEffect(() => {
     if (!dragging) return;
     const reset = () => {
@@ -93,7 +92,6 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
     try {
       const file = await fetchSampleFile(s, controller.signal);
       if (controller.signal.aborted) return;
-      // A sample brings its own params; blank values clear anything set for the run as a whole.
       const own: RunParams = { currency: s.params.currency ?? "", opening: s.params.opening ?? "", ...s.params };
       setPendingState((p) => [...p, { id: uid(), file, params: own, sample: s.id }]);
     } catch (e) {

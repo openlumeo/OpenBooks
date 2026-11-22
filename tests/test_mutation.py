@@ -43,11 +43,11 @@ def _mutations(rows: list[list[str]]):
                 mutated = [list(x) for x in rows]
                 mutated[r][c] = f"{new:.2f}"
                 yield f"row{r}.col{c}.{label}", mutated
-        if rows[r][debit] != rows[r][credit]:  # swap debit and credit on one row
+        if rows[r][debit] != rows[r][credit]:
             mutated = [list(x) for x in rows]
             mutated[r][debit], mutated[r][credit] = rows[r][credit], rows[r][debit]
             yield f"row{r}.dr_cr_swap", mutated
-    for r in range(1, len(rows) - 1):  # a dropped row in the middle
+    for r in range(1, len(rows) - 1):
         yield f"row{r}.dropped", [x for i, x in enumerate(rows) if i != r]
 
 

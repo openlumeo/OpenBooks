@@ -1,6 +1,5 @@
 import type { RefusalCode, Stage } from "./types";
 
-/** The four stages from the pipeline diagram. "validate" (schema self-check) is folded into Balance for display. */
 export const STAGES: { id: Stage; label: string; hint: string }[] = [
   { id: "detect", label: "Detect", hint: "Format and layout version. Unknown layouts are refused, never guessed." },
   { id: "parse", label: "Parse", hint: "Rows, pages and fields read by the layout's own parser." },
@@ -12,7 +11,6 @@ export const STAGES: { id: Stage; label: string; hint: string }[] = [
   { id: "balance", label: "Balance", hint: "Opening + transactions = closing, running balance, printed totals. Decides release." },
 ];
 
-/** The stage a refusal stopped at, per the diagram's edges. */
 export function stageForRefusal(code: RefusalCode): Stage {
   switch (code) {
     case "UNSUPPORTED_INPUT":
@@ -36,7 +34,6 @@ export const REFUSAL_MEANING: Record<RefusalCode, string> = {
   OUTPUT_INVALID: "The result failed its own schema check.",
 };
 
-/** What a refusal needs from the user, when the engine's message says so. */
 export type FixField = "opening" | "currency" | "date_order";
 
 export function fixesFor(message: string): FixField[] {

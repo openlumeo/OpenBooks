@@ -20,7 +20,6 @@ MAX_STEPS = 8
 MAX_UPLOAD = 1024 * 1024
 MAX_ENCODED_UPLOAD = ((MAX_UPLOAD + 2) // 3) * 4
 MAX_RESPONSE = 48 * 1024
-# Reserved per step for the envelope and ids, so a batch of MAX_STEPS still fits MAX_RESPONSE.
 STEP_ENVELOPE_BYTES = 192
 SAMPLE = (
     b"Date,Description,Debit,Credit,Balance\n"

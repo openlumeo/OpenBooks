@@ -1,10 +1,5 @@
 "use client";
 
-// Section 2 "how it is proven": four steps on the left, one pinned laptop screen on the right.
-// Desktop with motion allowed: the stage pins and one scrubbed timeline walks the screen through
-// Detect, Parse, Normalise and Balance. Elsewhere (narrow, reduced motion, JS off) nothing pins:
-// the steps stack as text and the screen shows its composed end state, which is also the CSS default.
-// Figures come from proof-data.ts (RELEASED), strings as-is. Transform and opacity only.
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/components/motion/gsap-setup";
 import { Reveal } from "@/components/motion/reveal";
@@ -16,12 +11,10 @@ import type { Stage } from "@/lib/types";
 import styles from "./scroll-story.module.css";
 
 const STORY_MOTION = "(min-width: 900px) and (prefers-reduced-motion: no-preference)";
-/** Pinned distance in viewport heights. */
 const PIN_VIEWPORTS = 3;
 
 const DIRECTION_WORD: Record<"CR" | "DR", string> = { CR: "credit", DR: "debit" };
 
-/** Raw header and normalised header share one grid cell; the timeline cross-fades them. */
 function Col({ raw, norm, right = false }: { raw: string; norm: string; right?: boolean }) {
   return (
     <span className={`${styles.cell} ${right ? styles.num : ""}`}>
@@ -117,7 +110,6 @@ export function ScrollStory() {
         const stamp = q("[data-fx='stamp']");
         const connector = q("[data-fx='connector']");
 
-        // Start state: the screen is empty and only the first step is lit. The CSS default is the end state.
         gsap.set(steps, { opacity: 0.35 });
         gsap.set(rule, { scaleY: 0 });
         gsap.set(detect, { opacity: 0, y: 6 });
@@ -143,8 +135,6 @@ export function ScrollStory() {
           },
         });
 
-        // Left column: one step lit at a time, and the progress rule. One unit per step.
-        // The hand-drawn connector strokes down alongside the rule. Without this branch the path is fully drawn (CSS default).
         gsap.set(connector, { drawSVG: "0% 0%" });
         tl.to(connector, { drawSVG: "0% 100%", duration: steps.length, ease: "power1.out" }, 0);
         tl.to(rule, { scaleY: 1, duration: steps.length }, 0);
@@ -154,21 +144,15 @@ export function ScrollStory() {
           if (previous) tl.to(previous, { opacity: 0.35, duration: 0.5 }, i);
         });
 
-        // 1 Detect: file name and layout chip.
         tl.to(detect, { opacity: 1, y: 0, duration: 0.4, stagger: 0.15 }, 0.1);
 
-        // 2 Parse: rows appear, one by one.
         tl.to(rows, { opacity: 1, y: 0, duration: 0.4, stagger: 0.12 }, 1.1);
 
-        // 3 Normalise: raw headers and directions give way to the schema.
-        // Strictly sequential swaps: each raw label is fully gone before its normalised label starts,
-        // so the two never overlap mid-scrub (the cell is a shared grid cell).
         tl.to(rawHead, { opacity: 0, duration: 0.2 }, 2.0);
         tl.to(normHead, { opacity: 1, y: 0, duration: 0.3 }, 2.25);
         tl.to(dirRaw, { opacity: 0, duration: 0.15 }, 2.6);
         tl.to(dirNorm, { opacity: 1, duration: 0.15 }, 2.8);
 
-        // 4 Balance: the equation resolves, then the RELEASED stamp lands.
         tl.to(eq, { opacity: 1, y: 0, duration: 0.3, stagger: 0.12 }, 3.05);
         tl.to(tie, { opacity: 1, duration: 0.2 }, 3.6);
         tl.to(stamp, { opacity: 1, scale: 1, duration: 0.25 }, 3.75);

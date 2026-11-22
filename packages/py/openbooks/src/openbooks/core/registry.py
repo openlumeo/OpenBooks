@@ -33,8 +33,6 @@ LAYOUT_API_VERSION = 1
 HEADER_SCAN_ROWS = 30
 
 STATEMENTS, GATEWAYS, TAX = "openbooks.statements", "openbooks.gateways", "openbooks.tax"
-# The 0.1 split distributions. All of them now live inside `openbooks`; an upgrade leaves the old ones installed, and their
-# entry points (openbooks_gateways.parsers:...) would register every layout twice, so discovery skips them.
 RETIRED_DISTRIBUTIONS = ("openbooks-core", "openbooks-statements", "openbooks-gateways", "openbooks-tax", "openbooks-doctor")
 
 BANK_ROLES = {
@@ -74,7 +72,6 @@ def _req(req: set[str]) -> Callable[[list[str], frozenset[str]], bool]:
     return lambda hs, s: req <= s
 
 
-# Detection order is a product guarantee: Stripe, Razorpay, PayPal, Wise, 1099-B, 26AS, AIS, FIRA, bank CSV, trial balance.
 KNOWN_LAYOUTS: tuple[LayoutSpec, ...] = (
     LayoutSpec("stripe_balance.v1", 10, GATEWAYS, frozenset({"settlement"}), _req(STRIPE_REQ)),
     LayoutSpec("razorpay_settlement.v1", 20, GATEWAYS, frozenset({"settlement"}), _req(RAZORPAY_REQ)),
@@ -112,7 +109,7 @@ def _is_mt940(text: str) -> bool:
 KNOWN_SNIFFERS: tuple[SnifferSpec, ...] = (SnifferSpec("ofx.v1", "ofx", STATEMENTS, _is_ofx),
                                            SnifferSpec("mt940.v1", "mt940", STATEMENTS, _is_mt940))
 SNIFFER_BY_ID = {s.id: s for s in KNOWN_SNIFFERS}
-FRONTEND_DISTRIBUTION = {"document": STATEMENTS}  # pdf and image statements, including OCR and the typed heads
+FRONTEND_DISTRIBUTION = {"document": STATEMENTS}
 GATE_OWNER = {"tax_statement": TAX, "ais": TAX, "form_1099b": TAX, "fira": TAX, "trial_balance": TAX,
               "statement:ocr_dates": STATEMENTS}
 
@@ -130,9 +127,9 @@ def find_header(rows: list[list[str]]) -> tuple[int, str, list[str]] | None:
 
 @dataclass(frozen=True)
 class Detected:
-    format: str          # "ofx" | "mt940" | "csv"
-    layout: str          # layout id
-    args: Any            # None for text sniffers, (rows, header_index, headers) for tabular layouts
+    format: str
+    layout: str
+    args: Any
 
 
 def detect(text: str) -> Detected:
@@ -143,7 +140,7 @@ def detect(text: str) -> Detected:
     for delim in (",", ";", "\t"):
         try:
             rows = list(csv.reader(io.StringIO(text), delimiter=delim))
-        except csv.Error as e:  # e.g. one field larger than the csv module's 128 KB limit: not a statement, and said so plainly
+        except csv.Error as e:
             raise Refusal("PARSE_ERROR", f"the file is not readable as a table ({e})") from None
         hit = find_header(rows)
         if hit:

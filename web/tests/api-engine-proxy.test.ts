@@ -4,7 +4,6 @@ vi.mock("server-only", () => ({}));
 const limiter = vi.hoisted(() => ({ limitOr429: vi.fn() }));
 vi.mock("@/lib/server/limiter", () => limiter);
 const upstream = vi.hoisted(() => ({ engineFetch: vi.fn() }));
-// Only the network call is replaced. relay() and engineDown() run for real so content-type gating is tested.
 vi.mock("@/lib/server/engine", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/server/engine")>()),
   engineFetch: upstream.engineFetch,

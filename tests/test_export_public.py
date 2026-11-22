@@ -7,7 +7,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-PROPRIETARY = {"openbooks-lab", "openbooks-mcp"}  # not Apache-2.0
+PROPRIETARY = {"openbooks-lab", "openbooks-mcp"}
 
 import export_public as ex  # noqa: E402
 
@@ -44,7 +44,7 @@ def test_the_weights_file_carries_no_private_strings():
     z = zipfile.ZipFile(ROOT / "models" / "roles_head.pt")
     for info in z.infolist():
         if info.file_size > 1_000_000:
-            continue  # tensor data
+            continue
         data = z.read(info)
         for needle in (b"openbooks", b"lumeo", b"jepa", b"CORD", b"Users", b"train_roles"):
             assert needle not in data, (info.filename, needle)
@@ -55,7 +55,7 @@ def test_every_open_package_carries_the_same_apache_licence_text():
     assert "Apache License" in master and "Version 2.0, January 2004" in master and "END OF TERMS AND CONDITIONS" in master
     dirs = [d for d in (ROOT / "packages" / "py").iterdir() if d.is_dir() and d.name not in PROPRIETARY]
     dirs += [d for d in (ROOT / "packages" / "js").iterdir() if (d / "package.json").exists()]
-    assert len(dirs) == 7  # the one open Python package and the six npm packages
+    assert len(dirs) == 7
     for d in dirs:
         assert (d / "LICENSE").read_text(encoding="utf-8") == master, d.name
 
@@ -68,7 +68,7 @@ def test_open_packages_declare_apache_and_the_lab_stays_proprietary():
         meta = tomllib.loads((d / "pyproject.toml").read_text(encoding="utf-8"))["project"]
         if d.name == "openbooks-lab":
             assert meta["license"] == "LicenseRef-Lumeo-Proprietary" and "Private :: Do Not Upload" in meta["classifiers"]
-        elif d.name == "openbooks-mcp":  # published to PyPI, but under its own all-rights-reserved licence
+        elif d.name == "openbooks-mcp":
             assert meta["license"] == "LicenseRef-Lumeo" and meta["license-files"] == ["LICENSE"]
             assert not (d / "LICENSE").read_text(encoding="utf-8").startswith("                                 Apache")
         else:
@@ -81,4 +81,4 @@ def test_open_packages_declare_apache_and_the_lab_stays_proprietary():
 def test_the_export_ships_the_licence_and_notice_at_the_root():
     files = ex.build((ROOT / "tools" / "public" / "LICENSE").read_bytes())
     assert b"Apache License" in files["LICENSE"][:200] and b"Lumeo" in files["NOTICE"]
-    assert "LICENSE.md" not in files  # the private repository's scope note must not be exported
+    assert "LICENSE.md" not in files

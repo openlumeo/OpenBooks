@@ -221,7 +221,6 @@ describe("params draft", () => {
   });
 });
 
-// ---- fixtures -------------------------------------------------------------------------------
 
 function thread(turns: Turn[]): Thread {
   return { id: "t", title: "t", createdAt: 0, updatedAt: 0, turns };

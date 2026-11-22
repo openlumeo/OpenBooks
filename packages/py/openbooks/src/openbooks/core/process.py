@@ -70,7 +70,7 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
         _require_balance(assertions)
         stage("balance")
         model_id = None
-        if p.model and ext in DOC_EXT:  # a --model release names the exact weights and calibration that cross-checked it
+        if p.model and ext in DOC_EXT:
             model_id = reg.frontend("document").identity(p)
         doc = {"schema_version": SCHEMA_VERSION, "status": "ok",
                "file": {"sha256": sha, "name": path.name, "detected_format": fmt_name,
@@ -83,7 +83,7 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
         return refusal_doc(r.code, r.message, sha)
     except Exception as e:
         if strict and isinstance(e, EngineFault):
-            raise  # already says what is wrong and how to fix it: do not wrap it in a second "EngineFault:" prefix
+            raise
         if strict and isinstance(e, (ImportError, MemoryError, OSError)):
             raise EngineFault(f"{type(e).__name__}: {e}") from e
         return refusal_doc("PARSE_ERROR", f"unexpected {type(e).__name__}: {e}", sha, internal=True)

@@ -40,7 +40,7 @@ def test_missing_providers_are_a_warning_naming_the_layouts_not_a_failure():
 def test_a_false_accept_is_reported_as_a_failure(monkeypatch):
     import openbooks.core
 
-    monkeypatch.setattr(openbooks.core, "process", lambda *a, **k: {"status": "ok"})  # an engine that releases everything
+    monkeypatch.setattr(openbooks.core, "process", lambda *a, **k: {"status": "ok"})
     cs = C.check_self_test(default_registry())
     bad = [c for c in cs if c.status == C.FAIL]
     assert bad and any("FALSE ACCEPT" in c.detail for c in bad)

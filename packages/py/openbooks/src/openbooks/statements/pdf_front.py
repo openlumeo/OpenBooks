@@ -40,8 +40,6 @@ def _loc(ws: list[Word]) -> tuple[int, list[float], float | None]:
 
 
 _READER = None
-# PDFium is process-wide and cannot be called concurrently, even for different documents.
-# This also protects the shared EasyOCR reader when the HTTP routes run in different threads.
 _DOCUMENT_LOCK = threading.Lock()
 
 

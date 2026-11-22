@@ -7,14 +7,11 @@ from decimal import Decimal
 
 from .errors import Refusal
 
-# ISO 4217 minor units; every other currency is 2.
 EXPONENT = {**dict.fromkeys(("BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW", "PYG", "RWF", "UGX", "UYI", "VND", "VUV",
                              "XAF", "XOF", "XPF"), 0),
             **dict.fromkeys(("BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND"), 3)}
 
 _PLAIN = re.compile(r"\d+(\.\d+)?")
-# Digit grouping must be one consistent system. Mixed or ragged groups (12,345,67  1,23) are a dropped or mistyped digit,
-# not a number, so they refuse instead of being read as something else.
 _WESTERN = re.compile(r"\d{1,3}(,\d{3})+(\.\d+)?")
 _INDIAN = re.compile(r"\d{1,2}(,\d{2})*,\d{3}(\.\d+)?")
 
@@ -44,7 +41,6 @@ def to_dec(raw: str, where: str, *, blank_zero: bool = False, dr_cr: bool = Fals
         raise Refusal("PARSE_ERROR", f"{where}: not a number: {raw!r}")
     digits = sum(c.isdigit() for c in s)
     if digits > MAX_AMOUNT_DIGITS:
-        # Decimal arithmetic silently rounds to 28 significant digits; an amount this long could make a wrong total look equal.
         raise Refusal("PARSE_ERROR", f"{where}: amount has more than {MAX_AMOUNT_DIGITS} digits: {raw.strip()[:40]!r}")
     return Decimal(s.replace(",", "")) * sign
 
@@ -55,7 +51,7 @@ _NUMERIC_DATE_FORMATS = {"dmy": ("%d/%m/%Y", "%d-%m-%Y", "%d/%m/%y", "%d-%m-%y",
                          "mdy": ("%m/%d/%Y", "%m-%d-%Y", "%m/%d/%y", "%m-%d-%y", "%m.%d.%Y", "%m.%d.%y")}
 _TIME_TAIL = re.compile(r"[ T]\d{1,2}:\d{2}(:\d{2})?(\s?[APap][Mm])?(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$")
 _NUMERIC_DATE = re.compile(r"^\s*(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}\b")
-YEAR_RANGE = (1970, 2100)  # outside this is an OCR or typing error, not a statement date
+YEAR_RANGE = (1970, 2100)
 
 
 def date_order(raws, forced: str | None = None, *, default: str | None = None, where: str = "dates") -> str:
@@ -98,7 +94,7 @@ def to_date(raw: str, where: str, order: str = "dmy") -> str:
 
 
 def fmt(d: Decimal, cur: str) -> str:
-    if not d.is_finite() or d.adjusted() >= MAX_AMOUNT_DIGITS:  # every parser's amounts pass through here on the way into a document
+    if not d.is_finite() or d.adjusted() >= MAX_AMOUNT_DIGITS:
         raise Refusal("PARSE_ERROR", f"amount is not a finite number with at most {MAX_AMOUNT_DIGITS} integer digits")
     q = Decimal(1).scaleb(-EXPONENT.get(cur, 2))
     if d != d.quantize(q):

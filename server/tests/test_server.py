@@ -108,7 +108,7 @@ def test_unavailable_model_keeps_health_and_other_routes_working(monkeypatch, cl
 def test_catalog_lists_exactly_the_layouts_the_engine_emits(client):
     listed = {lay for g in client.get("/v1/formats").json()["groups"] for lay in g["layouts"]}
     engine = engine_layouts()
-    assert {"paypal_activity.v1", "wise_statement.v1", "form_1099b.v1", "bank_statement_pdf.v1"} <= engine  # the scan works
+    assert {"paypal_activity.v1", "wise_statement.v1", "form_1099b.v1", "bank_statement_pdf.v1"} <= engine
     assert listed == engine, f"missing from catalog: {engine - listed}; not in engine: {listed - engine}"
 
 

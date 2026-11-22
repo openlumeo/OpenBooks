@@ -3,7 +3,6 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 type CalloutProps = ComponentProps<typeof Callout>;
 
-/* Fumadocs Callout with hand-drawn corner marks. Corners are decorative (aria-hidden). */
 export function SketchCallout({ type, className, children, ...rest }: CalloutProps) {
   const kind = type ?? "info";
   return (

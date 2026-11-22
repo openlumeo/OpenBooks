@@ -1,7 +1,3 @@
-/* docs: usePointerTilt(ref, { max: 6 }) on an inner element inside a perspective parent.
- * Tilts rotateX/rotateY toward the pointer with gsap.quickTo (spring ease), resets on leave.
- * Mouse and pen only; off for reduced motion and coarse pointers. Listeners are removed on unmount.
- * Apply to an element that does not also carry a Reveal transform (use a child wrapper). */
 'use client';
 
 import { useEffect, type RefObject } from 'react';

@@ -109,7 +109,6 @@ function runEvidenceTool(docs: DocRef[], input: unknown): ToolOutcome {
   return { content: JSON.stringify(r), isError: "error" in r, summary: summarise("get_evidence", p.data, r) };
 }
 
-/** Runs one model-requested tool against the released documents. Unknown names and bad input come back as errors, never throws. */
 export function runTool(docs: DocRef[], name: string, input: unknown): ToolOutcome {
   if (name === "query_transactions") return runQueryTool(docs, input);
   if (name === "get_evidence") return runEvidenceTool(docs, input);

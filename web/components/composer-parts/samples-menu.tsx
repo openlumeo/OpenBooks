@@ -10,7 +10,6 @@ type SamplesMenuProps = {
   onAddSample: (s: Sample) => void;
 };
 
-/** The "Samples" button and its popover. Closes on an outside click or Escape. */
 export function SamplesMenu({ samples, disabled, onAddSample }: SamplesMenuProps) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);

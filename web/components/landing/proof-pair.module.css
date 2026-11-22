@@ -1,7 +1,3 @@
-/* ProofPair: two flat instrument panels. Radius 0, hairlines, tokens only.
-   Lavender appears once, on the RELEASED stamp (the refused panel has none).
-   The stage animation is CSS only and runs once; the default is the final lit state. */
-
 .pair {
   display: grid;
   gap: clamp(16px, 2.5vw, 24px);
@@ -34,8 +30,6 @@
 }
 
 
-/* ---------- Stage trail ---------- */
-/* Slim trail: each stage is a 2px top bar plus a mono label and status. No filled tiles. */
 .trail {
   list-style: none;
   margin: 0;
@@ -117,7 +111,6 @@
   }
 }
 
-/* ---------- Ledger ---------- */
 .scroll {
   min-width: 0;
   overflow-x: auto;
@@ -188,8 +181,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Verdicts ---------- */
-/* Overlaps the released panel's bottom-right corner (as designed) so it adds no height to the panel. */
 .stamp {
   position: absolute;
   right: 14px;
@@ -207,7 +198,6 @@
   transform: rotate(2deg);
 }
 
-/* Phones: two stages per row so a stage label never breaks mid-word. */
 @media (max-width: 560px) {
   .trail {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -215,8 +205,6 @@
   }
 }
 
-/* Short viewports (about 720px tall): tighter ledger and stage rhythm so the RELEASED stamp stays above the fold.
-   Kept at the end of the file so it overrides the base rules above. */
 @media (max-height: 800px) {
   .ledger .line {
     min-height: 26px;

@@ -1,6 +1,5 @@
 import type { Thread } from "./types";
 
-// The original File objects for this tab only. History keeps results.
 const files = new Map<string, File[]>();
 
 export function rememberFiles(turnId: string, list: File[]) {

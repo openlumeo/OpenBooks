@@ -1,11 +1,6 @@
-// Hand-sketched illustration for the empty thread: an open ledger and a stack of files.
-// Decorative only (aria-hidden); the meaning is carried by the text beside it.
-// Strokes use slightly irregular paths so the marks read as drawn, not generated.
-
 export function EmptyArt() {
   return (
     <svg className="ob-empty-art" viewBox="0 0 220 168" aria-hidden="true" focusable="false">
-      {/* paper stack, back to front */}
       <g className="ob-art-files" fill="var(--surface-2)" stroke="var(--hairline)" strokeWidth="1.2" strokeLinejoin="round">
         <path d="M118 22 L170 19 L178 96 L124 100 Z" opacity="0.55" />
         <path d="M112 14 L168 12 L174 90 L118 93 Z" opacity="0.8" />
@@ -14,7 +9,6 @@ export function EmptyArt() {
         <path d="M117 34 L150 33 M116 44 L156 43 M115 54 L152 53 M115 64 L146 63" fill="none" stroke="var(--hairline)" strokeDasharray="1 0" />
       </g>
 
-      {/* open ledger */}
       <g className="ob-art-ledger" fill="var(--surface)" stroke="var(--text-muted)" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round">
         <path d="M14 58 C 40 48, 72 47, 102 56 L 102 150 C 72 141, 40 142, 14 151 Z" />
         <path d="M102 56 C 130 47, 160 48, 186 58 L 186 151 C 160 142, 130 141, 102 150 Z" />

@@ -15,7 +15,6 @@ const COPY = {
   "sign-in": { title: "Welcome back", sub: "Sign in to pick up where you left off.", cta: "Sign in", busy: "Signing in…", alt: ["New to Open Books?", "Create an account", "/auth/sign-up"] },
 } as const;
 
-/** Turn the auth server's terse errors into a sentence that names the problem and the fix. */
 function friendly(message: string | undefined, mode: Mode): string {
   const m = (message ?? "").toLowerCase();
   if (m.includes("exist")) return "An account with that email already exists. Try signing in instead.";

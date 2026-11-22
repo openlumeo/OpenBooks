@@ -1,26 +1,3 @@
-/* VERBATIM COPY of Lumeo frontend/web/app/site-chrome.css (Lumeo DESIGN.md is binding for Open Books).
-   Do not edit here. To update: re-copy from Lumeo, keeping this header.
-   Drift check: tail -n +4 this-file | diff - <lumeo>/frontend/web/app/site-chrome.css */
-/* =========================================================
-   LUMEO SITE CHROME — the shared header furniture.
-
-   Imported by BOTH route groups, alongside theme-tokens.css:
-     app/(marketing)/globals.css
-     app/(docs)/docs.css
-
-   These are the rules the shared <SiteNav> and its children need in
-   order to render as designed. They used to live in globals.css alone,
-   which meant /docs mounted the same components with none of their
-   styling: the theme toggle lost its hairline box, the CTA lost its
-   mint fill, and — because .brand-asset--* was missing — LumeoLockup
-   painted BOTH the white and the black cut at once, which is why the
-   docs header showed two logos side by side.
-
-   Moved verbatim from globals.css. Layered rules keep their @layer
-   components wrapper; the unlayered ones are unlayered on purpose and
-   the reasons are in their own comments.
-   ========================================================= */
-
 @layer components {
   .container {
     width: 100%;
@@ -29,9 +6,6 @@
     padding-inline: var(--gutter);
   }
 
-  /* =========================================================
-     Buttons — --accent fill with --on-accent text. Both flip per theme.
-     ========================================================= */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -92,7 +66,6 @@
     transform: translate(2px, -2px);
   }
 
-  /* CTA dot — lavender, and subject to the one-per-viewport rule */
   .cta-dot {
     display: inline-block;
     border-radius: 50%;
@@ -107,9 +80,6 @@
   }
 }
 
-/* =========================================================
-   Theme toggle — same sharp, hairline language as the nav.
-   ========================================================= */
 @layer components {
   .theme-toggle {
     display: inline-flex;
@@ -133,7 +103,6 @@
     background: color-mix(in srgb, var(--surface) 80%, transparent);
   }
 
-  /* Fixed box so swapping sun/moon never shifts the nav. */
   .theme-toggle-icon {
     display: inline-flex;
     align-items: center;
@@ -143,9 +112,6 @@
   }
 }
 
-/* Kill every transition/animation while the theme swaps, so the change reads
-   as instant instead of a 150ms cross-fade through muddy mid-tones.
-   Not inside @layer components: this must beat everything. */
 html.theme-switching *,
 html.theme-switching *::before,
 html.theme-switching *::after {
@@ -153,11 +119,6 @@ html.theme-switching *::after {
   animation-duration: 0.001ms !important;
 }
 
-/* Tailwind v4 ships its own `.container` utility in @layer utilities, which
-   otherwise beats the layout container defined up in @layer components and
-   strips its centering + gutter — leaving every Section flush against the
-   viewport edge. Re-declare it unlayered (beats all @layers) so the intended
-   1280px / 24px-gutter tokens win site-wide. */
 .container {
   width: 100%;
   max-width: var(--content-max);
@@ -165,12 +126,6 @@ html.theme-switching *::after {
   padding-inline: var(--gutter);
 }
 
-/* Official brand artwork is fixed-colour raster, so it cannot follow --text the
-   way a vector mark would. Both cuts ship and CSS hides one. Deliberately
-   unlayered so no utility can win over it, and written so the DARK asset is the
-   default: dark is the brand default theme and the html element carries no
-   data-theme attribute until a visitor explicitly picks light, which means the
-   correct cut is painted on first frame with no flash. */
 .brand-asset--light {
   display: none;
 }

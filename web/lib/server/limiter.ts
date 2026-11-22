@@ -6,27 +6,24 @@ import { createTokenBucket } from "@/lib/token-bucket";
 export type Limit = { readonly capacity: number; readonly refillPerSec: number };
 export type Verdict = { allowed: boolean; retryAfterSec: number };
 
-/** Per-route limits. A "run" is one request, however many files it carries. */
 export const LIMITS = {
   runs: { capacity: 10, refillPerSec: 1 / 20 },
   roles: { capacity: 20, refillPerSec: 1 / 10 },
   jobStatus: { capacity: 24, refillPerSec: 2 },
   link: { capacity: 30, refillPerSec: 1 / 5 },
-  ask: { capacity: 10, refillPerSec: 1 / 30 }, // calls the paid LLM
+  ask: { capacity: 10, refillPerSec: 1 / 30 },
   subscribe: { capacity: 5, refillPerSec: 1 / 60 },
   setupStart: { capacity: 8, refillPerSec: 1 / 30 },
   setupStatus: { capacity: 80, refillPerSec: 1 },
   setupMcp: { capacity: 40, refillPerSec: 1 / 2 },
 } as const satisfies Record<string, Limit>;
 
-/** Trust the final forwarded address added by the configured reverse proxy, not caller-supplied entries. */
 export function clientKey(req: Request): string {
   if (process.env.NETLIFY === "true") return req.headers.get("x-nf-client-connection-ip")?.trim() || "unknown";
   const forwarded = req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
   return forwarded || "unknown";
 }
 
-// Local development can run without a database. Production must use shared state.
 const local = new Map<string, ReturnType<typeof createTokenBucket>>();
 function takeLocal(name: string, key: string, limit: Limit): Verdict {
   let bucket = local.get(name);
@@ -39,7 +36,6 @@ function takeLocal(name: string, key: string, limit: Limit): Verdict {
 
 const PRUNE_ODDS = 0.01;
 
-/** Atomic shared token bucket in Neon (public.take_token), so every server instance draws from one bucket. */
 export async function takeShared(name: string, key: string, limit: Limit): Promise<Verdict> {
   const url = process.env.DATABASE_URL;
   if (!url) {
@@ -62,7 +58,6 @@ export async function takeShared(name: string, key: string, limit: Limit): Promi
   }
 }
 
-/** Returns a 429 response when the caller is over the limit, otherwise null. */
 export async function limitOr429(req: Request, name: keyof typeof LIMITS): Promise<Response | null> {
   let verdict: Verdict;
   try {

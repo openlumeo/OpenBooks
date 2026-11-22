@@ -5,13 +5,10 @@ import { limitOr429 } from "@/lib/server/limiter";
 const JOB_HEADER = "x-openbooks-job";
 const JOB_KEY = /^[a-f0-9]{32}$/;
 
-/** The engine service. Loopback only: the browser never talks to it directly. */
 const ENGINE_URL = (process.env.OPENBOOKS_ENGINE_URL ?? "http://127.0.0.1:8765").replace(/\/+$/, "");
 
 const ENGINE_KEY = process.env.OPENBOOKS_ENGINE_KEY ?? "";
 
-// Connection-setup failures only: the request never reached the engine, so repeating it is safe.
-// (undici's connect timeout is 10 s; the processing time is bounded by the caller's signal, not here.)
 const SETUP_ERRORS = new Set(["ECONNREFUSED", "ECONNRESET", "ENOTFOUND", "EAI_AGAIN", "UND_ERR_CONNECT_TIMEOUT"]);
 const SETUP_RETRIES = 2;
 const SETUP_BACKOFF_MS = 250;
@@ -21,12 +18,10 @@ function failedBeforeSending(error: unknown): boolean {
   return typeof code === "string" && SETUP_ERRORS.has(code);
 }
 
-/** The tunnel key is scoped to the configured origin. Every call carries an x-request-id the engine echoes and logs. */
 export async function engineFetch(path: `/v1/${string}`, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
   if (ENGINE_KEY) headers.set("x-openbooks-key", ENGINE_KEY);
   if (!headers.has("x-request-id")) headers.set("x-request-id", crypto.randomUUID());
-  // A streamed body cannot be replayed, so those requests are never retried.
   const replayable = !(init.body && typeof (init.body as ReadableStream).getReader === "function");
   for (let attempt = 0; ; attempt += 1) {
     try {
@@ -59,7 +54,6 @@ export function relay(upstream: Response, extra: Record<string, string> = {}): R
   return new Response(upstream.body, { status: upstream.status, headers });
 }
 
-/** Streams a multipart upload to the engine and relays its response. A caller that aborted gets 499. */
 export async function proxyUpload(req: Request, path: `/v1/${string}`, extra: Record<string, string>): Promise<Response> {
   const headers = new Headers({ "content-type": req.headers.get("content-type") ?? "" });
   const job = req.headers.get(JOB_HEADER);
@@ -73,7 +67,6 @@ export async function proxyUpload(req: Request, path: `/v1/${string}`, extra: Re
       headers,
       body: req.body,
       signal: req.signal,
-      // Required by Node's fetch to send a streaming request body.
       duplex: "half",
     } as RequestInit & { duplex: "half" });
     return relay(upstream, extra);
@@ -83,7 +76,6 @@ export async function proxyUpload(req: Request, path: `/v1/${string}`, extra: Re
   }
 }
 
-/** The job key is a short-lived capability. Keep it out of URLs and shared caches. */
 export async function proxyJobStatus(req: Request, path: "/v1/runs" | "/v1/roles"): Promise<Response> {
   const job = req.headers.get(JOB_HEADER);
   if (!job || !JOB_KEY.test(job)) return jsonError(400, "invalid_job_key", "Invalid upload job key.", NO_STORE_HEADERS);

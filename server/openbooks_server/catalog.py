@@ -84,7 +84,6 @@ FORMATS = [
     },
 ]
 
-# Samples worth showing first, in order. Every other golden case stays reachable through /v1/samples.
 FEATURED = [
     ("ok_bank_csv", "Bank statement CSV"),
     ("bad_bank_balance_break", "Bank CSV with a tampered balance"),
@@ -120,14 +119,13 @@ def health() -> dict:
         "ocr_available": ocr_issue is None,
         "ocr_issue": ocr_issue,
         **model,
-        "model_weights_present": model["model_ready"],  # compatibility with older clients
+        "model_weights_present": model["model_ready"],
         "link_available": installed_linker() is not None,
         "max_bytes": MAX_BYTES,
         "allowed_extensions": sorted(ALLOWED_EXT),
     }
 
 
-# Layouts built from public descriptions of an export, with no real redacted sample tested yet (parsers_more.py).
 UNVERIFIED = [
     {"layout": "paypal_activity.v1", "name": "PayPal activity"},
     {"layout": "wise_statement.v1", "name": "Wise statement"},

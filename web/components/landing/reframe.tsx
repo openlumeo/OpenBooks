@@ -1,7 +1,3 @@
-// Section "reframe": confidence is not evidence. The two ledgers stagger row by row on entry.
-// The four figures are real amounts from proof-data.ts (RELEASED.rows). The confidence
-// tags on the left illustrate a typical extraction tool; they are not engine output and
-// are labelled ILLUSTRATIVE.
 import { Reveal } from "@/components/motion/reveal";
 import { SketchAnnotation } from "@/components/motion/sketch";
 import { ParallaxLayer } from "@/components/motion/parallax";
@@ -14,7 +10,6 @@ import styles from "./reframe.module.css";
 
 const FIGURES = RELEASED.rows.slice(0, 4);
 
-/** Illustrative confidence scores shown by a typical extraction tool, one per figure. */
 const TYPICAL_SCORES = ["97%", "94%", "99%", "88%"] as const;
 
 export function Reframe() {

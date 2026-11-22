@@ -60,7 +60,7 @@ def test_reading_of_a_pdf(client, pdf, model):
         assert t["abstained"] == (len(t["role_set"]) != 1)
         x0, y0, x1, y1 = t["box"]
         assert -0.01 <= x0 <= x1 <= 1.01 and -0.01 <= y0 <= y1 <= 1.01
-    assert doc["model"] == model.identity  # same hashes a --model release records
+    assert doc["model"] == model.identity
     health = client.get("/v1/health").json()
     assert health["model_ready"] and health["model_identity"] == doc["model"]
 
@@ -69,7 +69,7 @@ def test_batched_logits_equal_the_stock_path(pdf, model):
     pages, _ = read_words(pdf, Params())
     words = [w for pg in pages for w in pg]
     r0, t0 = model.logits(words)
-    r1, t1 = logits_batched(model, words, max_tokens=1024)  # small budget forces several batches
+    r1, t1 = logits_batched(model, words, max_tokens=1024)
     assert np.abs(r0 - r1).max() < 1e-3 and np.abs(t0 - t1).max() < 1e-3
     assert model.role_cal.sets(r0) == model.role_cal.sets(r1)
 

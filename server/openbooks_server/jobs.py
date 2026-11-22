@@ -82,7 +82,6 @@ class Jobs:
         job = self.entries[index] = Job(self.remaining)
 
         def error(message: str) -> None:
-            # Keep previously delivered cursors valid. Reserve this short terminal frame even at the result limit.
             job.frames.append(json.dumps({"event": "error", "data": {"message": message}}).encode())
 
         async def run() -> None:

@@ -9,7 +9,6 @@ export function GET(req: Request) {
   return proxyJobStatus(req, "/v1/roles");
 }
 
-/** The typed heads' own reading of one PDF or scan. Streams the multipart upload (file, params) to the engine. */
 export async function POST(req: Request) {
   const limited = await limitOr429(req, "roles");
   if (limited) return limited;

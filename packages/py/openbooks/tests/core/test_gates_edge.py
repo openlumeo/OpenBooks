@@ -39,7 +39,6 @@ def test_zero_balance_statement_with_no_rows_passes_its_closing_check():
 
 
 def test_exact_decimal_arithmetic_has_no_float_drift():
-    # 0.10 + 0.20 == 0.30 exactly in Decimal; a float implementation would fail this.
     data = {"batches": [_statement(opening="0.10", closing="0.30")],
             "transactions": [_txn("t1", "b1", "credit", "0.20", balance_after="0.30")]}
     assert _by_rule(run_gate(data))["b1: opening + sum(txns) = closing"]["passed"] is True

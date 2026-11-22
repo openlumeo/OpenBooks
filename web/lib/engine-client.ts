@@ -1,4 +1,3 @@
-// Browser-side calls. Everything goes through this app's own /api routes.
 import { parseNDJSON, parseSSE } from "./sse";
 import type { EngineDoc, Formats, Health, LinkReport, ReleasedDoc, RolesDoc, RunParams, Sample, Stage } from "./types";
 
@@ -126,7 +125,6 @@ export async function* runFiles(
   throw new Error("The connection ended before the engine confirmed the run.");
 }
 
-/** The typed heads' own reading of one PDF or scan: per word role, value type, conformal sets and abstention. */
 export async function predictRoles(file: File, params: Pick<RunParams, "ocr" | "date_order"> = {}, signal?: AbortSignal): Promise<RolesDoc> {
   const fd = new FormData();
   fd.append("file", file, file.name);

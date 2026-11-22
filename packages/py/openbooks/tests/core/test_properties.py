@@ -27,9 +27,9 @@ def test_well_formed_western_and_plain_numbers_round_trip_exactly(n, frac):
 @given(st.integers(1000, 10**12))
 def test_ragged_digit_grouping_is_refused_not_reinterpreted(n):
     s = f"{n:,}"
-    ragged = s.replace(",", "", 1) if s.count(",") > 1 else s + ",5"  # a dropped separator or a stray group
+    ragged = s.replace(",", "", 1) if s.count(",") > 1 else s + ",5"
     if ragged.replace(",", "").isdigit() and "," not in ragged:
-        return  # became a plain number
+        return
     with pytest.raises(Refusal):
         to_dec(ragged, "t")
 
@@ -46,7 +46,7 @@ def test_fmt_never_rounds(n, cur):
     exact = Decimal(n).scaleb(-exp)
     assert Decimal(fmt(exact, cur)) == exact
     with pytest.raises(Refusal):
-        fmt(exact + Decimal(1).scaleb(-(exp + 1)), cur)  # one more decimal than the currency allows
+        fmt(exact + Decimal(1).scaleb(-(exp + 1)), cur)
 
 
 @settings(max_examples=300)
@@ -56,7 +56,7 @@ def test_ambiguous_numeric_dates_are_never_guessed(a, b, y):
     if a > 12 or b > 12:
         return
     with pytest.raises(Refusal):
-        date_order(raws)  # no day or month above 12 proves the order, so it must refuse
+        date_order(raws)
     assert date_order(raws, "dmy") == "dmy" and date_order(raws, "mdy") == "mdy"
 
 
@@ -65,7 +65,7 @@ def test_a_first_field_above_12_proves_day_first_and_a_second_above_12_proves_mo
     assert date_order([f"{d}/{m:02d}/{y}"]) == "dmy"
     assert date_order([f"{m:02d}/{d}/{y}"]) == "mdy"
     with pytest.raises(Refusal):
-        date_order([f"{d}/{m:02d}/{y}", f"{m:02d}/{d}/{y}"])  # both orders in one file
+        date_order([f"{d}/{m:02d}/{y}", f"{m:02d}/{d}/{y}"])
 
 
 @given(st.integers(2000, 2099), st.integers(1, 12), st.integers(1, 28))

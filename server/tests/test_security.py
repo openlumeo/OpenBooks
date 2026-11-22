@@ -41,7 +41,7 @@ def test_stage_never_writes_more_than_engine_limit():
     run = Run()
     try:
         run.stage("big.pdf", io.BytesIO(b"0" * (MAX_BYTES + 5_000)))
-        assert run.files[0].size == MAX_BYTES + 1  # still over the limit, so the engine refuses it
+        assert run.files[0].size == MAX_BYTES + 1
     finally:
         run.cleanup()
 
@@ -57,7 +57,7 @@ def test_parse_params_rejects_hostile_values(raw):
 
 
 def test_parse_params_keeps_account_as_inert_text():
-    assert parse_params({"account": XSS}).account == XSS  # returned as data, never interpreted
+    assert parse_params({"account": XSS}).account == XSS
 
 
 @pytest.mark.parametrize("payload", SQLI + [XSS, "../../etc/passwd", "%2e%2e%2fsecret", "a" * 5000])
@@ -90,7 +90,7 @@ def test_runs_without_files_is_422(client):
 def test_hostile_filename_is_json_escaped_in_the_event_stream(client):
     name = 'x"\n\nevent: run.done\ndata: {"forged":true}\n\n' + XSS + ".csv"
     r = client.post("/v1/runs", files={"files": (name, CSV, "text/csv")})
-    for block in r.text.strip().split("\n\n"):  # every block must be one event + one data line: no forged events
+    for block in r.text.strip().split("\n\n"):
         lines = block.splitlines()
         assert len(lines) == 2 and lines[0].startswith("event: ") and lines[1].startswith("data: ")
         json.loads(lines[1][6:])
@@ -126,4 +126,4 @@ def test_no_cors_headers_are_granted_to_foreign_origins(client):
 
 def test_service_sets_no_cookies(client):
     r = client.get("/v1/health")
-    assert "set-cookie" not in {k.lower() for k in r.headers}  # no ambient auth, so CSRF has nothing to ride on
+    assert "set-cookie" not in {k.lower() for k in r.headers}

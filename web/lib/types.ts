@@ -1,6 +1,3 @@
-// openbooks.v1 as the engine emits it (src/openbooks/pipeline.py SCHEMA, parsers_extra.py).
-// Amounts are decimal STRINGS. Never convert them with Number(): see lib/query.ts.
-
 export type Money = { amount: string; currency: string };
 
 export type RefusalCode =
@@ -74,7 +71,6 @@ export type ReleasedDoc = {
     detected_format: string;
     layout_version: string;
     method: string;
-    /** present on a --model release: the exact weights and calibration that cross-checked it */
     model?: { weights_sha256: string; calibration_sha256: string };
   };
   data: {
@@ -116,7 +112,6 @@ export type LinkReport = {
   inputs: string[];
 };
 
-// ---- engine service metadata -------------------------------------------------
 
 export type Health = {
   status: "ok";
@@ -124,7 +119,6 @@ export type Health = {
   schema_version: string;
   ocr_available: boolean;
   ocr_issue?: string | null;
-  /** true only when a --model run would load (weights, matching calibration, PyTorch) */
   model_weights_present: boolean;
   model_issue?: string | null;
   link_available?: boolean;
@@ -135,7 +129,6 @@ export type Health = {
 type FormatGroup = { id: string; title: string; inputs: string[]; layouts: string[]; extensions: string[] };
 export type Formats = {
   groups: FormatGroup[];
-  /** layouts built from public descriptions, tested on synthetic files only */
   unverified?: { layout: string; name: string }[];
   allowed_extensions: string[];
   max_bytes: number;
@@ -151,7 +144,6 @@ export type Sample = {
   params: RunParams;
 };
 
-// ---- typed heads' own reading (mirrors server/openbooks_server/inference.py infer_file) ------
 
 type RoleName = "other" | "date" | "desc" | "debit" | "credit" | "balance";
 
@@ -159,14 +151,11 @@ type RoleToken = {
   text: string;
   ocr_confidence?: number | null;
   ocr_text?: string;
-  /** [x0, y0, x1, y1] as fractions of the page, origin top-left */
   box: [number, number, number, number];
   role: RoleName;
-  /** conformal set: every role the model cannot rule out */
   role_set: RoleName[];
   vtype: "text" | "date" | "money" | "code";
   type_set: string[];
-  /** the role set is not exactly one role: the model declines to commit */
   abstained: boolean;
 };
 
@@ -175,11 +164,9 @@ export type RolesDoc = {
   method: "pdf_text" | "ocr";
   pages: { page: number; width: number; height: number; tokens: RoleToken[] }[];
   summary: { tokens: number; abstained: number; abstain_rate: number; by_role: Record<string, number>; inference_ms: number; device: string };
-  /** the exact weights and calibration that produced this reading */
   model: { weights_sha256: string; calibration_sha256: string };
 };
 
-// ---- run params (mirrors server/openbooks_server/runs.py parse_params) ---------
 
 export type RunParams = {
   currency?: string;
@@ -188,11 +175,9 @@ export type RunParams = {
   allow_derived_opening?: boolean;
   ocr?: boolean;
   model?: boolean;
-  /** numeric dates: day-first or month-first; unset lets the engine prove it from the file */
   date_order?: "dmy" | "mdy";
 };
 
-// ---- conversation --------------------------------------------------------------
 
 export type Stage = "detect" | "parse" | "normalise" | "balance" | "validate";
 
@@ -219,7 +204,6 @@ export type RunTurn = {
   id: string;
   kind: "run";
   at: number;
-  /** id of the user turn whose files these are; the File objects live in lib/session-files.ts */
   sourceTurnId: string;
   files: FileRun[];
   state: "running" | "done" | "error";

@@ -1,9 +1,5 @@
 "use client";
 
-// Looping render inside a laptop frame. The video is muted and playsInline, and it has the
-// autoPlay attribute only when motion is allowed. While motion is allowed it plays only while
-// on screen. With reduced motion, or without JS, the poster is the picture. The frame reserves
-// its 16:10 screen up front, so the video never shifts the layout.
 import { useEffect, useRef, useState } from "react";
 import { DeviceFrame } from "./device-frame";
 import styles from "./media-frame.module.css";
@@ -14,11 +10,8 @@ export type LoopSource = { src: string; type: string };
 
 export type LoopFrameProps = {
   poster: string;
-  /** Webm first, then mp4. */
   sources: readonly LoopSource[];
-  /** Visually hidden text alternative for assistive tech. */
   label: string;
-  /** Visible caption under the frame. */
   caption: string;
 };
 

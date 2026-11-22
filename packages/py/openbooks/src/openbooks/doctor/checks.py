@@ -188,7 +188,6 @@ STRIPE = "balance_transaction_id,created,currency,gross,fee,net\nt1,2026-01-15 1
 TDS = ("Deductor Name,TAN,Section,Transaction Date,Amount Paid/Credited,Tax Deducted,TDS Deposited\n"
        "Acme Ltd,MUMA12345B,194C,15/04/2025,100000.00,2000.00,2000.00\nTotal,,,,100000.00,2000.00,2000.00\n")
 MT940 = ":20:S1\n:25:123\n:60F:C260101INR1000,00\n:61:2601050105C500,00NTRFNONREF//B1\n:86:Salary\n:62F:C260105INR1500,00\n"
-# (layout the case needs, file extension, good text, tampered text, params)
 SELF_TEST = [
     ("bank_csv.v1", "csv", BANK, BANK.replace("1299.50", "1299.51"), {"currency": "INR", "opening": Decimal("1000.00")}),
     ("mt940.v1", "sta", MT940, MT940.replace("1500,00", "1500,01"), {}),

@@ -126,7 +126,6 @@ def logits_of(net, items, dev, bs=16):
     ro, ty, yr, yt = [], [], [], []
     for i in range(0, len(items), bs):
         W, S, X, pad, R, H, Y, T = collate(items[i:i + bs], dev)
-        # Match deployed inference precision when fitting and scoring calibration.
         r, t = net(W, S, X, pad, R, H)
         keep = ~pad
         ro.append(r.float()[keep].cpu().numpy())

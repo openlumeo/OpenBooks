@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { gsap, useGSAP, MOTION_OK, markMotionReady } from "@/components/motion/gsap-setup";
 import styles from "./trace.module.css";
 
-/** Margin rule drawn down the transaction fields; it ends on Balance after with a mint dot. */
 export function TraceLine() {
   const ref = useRef<HTMLSpanElement>(null);
 

@@ -21,9 +21,8 @@ from openbooks.statements.labels import ROLES, VTYPES
 from openbooks.statements.pdf_front import read_words
 from openbooks.statements.roles import Predictions, RoleModel
 
-MAX_BATCH_TOKENS = 4096  # padded tokens per forward; 8 full 512-token windows, ~50 MB of attention scores
+MAX_BATCH_TOKENS = 4096
 
-# One GPU: one forward at a time. ponytail: a micro-batching queue across requests if concurrent load ever matters.
 _GPU = threading.Lock()
 
 
@@ -37,7 +36,7 @@ def _pad(parts: list[tuple], dev) -> tuple:
         for p in parts:
             t, k = p[i], n - p[i].shape[1]
             if k:
-                if fill is None:  # R: a pad token is "not money", in no row
+                if fill is None:
                     tail = torch.tensor([NOT_MONEY, 0], device=dev).expand(1, k, 2)
                 else:
                     tail = torch.full((1, k, *t.shape[2:]), fill, dtype=t.dtype, device=dev)
@@ -53,7 +52,7 @@ def logits_batched(model: RoleModel, words, max_tokens: int = MAX_BATCH_TOKENS) 
     role = np.zeros((len(words), len(ROLES)), dtype=np.float32)
     vt = np.zeros((len(words), len(VTYPES)), dtype=np.float32)
     wins = windows(words)
-    order = sorted(range(len(wins)), key=lambda k: len(wins[k]))  # similar lengths together = little padding
+    order = sorted(range(len(wins)), key=lambda k: len(wins[k]))
     i = 0
     while i < len(order):
         group = [order[i]]
@@ -93,7 +92,7 @@ def _page_json(page_no: int, words, preds: Predictions) -> dict:
             "text": w.text,
             **({"ocr_text": w.orig} if w.orig is not None else {}),
             "ocr_confidence": w.conf,
-            "box": [round(w.x0 / pw, 4), round(w.y0 / ph, 4), round(w.x1 / pw, 4), round(w.y1 / ph, 4)],  # 0..1 of the page
+            "box": [round(w.x0 / pw, 4), round(w.y0 / ph, 4), round(w.x1 / pw, 4), round(w.y1 / ph, 4)],
             "role": p.role, "role_set": list(p.role_set),
             "vtype": p.vtype, "type_set": list(p.type_set),
             "abstained": len(p.role_set) != 1,
@@ -126,7 +125,7 @@ def infer_file(path: Path, params: Params, model: RoleModel, timings: dict | Non
         timings["serialization"] = time.perf_counter() - t_ser
     return {
         "schema_version": "openbooks.roles.v1",
-        "method": method,  # pdf_text | ocr
+        "method": method,
         "pages": out_pages,
         "summary": {
             "tokens": n,
@@ -136,5 +135,5 @@ def infer_file(path: Path, params: Params, model: RoleModel, timings: dict | Non
             "inference_ms": round(ms, 1),
             "device": str(model.dev),
         },
-        "model": model.identity,  # weights_sha256 + calibration_sha256, same fields a --model release records
+        "model": model.identity,
     }

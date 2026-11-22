@@ -1,10 +1,5 @@
 import type { Batch, BatchKind, Money, Transaction } from "./types";
 
-/**
- * Group the integer part of a decimal string for display, without ever parsing it as a float.
- * INR uses Indian grouping (1,23,45,678.90); everything else groups by thousands.
- * The digits, sign and decimals are exactly the engine's.
- */
 export function groupAmount(amount: string, currency?: string): string {
   const neg = amount.startsWith("-");
   const body = neg ? amount.slice(1) : amount;
@@ -28,7 +23,6 @@ type Column = {
   key: string;
   label: string;
   numeric?: boolean;
-  /** evidence field name for this column, when one exists */
   field?: string;
   get: (t: Transaction) => string;
 };
@@ -105,7 +99,6 @@ const COLUMNS: Record<BatchKind, Column[]> = {
   ],
 };
 
-/** Columns for a batch, dropping optional columns no row fills (e.g. FIRA without charges). */
 export function columnsFor(kind: BatchKind, rows: Transaction[]): Column[] {
   const cols = COLUMNS[kind] ?? COLUMNS.statement;
   return cols.filter((c) => c.key === "date" ? rows.some((r) => r.date) : rows.some((r) => c.get(r) !== ""));
@@ -139,7 +132,6 @@ const SUMMARY: [string, string][] = [
   ["total_gain_loss", "Printed total gain / loss"],
 ];
 
-/** Label/value pairs for the batch header, in a stable order, only for fields the batch has. */
 export function batchSummary(b: Batch): { key: string; label: string; value: string; note?: string }[] {
   const out: { key: string; label: string; value: string; note?: string }[] = [];
   if (b.period_start || b.period_end) {

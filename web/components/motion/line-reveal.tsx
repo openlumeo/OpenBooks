@@ -4,7 +4,6 @@ import { gsap, SplitText, useGSAP, MOTION_OK, markMotionReady } from '@/componen
 
 export type LineRevealProps = HTMLAttributes<HTMLElement> & { as?: ElementType; children: ReactNode };
 
-/** Heading whose lines rise out of a clip mask at 85% of the viewport. Static without motion. */
 export function LineReveal({ as: Tag = 'h2', children, ...rest }: LineRevealProps) {
   const ref = useRef<HTMLElement>(null);
   useGSAP(

@@ -1,5 +1,3 @@
-/* Flat panel: radius 0, hairline border, semi-opaque surface. No glass, no blur. */
-
 .panel {
   border: 1px solid var(--hairline);
   border-radius: 0;
@@ -52,7 +50,6 @@
   overflow-x: auto;
 }
 
-/* Ledger row. Matched is the default: a 2px --accent left border (reconciled is --accent). */
 .row {
   display: flex;
   align-items: center;

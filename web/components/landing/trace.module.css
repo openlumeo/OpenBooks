@@ -1,5 +1,3 @@
-/* Section 4 (Trace). Flat instrument panel; radius 0; tokens only. */
-
 .lede {
   max-width: 62ch;
   color: var(--text-muted);
@@ -36,7 +34,6 @@
   padding: 16px;
 }
 
-/* The mint bar is the ReconRow border; the text sits 16px inside it so no label or value touches the bar. */
 .txRow {
   min-height: 0;
   padding: 0 0 0 16px;
@@ -104,7 +101,6 @@
 
 .meta {
   margin: 0;
-  /* Same text inset as the transaction fields: bar (2px) + 16px. */
   padding-left: 18px;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -192,13 +188,10 @@
   }
 }
 
-/* Reveal wrapper for the evidence figure. */
 .reveal {
   min-width: 0;
 }
 
-/* FOLLOW THE BOX: a short mint arrow from the amount toward the evidence block. The note sits
-   to the right of the arrow, on the same line, so it never meets the status line or the column label. */
 .arrowAt > svg {
   width: 5em;
   height: 1em;
@@ -213,13 +206,10 @@
   white-space: nowrap;
 }
 
-/* Light theme: use the ink accent for the mint arrow on paper. */
 .arrowAt > svg {
   stroke: var(--accent);
 }
 
-/* Sketched connector: a hand-drawn arrow from the transaction block to its evidence entries.
-   Absolutely placed on the seam so it never takes a grid cell. Desktop only. */
 .connector {
   display: none;
 }

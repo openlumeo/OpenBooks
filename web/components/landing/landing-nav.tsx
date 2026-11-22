@@ -1,18 +1,11 @@
 "use client";
 
-// Floating primary nav. Expanded at the top of the page, shrinks once the
-// page scrolls past the NavSentinel. IntersectionObserver only, no scroll
-// listener. Without JS the nav renders expanded and fully functional.
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import { ThemeToggle } from "@/components/brand/theme-toggle";
 import styles from "./landing-nav.module.css";
 
-/**
- * 1px marker placed at the very top of the landing page. LandingNav watches it:
- * once it leaves the viewport the nav shrinks. Safe to render from a server component.
- */
 export function NavSentinel() {
   return <div aria-hidden="true" data-nav-sentinel className="lp-nav-sentinel" />;
 }

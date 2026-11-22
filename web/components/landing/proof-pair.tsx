@@ -1,7 +1,3 @@
-// The hero's object: the released statement beside its tampered twin, both
-// rendered from real engine output (see proof-data.ts). Server-safe, no hooks.
-// Rows default to their final state; the stage animation runs only under
-// prefers-reduced-motion: no-preference (proof-pair.module.css).
 import type { CSSProperties, ReactNode } from "react";
 import { ReconPanel, ReconRow } from "./reconciliation";
 import { ENGINE_STAGES, RELEASED, TAMPERED, type LedgerLine } from "./proof-data";
@@ -13,7 +9,6 @@ export type ProofPairProps = {
 
 type StageState = "pass" | "fail" | "not-run";
 
-/** Display label for the refused twin. The file on disk is statement-tampered.csv. */
 const REFUSED_FILE_LABEL = "statement.csv, one balance altered";
 
 const STATE_LABEL: Record<StageState, string> = {
@@ -66,7 +61,6 @@ function Ledger({
   rows: readonly LedgerLine[];
   hiddenCount: number;
   unmatchedId?: string;
-  /** Engine closing balance. Omitted for a refused file, which has no closing claim. */
   closing?: string;
   children?: ReactNode;
 }) {

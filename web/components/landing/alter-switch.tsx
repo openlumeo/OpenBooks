@@ -1,6 +1,3 @@
-// AlterSwitch: the single control of the proof instrument. A real switch button.
-// Off = the released balance; on = the altered (refused) balance. The state word
-// keeps the meaning readable without colour. The stage owns the live region.
 'use client';
 
 import styles from './alter-switch.module.css';

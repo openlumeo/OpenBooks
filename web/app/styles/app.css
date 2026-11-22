@@ -1,12 +1,3 @@
-/* =========================================================
-   OPEN BOOKS WORKSPACE — Lumeo instrument-panel language.
-   Tokens only (theme-tokens.css). Radius 0 everywhere; this
-   surface uses no glass, so there is no rounded element except
-   the round status dots and the one lavender CTA dot.
-   Base + atmosphere rules are carried over from Lumeo
-   (marketing)/globals.css so the app paints the same ground.
-   ========================================================= */
-
 @layer components {
   * { box-sizing: border-box; }
 
@@ -26,7 +17,6 @@
 
   body:has(.ob-shell) { overflow: hidden; }
 
-  /* Plum bloom, bottom-right; atmosphere only (Lumeo). */
   body:has(.ob-shell)::before {
     content: "";
     position: fixed;
@@ -42,7 +32,6 @@
     background: linear-gradient(to bottom, var(--mint-soft) 0%, transparent 38%);
   }
 
-  /* Fine grain so large dark fields never band (Lumeo). */
   body:has(.ob-shell)::after {
     content: "";
     position: fixed;
@@ -66,7 +55,6 @@
     outline-offset: 2px;
   }
 
-  /* Scrollbars carry the palette: thin, square, hairline. */
   * { scrollbar-width: thin; scrollbar-color: var(--surface-2) transparent; }
   *::-webkit-scrollbar { width: 10px; height: 10px; }
   *::-webkit-scrollbar-thumb { background: var(--surface-2); border: 3px solid transparent; background-clip: padding-box; }
@@ -90,7 +78,6 @@
     overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
   }
 
-  /* Mono label: data, measurement and status only — never a kicker above a heading. */
   .mono-label {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -101,9 +88,6 @@
   }
   .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
-  /* ---------------------------------------------------------
-     Shell
-     --------------------------------------------------------- */
   .ob-shell {
     position: relative;
     z-index: 1;
@@ -220,7 +204,6 @@
   .ob-maturity:hover { color: var(--text-muted); }
   .ob-maturity svg { flex-shrink: 0; margin-top: 1px; }
 
-  /* Small square icon button (hairline), same family as the theme toggle. */
   .icon-btn {
     display: inline-flex;
     align-items: center;
@@ -249,12 +232,8 @@
   .btn-ghost:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--surface) 55%, transparent); }
   .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
-  /* Mobile top bar, hidden on desktop. */
   .ob-topbar { display: none; }
 
-  /* ---------------------------------------------------------
-     Main column
-     --------------------------------------------------------- */
   .ob-main { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 
   .ob-scroll { flex: 1; min-height: 0; overflow-y: auto; scroll-behavior: smooth; }
@@ -272,9 +251,6 @@
     color: var(--text);
   }
 
-  /* ---------------------------------------------------------
-     Empty state
-     --------------------------------------------------------- */
   .ob-empty { padding-block: clamp(32px, 7vh, 72px) 24px; display: flex; flex-direction: column; gap: 36px; }
   .ob-empty-head { display: flex; flex-direction: column; gap: 16px; max-width: 62ch; }
   .ob-empty-maturity { display: inline-flex; align-items: center; gap: 8px; }
@@ -328,7 +304,6 @@
   .ob-sample-file { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-faint); margin-left: 10px; }
   .ob-sample-add { color: var(--text-faint); transition: color var(--dur) var(--ease); }
 
-  /* Expected-outcome tag: square, hairline. */
   .tag {
     display: inline-flex;
     align-items: center;
@@ -347,9 +322,6 @@
   .tag--bad { border-color: color-mix(in srgb, var(--unmatched) 50%, transparent); }
   .tag--bad .dot { background: var(--unmatched); }
 
-  /* ---------------------------------------------------------
-     Turns
-     --------------------------------------------------------- */
   .turn { display: flex; flex-direction: column; gap: 12px; animation: obEnter 420ms var(--ease) both; }
   @keyframes obEnter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
@@ -410,9 +382,6 @@
   .batch-metric a svg { flex: none; }
   .storage-banner { margin-top: 20px; }
 
-  /* ---------------------------------------------------------
-     Run card (flat module: the instrument panel treatment)
-     --------------------------------------------------------- */
   .run-card {
     border: 1px solid var(--hairline);
     background: color-mix(in srgb, var(--surface) 72%, transparent);
@@ -451,13 +420,11 @@
     line-height: 1.2;
     border: 1px solid transparent;
   }
-  /* Stamp: double rule, as a checked or refused mark would be struck on paper. */
   .verdict--ok { background: var(--accent); color: var(--on-accent); border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 3px color-mix(in srgb, var(--on-accent) 45%, transparent); }
   .verdict--bad { border-color: color-mix(in srgb, var(--unmatched) 60%, transparent); color: var(--text); box-shadow: inset 0 0 0 2px var(--surface), inset 0 0 0 3px color-mix(in srgb, var(--unmatched) 60%, transparent); }
   .verdict--bad .dot { background: var(--unmatched); border-radius: 0; }
   .verdict--pending { border-color: var(--hairline); color: var(--text-muted); }
 
-  /* Stage trail: the diagram's four stages, lit by live events. */
   .stages { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--hairline-soft); }
   .stage {
     position: relative;
@@ -505,7 +472,6 @@
 
   .run-card-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 16px; }
 
-  /* Refusal */
   .refusal { display: flex; flex-direction: column; gap: 10px; }
   .refusal-meaning { font-size: 14px; color: var(--text); }
   .refusal-msg {
@@ -524,7 +490,6 @@
   .fix-field { display: flex; flex-direction: column; gap: 6px; min-width: 150px; flex: 0 1 200px; }
   .fix-note { flex-basis: 100%; font-size: 13px; color: var(--text-muted); }
 
-  /* Inputs: Lumeo .field-input language, sized for app density. */
   .field {
     width: 100%;
     min-width: 0;
@@ -553,7 +518,6 @@
   .field-error { font-size: 12.5px; color: var(--text); display: inline-flex; gap: 6px; align-items: center; }
   .field-error .dot { background: var(--unmatched); border-radius: 0; }
 
-  /* Checks summary + tabs */
   .checks-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 13.5px; color: var(--text-muted); }
   .checks-line strong { color: var(--text); font-weight: 500; }
 
@@ -591,7 +555,6 @@
   .batch-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .batch-title h3 { font-weight: 500; font-size: 14px; color: var(--text); }
 
-  /* Ledger table */
   .ledger-wrap { max-height: 420px; overflow: auto; border: 1px solid var(--hairline-soft); }
   .ledger { width: 100%; border-collapse: collapse; font-size: 13px; }
   .ledger th {
@@ -626,8 +589,6 @@
   .ledger tbody tr:last-child > * { border-bottom: 0; }
   .ledger-pagination > div { display: flex; gap: 6px; }
 
-  /* Assertions: Lumeo's reconciliation strip rows. The 2px left edge is the brand's
-     signature (DESIGN.md §4 .recon-row): mint when it ties, rose when it does not. */
   .recon-list { display: flex; flex-direction: column; gap: 8px; }
   .assert-row {
     display: grid;
@@ -646,7 +607,6 @@
   .assert-vals span b { font-weight: 400; color: var(--text-faint); margin-right: 6px; text-transform: uppercase; letter-spacing: 0.1em; font-size: 10.5px; }
   .assert-flags { display: inline-flex; gap: 6px; align-items: center; }
 
-  /* Evidence */
   .evidence-pick { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .evidence-pick .field { max-width: 280px; }
   .kv { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -656,7 +616,6 @@
   .kv td.raw { font-family: var(--font-mono); color: var(--text); overflow-wrap: anywhere; }
   .kv td.n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-  /* JSON */
   .json {
     max-height: 460px;
     overflow: auto;
@@ -674,7 +633,6 @@
 
   .run-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-  /* Links */
   .links { border: 1px solid var(--hairline); background: color-mix(in srgb, var(--surface) 60%, transparent); }
   .links-head { padding: 12px 16px; border-bottom: 1px solid var(--hairline-soft); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
   .link-row {
@@ -695,7 +653,6 @@
   .link-arrow { color: var(--accent); }
   .link-row--ambiguous .link-arrow { color: var(--unmatched); }
 
-  /* Answer */
   .answer { display: flex; flex-direction: column; gap: 12px; max-width: 70ch; }
   .answer-text { font-size: 15px; line-height: 1.65; color: var(--text); display: flex; flex-direction: column; gap: 10px; }
   .answer-text ul { display: flex; flex-direction: column; gap: 4px; padding-left: 0; }
@@ -712,15 +669,11 @@
   .error-line { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; color: var(--text); }
   .error-line .dot { margin-top: 7px; background: var(--unmatched); border-radius: 0; }
 
-  /* Skeleton for a file still queued */
   .skeleton { height: 10px; background: linear-gradient(90deg, var(--hairline-soft), var(--hairline), var(--hairline-soft)); background-size: 200% 100%; animation: obShimmer 1.4s linear infinite; }
   .skeleton-run { display: grid; gap: 10px; }
   .skeleton-run .skeleton { height: 12px; }
   @keyframes obShimmer { to { background-position: -200% 0; } }
 
-  /* ---------------------------------------------------------
-     Composer
-     --------------------------------------------------------- */
   .ob-dock {
     position: relative;
     padding-block: 12px 18px;
@@ -801,7 +754,6 @@
   .check:has(input:disabled) { cursor: not-allowed; opacity: 0.7; }
   .params-help { grid-column: 1 / -1; font-size: 12.5px; color: var(--text-faint); }
 
-  /* Drop overlay */
   .dropzone {
     position: absolute;
     inset: 12px;
@@ -816,7 +768,6 @@
   .dropzone-inner { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; animation: obRise 220ms var(--ease) both; }
   @keyframes obFade { from { opacity: 0; } to { opacity: 1; } }
 
-  /* Samples popover (fixed so it escapes the composer) */
   .popover {
     position: absolute;
     bottom: calc(100% + 8px);
@@ -831,9 +782,6 @@
   }
   .popover-head { padding: 10px 14px; border-bottom: 1px solid var(--hairline-soft); position: sticky; top: 0; background: var(--surface); }
 
-  /* ---------------------------------------------------------
-     Responsive
-     --------------------------------------------------------- */
   @media (max-width: 900px) {
     .ob-shell { grid-template-columns: minmax(0, 1fr); }
     .ob-sidebar {
@@ -901,7 +849,6 @@
   }
 }
 
-/* workspace polish 2 */
 .ob-sidebar { transition: transform 200ms var(--ease), opacity 200ms var(--ease); }
 .ob-thread { transition: background 180ms var(--ease), border-color 180ms var(--ease), transform 180ms var(--ease); }
 .ob-thread:hover { transform: translateX(2px); }

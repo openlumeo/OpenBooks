@@ -1,5 +1,3 @@
-// Ported from Lumeo frontend/web/components/lumeo-mark.tsx. Official fixed-colour raster mark:
-// both cuts ship and CSS (.brand-asset--*, site-chrome.css) hides one. Dark is the default cut.
 import Image from "next/image";
 
 const RATIO = 185 / 196;

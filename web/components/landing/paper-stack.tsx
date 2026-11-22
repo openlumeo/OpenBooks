@@ -1,15 +1,5 @@
 "use client";
 
-// Paper stack: an industrial 3D element made of translucent ledger sheets.
-// Content is real engine output from proof-data.ts (strings as-is, never Number()).
-//
-// Static first: the sheets are rendered in their fanned end state through inline
-// custom properties, so no-JS and reduced-motion visitors see the final composition.
-// GSAP runs only inside gsap.matchMedia for prefers-reduced-motion: no-preference:
-//   (a) scroll-scrubbed separation: sheets fan from flat to their CSS offsets as the
-//       section crosses the viewport (ScrollTrigger scrub 0.6, ease none).
-//   (b) pointer tilt on the stack via gsap.quickTo, max 6 degrees, fine pointers only.
-// No ambient looping motion. will-change is set only while the scene is in view.
 import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import { RELEASED, TAMPERED, type LedgerLine } from "./proof-data";
@@ -23,18 +13,14 @@ const VISIBLE_SHEETS = 4;
 type SheetRow = LedgerLine & { state: "matched" | "unmatched" };
 
 type SheetSpec = {
-  /** 0 is the top sheet. Also the DOM-independent stacking index. */
   index: number;
   title: string;
   meta: string;
   metaTone?: "error";
   rows: readonly SheetRow[];
-  /** Top sheet only: the equation line and the optional stamp. */
   equation?: boolean;
   footnote?: string;
-  /** Background alpha of the sheet fill (translucent surfaces). */
   fill: number;
-  /** Fanned offsets in px (y, z) and deg (rx, ry), before the --depth multiplier. */
   y: number;
   z: number;
   rx: number;
@@ -48,9 +34,6 @@ const TAMPERED_ROWS: readonly SheetRow[] = TAMPERED.rows.map((row) => ({
   state: row.id === TAMPERED.offendingRowId ? "unmatched" : "matched",
 }));
 
-// Index 0 is the top sheet. Lower sheets drop down and back, so their bottom
-// ledger rows peek out beneath the sheet above. The tampered twin is on index 2
-// and its last row (the offending one) is the bottom row of that sheet.
 const SHEETS: readonly SheetSpec[] = [
   {
     index: 0,
@@ -193,15 +176,12 @@ function Sheet({ spec, stamp }: { spec: SheetSpec; stamp: boolean }) {
 
 export type PaperStackProps = {
   className?: string;
-  /** Shows the lavender RELEASED stamp on the top sheet. Default false (one-lavender rule is the page's choice). */
   stamp?: boolean;
-  /** Enables pointer tilt on fine pointers when motion is allowed. Default true. */
   interactive?: boolean;
 };
 
 const clamp = (value: number) => Math.max(-1, Math.min(1, value));
 
-/** Scrubs sheets from their start pose to the fanned CSS pose as the scene scrolls in. */
 function scrubSheets(
   sheets: HTMLElement[],
   scene: HTMLElement,
@@ -215,7 +195,6 @@ function scrubSheets(
       const spec = SHEETS.find((s) => s.index === Number(target.dataset.index));
       return spec ? pick(spec) * depth : 0;
     };
-  // Desktop: sheets start tipped back and recessed, lying on the desk.
   const from = desktop
     ? {
         y: 0,
@@ -247,7 +226,6 @@ function scrubSheets(
   );
 }
 
-/** Attaches the pointer tilt to the scene and returns the function that removes it. */
 function attachPointerTilt(scene: HTMLElement, stack: HTMLElement): () => void {
   const setRotationX = gsap.quickTo(stack, "rotationX", {
     duration: 0.9,
@@ -292,8 +270,6 @@ export function PaperStack({ className, stamp = false, interactive = true }: Pap
     const sheets = Array.from(stack.querySelectorAll<HTMLElement>("[data-sheet]"));
     const mm = gsap.matchMedia();
 
-    // Conditions re-run the block when the viewport crosses the breakpoint, so the
-    // depth read below always matches the CSS --depth in effect.
     mm.add(
       {
         motion: "(prefers-reduced-motion: no-preference)",
@@ -313,13 +289,9 @@ export function PaperStack({ className, stamp = false, interactive = true }: Pap
           for (const el of sheets) el.style.willChange = value;
         };
 
-        // (a) Scroll-scrubbed separation.
         scrubSheets(sheets, scene, depth, Boolean(conditions.desktop), setWillChange);
 
-        // (b) Pointer tilt on the stack. Fine pointers only, and only when the
-        // stack is wide enough for depth to matter.
         const fine = window.matchMedia("(pointer: fine)").matches;
-        // matchMedia calls a returned function when the query stops matching or on revert.
         if (interactive && conditions.wide && fine) {
           return attachPointerTilt(scene, stack);
         }
@@ -340,7 +312,6 @@ export function PaperStack({ className, stamp = false, interactive = true }: Pap
       <div aria-hidden="true" ref={sceneRef} className={styles.scene}>
         <div className={styles.contact} />
         <div ref={stackRef} className={styles.stack}>
-          {/* Rendered back to front, so the DOM order matches the stacking order even without 3D. */}
           {[...SHEETS.slice(0, VISIBLE_SHEETS)].reverse().map((spec) => (
             <Sheet key={spec.index} spec={spec} stamp={stamp} />
           ))}

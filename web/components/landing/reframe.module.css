@@ -1,8 +1,3 @@
-/* Section "reframe". Two flat panels side by side. Radius 0, tokens only, no blur,
-   no coloured side borders other than the ReconRow ledger rows on the right. */
-
-/* Tighter bottom padding: the next section ("how proven") already carries its own top padding,
-   so the two together would leave a large blank band after the paper stack. */
 .section.section {
   padding-bottom: clamp(24px, 3vw, 40px);
 }
@@ -30,8 +25,6 @@
   color: var(--text);
 }
 
-/* Scroll container for narrow widths. The panel keeps a readable minimum width and the
-   region scrolls inside itself; the page never scrolls horizontally. */
 .scroll {
   min-width: 0;
   overflow-x: auto;
@@ -58,7 +51,6 @@
   white-space: nowrap;
 }
 
-/* Neutral row for the typical tool: no mint or rose border, so the contrast does not rest on colour alone. */
 .plainRow {
   display: flex;
   align-items: center;
@@ -102,8 +94,6 @@
   }
 }
 
-/* Paper stack interlude: full width, centred under the closing line. The scene carries its own
-   aspect-ratio (paper-stack.module.css), so the block reserves its height before the sheets load. */
 .interlude {
   position: relative;
   isolation: isolate;
@@ -118,7 +108,6 @@
   pointer-events: none;
 }
 
-/* Soft plum bloom, static apart from the one parallax drift. Atmosphere only. */
 .backdrop {
   position: absolute;
   inset: -6% -2%;
@@ -128,17 +117,14 @@
   opacity: 0.55;
 }
 
-/* Light theme: plum reads as a grey smudge on paper, so the bloom is kept very faint. */
 :root[data-theme="light"] .backdrop {
   opacity: 0.12;
 }
 
-/* Mint underline under the right-hand ledger title. Decorative (see SketchAnnotation). */
 .openBooks {
   display: inline-block;
 }
 
-/* Light theme: use the ink accent for the mint sketch on paper. */
 .openBooks > svg {
   stroke: var(--accent);
 }

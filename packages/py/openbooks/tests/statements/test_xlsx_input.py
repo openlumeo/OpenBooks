@@ -63,7 +63,7 @@ def test_a_stored_value_with_float_noise_is_refused_never_rounded(tmp_path):
             data = src.read(name)
             if name.startswith("xl/worksheets/sheet"):
                 assert b"<v>0.3</v>" in data
-                data = data.replace(b"<v>0.3</v>", b"<v>0.30000000000000004</v>")  # what a spreadsheet that computed 0.1 + 0.2 stores
+                data = data.replace(b"<v>0.3</v>", b"<v>0.30000000000000004</v>")
             out.writestr(name, data)
     doc = process(noisy, P)
     assert doc["status"] == "refused" and not doc["error"].get("internal"), doc.get("data")
@@ -79,7 +79,7 @@ def test_a_tampered_workbook_is_refused(tmp_path, old, new):
 def test_a_formula_in_a_data_row_is_refused_as_not_independent(tmp_path):
     f = workbook(tmp_path)
     wb = openpyxl.load_workbook(f)
-    wb.active["E3"] = "=E2-C3+D3"  # the running balance computed by Excel, not printed by the bank
+    wb.active["E3"] = "=E2-C3+D3"
     wb.save(f)
     doc = process(f, P)
     assert doc["status"] == "refused" and doc["error"]["code"] == "PARSE_ERROR"
@@ -89,7 +89,7 @@ def test_a_workbook_with_formulas_but_no_stored_results_is_refused_with_a_reason
     f = workbook(tmp_path)
     wb = openpyxl.load_workbook(f)
     wb.active["E3"] = "=1+1"
-    wb.save(f)  # openpyxl writes no cached value
+    wb.save(f)
     doc = process(f, P)
     assert doc["status"] == "refused" and ("formula" in doc["error"]["message"])
 
@@ -157,7 +157,7 @@ def test_a_hidden_sheet_is_treated_like_any_other(tmp_path):
     wb = openpyxl.load_workbook(f)
     wb["Hidden"].sheet_state = "hidden"
     wb.save(f)
-    assert process(f, P)["status"] == "refused"  # two statements in one file: never silently pick one
+    assert process(f, P)["status"] == "refused"
 
 
 def test_thousands_of_rows_in_a_workbook_release(tmp_path):
@@ -193,7 +193,7 @@ def test_a_workbook_that_claims_to_expand_past_the_limit_is_refused_without_bein
             out.writestr(name, src.read(name))
         with out.open("xl/worksheets/padding.xml", "w", force_zip64=True) as pad:
             for _ in range(210):
-                pad.write(b"0" * (1024 * 1024))  # 210 MB of zeros: a few hundred KB on disk
+                pad.write(b"0" * (1024 * 1024))
     assert bomb.stat().st_size < 2 * 1024 * 1024
     doc = process(bomb, P)
     assert doc["status"] == "refused" and doc["error"]["code"] == "UNSUPPORTED_INPUT" and "expands" in doc["error"]["message"]

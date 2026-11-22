@@ -5,11 +5,6 @@ import type { Thread, Turn } from "../types";
 
 const SAVE_DEBOUNCE_MS = 400;
 
-/**
- * The thread list and its persistence. Every change goes through commit(), synchronously, so async flows (stream handlers,
- * relink, persistence) always read exactly what will render. React state only mirrors it. Never mutate threads through a
- * setState updater: updaters run lazily and can be replayed, which lets the saved copy drift from the screen.
- */
 export function useThreadStore() {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -41,7 +36,6 @@ export function useThreadStore() {
     return () => { alive = false; };
   }, [commit]);
 
-  /** Write a thread to browser storage, debounced unless `now` is set. Only the latest state is ever written. */
   const persist = useCallback((id: string, now = false) => {
     const timers = saveTimers.current;
     clearTimeout(timers.get(id));
@@ -82,7 +76,6 @@ export function useThreadStore() {
     [updateThread],
   );
 
-  /** The active thread's id, or a new thread (made active) when none is selected. */
   const ensureThread = useCallback(
     (title: string): string => {
       const cur = activeRef.current;

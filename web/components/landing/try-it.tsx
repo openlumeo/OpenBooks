@@ -1,4 +1,3 @@
-// "See it prove a file, live." Server component. The demo itself is a client island inside a static device frame.
 import { DeviceFrame } from "./device-frame";
 import { LiveDemo } from "./live-demo";
 import styles from "./try-it.module.css";

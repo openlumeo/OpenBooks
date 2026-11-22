@@ -40,7 +40,7 @@ def test_paypal_releases_and_reads_month_first_dates(tmp_path):
     doc = _run(tmp_path, PAYPAL)
     assert doc["status"] == "ok" and doc["file"]["layout_version"] == "paypal_activity.v1"
     txns = doc["data"]["transactions"]
-    assert [t["date"] for t in txns] == ["2026-01-15", "2026-02-03"]  # the Memo row moved no balance
+    assert [t["date"] for t in txns] == ["2026-01-15", "2026-02-03"]
     assert txns[0]["fee"]["amount"] == "3.20" and txns[0]["net"]["amount"] == "1096.80"
 
 
@@ -76,7 +76,7 @@ def test_1099b_releases_with_wash_sale_and_printed_totals(tmp_path):
     assert doc["status"] == "ok" and doc["file"]["layout_version"] == "form_1099b.v1"
     t = doc["data"]["transactions"]
     assert t[0]["date"] == "2026-03-20" and t[0]["date_acquired"] == "2025-01-15"
-    assert "date_acquired" not in t[1]  # VARIOUS is not a date
+    assert "date_acquired" not in t[1]
     assert t[1]["adjustment"]["amount"] == "25.00"
 
 

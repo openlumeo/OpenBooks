@@ -6,7 +6,6 @@ export const MAX_JSON_BYTES = 4 * 1024 * 1024;
 
 const BYTES_PER_MB = 1024 * 1024;
 
-/** Rejects requests without a plain decimal Content-Length (411) or above maxBytes (413). Chunked bodies get 411. */
 export function rejectOversize(req: Request, maxBytes: number): Response | null {
   const raw = req.headers.get("content-length");
   const length = raw !== null && /^[0-9]+$/.test(raw) ? Number(raw) : Number.NaN;
@@ -19,13 +18,11 @@ export function rejectOversize(req: Request, maxBytes: number): Response | null 
   return null;
 }
 
-/** Uploads must be multipart/form-data; anything else gets 415. */
 export function rejectNonMultipart(contentType: string): Response | null {
   if (contentType.startsWith("multipart/form-data")) return null;
   return jsonError(415, "bad_request", "expected a multipart upload");
 }
 
-/** Cap the bytes read from callers that use chunked transfer or omit Content-Length. */
 export async function readSmallJson(request: Request, maxBytes: number): Promise<unknown> {
   const reader = request.body?.getReader();
   if (!reader) throw new Error("invalid_json");

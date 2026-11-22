@@ -17,9 +17,7 @@ export interface DoctorReport {
 }
 
 export interface DoctorOptions extends DiscoverOptions {
-  /** Also import PyTorch and load the model (slower). */
   deep?: boolean;
-  /** Treat warnings as failures. */
   strict?: boolean;
   timeoutMs?: number;
 }
@@ -48,10 +46,6 @@ function nodeCheck(): DoctorCheck {
     : { id: "node.version", status: "fail", detail: `Node ${process.versions.node}`, fix: `Open Books needs Node ${MIN_NODE} or newer` };
 }
 
-/**
- * Check this machine: Node, a Python with the engine, and everything the Python-side doctor checks. A missing Python or engine
- * is a failed check in the returned report (that is what doctor is for), not an exception. Only a crash of doctor itself throws.
- */
 export async function runDoctor(opts: DoctorOptions = {}): Promise<DoctorReport> {
   const checks: DoctorCheck[] = [nodeCheck()];
   let command: string[];

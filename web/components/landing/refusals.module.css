@@ -1,5 +1,3 @@
-/* Section 3 (refusals). Radius 0, tokens only. Quiet and dense: no cards, no colour except the unmatched rose row. */
-
 .lede {
   margin: 0;
   max-width: 62ch;
@@ -9,7 +7,6 @@
   color: var(--text-muted);
 }
 
-/* ---------- Ledger table (scrolls inside its own region) ---------- */
 .scroll {
   border: 1px solid var(--hairline);
   background: color-mix(in srgb, var(--surface) 40%, transparent);
@@ -88,7 +85,6 @@
   color: var(--text-muted);
 }
 
-/* ---------- Fix sentence beside one refusal panel ---------- */
 .proof {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
@@ -120,7 +116,6 @@
   gap: 8px;
 }
 
-/* Ledger entry inside an unmatched row: code above the engine message. */
 .entry {
   display: grid;
   gap: 6px;
@@ -157,7 +152,6 @@
   }
 }
 
-/* ---------- Sketched refusal stamps ---------- */
 .codeCell {
   display: inline-flex;
   align-items: center;

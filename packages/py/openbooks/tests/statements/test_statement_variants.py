@@ -50,8 +50,6 @@ def test_the_base_statement_means_what_we_think(base):
     assert base == [("2026-01-01", "credit", "500.00"), ("2026-01-02", "debit", "200.50"), ("2026-01-03", "debit", "4.50")]
 
 
-# ---- spellings that must release exactly the same data ------------------------------------------------------------------
-
 MUST_RELEASE = {
     "bom": lambda: b"\xef\xbb\xbf" + render().encode(),
     "crlf": lambda: render(eol="\r\n"),
@@ -98,7 +96,7 @@ def test_the_output_is_valid_utf8_json_whatever_the_memo_holds(run):
 def test_a_memo_that_looks_like_a_formula_or_code_is_kept_as_plain_data(run, base, memo):
     doc = run(render(rows=[(a, memo, c, d, e) for a, b, c, d, e in BASE_ROWS], quote=True))
     assert doc["status"] == "ok" and canon(doc) == base
-    assert doc["data"]["transactions"][0]["description"] == memo.strip()  # untouched: the engine neither runs nor rewrites it
+    assert doc["data"]["transactions"][0]["description"] == memo.strip()
 
 
 def test_a_very_long_memo_is_kept_whole(run, base):
@@ -111,8 +109,6 @@ def test_a_memo_with_a_nul_byte_is_refused_as_binary(run):
     doc = run(render(rows=[(a, "bad\x00memo", c, d, e) for a, b, c, d, e in BASE_ROWS]))
     assert doc["status"] == "refused" and doc["error"]["code"] == "UNSUPPORTED_INPUT"
 
-
-# ---- spellings that may be refused but must never release different numbers ---------------------------------------------
 
 MAY_REFUSE = {
     "dd_mon_yyyy": lambda: render(rows=[(f"0{i}-Jan-2026", b, c, d, e) for i, (a, b, c, d, e) in enumerate(BASE_ROWS, 1)]),
@@ -205,7 +201,7 @@ def test_a_leap_day_is_accepted_in_a_leap_year(run):
 def test_day_month_order_is_never_guessed_when_every_date_could_be_either(run):
     rows = [("01/02/2026", "a", "", "500.00", "1500.00"), ("03/04/2026", "b", "10.00", "", "1490.00")]
     doc = run(render(rows=rows))
-    if doc["status"] == "ok":  # allowed only if the statement itself shows which order it uses
+    if doc["status"] == "ok":
         assert doc["data"]["transactions"][0]["date"] in ("2026-02-01", "2026-01-02")
     forced = run(render(rows=rows), params=Params(currency="INR", opening=Decimal("1000.00"), date_order="mdy"))
     assert forced["status"] == "ok" and forced["data"]["transactions"][0]["date"] == "2026-01-02"
@@ -255,8 +251,6 @@ def test_a_debit_written_as_a_credit_breaks_the_chain(run):
     assert run(render(rows=rows))["error"]["code"] == "BALANCE_MISMATCH"
 
 
-# ---- MT940 and OFX written the other ways they are written --------------------------------------------------------------
-
 MT = """:20:STMT001
 :25:12345678/9876543
 :28C:1/1
@@ -287,7 +281,7 @@ def test_mt940_is_recognised_by_content_whatever_the_extension(run, ext):
 
 
 def test_mt940_truncated_anywhere_before_the_closing_balance_is_never_released(run):
-    end = MT.index(":62F:") + len(":62F:C260106INR")  # up to the closing balance's digits; "1299,5" would equal 1299,50
+    end = MT.index(":62F:") + len(":62F:C260106INR")
     for cut in range(0, end, 3):
         doc = run(MT[:cut], "sta")
         assert doc["status"] == "refused", f"cut at {cut} released {MT[:cut][-30:]!r}"
@@ -337,7 +331,7 @@ def test_ofx_spellings_release_the_same_data(run, name, fn):
 
 
 def test_ofx_truncated_anywhere_before_the_closing_balance_is_never_released(run):
-    end = OFX.index("<BALAMT>") + len("<BALAMT>")  # up to the closing balance's digits; "1299.5" would equal 1299.50
+    end = OFX.index("<BALAMT>") + len("<BALAMT>")
     for cut in range(0, end, 7):
         assert run(OFX[:cut], "ofx", OFX_P)["status"] == "refused", cut
 
@@ -350,8 +344,6 @@ def test_ofx_one_wrong_value_is_refused_or_changes_only_the_currency(run, old, n
     else:
         assert doc["status"] == "refused"
 
-
-# ---- many at once -------------------------------------------------------------------------------------------------------
 
 def test_processing_in_several_threads_gives_the_same_answers_as_one_at_a_time(tmp_path):
     files = []

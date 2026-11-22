@@ -64,7 +64,7 @@ def test_missing_library_is_an_engine_fault_in_strict_mode_and_a_refusal_otherwi
 
     reg = default_registry().__class__(frontends={"document": Broken()})
     doc = process(pdf, registry=reg)
-    assert doc["status"] == "refused" and doc["error"]["internal"] is True  # 0.1 behaviour, now marked
+    assert doc["status"] == "refused" and doc["error"]["internal"] is True
     from openbooks.core.errors import EngineFault
 
     with pytest.raises(EngineFault):
@@ -77,8 +77,8 @@ def test_output_is_written_whole_or_not_at_all(tmp_path, monkeypatch):
     monkeypatch.setattr(os, "replace", lambda *a, **k: (_ for _ in ()).throw(OSError("disk full")))
     with pytest.raises(OSError):
         write_atomic(target, "new content")
-    assert target.read_text() == "old"  # the previous complete file is untouched
-    assert [p.name for p in tmp_path.iterdir()] == ["x.json"]  # and no temp file is left behind
+    assert target.read_text() == "old"
+    assert [p.name for p in tmp_path.iterdir()] == ["x.json"]
 
 
 def test_default_output_format_is_unchanged(tmp_path, capsys):

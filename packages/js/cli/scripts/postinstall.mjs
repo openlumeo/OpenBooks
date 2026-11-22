@@ -1,11 +1,7 @@
-// Runs after `npm i @lumeo_hq/openbooks`: installs the Python engine with OCR and the model runtime.
-// Best effort and always exits 0: a failure here must never break `npm install`; `openbooks install-engine` retries it.
-//   OPENBOOKS_SKIP_PYTHON=1   skip this step          npm i --ignore-scripts   skips it too
 import { fileURLToPath } from "node:url";
 
 try {
   const here = fileURLToPath(import.meta.url);
-  // Only when installed from the registry. In a source checkout the engine comes from `pip install -e` (scripts/setup.py).
   if (!here.split(/[\\/]/).includes("node_modules")) process.exit(0);
   if (process.env.OPENBOOKS_SKIP_PYTHON) process.exit(0);
 

@@ -31,7 +31,7 @@ def models_dir() -> Path:
     for parent in Path(__file__).resolve().parents:
         if (parent / "models" / WEIGHTS_NAME).exists():
             return parent / "models"
-    return packaged  # absent: load() reports that there are no weights
+    return packaged
 
 
 MODELS_DIR = models_dir()

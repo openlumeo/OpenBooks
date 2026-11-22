@@ -1,6 +1,3 @@
-// Section 6 "ask": an EXAMPLE conversation. Every figure comes from ask-data.ts, which
-// was computed by code over the engine's released document (see that file's header).
-// The collapsed tool lines are native <details>, so they work with JS off.
 import { ChevronRight } from "lucide-react";
 import { ReconPanel } from "./reconciliation";
 import { Section } from "./section";

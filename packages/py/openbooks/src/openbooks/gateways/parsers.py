@@ -111,7 +111,7 @@ def parse_paypal(args, p: Params):
         t = {"id": tid, "batch_id": "batch-1", "date": to_date(get(row, "date"), f"row {n}", order),
              "kind": get(row, "type") or "other", "reference": get(row, "transaction_id") or None,
              "gross": money(to_dec(get(row, "gross"), f"row {n} gross"), cur),
-             "fee": money(-fee_raw, cur),  # PayPal prints the fee as a negative balance impact; the schema holds the amount charged
+             "fee": money(-fee_raw, cur),
              "net": money(to_dec(get(row, "net"), f"row {n} net"), cur)}
         for field in ("gross", "fee", "net", "date"):
             evidence(ev, tid, field, n, get(row, field))

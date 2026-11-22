@@ -14,7 +14,7 @@ from test_tax import AIS_HEAD, AIS_ROWS, AIS_TOTAL, cases, csv as make_csv
 from openbooks.core import Params, process
 
 NUMBER = re.compile(r"^-?[\d,]+\.\d+$")
-UNPROVEN = {("ais.v1", "Modified Value")}  # see the module docstring
+UNPROVEN = {("ais.v1", "Modified Value")}
 
 
 def mutations(text):

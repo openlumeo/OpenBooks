@@ -16,8 +16,8 @@ from . import admission as adm
 
 HISTOGRAM_BUCKETS = (.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10, 30, 60, 120, 300)
 PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8"
-_PROC_STATM = Path("/proc/self/statm")  # ponytail: Linux only; add psutil if Windows or macOS hosts matter
-_LABEL_DROP = str.maketrans("", "", '\\"\n')  # backslash, quote and newline would corrupt the exposition
+_PROC_STATM = Path("/proc/self/statm")
+_LABEL_DROP = str.maketrans("", "", '\\"\n')
 LabelKey = tuple[tuple[str, str], ...]
 V = TypeVar("V")
 
@@ -134,7 +134,7 @@ def _process_gauges() -> dict[str, float]:
         gauges["process_resident_memory_bytes"] = resident_pages * os.sysconf("SC_PAGE_SIZE")
     except (OSError, ValueError, AttributeError):
         pass
-    torch = sys.modules.get("torch")  # only report CUDA if torch is already loaded; never import it here
+    torch = sys.modules.get("torch")
     if torch is not None and torch.cuda.is_available():
         gauges["openbooks_cuda_max_allocated_bytes"] = torch.cuda.max_memory_allocated()
     return gauges

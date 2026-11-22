@@ -1,4 +1,3 @@
-// Behaviour for the layouts added upstream (PayPal, Wise, Form 1099-B) and the day/month date-order refusal.
 import { describe, expect, it } from "vitest";
 import { batchSummary, columnsFor, KIND_LABEL } from "@/lib/ledger";
 import { queryTransactions, rowAmount, type DocRef } from "@/lib/query";
@@ -8,7 +7,6 @@ import type { ReleasedDoc, Transaction } from "@/lib/types";
 
 const usd = (amount: string) => ({ amount, currency: "USD" });
 
-// Shape copied from the engine's form_1099b.v1 output (parsers_more.parse_1099b).
 const b1099: Transaction[] = [
   { id: "txn-00001", batch_id: "batch-1", kind: "1099b", description: "100 sh ACME", date: "2026-03-20", date_acquired: "2025-01-15",
     proceeds: usd("1500.00"), cost_basis: usd("1000.00"), gain_loss: usd("500.00"), adjustment: usd("0.00") },

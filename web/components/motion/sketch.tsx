@@ -1,11 +1,3 @@
-/* docs: Hand-drawn annotation marks. Decorative: aria-hidden, focusable=false. Put meaning in real text.
- *   <Sketch kind="underline" | "circle" | "arrow" | "bracket" | "tick" tone="mint" | "muted" | "rose" className />
- *     Full path renders with no JS and under reduced motion. With motion, it draws once when
- *     it reaches 80% of the viewport (DrawSVG 0% -> 100%, 0.9s power2.out).
- *   <SketchAnnotation kind tone note>{children}</SketchAnnotation>
- *     Positions the mark absolutely over children (relative wrapper, no layout shift).
- *     note is optional real text in Geist Mono, e.g. "TIES OUT".
- * Sketch has no label prop; note lives on SketchAnnotation. */
 'use client';
 
 import { useRef, type ReactNode } from 'react';
@@ -17,7 +9,6 @@ export type SketchTone = 'mint' | 'muted' | 'rose';
 
 type SketchSpec = { viewBox: string; preserveAspectRatio: string; paths: string[] };
 
-// Hand-authored cubic paths with a small overshoot at stroke ends. viewBox is tight to the marks.
 const SKETCHES: Record<SketchKind, SketchSpec> = {
   underline: {
     viewBox: '0 0 200 24',
@@ -76,9 +67,7 @@ export type SketchProps = {
   kind: SketchKind;
   tone?: SketchTone;
   className?: string;
-  /** ScrollTrigger start for the one-shot draw. Default: when the mark reaches 80% of the viewport. */
   start?: string;
-  /** Optional ancestor selector (closest match) used as the ScrollTrigger trigger instead of the mark. */
   triggerSelector?: string;
 };
 

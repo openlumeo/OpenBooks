@@ -1,5 +1,3 @@
-// A deliberately small markdown subset for answers: paragraphs, "-" lists, **bold**, `code`.
-// Builds React elements only; never injects HTML, so model output cannot inject markup.
 import { Fragment, type ReactNode } from "react";
 
 function inline(text: string, key: string): ReactNode[] {

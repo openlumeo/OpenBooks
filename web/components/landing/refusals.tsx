@@ -1,7 +1,3 @@
-// Section 3: a refusal is an answer. Server component.
-// Stage per code comes from stageForRefusal (lib/stages.ts). Meanings are
-// paraphrased from content/docs/refusals.mdx. Engine messages below are copied
-// verbatim from a real engine run (see the comment above ENGINE_REFUSAL_BALANCE).
 import { X } from "lucide-react";
 import { STAGES, stageForRefusal } from "@/lib/stages";
 import type { RefusalCode } from "@/lib/types";
@@ -13,37 +9,23 @@ import styles from "./refusals.module.css";
 
 type EngineRefusal = { readonly code: RefusalCode; readonly message: string };
 
-/*
- * Verbatim engine output: error.code and error.message, copied exactly.
- * Command: from the repo root, with PYTHONPATH set to packages/py/openbooks/src and
- * packages/py/openbooks-lab/src (the editable install points at a stale tree), run
- * openbooks_lab.golden.build(root), then openbooks.pipeline.process() on
- *   bad_bank_first_row_amount/in.csv  with Params(opening=Decimal("1000.00"), currency="INR")
- *   bad_bank_no_opening/in.csv        with Params(currency="INR")
- *   bad_unknown_csv_layout/in.csv     with Params()
- * Re-run and paste again if the engine's wording changes.
- */
 
-/** Tampered twin of a balanced bank CSV (first-row debit moved by 0.01). Shown in the refusal panel. */
 export const ENGINE_REFUSAL_BALANCE: EngineRefusal = {
   code: "BALANCE_MISMATCH",
   message:
     "batch-1: opening + sum(txns) = closing (expected 5100.40 INR, got 5100.41 INR); batch-1: running balance ties on every row (expected 8 rows, got 0 rows)",
 };
 
-/** Balanced file with no stated opening balance. The workspace offers the fix inline. */
 export const ENGINE_REFUSAL_MISSING_OPENING: EngineRefusal = {
   code: "PARSE_ERROR",
   message: "statement has no stated opening balance; supply --opening",
 };
 
-/** A CSV that matches no known layout. */
 export const ENGINE_REFUSAL_UNKNOWN_LAYOUT: EngineRefusal = {
   code: "UNKNOWN_LAYOUT",
   message: "no known layout matches this file",
 };
 
-/** The six codes, in stage order, with plain meanings from content/docs/refusals.mdx. */
 const CODES: { code: RefusalCode; meaning: string }[] = [
   {
     code: "UNSUPPORTED_INPUT",

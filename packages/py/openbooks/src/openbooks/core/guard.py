@@ -27,7 +27,5 @@ def decode(raw: bytes) -> str:
             text = raw.decode(enc)
         except UnicodeDecodeError:
             continue
-        # One line ending for every parser: CRLF (Windows) and a bare CR (old Mac exports) both become LF. The csv module refuses
-        # a bare CR inside a row, which would turn a harmless export quirk into a refusal.
         return text.replace("\r\n", "\n").replace("\r", "\n")
     raise Refusal("UNSUPPORTED_INPUT", "text is neither UTF-8 nor cp1252")

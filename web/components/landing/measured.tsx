@@ -1,6 +1,3 @@
-// Section 7 "measured": one ledger-style panel. Figures come from measured-data.ts,
-// which was verified against docs/evidence/e2e_synthetic_model_scans.json.
-// Rows stagger on entry; the tick beside "false accepts" is decorative.
 import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { SketchAnnotation } from "@/components/motion/sketch";

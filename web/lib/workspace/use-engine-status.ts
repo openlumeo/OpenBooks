@@ -7,7 +7,6 @@ export type EngineState = { status: "checking" | "up" | "down"; health?: Health;
 const HEALTHY_RECHECK_MS = 60_000;
 const DOWN_RECHECK_MS = 8_000;
 
-/** Polls the engine: fast retries while it is down, a slower check once it is up. Formats and samples load once. */
 export function useEngineStatus(): { engine: EngineState; formats: Formats | null; samples: Sample[] } {
   const [engine, setEngine] = useState<EngineState>({ status: "checking" });
   const [formats, setFormats] = useState<Formats | null>(null);

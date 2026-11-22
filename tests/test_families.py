@@ -34,7 +34,7 @@ def test_default_layouts_are_unchanged():
 
 def test_unknown_family_is_rejected():
     with pytest.raises(ValueError):
-        random_layout(random.Random(1), family="distractors")  # F4 is held out on purpose
+        random_layout(random.Random(1), family="distractors")
 
 
 def test_family_headers_stay_out_of_the_shifted_vocabulary():

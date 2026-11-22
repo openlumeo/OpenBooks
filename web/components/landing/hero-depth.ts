@@ -2,7 +2,6 @@
 import type { RefObject } from 'react';
 import { gsap, useGSAP, DESKTOP_FINE_MOTION, markMotionReady } from '@/components/motion/gsap-setup';
 
-/** Pointer parallax on [data-depth] layers inside scope. data-depth = max shift in percent of the layer. */
 export function useHeroDepth(scope: RefObject<HTMLElement | null>): void {
   useGSAP(() => {
     markMotionReady();

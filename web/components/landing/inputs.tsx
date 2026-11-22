@@ -1,10 +1,8 @@
-// Section 5: what the engine reads. Server component. Data from inputs-data.ts (catalog.py).
 import { Section } from "./section";
 import { INPUT_GROUPS, UNVERIFIED, UNVERIFIED_NOTE } from "./inputs-data";
 import { InputsTrack } from "./inputs-track";
 import styles from "./inputs.module.css";
 
-/** Sketched file outline, decorative. The format name next to it carries the meaning. */
 function FileGlyph() {
   return (
     <svg aria-hidden="true" focusable="false" className={styles.glyph} viewBox="0 0 20 24" width="16" height="20">

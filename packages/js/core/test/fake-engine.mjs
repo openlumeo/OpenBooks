@@ -1,5 +1,3 @@
-// A stand-in for `python`: invoked as `node fake-engine.mjs -m openbooks <command> ...` and misbehaving on demand
-// (FAKE_MODE) so the wrapper's error handling can be tested without breaking a real engine.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { basename, dirname, join } from "node:path";

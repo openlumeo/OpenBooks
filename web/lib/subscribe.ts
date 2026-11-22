@@ -5,7 +5,6 @@ type ParseSubscribeResult =
 const MIN_EMAIL_LENGTH = 3;
 const MAX_EMAIL_LENGTH = 254;
 const MAX_LOCAL_PART_LENGTH = 64;
-// Whitespace (incl. spaces) and ASCII control characters.
 const FORBIDDEN_CHARS = /[\s\u0000-\u001f\u007f]/;
 
 function isObject(value: unknown): value is Record<string, unknown> {

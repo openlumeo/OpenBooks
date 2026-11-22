@@ -19,7 +19,7 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
-import fitz  # PyMuPDF: the reference implementation. Private test code only; never shipped.
+import fitz
 from openbooks.core import Params, process
 from openbooks.statements import pdf_front as new
 from openbooks.statements.pdf_front import TEXT_LAYER_MIN_WORDS, Word
@@ -48,7 +48,7 @@ def legacy_read_words(path, p):
                         else:
                             cur.append(ch)
         if len(out) < TEXT_LAYER_MIN_WORDS:
-            raise RuntimeError("scan")  # not a text-layer page
+            raise RuntimeError("scan")
         pages.append(out)
     return pages, "pdf_text"
 
@@ -113,9 +113,9 @@ def main() -> int:
         compared += 1
         a, b = strip_geometry(old_doc), strip_geometry(new_doc)
         if old_doc["status"] == "refused" and old_doc["error"].get("internal") and new_doc["status"] == "refused"                 and new_doc["error"]["code"] == "UNSUPPORTED_INPUT":
-            continue  # intended: a file the old reader crashed on is now refused as unreadable, with a typed code
+            continue
         if a != b and regrouped_only(a, b):
-            regrouped.append(case.name)  # a wrapped description line moved to the neighbouring row: same words, nothing else changed
+            regrouped.append(case.name)
             continue
         if a != b:
             what =[k for k in ("status", "error", "file", "data", "evidence", "assertions") if a.get(k) != b.get(k)]

@@ -25,7 +25,7 @@ def run_eval(root: Path) -> int:
             bad += 1
             false_accepts += exp["status"] == "refused" and doc["status"] == "ok"
             print(f"MISMATCH {d.name}: want {want} got {got}")
-            if doc["status"] == "refused":  # say why; the golden set is synthetic, so the reason holds no client data
+            if doc["status"] == "refused":
                 print(f"  reason: {doc['error']['message'][:300]}")
     print(f"cases={len(cases)} mismatches={bad} false_accepts={false_accepts}")
     return 1 if bad else 0

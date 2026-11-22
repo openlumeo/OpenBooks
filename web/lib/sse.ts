@@ -1,6 +1,3 @@
-// Minimal text/event-stream reader for the engine's /v1/runs stream.
-// Handles events split across network chunks and CRLF line endings.
-
 type SSEEvent = { event: string; data: string };
 
 export async function* parseSSE(body: ReadableStream<Uint8Array>): AsyncGenerator<SSEEvent> {
@@ -45,7 +42,6 @@ function parseBlock(block: string): SSEEvent | null {
   return data.length ? { event, data: data.join("\n") } : null;
 }
 
-/** Newline-delimited JSON reader for /api/ask. */
 export async function* parseNDJSON<T>(body: ReadableStream<Uint8Array>): AsyncGenerator<T> {
   const reader = body.getReader();
   const decoder = new TextDecoder();

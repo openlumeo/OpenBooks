@@ -1,7 +1,3 @@
-// Section 8 "start": closing band. The footer is rendered separately (SiteFooter).
-// The loop frame appears only when the rendered files exist (checked at build time), so a
-// missing render never leaves an empty frame. The loop holds the page's lavender stamp, so
-// nothing else in this band is lavender.
 import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
@@ -22,7 +18,6 @@ function fileSize(name: string): number {
   }
 }
 
-/** True only when both video encodings and the poster exist and the videos are not stubs. */
 function loopIsRendered(): boolean {
   return (
     fileSize("hero-loop.webm") > MIN_VIDEO_BYTES &&

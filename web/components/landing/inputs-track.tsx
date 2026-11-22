@@ -3,7 +3,6 @@ import { useRef, type ReactNode } from 'react';
 import { gsap, useGSAP, DESKTOP_MOTION, markMotionReady } from '@/components/motion/gsap-setup';
 import styles from './inputs.module.css';
 
-/** Native horizontal strip. Desktop with motion: pins the section and files the groups past horizontally. */
 export function InputsTrack({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(
@@ -15,7 +14,7 @@ export function InputsTrack({ children }: { children: ReactNode }) {
       if (!viewport || !track || !section) return;
       gsap.matchMedia().add(DESKTOP_MOTION, () => {
         const distance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
-        if (distance() === 0 || section.offsetHeight > window.innerHeight) return; // keep the native strip
+        if (distance() === 0 || section.offsetHeight > window.innerHeight) return;
         viewport.dataset.pinned = 'true';
         gsap.to(track, {
           x: () => -distance(),

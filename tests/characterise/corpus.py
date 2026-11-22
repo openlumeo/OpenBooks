@@ -57,7 +57,7 @@ def _write(root: Path, name: str, content: str | bytes, ext: str = "csv") -> Pat
 
 
 def _golden(root: Path, which: str) -> list[Case]:
-    try:  # after the package split the builders live in the private openbooks_lab; before it, in openbooks itself
+    try:
         from openbooks_lab import golden_docs
         from openbooks_lab.golden import build
     except ModuleNotFoundError:
@@ -67,14 +67,14 @@ def _golden(root: Path, which: str) -> list[Case]:
     gdir = root / "_golden"
     if which == "main":
         saved = golden_docs.build_pdfs
-        golden_docs.build_pdfs = lambda *a, **k: None  # keep the rng stream machine-independent
+        golden_docs.build_pdfs = lambda *a, **k: None
         try:
             build(gdir, seed=7, n_random=12, scans=False)
         finally:
             golden_docs.build_pdfs = saved
     else:
         gdir.mkdir(parents=True, exist_ok=True)
-        golden_docs.build_pdfs(gdir, random.Random(7), False)  # text-layer PDFs only: OCR output is not reproducible across platforms
+        golden_docs.build_pdfs(gdir, random.Random(7), False)
     import json
 
     out = []

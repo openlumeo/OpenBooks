@@ -35,7 +35,6 @@
   margin-inline: auto;
 }
 
-/* Sketched drop-zone edge: a slightly irregular hairline drawn around the workspace frame. */
 .sketchEdge {
   position: absolute;
   inset: -8px;

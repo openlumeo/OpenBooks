@@ -21,7 +21,7 @@ from openbooks_server.middleware import (
 @pytest.fixture(autouse=True)
 def forget_middleware_stack_after_each_test():
     yield
-    app.middleware_stack = None  # the engine key is read when the stack is built; never leak one test's key
+    app.middleware_stack = None
 
 
 @pytest.fixture
@@ -103,7 +103,7 @@ def test_early_refusal_is_none_for_a_guarded_route_with_room(monkeypatch):
 def test_draining_refuses_guarded_routes_before_body_validation(client):
     adm.current.start_drain()
 
-    r = client.post("/v1/runs")  # no files: would be a 422 if the route ran
+    r = client.post("/v1/runs")
 
     assert r.status_code == 503 and r.json()["error"] == "draining"
 

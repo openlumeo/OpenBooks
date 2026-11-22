@@ -39,7 +39,7 @@ def row_key(t):
     return json.dumps({k: v for k, v in t.items() if k not in ('id', 'batch_id')}, sort_keys=True)
 
 
-ROW_PROVED = {"fira.v1", "form_1099b.v1"}  # these prove each row on its own (FX x rate = INR; proceeds - cost = gain)
+ROW_PROVED = {"fira.v1", "form_1099b.v1"}
 
 
 @pytest.mark.parametrize("text,layout,params", CASES, ids=IDS)

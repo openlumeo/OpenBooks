@@ -1,6 +1,3 @@
-/* Docs reading surface. Built only from the fumadocs variables set in globals.css (.ob-docs).
- * Motion: transform/opacity or colour only, 150-300ms ease-out; reduced motion gets static styles. */
-
 .ob-docs {
   isolation: isolate;
   position: relative;
@@ -11,7 +8,6 @@
   --docs-wobble: 0.9rem 0.5rem 0.8rem 0.45rem / 0.5rem 0.9rem 0.45rem 0.8rem;
 }
 
-/* Paper grain: decorative, pointer-free, no raster. */
 .ob-docs::before {
   content: "";
   position: fixed;
@@ -22,7 +18,6 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
-/* Typography rhythm */
 .ob-docs .prose {
   font-size: 1rem;
   line-height: 1.72;
@@ -45,7 +40,6 @@
   font-size: 1.6rem;
 }
 
-/* Hand-sketched underline accent under every h2. Mask keeps it theme-aware. */
 .ob-docs .prose h2::after {
   content: "";
   position: absolute;
@@ -78,7 +72,6 @@
   transition: text-decoration-color 200ms var(--docs-ease), color 200ms var(--docs-ease);
 }
 
-/* Code blocks: keep fumadocs structure, add depth and a subtle line highlight. */
 .ob-docs .prose .shiki {
   border-radius: var(--docs-wobble);
   border-color: var(--docs-hair);
@@ -94,7 +87,6 @@
   box-shadow: inset 2px 0 0 var(--color-fd-primary);
 }
 
-/* Copy button: hover, focus and copied feedback. Fumadocs sets data-checked on success. */
 .ob-docs .prose .shiki button {
   transition: color 180ms var(--docs-ease), background-color 180ms var(--docs-ease), opacity 180ms var(--docs-ease);
   border-radius: 0.45rem;
@@ -122,7 +114,6 @@
   .ob-docs .prose .shiki button { min-width: 2.75rem; min-height: 2.75rem; }
 }
 
-/* Sidebar and TOC active states. fumadocs sets data-active and aria-current. */
 .ob-docs aside a,
 .ob-docs nav a {
   transition: background-color 200ms var(--docs-ease), color 200ms var(--docs-ease), box-shadow 200ms var(--docs-ease);
@@ -146,7 +137,6 @@
   outline-offset: -2px;
 }
 
-/* Smooth anchor scroll, only while the docs surface is on the page. */
 :root:has(.ob-docs) { scroll-behavior: smooth; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -160,7 +150,6 @@
   }
 }
 
-/* Sketch callouts: wobbled border, corner marks drawn by inline SVG. */
 .ob-callout {
   position: relative;
   margin-block: 1.5rem;
@@ -188,7 +177,6 @@
 .ob-callout[data-type="idea"] .ob-callout-corners,
 .ob-callout[data-type="success"] .ob-callout-corners { color: color-mix(in srgb, var(--color-fd-primary) 90%, transparent); }
 
-/* Sketch hero banner for the docs index: ledger sheet, rules and tick marks. */
 .ob-banner {
   position: relative;
   display: grid;
@@ -214,7 +202,6 @@
 .ob-banner .ob-banner-ink { stroke: var(--color-fd-foreground); opacity: 0.55; }
 .ob-banner .ob-banner-tick { stroke: var(--color-fd-primary); }
 
-/* Terminal sample polish. */
 .ob-terminal {
   border-radius: var(--docs-wobble);
   border-color: var(--docs-hair);
@@ -281,7 +268,6 @@
   .ob-terminal button { min-height: 2.75rem; }
 }
 
-/* Flow cards: same wobble as callouts. */
 .ob-docs .ob-flow li {
   border-radius: var(--docs-wobble);
   box-shadow: var(--docs-inner);

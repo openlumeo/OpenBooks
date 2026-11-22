@@ -1,13 +1,8 @@
-// Flat instrument-panel primitives (DESIGN.md "The Reconciliation Strip").
-// Server-safe. Rows default to the matched (reconciled) state, so no-JS and
-// reduced-motion visitors see the correct final frame.
 import type { ReactNode } from "react";
 import styles from "./reconciliation.module.css";
 
 export type ReconPanelProps = {
-  /** Mono uppercase header text. */
   title: ReactNode;
-  /** Shows a pulsing mint dot (static when reduced motion is requested). */
   live?: boolean;
   children?: ReactNode;
   className?: string;
@@ -28,14 +23,10 @@ export function ReconPanel({ title, live = false, children, className }: ReconPa
 export type ReconRowState = "matched" | "unmatched";
 
 export type ReconRowProps = {
-  /** Defaults to "matched" (mint border). "unmatched" uses the alarm rose border. */
   state?: ReconRowState;
-  /** Cells as a list. Each becomes its own span; the last cell is right-aligned. */
   cells?: ReactNode[];
-  /** Alternative to `cells`: arbitrary content laid out in the same row. */
   children?: ReactNode;
   className?: string;
-  /** Marks the row as a staggered child of the nearest Reveal (motion only; final state by default). */
   revealChild?: boolean;
 };
 

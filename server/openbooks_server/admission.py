@@ -20,7 +20,7 @@ DEFAULT_MAX_BYTES = 256 << 20
 DEFAULT_MAX_OCR_PAGES = 60
 DEFAULT_RETRY_AFTER_S = 5
 DEFAULT_QUEUE_TIMEOUT_S = 30.0
-POLL_INTERVAL_S = 0.02  # ponytail: polling, not FIFO; a Condition if fairness matters
+POLL_INTERVAL_S = 0.02
 IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg")
 _PDF_PAGE_OBJECT = re.compile(rb"/Type\s*/Page\b")
 _PDF_FONT_MARKER = b"/Font"
@@ -41,7 +41,7 @@ class Ticket:
         self.adm = adm
         self.nbytes = nbytes
         self.pages = pages
-        self.state = "queued"  # queued | running | done
+        self.state = "queued"
         self.waited = 0.0
 
     async def wait_turn(self, is_disconnected: Callable[[], Awaitable[bool]]) -> str:
@@ -162,7 +162,6 @@ class Admission:
             return self.running + self.queued
 
 
-# Process-wide gate. Consumers read `adm.current` at call time so tests can swap it.
 current = Admission.from_env()
 
 

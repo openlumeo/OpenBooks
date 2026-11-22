@@ -1,11 +1,8 @@
-// Generic hardware frame drawn in CSS. Server-safe, static (no motion), renders without JS.
-// The outer hardware is rounded; everything inside the screen is square (DESIGN.md radius rule).
 import type { ReactNode } from "react";
 import styles from "./device-frame.module.css";
 
 export type DeviceFrameProps = {
   children?: ReactNode;
-  /** Visible caption under the device. */
   label?: string;
   variant?: "laptop" | "phone";
 };

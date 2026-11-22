@@ -43,7 +43,6 @@ export function useWorkspace() {
     return () => { alive = false; };
   }, []);
 
-  // ---- links across the thread ------------------------------------------------------
   const relink = useCallback(
     async (threadId: string, signal: AbortSignal) => {
       const th = threadsRef.current.find((t) => t.id === threadId);
@@ -64,7 +63,6 @@ export function useWorkspace() {
     [engine.health?.link_available, threadsRef, updateThread],
   );
 
-  // Claim the operation synchronously. React's busy state can lag by a render.
   const operate = useCallback(async (
     kind: Exclude<Operation, "link">,
     work: (signal: AbortSignal) => Promise<void>,
@@ -163,7 +161,6 @@ export function useWorkspace() {
     [answerQuestion, appendTurns, askEnabled, ensureThread, operate, relink, updateTurn],
   );
 
-  /** Re-run one file from an earlier turn with changed params, as a new exchange in the thread. */
   const rerunFile = useCallback(
     async (run: RunTurn, index: number, override: RunParams): Promise<boolean> => {
       const file = recallFile(run.sourceTurnId, index);
@@ -228,7 +225,6 @@ export function useWorkspace() {
 
 type SetFile = (i: number, fn: (f: FileRun) => FileRun, now?: boolean) => void;
 
-/** Stream a run into the thread. Resolves with the failure message, or undefined when the stream finished. */
 async function streamRun(
   files: File[],
   params: RunParams,

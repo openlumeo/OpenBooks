@@ -17,7 +17,6 @@ function hasCredentials(): boolean {
   return Boolean(MODEL && process.env.OPENBOOKS_LLM_API_KEY);
 }
 
-/** Lets the composer know up front whether questions are available. */
 export function GET() {
   return Response.json({ enabled: hasCredentials(), model: MODEL });
 }

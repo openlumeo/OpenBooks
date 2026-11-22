@@ -1,5 +1,3 @@
-// The Python package owns the schema. This copies it next to the JS package (so it ships in the npm tarball and the types
-// and validation are built from the same file). `--check` fails instead of writing, for CI.
 import { copyFileSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

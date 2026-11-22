@@ -144,9 +144,7 @@ describe("createTokenBucket", () => {
     expect(bucket.take("b").allowed).toBe(true);
     expect(bucket.take("c").allowed).toBe(true);
 
-    // "a" was evicted, so it starts again with a full bucket.
     expect(bucket.take("a").allowed).toBe(true);
-    // "c" is still tracked and empty.
     expect(bucket.take("c").allowed).toBe(false);
   });
 });

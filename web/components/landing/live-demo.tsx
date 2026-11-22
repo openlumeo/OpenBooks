@@ -9,9 +9,7 @@ import { ReconPanel, ReconRow } from "./reconciliation";
 import { DEMO_SAMPLES, REPLAYS, isDemoSampleId, verdictFromDoc, type DemoSampleId, type DemoVerdict } from "./live-demo-data";
 import styles from "./live-demo.module.css";
 
-/** Longest the engine may take to answer before the recorded run is replayed instead. */
 const CALL_TIMEOUT_MS = 2500;
-/** Pause between replayed stages. Zero under reduced motion. */
 const REPLAY_STEP_MS = 420;
 const TICK_MS = 100;
 const REPLAY_FAILED = "The demo could not finish. Run it again.";
@@ -67,7 +65,6 @@ function reducer(state: State, action: Action): State {
         announce: action.mode === "live" ? "Running on the engine." : "The engine is not reachable. Replaying a recorded run.",
       };
     case "stage": {
-      // validate is folded into Balance for display, as lib/stages.ts does.
       const stage: Stage = action.stage === "validate" ? "balance" : action.stage;
       if (state.seen.includes(stage)) return state;
       return { ...state, seen: [...state.seen, stage], announce: `${stageLabel(stage)} passed.` };
@@ -97,7 +94,6 @@ function stageStates(seen: Stage[], verdict: DemoVerdict | null, running: boolea
   return STAGES.map((s, i) => (seen.includes(s.id) ? "done" : running && i === firstOpen ? "active" : "pending"));
 }
 
-/** A fetch that gives up after CALL_TIMEOUT_MS. The timer is cleared once headers arrive, so a streamed body is not cut short. */
 function timedFetch(url: string, init: RequestInit, parent: AbortSignal): Promise<Response> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), CALL_TIMEOUT_MS);
@@ -105,7 +101,6 @@ function timedFetch(url: string, init: RequestInit, parent: AbortSignal): Promis
   return fetch(url, { ...init, signal: ctrl.signal }).finally(() => clearTimeout(timer));
 }
 
-/** Runs a sample through the same engine routes the workspace uses. Throws on any failure before a verdict. */
 async function runLive(sampleId: DemoSampleId, signal: AbortSignal, onStart: () => void, onStage: (stage: Stage) => void): Promise<DemoVerdict> {
   const health = await timedFetch("/api/engine/health", { cache: "no-store" }, signal);
   if (!health.ok) throw new Error(`health ${health.status}`);
@@ -210,7 +205,6 @@ export function LiveDemo({ autoplay = false }: { autoplay?: boolean }) {
           dispatch({ type: "verdict", verdict, elapsedMs: elapsed() });
         } catch {
           if (signal.aborted) return;
-          // Engine down, slow, or the run failed: show the recorded run, labelled as a replay.
           try {
             await replay();
           } catch {
@@ -233,7 +227,6 @@ export function LiveDemo({ autoplay = false }: { autoplay?: boolean }) {
     [run],
   );
 
-  // Abort any run and stop the clock when the demo leaves the page.
   useEffect(() => {
     return () => {
       abortRef.current?.abort();
@@ -241,7 +234,6 @@ export function LiveDemo({ autoplay = false }: { autoplay?: boolean }) {
     };
   }, []);
 
-  // Autoplay the released sample once, the first time the demo is half on screen, unless the visitor has already run something.
   useEffect(() => {
     if (!autoplay) return;
     const el = rootRef.current;

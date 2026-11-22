@@ -36,18 +36,16 @@ def run_case(case: Case, variant: str) -> dict:
     from openbooks.pipeline import dumps, process
 
     doc = process(case.path, _params(case.params, PARAM_VARIANTS[variant]))
-    if case.path.suffix.lower() == ".pdf":  # two PDF libraries report slightly different box coordinates for the same text
+    if case.path.suffix.lower() == ".pdf":
         for ev in doc.get("evidence", {}).values():
             ev.pop("bbox", None)
             ev.pop("confidence", None)
-        # A wrapped description line sits midway between two rows; which row it joins was float noise in the old reader. Compare the
-        # words each document holds, not their split between neighbouring rows (compare_pdf_backends.py checks the same thing).
         txs = (doc.get("data") or {}).get("transactions") or []
         if txs:
             doc["data"]["description_words"] = sorted(w for t in txs for w in str(t.get("description") or "").split())
             for t in txs:
                 t["description"] = ""
-    if case.path.suffix.lower() in (".xlsx", ".pdf"):  # generators stamp times/ids, so the file's own hash differs per build
+    if case.path.suffix.lower() in (".xlsx", ".pdf"):
         if "file" in doc:
             doc["file"]["sha256"] = "-"
         if "error" in doc:

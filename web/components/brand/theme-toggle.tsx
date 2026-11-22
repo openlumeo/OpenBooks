@@ -1,6 +1,5 @@
 "use client";
 
-// Ported from Lumeo theme-toggle.tsx (sharp hairline box, instant swap with transitions suppressed).
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { THEME_STORAGE_KEY } from "./theme-script";
@@ -30,7 +29,6 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     try {
       localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {
-      // storage unavailable: the toggle still works for this page view
     }
   };
 

@@ -21,7 +21,7 @@ from .responses import reject_response, unauthorised_response
 log = logging.getLogger("openbooks_server")
 REQUEST_ID_HEADER = b"x-request-id"
 REQUEST_ID_PATTERN = re.compile(r"[A-Za-z0-9._-]{1,128}")
-GUARDED_ROUTES = frozenset({("POST", "/v1/runs"), ("POST", "/v1/roles")})  # refused before the upload body is read
+GUARDED_ROUTES = frozenset({("POST", "/v1/runs"), ("POST", "/v1/roles")})
 ROUTE_LABELS = frozenset({"/v1/runs", "/v1/roles", "/v1/link", "/v1/health", "/v1/formats", "/v1/samples",
                           "/healthz", "/readyz", "/metrics"})
 SAMPLE_ROUTE_PREFIX = "/v1/samples/"

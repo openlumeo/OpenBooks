@@ -48,7 +48,7 @@ def test_readyz_is_503_while_draining_even_with_the_model_loaded(gate, monkeypat
     ready = client.get("/readyz")
     assert ready.status_code == 503 and ready.json()["draining"] is True
     assert ready.headers["retry-after"] == "5"
-    assert client.get("/healthz").status_code == 200  # still alive
+    assert client.get("/healthz").status_code == 200
 
 
 def test_drain_waits_for_in_flight_work_before_handing_over_the_signal(gate):
@@ -59,7 +59,7 @@ def test_drain_waits_for_in_flight_work_before_handing_over_the_signal(gate):
     async def scenario() -> None:
         task = asyncio.ensure_future(drain_then_exit(lambda n, _f: handed_over.append(n), signal.SIGTERM))
         await asyncio.sleep(0.3)
-        assert handed_over == []  # the job is still running
+        assert handed_over == []
         running.release()
         await task
 

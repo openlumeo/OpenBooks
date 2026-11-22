@@ -12,4 +12,4 @@ class Params:
     allow_derived_opening: bool = False
     ocr: bool = True
     model: bool = False
-    date_order: str | None = None  # "dmy" or "mdy" for numeric dates; None infers it from the file
+    date_order: str | None = None

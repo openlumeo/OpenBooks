@@ -1,5 +1,3 @@
-// What the Q&A model sees about a thread's documents. Evidence maps are left out (reachable by tool);
-// big ledgers are left out (reachable by tool). Keys are sorted so the digest is byte-stable for caching.
 import type { DocRef } from "./query";
 
 export const FULL_TXN_LIMIT = 200;
@@ -42,7 +40,6 @@ export function buildDigest(docs: DocRef[]): string {
 }
 
 function promptJson(value: unknown): string {
-  // Protect the surrounding <documents> delimiter while preserving the JSON values.
   return JSON.stringify(value)
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e");

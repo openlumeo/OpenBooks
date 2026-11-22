@@ -1,5 +1,3 @@
-/* Section 6 (Ask). Flat instrument panel from ReconPanel; radius 0, no blur. */
-
 .lede {
   color: var(--text-muted);
   max-width: 62ch;
@@ -14,7 +12,6 @@
   min-width: 0;
 }
 
-/* Sketched dashed drop-zone edge, matching try-it.module.css. */
 .sketchEdge {
   position: absolute;
   inset: -8px;
@@ -82,7 +79,6 @@
   overflow-wrap: anywhere;
 }
 
-/* Collapsed tool line */
 .tool {
   border: 1px solid var(--hairline);
   min-width: 0;
@@ -151,7 +147,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Wide result table scrolls inside its own container. */
 .scroll {
   min-width: 0;
   max-width: 100%;
@@ -192,7 +187,6 @@
   text-align: right;
 }
 
-/* Expanding a tool line fades its body in; the chevron turns over the same 200ms. */
 @keyframes tool-body-in {
   from {
     opacity: 0;

@@ -9,7 +9,6 @@ from collections.abc import Mapping
 log = logging.getLogger("openbooks_server")
 KEY_HEADER = b"x-openbooks-key"
 KEY_ENV = "OPENBOOKS_ENGINE_KEY"
-# Probes carry no key: they reveal only liveness and readiness.
 KEY_EXEMPT = frozenset({"/healthz", "/readyz"})
 
 

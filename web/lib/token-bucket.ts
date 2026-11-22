@@ -21,9 +21,6 @@ export function createTokenBucket({
   now = Date.now,
   maxKeys = DEFAULT_MAX_KEYS,
 }: TokenBucketOptions): TokenBucket {
-  // Map preserves insertion order; re-inserting on every take keeps the
-  // first key as the least recently used one, which is the eviction victim.
-  // ponytail: in-memory per instance; serverless instances do not share buckets.
   const buckets = new Map<string, BucketState>();
 
   function evictOverflow(): void {

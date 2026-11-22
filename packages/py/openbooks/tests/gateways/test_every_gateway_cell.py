@@ -16,7 +16,6 @@ from openbooks.core import Params, process
 NUMBER = re.compile(r"^-?[\d,]+\.\d+$")
 CASES = [("stripe", STRIPE, {}), ("razorpay", RAZORPAY, {}), ("paypal", PAYPAL, {}), ("wise", WISE, {"allow_derived_opening": True})]
 
-# (layout, data row, column) -> why changing it cannot change a released number
 NOT_RELEASED = {
     **{("stripe", 4, c): "payout row: only its net is used, as the claim the other rows are proven against" for c in ("gross", "fee")},
     **{("razorpay", 3, c): "settlement row: only its debit is used, as the claim" for c in ("credit", "amount", "fee", "tax")},

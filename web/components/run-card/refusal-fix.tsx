@@ -8,7 +8,6 @@ import type { RunParams } from "@/lib/types";
 const AMOUNT = /^-?\d+(\.\d+)?$/;
 const CURRENCY = /^[A-Za-z]{3}$/;
 
-/** Inline fix for refusals whose message asks for an input the user can supply. */
 export function RefusalFix({
   fields,
   available,

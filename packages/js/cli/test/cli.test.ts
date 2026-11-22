@@ -128,9 +128,7 @@ describe("openbooks CLI when the engine is unusable", () => {
 describe.skipIf(!python)("provider wrappers", () => {
   it("list exactly the layouts the engine knows for their family", async () => {
     const { info } = await findEngine({ python: python! });
-    // Engine 0.2 names the provider module (openbooks.statements); 0.1 named its distribution (openbooks-statements).
     const owned = (dist: string) => info.known_layouts.filter((l) => l.distribution.replace("openbooks-", "openbooks.") === dist).map((l) => l.id);
-    // The PDF/image layout id is produced by the document front end and is not in the core table.
     expect([...statements.LAYOUTS].filter((l) => l !== "bank_statement_pdf.v1").sort()).toEqual(owned("openbooks.statements").sort());
     expect([...statements.LAYOUTS]).toContain("bank_statement_pdf.v1");
     expect([...gateways.LAYOUTS].sort()).toEqual(owned("openbooks.gateways").sort());
@@ -216,8 +214,6 @@ describe("install-engine", () => {
 describe("engine version line", () => {
   const versionOf = (dir: string) => (JSON.parse(readFileSync(join(repo, "packages/js", dir, "package.json"), "utf8")) as { version: string }).version;
 
-  // npm and PyPI share a major.minor line: CLI 0.2.x installs openbooks 0.2.x, never 0.1.x or 0.3.x.
-  // When the line moves (0.3), bump every package and update this expectation on purpose.
   it("installs the engine from the same major.minor line as the CLI", () => {
     expect(versionOf("cli")).toMatch(/^0\.2\.\d+$/);
     expect(engineRange()).toBe("~=0.2.0");

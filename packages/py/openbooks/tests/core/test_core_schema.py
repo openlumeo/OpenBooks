@@ -16,7 +16,7 @@ def test_schema_files_load_and_are_versioned():
 def test_refusal_documents_validate_against_the_refusal_schema():
     validate(refusal_doc("PARSE_ERROR", "x", SHA), load_schema("refusal"))
     with pytest.raises(ValidationError):
-        validate({**refusal_doc("PARSE_ERROR", "x", SHA), "data": {}}, load_schema("refusal"))  # a refusal carries no data
+        validate({**refusal_doc("PARSE_ERROR", "x", SHA), "data": {}}, load_schema("refusal"))
     with pytest.raises(ValidationError):
         validate(refusal_doc("PARSE_ERROR", "x", "short"), load_schema("refusal"))
 

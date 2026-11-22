@@ -19,7 +19,7 @@ def test_histogram_buckets_are_cumulative_with_inf_sum_and_count():
 
     assert 'h_bucket{stage="x",le="0.005"} 1' in lines
     assert 'h_bucket{stage="x",le="0.25"} 2' in lines
-    assert 'h_bucket{stage="x",le="300"} 2' in lines  # 1000s is above every finite bound
+    assert 'h_bucket{stage="x",le="300"} 2' in lines
     assert 'h_bucket{stage="x",le="+Inf"} 3' in lines
     assert 'h_sum{stage="x"} 1000.201000' in lines
     assert 'h_count{stage="x"} 3' in lines
@@ -84,9 +84,9 @@ def test_observed_stage_seconds_are_clamped_to_zero_when_negative():
 
 
 @pytest.mark.parametrize("method, suffix, expected", [
-    ("pdf_text", ".csv", "pdf_text"),  # the engine's own method wins over the suffix
+    ("pdf_text", ".csv", "pdf_text"),
     ("ocr", ".pdf", "ocr"),
-    (None, ".PDF", "pdf_text"),  # refusal: fall back to the suffix, case-insensitively
+    (None, ".PDF", "pdf_text"),
     (None, ".JPEG", "ocr"),
     ("something_else", ".csv", "other"),
     (None, "", "other"),
@@ -113,7 +113,7 @@ def test_process_memory_is_read_from_proc_statm(monkeypatch, tmp_path):
     statm = tmp_path / "statm"
     statm.write_text("100 25 3 1 0 2 0\n")
     monkeypatch.setattr(metrics, "_PROC_STATM", statm)
-    monkeypatch.setattr(os, "sysconf", lambda name: 4096, raising=False)  # Windows has no sysconf
+    monkeypatch.setattr(os, "sysconf", lambda name: 4096, raising=False)
 
     gauges = metrics._process_gauges()
 

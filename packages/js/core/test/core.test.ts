@@ -29,8 +29,6 @@ const BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2
 const STRIPE = "balance_transaction_id,created,currency,gross,fee,net\nt1,2026-01-15 10:00:00,usd,100.00,3.20,96.80\n";
 const work = mkdtempSync(join(tmpdir(), "ob-js-test-"));
 const file = (name: string, text: string) => { const p = join(work, name); writeFileSync(p, text); return p; };
-// The engine wrapper creates its scratch directory under os.tmpdir(). Point that at a directory only this test file uses, so
-// "nothing left behind" is checked exactly and cannot be disturbed by other test files running in parallel.
 const scratch = mkdtempSync(join(tmpdir(), "ob-scratch-"));
 for (const k of ["TMPDIR", "TMP", "TEMP"]) process.env[k] = scratch;
 const leftovers = () => readdirSync(scratch).length;
@@ -58,7 +56,7 @@ describe.skipIf(!realPython)("with the real engine", () => {
     expect(r.kind).toBe("released");
     if (!isReleased(r)) return;
     const t = r.document.data.transactions[0];
-    expect(t.amount?.amount).toBe("5.00"); // a string: money is never a JS number
+    expect(t.amount?.amount).toBe("5.00");
     expect(r.document.file.layout_version).toBe("bank_csv.v1");
     expect(r.document.assertions.some((a) => a.independent)).toBe(true);
   });
@@ -103,7 +101,6 @@ describe.skipIf(!realPython)("with the real engine", () => {
     expect(leftovers()).toBe(before);
   });
 
-  // Hostile and odd files are refusals (values), never exceptions and never "internal" crashes of the engine.
   const bytes = (n: number, k: number) => Buffer.from(Array.from({ length: n }, (_, i) => (i * k) % 256));
   const hostile: Array<[string, string, Buffer | string]> = [
     ["an empty file", "h1.csv", ""],
@@ -121,8 +118,6 @@ describe.skipIf(!realPython)("with the real engine", () => {
   it.each(hostile)("refuses %s as a typed refusal, not a crash", async (_what, name, content) => {
     const p = join(work, name);
     writeFileSync(p, content);
-    // A PDF or image needs an optional library. Where it is installed the file is a typed refusal; where it is not, the engine says
-    // so as an engine fault that names the extra to install. Neither is ever a crash, an internal refusal or a release.
     const r = await runFile(p, opts).catch((e: unknown) => e);
     if (r instanceof EngineError) {
       expect(r.kind).toBe("engine_fault");

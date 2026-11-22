@@ -1,18 +1,11 @@
-// DigitRoll: a fixed-width mono figure whose changed digits roll mechanically.
-// Adapted from the concept A reel (docs/web/hero-concepts/a-concept.css): each digit
-// cell is a 0-9 strip moved by translateY, eased without overshoot. Only changed glyphs move, staggered
-// left to right; non-digits swap instantly. Transform transitions only, CSS owned.
-// SSR and no-JS render the final value. Reduced motion disables the transition.
 'use client';
 
 import { useState, type CSSProperties } from 'react';
 import styles from './digit-roll.module.css';
 
 export type DigitRollProps = {
-  /** The figure to show, for example "436.46". Amount strings are never reformatted. */
   value: string;
   className?: string;
-  /** Length of one reel roll in milliseconds. */
   durationMs?: number;
 };
 
@@ -23,7 +16,6 @@ function isDigit(ch: string | undefined): boolean {
   return ch !== undefined && ch >= '0' && ch <= '9' && ch.length === 1;
 }
 
-/** Stagger delay per cell: rolling cells start left to right, 40ms apart. */
 function computeDelays(prev: string, next: string): number[] {
   const delays: number[] = [];
   let rank = 0;
@@ -38,8 +30,6 @@ function computeDelays(prev: string, next: string): number[] {
 type RollState = { value: string; delays: number[] };
 
 export function DigitRoll({ value, className, durationMs = 600 }: DigitRollProps) {
-  // Derived state: when value changes, recompute stagger delays from the previous value.
-  // Rendering with the same value leaves state untouched, so unchanged digits never move.
   const [roll, setRoll] = useState<RollState>(() => ({
     value,
     delays: computeDelays('', value),

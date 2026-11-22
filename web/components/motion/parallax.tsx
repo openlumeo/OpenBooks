@@ -1,12 +1,3 @@
-/* docs: Scrubbed parallax. Transform only (yPercent), ease none, scrub 0.6.
- *   <Parallax speed={8} as="div">...</Parallax>
- *     speed = percent of the element's own height it drifts upward across the viewport
- *     traversal. Negative drifts downward. will-change is set only while in view.
- *     Off for reduced motion and coarse pointers (static final position).
- *   <ParallaxLayer depth={1 | 2 | 3} reverse as>
- *     Convenience for stacked depth layers: depth 1/2/3 maps to speed 4/8/12
- *     (sign flips with reverse). Keep to 2 or 3 layers per section.
- * Do not put backdrop-filter on a parallax layer. */
 'use client';
 
 import { useRef, type ElementType, type HTMLAttributes, type ReactNode } from 'react';

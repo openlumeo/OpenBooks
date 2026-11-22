@@ -21,21 +21,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Nothing is public unless it is listed here.
 INCLUDE = [
     "packages/py/openbooks/**",
     "packages/js/**",
-    "models/roles_head.pt", "models/roles_calibration.json", "models/roles_model_card.json",  # the openbooks wheel ships these
+    "models/roles_head.pt", "models/roles_calibration.json", "models/roles_model_card.json",
     "tests/packaging/**", "tests/test_cli_machine.py", "tests/test_model_card.py",
 ]
-# Never copied even when an include matches.
 EXCLUDE = ["**/node_modules/**", "**/dist/**", "**/__pycache__/**", "**/*.egg-info/**", "**/.pytest_cache/**", "**/.venv/**",
            "**/*.tsbuildinfo", "**/*.pyc", "**/build/**"]
-# tools/public/<src> -> <dest> in the export
 OVERLAY = {"README.md": "README.md", "CONTRIBUTING.md": "CONTRIBUTING.md", "SECURITY.md": "SECURITY.md", "THIRD_PARTY.md": "THIRD_PARTY.md", "NOTICE": "NOTICE",
            "ci.yml": ".github/workflows/ci.yml", "gitignore": ".gitignore", "pytest.toml": "pyproject.toml"}
 
-# Text that must not appear in the public tree. A hit fails the export.
 FORBIDDEN = {
     "private package or module": [r"openbooks_lab", r"lumeo-openbooks-lab", r"lumeo_private"],
     "training recipe or internal weights": [r"jepa_encoder", r"train_roles", r"score_family_candidate", r"promote\.py", r"roles_manifest"],
@@ -44,12 +40,11 @@ FORBIDDEN = {
     "hosted product": [r"OPENBOOKS_LLM_API_KEY", r"openbooks_server", r"OPENBOOKS_ENGINE_URL"],
     "personal or machine details": [r"Rohit", r"Victus", r"gmail\.com", r"C:\\{1,2}Users", r"/Users/"],
 }
-# Files allowed to mention forbidden strings because their job is to forbid them.
 SCAN_ALLOW = {"tests/packaging/test_wheels.py": {"private package or module", "training recipe or internal weights"},
               "scripts/export_public.py": set(FORBIDDEN)}
 TEXT_SUFFIXES = {".py", ".ts", ".mjs", ".json", ".toml", ".md", ".yml", ".yaml", ".txt", ".cfg", ".lock", ".gitignore", ""}
 BINARY_ALLOWED = {"models/roles_head.pt"}
-EMPTY_MARKERS = {"py.typed"}  # empty PEP 561 marker files
+EMPTY_MARKERS = {"py.typed"}
 
 
 def matches(rel: str, patterns: list[str]) -> bool:

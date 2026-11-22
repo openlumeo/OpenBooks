@@ -1,15 +1,11 @@
-// Section 2 data and checks ledger. The section itself is composed in scroll-story.tsx,
-// which reuses these exports. Server-safe (no hooks).
 import { STAGES } from "@/lib/stages";
 import type { Stage } from "@/lib/types";
 import { Sketch } from "@/components/motion/sketch";
 import { ReconPanel, ReconRow } from "./reconciliation";
 import styles from "./how-proven.module.css";
 
-/** Display order of the trail: the four stages from STAGES. Schema validation is folded into Balance. */
 export const TRAIL: Stage[] = STAGES.map((s) => s.id);
 
-/** Job of each stage, paraphrased from ARCHITECTURE.md "How a document is processed" and "Balance checks". */
 export const JOB: Record<Exclude<Stage, "validate">, string> = {
   detect: "Identifies the layout from the file itself. An unknown layout stops here.",
   parse: "Reads every row with its page, box and raw text.",
@@ -31,7 +27,6 @@ export const INDEPENDENT_NOTE =
 
 export const FOOTNOTE = "Optional model checks can only add doubt. They can never cause a release.";
 
-/** The release checks ledger with the independent-evidence note and footnote. */
 export function ProvenChecks() {
   return (
     <div className={styles.checks}>
