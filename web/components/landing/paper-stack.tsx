@@ -160,9 +160,6 @@ function Sheet({ spec, stamp }: { spec: SheetSpec; stamp: boolean }) {
             <span>{row.direction}</span>
             <span className={styles.num}>{row.amount}</span>
             <span className={styles.num}>{row.balance}</span>
-            {row.state === "matched" && spec.index === 0 ? (
-              <Sketch kind="tick" tone="mint" className={styles.tick} />
-            ) : null}
             {row.state === "unmatched" ? (
               <Sketch kind="scribble" tone="rose" className={styles.tamper} />
             ) : null}

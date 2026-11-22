@@ -148,16 +148,6 @@
   color: var(--unmatched);
 }
 
-.tick {
-  position: absolute;
-  right: -22px;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  margin-top: -7px;
-  pointer-events: none;
-}
-
 .tamper {
   position: absolute;
   left: -6px;

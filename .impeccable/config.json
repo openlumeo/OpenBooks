@@ -11,6 +11,24 @@
         ],
         "createdAt": "2026-11-20T13:35:58.045Z",
         "reason": "Claude: <img src=x onerror> is an XSS test payload string, not rendered UI"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "web/app/styles/app.css"
+        ],
+        "createdAt": "2026-11-22T09:38:06.228Z",
+        "reason": "agent decided: .assert-row 2px left edge is the Lumeo reconciliation-strip brand signature (DESIGN.md s4 .recon-row, per code comment), semantic mint/rose, pre-existing since commit 8de91700; PRODUCT.md binds the Lumeo visual language"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "app/styles/app.css"
+        ],
+        "createdAt": "2026-11-22T10:19:38.119Z",
+        "reason": "agent decided: same sanctioned exception as before, hook reports this file as app/styles/app.css. .assert-row 2px left edge is the Lumeo reconciliation-strip brand signature (DESIGN.md s4 .recon-row), semantic mint/rose, pre-existing; the flagged line 879 is a border-less divider pseudo-element"
       }
     ]
   }
