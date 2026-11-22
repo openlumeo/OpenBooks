@@ -1,11 +1,19 @@
 ---
-title: Open Books Node.js and TypeScript Package Reference
+title: Node.js and TypeScript
 description: Run the local Python engine from Node.js, integrate typed results and handle refusals separately from execution errors.
 ---
 
 Use these packages in a Node.js process with Python 3.11+ and `openbooks` installed. The wrapper starts a child process on the same machine, checks schema compatibility, and validates the result. Keep calls in your application server or job runner.
 
+## Set up your first run
+
+1. Follow the [Node.js installation steps](/docs/installation) to install the wrapper and Python engine.
+2. Run `python -m openbooks engine-info` in the same project environment. If the Node.js process uses a different environment, set `OPENBOOKS_PYTHON` to the absolute path of the interpreter that reported the engine.
+3. Work through the [Node.js quickstart](/docs/quickstart) with the sample before adding multiple files.
+
 ## Process a batch
+
+This example uses two CSV files with the same verified opening amount, currency, and date order. Save it as an `.mjs` file to run it with Node.js, or use it in a TypeScript project.
 
 ~~~ts
 import { EngineError, isReleased, runFiles } from "@lumeo_hq/openbooks-core";
@@ -31,11 +39,13 @@ try {
 }
 ~~~
 
-Batch options apply to every file in the call. The example assumes both files have the same verified opening amount. Use `runFile()` for each statement when its opening amount or currency differs. Results are returned in input order.
+Batch options apply to every file in the call. Results arrive as an array in input order, with one result per input when the batch completes. Use `runFile()` for individual settings, or use the job stream below for many files with different options.
 
 ## Stream jobs with per-file options
 
-The 0.2.1 packages expose `runJobs()` in core and the format wrappers. Pass an iterable or async iterable of files and per-file options. Each result arrives in input order without retaining the completed batch. Runtime settings such as the interpreter, layout allowlist and response limits apply across the stream.
+The core package and format wrappers expose `runJobs()` from version 0.2.1. Pass an iterable or async iterable of jobs and handle each result as it arrives in input order. This lets you persist or review each result without holding an entire completed batch in memory. Runtime settings such as the interpreter, layout allowlist, and response limits apply across the stream.
+
+Install `@lumeo_hq/openbooks-statements` for this example. Shared options set the currency and date order. Each job supplies its own opening balance.
 
 ~~~ts
 import { runJobs } from "@lumeo_hq/openbooks-statements";
@@ -71,4 +81,12 @@ for await (const result of runJobs([
 | `@lumeo_hq/openbooks-doctor` | `runDoctor(options)` returns checks, summary counts and `ok`. Set `deep: true` to load the model. |
 | `@lumeo_hq/openbooks` | CLI, engine installer and programmatic `main` and `installEngine` entry points. |
 
-A returned refusal has `kind: "refused"` with `code`, `message`, `document`, `internal` and `restricted`. A thrown `EngineError` has a `kind` such as `engine_not_installed`, `engine_version`, `timeout`, `aborted` or `bad_output`. Retry genuinely transient execution failures and keep document refusals in the review queue. Use `isReleased()` to narrow to `kind: "released"` before reading output data.
+## Handle results and errors
+
+| What you receive | How to handle it |
+| --- | --- |
+| Result with `kind: "released"` | Use `isReleased()` to narrow the TypeScript type, then read `result.document` for records and proof. |
+| Result with `kind: "refused"` | Use `code` and `message` for review. `restricted` indicates an allowlist decision and `internal` flags an unexpected engine problem. Keep the refusal document when present. |
+| Thrown `EngineError` | Use `kind` and `hint` to decide whether to retry or repair the environment. Examples include `engine_not_installed`, `engine_version`, `timeout`, `aborted`, and `bad_output`. |
+
+See [refusal handling](/docs/refusals) for source-file problems and [troubleshooting](/docs/troubleshooting) for engine discovery, version, and runtime errors.

@@ -1,15 +1,23 @@
 ---
-title: Extract Bank Statement PDFs and Scans with OCR
+title: Bank PDFs and OCR
 description: Process text-layer PDFs and scanned bank statements, choose OCR and model settings, and inspect bounding-box evidence.
 ---
 
-The document front end reads a PDF's text layer when available. For image-only pages or supported images it can run OCR. It reconstructs rows with page geometry and passes them through the same balance checks used by structured statements.
+PDFs can include a text layer or contain only images of each page. Optical character recognition (OCR) reads text from those images. Open Books uses the words and their positions to reconstruct statement rows, then applies the same financial checks as for structured bank exports.
+
+## 1. Identify your input
+
+Open the original PDF and try selecting an amount and its column heading. Selectable text suggests a text layer. An image-only PDF or a standalone PNG or JPEG needs OCR. Text extracted from a PDF still needs to match a supported statement layout.
 
 | File | Requirements |
 | --- | --- |
 | Text-layer bank statement PDF | Base Python install and a recognised statement layout. |
 | Scanned PDF, PNG or JPEG | `openbooks[scan]` and working EasyOCR weights. |
 | Model cross-check | `openbooks[scan]` and the matching shipped weights and calibration. |
+
+## 2. Run the statement
+
+Run the command from the directory containing `statement.pdf`. Supply the currency and date order only when they match the source. If the statement omits its opening balance, add the verified value as you would for a [bank export](/docs/bank-statements).
 
 <Tabs items={["Python CLI", "Node.js"]}>
 <Tab value="Python CLI">
@@ -19,9 +27,11 @@ python -m openbooks doctor --deep
 python -m openbooks run statement.pdf --currency INR --date-order dmy --model
 ~~~
 
-OCR is enabled by default. Add `--no-ocr` if the job must use the PDF text layer only. Pass `--model` to request the optional cross-check.
+OCR is enabled by default. For a selectable-text PDF with the base engine, run the same command without `--model` and add `--no-ocr` to restrict extraction to the text layer. Pass `--model` when you want an additional check of the detected roles and values.
 </Tab>
 <Tab value="Node.js">
+Complete the [Node.js setup](/docs/installation) and run `npm install @lumeo_hq/openbooks-statements`. Save the following as an `.mjs` file next to the PDF.
+
 ~~~ts
 import { runFile } from "@lumeo_hq/openbooks-statements";
 
@@ -31,15 +41,27 @@ const result = await runFile("statement.pdf", {
   ocr: false,
   model: false,
 });
-console.log(result.kind);
+if (result.kind === "released") {
+  console.log(result.document.assertions);
+} else {
+  console.error(result.code, result.message);
+}
 ~~~
 
 This example processes a text-layer PDF with the base Python install. For scans, install the `scan` extra and enable OCR. The npm wrapper normally enables both OCR and model cross-checking for documents.
 </Tab>
 </Tabs>
 
-## Inspect source evidence
+## 3. Inspect source evidence
 
 When present, `page` is one-based and `bbox` contains top-left and bottom-right coordinates in the page coordinate space used for that evidence. Read `raw_text` alongside the normalised value. Evidence fields can be null when the source has no equivalent location. Role-inspection token boxes use coordinates normalised to the page.
 
-If a run refuses, check page orientation, legibility, embedded text, layout and the [refusal reason](/docs/refusals). For model configuration and limitations, see [the model guide](/docs/model).
+For a released transaction, look up its amount in `evidence`, open the reported page, and compare the source text and surrounding column with the normalized value. Review the assertion for the relevant running balance or closing balance.
+
+To see an example, run **Bank statement PDF** in the [workspace](/app). In **Checks**, find the comparison between the document-stated closing balance and the last running balance. In **Evidence**, select a transaction and compare an amount with its page and bounding box.
+
+## Recover from an unreadable result
+
+1. Check that all pages are present, correctly oriented, and legible. Request a text-layer export if the bank offers one.
+2. For an image-only file, confirm that OCR is enabled and that [installation diagnostics](/docs/troubleshooting#check-the-installation) can find the scan dependencies.
+3. Compare the [refusal reason](/docs/refusals) with the source. A balance mismatch calls for checking the source rows and totals. For a model-related refusal, use [the model guide](/docs/model) to check the local weights and calibration.

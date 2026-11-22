@@ -1,11 +1,17 @@
 ---
-title: Reconcile Stripe and Razorpay Settlement Exports
+title: Payment settlements
 description: Check gateway settlement arithmetic and payout totals with Open Books, then reconcile released amounts against bank credits.
 ---
 
-Open Books checks that settlement rows and printed totals agree. For gateway settlements, `gross − fees − tax = net` and the sum of the net amounts must match the payout. Check the [format matrix](/docs/formats) for Stripe, Razorpay, PayPal and Wise layout IDs.
+Payment providers collect money, deduct fees, and send payouts to a bank account. A settlement export explains how the provider arrived at a payout. Open Books checks the arithmetic within the export. Matching that payout to the receiving bank statement is a second step.
 
-## Parse a gateway export in Node.js
+## 1. Export the settlement detail
+
+Choose the provider's balance or settlement report for the payout you want to verify. Keep the original headers, transaction identifiers, fee columns, and payout totals. See the [format matrix](/docs/formats) for recognized Stripe, Razorpay, PayPal, and Wise layouts.
+
+## 2. Process the export
+
+This Node.js example uses a Razorpay CSV in INR. Follow the [Node.js setup](/docs/installation), then install the gateway wrapper with `npm install @lumeo_hq/openbooks-gateways`.
 
 ~~~ts
 import { runFile } from "@lumeo_hq/openbooks-gateways";
@@ -19,13 +25,19 @@ if (result.kind === "released") {
 }
 ~~~
 
-For Python, pass the same file to [`process()`](/docs/python). The gateway wrapper only accepts the layouts in its `LAYOUTS` export.
+Save the example as an `.mjs` file and run it from the directory containing the export. For Python, pass the same file to [`process()`](/docs/python). The gateway wrapper accepts the layouts listed in its `LAYOUTS` export.
 
-## Reconcile with the receiving account
+## 3. Review the settlement checks
 
-1. Process the settlement export and bank statement separately. Keep each released file and its evidence.
-2. Compare payout and credit in the same currency using exact decimal amounts. Decide which accounting date and date window apply to your exports.
-3. Keep unmatched payouts and ties open for review. Dates and reference similarity can help rank candidates, and an exact amount match can still be ambiguous.
+For a simple fee-bearing row, a gross payment of INR `100.00` minus INR `2.00` in fees and INR `0.36` in tax gives a net amount of INR `97.64`. Read `assertions` to see the checks for your layout and compare their expected and computed values. Read `data.batches` for batch amounts and use `evidence` to locate the source values. For a refusal, start with [the refusal code and message](/docs/refusals).
+
+Try **Razorpay settlement** and **Stripe export, payout off by 0.01** in the [workspace](/app). The Razorpay fixture passes the row arithmetic and payout checks. The Stripe fixture refuses because the source payout is USD `125.06` and the engine computes USD `125.05` from the rows. That message tells you which amounts to trace in the export.
+
+## 4. Match the payout to a bank credit
+
+1. Process the receiving account's [bank statement](/docs/bank-statements) and keep both released documents.
+2. Look for a credit with the same currency and exact decimal amount. Compare payout and credit dates within the window that applies to your provider. A payout initiated on Monday can appear on a later bank date.
+3. Compare references when available. If two credits have the same amount or no candidate fits, keep the payout open for review.
 
 Open Books' optional source-checkout linker applies exact amounts, same currency and a date window. It can report ties and grouped payouts. Check `link_available` in engine health before using [`POST /v1/link`](/docs/engine-api).
 

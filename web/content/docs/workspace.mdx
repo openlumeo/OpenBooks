@@ -1,22 +1,35 @@
 ---
-title: Open Books Financial Document Workspace
+title: Use the browser workspace
 description: Upload bank statements, tax documents and payment settlements, review the source checks, and export the verified JSON in Open Books.
 ---
 
-[Open the workspace](/app) to process a batch of documents in your browser. The workspace uses the same verification engine as the [Python package](/docs/python) and [MCP server](/docs/mcp).
+[Open the workspace](/app) to process and review files in your browser. A batch groups files into one run. Each file still gets its own decision, so a refusal in one statement can appear alongside a release for another.
 
-## Run and review a batch
+## 1. Run two sample statements
 
-1. Attach files or select a synthetic sample in the workspace. Use [the format matrix](/docs/formats) to check whether your export is recognised.
-2. Supply currency, date order or an authoritative opening balance when the layout needs it. The sample picker uses parameters suited to each fixture.
-3. Run the batch. Check which files released, refused, or were interrupted before the run finished. Each file has its own decision.
-4. In a release, open the assertions and compare source evidence with the normalised records. Download the JSON if the input and checks are appropriate for your downstream workflow.
-5. In a refusal, use the code and message to locate a source issue or missing parameter. Retry after checking the correction. See [refusal handling](/docs/refusals).
+1. Open the sample picker and add **Bank statement CSV** and **Bank CSV without an opening balance**. The picker supplies the parameters configured for each fixture.
+2. Run the batch. The first statement releases. The second refuses because it needs an opening balance.
+3. Open the refused card. Enter `1000.00` in **Opening balance** and rerun that file. Use this amount for the sample. For real files, verify the opening balance against an authoritative source.
 
-## Use the released records
+## 2. Inspect and export a release
 
-A release carries parsed transactions, balances, and other records for its layout. Evidence can show the source row, page or bounding box. Assertions record the checks that passed. Preserve all three when exporting records to a bookkeeping or reconciliation job.
+1. On a released card, open **Data** to inspect the parsed records.
+2. Open **Checks** and read the expected and computed amounts. An independent check uses a value from the input, such as a printed balance.
+3. Open **Evidence** to locate the relevant source text, row, or page. For PDFs and images, the evidence can include a bounding box around the text.
+4. Choose **Download JSON** to save the complete decision, including the records, checks, and evidence. See [the output contract](/docs/output-contract) for field definitions.
 
-When Q&A is enabled, you can ask questions over released files in a thread. Application code computes totals and counts and the answer can cite files or record IDs. The service can also report payout links on deployments with the optional linker enabled.
+## 3. Run your own files
 
-The hosted workspace processes uploads on the server and stores thread history in this browser. Use the local Python or MCP packages when your files should stay on your own machine. Try the [synthetic bank statement quickstart](/docs/quickstart) first.
+Check the [format matrix](/docs/formats), then attach the original exports. Open **Params** to supply verified currency, date order, or opening balance where required. Review each file's outcome:
+
+| Outcome | What to do |
+| --- | --- |
+| Released | Inspect the records, checks, and evidence before exporting. |
+| Refused | Read the code and message. If the card asks for a field, supply its verified value and rerun. You can also download the refusal for review. |
+| Interrupted | Use **Retry file** when the original is still available. If prompted, choose **Attach original file** and select the same export again. |
+
+## History and questions
+
+The hosted workspace processes uploads on the server and stores thread history in this browser. After a reload, you can review saved results, and a retry may ask for the original file again. Use [local Python](/docs/python) or [local MCP](/docs/mcp) if you need the extraction to run on your own machine.
+
+When Q&A is enabled, you can ask about released files in the current thread. Try asking which transactions contributed to a total and request the source records. Application code computes totals and counts. Answers can cite files or record IDs. Deployments with the optional linker can also report [payout matches](/docs/payment-settlements).

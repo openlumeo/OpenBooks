@@ -1,13 +1,15 @@
 ---
-title: Open Books Python API Reference
+title: Python API
 description: Use process, Params and the schema helpers in Python for bank statements, settlements, tax documents and workpapers.
 ---
 
-Install the `openbooks` distribution with Python 3.11+. Its public API at `openbooks` is also available from `openbooks.core`.
+Use the Python API to process files inside a Python program. Install `openbooks` into the same Python 3.11+ environment that runs your application. The public API is available from `openbooks` and `openbooks.core`. See [installation](/docs/installation) if you need to set up a virtual environment.
 
 ## Process a file
 
-`process(path, params)` takes a path or path string and returns an `openbooks.v1` dictionary. Use an explicit `Params` object to capture any verified context you supplied with the job.
+1. [Download the sample CSV](/examples/statement.csv) and put it beside your Python script.
+2. Set up `Params` with verified context for the input. Use `Decimal("1000.00")` to preserve the exact opening amount.
+3. Run the script from that directory. `process(path, params)` accepts a path or a path string and returns an `openbooks.v1` dictionary for a completed decision.
 
 ~~~python
 from decimal import Decimal
@@ -33,7 +35,11 @@ else:
         print(row["date"], row["direction"], amount, row["amount"]["currency"])
 ~~~
 
-With `strict=True`, engine-level failures can propagate. Handle file access failures at the job boundary, and inspect the refusal independently. With the default policy some internal failures become a refusal marked `error.internal`. Send those to operations for diagnosis.
+The sample prints a debit of INR `100.00` and a credit of INR `50.00`. Remove `opening` from `Params` and rerun to see the sample's `PARSE_ERROR` refusal.
+
+## Handle execution failures
+
+Use `strict=True` when running jobs that need to distinguish an engine fault from a file that failed verification. An `EngineFault` can propagate for environmental problems. At the job boundary, handle file access errors as well. With the default policy, some unexpected failures return a refusal marked `error.internal`. Send those for engine diagnosis.
 
 ## Params
 
@@ -49,16 +55,20 @@ With `strict=True`, engine-level failures can propagate. Handle file access fail
 
 ## Validate stored output
 
-Call `validate_output(document)` before consuming a released document received from another process. Use `load_schema()` to load the release schema and `SCHEMA_VERSION` when negotiating a contract with an integration.
+Check `schema_version` before reading a document received from another process. `validate_output()` checks a release's schema and additional rules for evidence, references, and assertions. Use `load_schema("refusal")` for the refusal variant.
 
 ~~~python
+from jsonschema import validate
 from openbooks import SCHEMA_VERSION, load_schema, validate_output
 
 if document["schema_version"] != SCHEMA_VERSION:
     raise ValueError("Unsupported Open Books schema")
 if document["status"] == "ok":
     validate_output(document)
-schema = load_schema()
+elif document["status"] == "refused":
+    validate(document, load_schema("refusal"))
+else:
+    raise ValueError("Unknown Open Books document status")
 ~~~
 
 See [the output contract](/docs/output-contract) for the refusal schema and money, assertion and evidence fields. See [the architecture guide](/docs/architecture) for provider registration and extension points.

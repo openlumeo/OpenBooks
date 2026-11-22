@@ -1,9 +1,16 @@
 ---
-title: Open Books JSON Schema, Evidence and Assertions
+title: JSON output contract
 description: Integrate the openbooks.v1 release and refusal contract with exact decimal money, source evidence and verification assertions.
 ---
 
-Every completed decision uses `schema_version: "openbooks.v1"`. Branch on `status` and preserve the complete decision as an audit record. The Python and Node.js APIs carry the same underlying JSON documents.
+Every completed document decision uses the `openbooks.v1` JSON schema. The CLI, Python, Node.js, and HTTP API expose the same underlying document. Some entry points wrap it in a result or event, so unwrap it before applying the contract below.
+
+## Read the envelope first
+
+1. Check `schema_version` against the version your integration supports.
+2. For `status: "ok"`, read the released records under `data` and retain their assertions and source evidence.
+3. For `status: "refused"`, read `error.code` and `error.message`. The document has `data: null`.
+4. Handle missing decisions, such as a timeout or interrupted stream, at the job level. See [refusal and execution handling](/docs/refusals).
 
 ## Released documents
 
@@ -35,9 +42,21 @@ Retain money as decimal strings, and use a decimal library for arithmetic. Carry
 
 ## Evidence and independent checks
 
-Look up keys such as `txn-00001.amount` and `batch-1.closing` in `evidence`. An evidence entry contains `page`, `bbox`, `row`, `raw_text` and `method`. Location fields can be null. Extraction methods can identify structured parsing, a PDF text layer, OCR or a model cross-check.
+Use the record ID and field name to find the source. In the quickstart, `evidence["txn-00001.amount"]` gives the first transaction's amount as it appeared on row 2 of the CSV.
 
-Each assertion reports `id`, `rule`, `expected`, `computed`, `passed` and `independent`. Independent evidence comes from the source, such as a printed running balance or payout total. Keep it in storage alongside the verified values.
+~~~json
+{
+  "page": null,
+  "bbox": null,
+  "row": 2,
+  "raw_text": "100.00",
+  "method": "parser"
+}
+~~~
+
+`page`, `bbox`, and `row` describe where to look and can be null when a location is unavailable or inapplicable. `raw_text` preserves the source reading or records that a value was supplied by the caller. `method` records how the field was extracted.
+
+Each assertion reports `id`, `rule`, `expected`, `computed`, `passed`, and `independent`. The quickstart's closing-balance assertion compares an expected `"950.00 INR"` from the source against the same amount computed from the opening balance and transactions. It passes and is independent because the expected closing amount comes from the CSV.
 
 ## Refused documents
 
@@ -54,6 +73,8 @@ Each assertion reports `id`, `rule`, `expected`, `computed`, `passed` and `indep
 }
 ~~~
 
-Read `error.code` for programmatic handling and `error.message` for review. The hash links the refusal to the exact bytes. Store processing parameters and versions too when the same bytes may be run with different settings.
+Read `error.code` for programmatic handling and `error.message` during review. The refusal hash is `error.file_sha256`. In a release, it is `file.sha256`. Both identify the exact input bytes. Store processing parameters and versions when the same bytes may be run with different settings.
 
-Validate unfamiliar output before processing it. Download the [release schema](/schema/openbooks.v1.schema.json) or [refusal schema](/schema/openbooks.v1.refusal.schema.json). Both are included in the Python package and mirrored by the Node.js validation helpers.
+## Validate documents at the integration boundary
+
+Use the [release schema](/schema/openbooks.v1.schema.json) or [refusal schema](/schema/openbooks.v1.refusal.schema.json) according to the document status. Both are included in the Python package and mirrored by the Node.js validation helpers. When retaining normalized records, store the original decision with enough context to find its assertions and evidence later. See the [Python API](/docs/python#validate-stored-output) for a validation example.

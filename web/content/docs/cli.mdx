@@ -1,9 +1,13 @@
 ---
-title: Open Books CLI Commands and Exit Codes
+title: CLI commands and exit codes
 description: Run financial files through the Python or npm CLI with reproducible flags, JSON output and diagnostic commands.
 ---
 
 The Python and npm installs both provide a command named `openbooks`. Use `python -m openbooks` to invoke the Python command explicitly when both are on your path.
+
+## Run a file and find the result
+
+Complete the [installation guide](/docs/installation), then open a terminal with the input file in the current directory. You can [download the sample CSV](/examples/statement.csv) to follow these commands. For your own file, replace the opening amount, currency, and date order with the verified values for that statement.
 
 <Tabs items={["Python CLI", "npm CLI"]}>
 <Tab value="Python CLI">
@@ -13,7 +17,7 @@ python -m openbooks engine-info
 python -m openbooks doctor --json
 ~~~
 
-`run` writes one file per unique input content hash, including typed refusal JSON, under `--out` (default `out`). `--machine` writes newline-delimited run summaries and a final engine-info line to stdout. `report` processes a folder, `eval` checks golden fixtures, and `link` needs the optional linker.
+`run` writes a decision under `--out` (default `out`) and prints its filename. Add `--machine` for one JSON summary per processed file and a final engine-info line on a completed run. Each summary has `file`, `status`, `code`, and `output`. Read the file at `output` for the complete decision.
 </Tab>
 <Tab value="npm CLI">
 ~~~bash
@@ -23,9 +27,11 @@ openbooks engine-info
 openbooks doctor --deep
 ~~~
 
-The npm CLI also accepts a file directly, with `run` implied. Use `statements run`, `gateways run` or `tax run` to restrict allowed layouts. `--json` writes a JSON array of result wrappers to stdout. `--out` additionally writes the underlying engine documents as individual JSON files.
+The npm CLI also accepts a file directly, with `run` implied. Use `statements run`, `gateways run`, or `tax run` to restrict allowed layouts. For a project-local install, prefix the commands with `npx`. `--json` writes a JSON array of result wrappers to stdout. `--out` additionally writes the underlying engine documents as individual JSON files.
 </Tab>
 </Tabs>
+
+Open the JSON under `output/` and read `status` before accessing records. A refusal file contains the code, message, and input hash. Both CLIs use the input's SHA-256 hash as the filename. Use separate output directories when comparing different options for the same bytes.
 
 ## Flags for reproducible runs
 
@@ -47,7 +53,11 @@ The npm CLI also accepts a file directly, with `run` implied. Use `statements ru
 | --- | --- | --- |
 | `0` | Every file released. | Read the documents and retain their evidence. |
 | `1` | One or more files refused. | Read each result and route refusals to review. |
-| `2` | Invalid command, argument or input path. | Correct the invocation. |
-| `3` | The engine could not complete execution. | Diagnose the installation, timeout or execution failure. |
+| `2` | Invalid command or argument. | Correct the invocation. |
+| `3` | Execution failed, for example because the engine could not open a file or timed out. | Check input paths, installation, and runtime limits. |
 
-Both CLIs use content-hash filenames for `--out`. Use separate output directories when comparing different options for the same file.
+In Bash, read the exit code with `echo $?`. In PowerShell, use `$LASTEXITCODE`. Check it immediately after running Open Books. With a batch, use the individual result statuses to decide which files you can import.
+
+## Run more than one file
+
+Pass multiple paths to `run` when they share the same options. Run files separately when each needs a different opening balance, or use the Python CLI's `report` command to process a folder. A `params.json` in the folder can specify context keyed by filename. See each command's `--help` for accepted options. The Python CLI also exposes `eval` for fixture sets and `link` for payout matching when the optional linker is installed.

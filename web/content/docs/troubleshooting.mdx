@@ -1,27 +1,42 @@
 ---
-title: Troubleshoot Open Books Installs and Document Runs
+title: Troubleshooting
 description: Diagnose missing Python providers, mismatched engine versions, OCR and model setup, file refusals and interrupted streams.
 ---
+
+Start by finding the last completed step. If the command or wrapper cannot find the engine, check installation. If you received a JSON decision, read its `status` and message. If a batch stopped partway through, use the individual decisions to identify which files still need processing.
 
 ## Check the installation
 
 ~~~bash
+python --version
 python -m openbooks engine-info
 python -m openbooks doctor --json
 ~~~
 
-If you installed the npm CLI, run `openbooks doctor --deep` to test Node.js discovery and model loading. Use the Python command explicitly to find the interpreter that has the engine installed.
+Use Python 3.11 or newer and check that `engine-info` reports `openbooks.v1` and the expected layouts. Read the diagnostics JSON for the failing check and its message. If you installed the npm CLI, run `openbooks doctor` to check which engine Node.js discovers. Add `--deep` when you need to test model loading.
 
 | Symptom | Action |
 | --- | --- |
 | Node.js reports `python_not_found` or `engine_not_installed` | Set `OPENBOOKS_PYTHON` to the interpreter in the environment where `python -m openbooks engine-info` works. |
 | `engine_version` or schema mismatch | Compare the wrapper version and engine-info output, then reinstall compatible versions in the same job image. |
 | Layout provider is missing from an editable checkout | Install with `python -m pip install -e packages/py/openbooks` to register it. Check `engine-info` again. |
-| Scan requires OCR or model files | Install the `scan` extra, make language assets available, run `doctor --deep` and check any model directory override. |
-| Text-layer PDFs ask for the model when called from npm | Set `model: false` in the Node.js wrapper or pass `--no-model` to the npm CLI if that job uses the base engine. |
-| File refuses with a missing opening or date ambiguity | Use the authoritative balance or export date convention. Try the [sample run](/docs/quickstart) to check invocation. |
-| Stream ends without `run.done` | Preserve completed file decisions and mark missing ones interrupted. Check server timeouts and proxy buffering before retrying. |
+
+To find the interpreter for your current environment, run `python -c "import sys; print(sys.executable)"`. Use that absolute path for `OPENBOOKS_PYTHON` when the Python command works and the Node.js wrapper is discovering a different installation.
+
+## Diagnose a document run
+
+| Symptom | Action |
+| --- | --- |
+| Missing opening balance or ambiguous dates | Supply the authoritative opening balance or known date convention. Use the [sample run](/docs/quickstart) to test the same invocation on a known input. |
+| Unknown layout | Compare the original export with the [format matrix](/docs/formats) and verify the installed provider. |
+| Scan requires OCR or model files | Install the `scan` extra, make the OCR language assets available, and run `doctor --deep` for model setup. Check any model directory override. |
+| npm asks for a model on a text-layer PDF | For a job using the base engine, set `model: false` in Node.js or pass `--no-model` to the npm CLI. |
+| HTTP stream ends before `run.done` | Keep completed file decisions and mark missing ones interrupted. Check service logs, timeouts, and proxy buffering before retrying. |
+
+If a known sample releases and your export refuses, use the [refusal code](/docs/refusals) to look for a layout, parameter, or evidence issue in the export.
 
 ## Report a reproducible issue
 
-Capture the package and engine versions, input type and layout, command or options, and the exact refusal or error code. Reproduce with a synthetic file when possible. Remove account details and use a redacted excerpt when sharing a report.
+1. Record the package and engine versions, input type and expected layout, and the command or options.
+2. Include the exact refusal or error code, the message, and the outcome you expected.
+3. Reproduce with a synthetic file where possible. If you share an excerpt, redact account numbers and other identifying financial details.

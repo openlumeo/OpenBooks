@@ -1,0 +1,98 @@
+---
+title: Build a bank statement importer
+description: Use the Python engine to validate bank CSVs, preserve full decisions, and compute exact totals for an import job.
+---
+
+Build a small Python job that accepts a bank CSV, saves the engine's decision, and prints the totals an accounting integration could use. You'll see how to handle a document refusal without treating it as a crash and how to retain the evidence behind a release.
+
+## 1. Prepare the input and settings
+
+1. Follow the [Python installation guide](/docs/installation), then open a terminal with the virtual environment active.
+2. [Download the sample CSV](/examples/statement.csv) and save it as `statement.csv` in your working directory.
+3. Use the sample's known currency, date order, and opening balance. For a real import, store those settings per file. The currency is `INR`, the date order is `dmy`, and the sample's verified opening balance is `1000.00`.
+
+## 2. Write the import job
+
+Save the script as `verify_import.py` beside the CSV. The first command-line argument is the input, the second is where to save the JSON decision, and the optional third argument is the opening balance. For simplicity, this tutorial uses INR and day-first dates for every input.
+
+~~~python
+import argparse
+import json
+from decimal import Decimal
+from pathlib import Path
+
+from openbooks import EngineFault, Params, process, validate_output
+
+parser = argparse.ArgumentParser()
+parser.add_argument("statement", type=Path)
+parser.add_argument("decision", type=Path)
+parser.add_argument("--opening", type=Decimal)
+args = parser.parse_args()
+
+try:
+    decision = process(
+        args.statement,
+        Params(currency="INR", date_order="dmy", opening=args.opening),
+        strict=True,
+    )
+except (EngineFault, OSError) as error:
+    parser.exit(3, f"Engine failed: {error}\n")
+
+# Use a separate decision path for each attempt you want to retain.
+with args.decision.open("x", encoding="utf-8") as output:
+    json.dump(decision, output, indent=2, ensure_ascii=False)
+    output.write("\n")
+
+if decision["status"] == "refused":
+    error = decision["error"]
+    parser.exit(1, f'{error["code"]}: {error["message"]}\n')
+
+validate_output(decision)
+if decision["file"]["layout_version"] != "bank_csv.v1":
+    parser.exit(2, "This importer accepts the bank CSV layout.\n")
+
+transactions = decision["data"]["transactions"]
+totals = {"debit": Decimal("0.00"), "credit": Decimal("0.00")}
+for transaction in transactions:
+    totals[transaction["direction"]] += Decimal(transaction["amount"]["amount"])
+
+print(f"Released {len(transactions)} transactions")
+print(f'Debits: {totals["debit"]:.2f} INR')
+print(f'Credits: {totals["credit"]:.2f} INR')
+print(f'Net movement: {totals["credit"] - totals["debit"]:.2f} INR')
+~~~
+
+`process()` returns the full document. The script saves it before branching on `status` so a refusal remains available for review. It opens the destination in exclusive-create mode. Use a fresh decision filename when repeating a run.
+
+## 3. Run both outcomes
+
+Run these commands individually. The first exits with code `1` and writes a `PARSE_ERROR` refusal to `refused.json`. The second supplies the verified balance and writes the release to `released.json`.
+
+~~~bash
+python verify_import.py statement.csv refused.json
+python verify_import.py statement.csv released.json --opening 1000.00
+~~~
+
+The corrected run prints:
+
+~~~text
+Released 2 transactions
+Debits: 100.00 INR
+Credits: 50.00 INR
+Net movement: -50.00 INR
+~~~
+
+Open `released.json` and confirm the net movement explains the change from INR `1000.00` to INR `950.00`. The assertion for the closing balance ties out, and `evidence["batch-1.closing"]` points to the third row of the CSV.
+
+## 4. Connect the job to your application
+
+| Keep | How to use it |
+| --- | --- |
+| Import job ID, source hash, engine version, and supplied settings | Identify the attempt and reproduce it. The same source bytes can produce different decisions with different settings. |
+| Full release or refusal | Keep the original JSON so a reviewer can trace a reported number or refusal. |
+| Document and record IDs | Associate imported rows with their source. Scope a transaction ID such as `txn-00001` to its document. |
+| Currency and decimal value | Keep them together when storing amounts. Group by currency before computing totals for a multi-currency application. |
+
+Before writing to a ledger, decide how your application identifies a duplicate import. A transaction ID from the JSON is local to its document. If your application retries jobs, keep the import status and ledger write together so a retry after a partial failure does not post the same entries twice.
+
+Next, [test the integration](/docs/test-an-integration) with a missing parameter, a balance mismatch, and a source that releases.

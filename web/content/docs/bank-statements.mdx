@@ -1,9 +1,15 @@
 ---
-title: Verify Bank Statements from CSV, OFX and MT940
+title: Bank statements
 description: Integrate bank statement extraction, supply verified opening balances and dates, and use running-balance assertions before posting transactions.
 ---
 
-Use a supported bank export and pass file-level context from your reconciliation job. [PDFs and scans](/docs/pdf-and-ocr) use the same release checks after a different extraction path.
+Reconciliation means checking that the transactions explain the change in the account balance. This guide covers structured exports. Use the [PDF and OCR guide](/docs/pdf-and-ocr) when the bank provides a PDF or image.
+
+| Export | What to prepare |
+| --- | --- |
+| CSV | Keep the date, debit, credit, and running-balance columns. Supply the currency and opening balance when the export omits them. |
+| OFX or QFX | Use the original export with its currency and ledger balance. Supply an authoritative opening balance. |
+| MT940 | Preserve the original opening and closing balance records and any statement segments. |
 
 ## Reconcile your first export
 
@@ -11,7 +17,7 @@ Use a supported bank export and pass file-level context from your reconciliation
 <Step>
 ### Identify the layout and currency
 
-Use the original export with its running balance column and date fields. For a CSV without a source currency, pass the three-letter code. Set `date_order` to `dmy` or `mdy` if you know the format and the numeric dates are ambiguous.
+Use the original export for one account and statement period. A running balance is the amount after each transaction. If the CSV has no currency, supply its three-letter code, such as `INR`. Set `date_order` to `dmy` or `mdy` when you know the source convention. For example, `02/01/2026` means January 2 with `dmy` and February 1 with `mdy`.
 </Step>
 <Step>
 ### Supply the opening balance
@@ -21,18 +27,26 @@ Bank CSV and OFX need an opening balance from the caller when they lack one. Use
 ~~~bash
 python -m openbooks run statement.csv --currency INR --opening 1000.00 --date-order dmy
 ~~~
+
+The CLI writes the decision under `out/`. Use the previous statement's closing amount only after confirming the account, currency, and period.
 </Step>
 <Step>
 ### Verify before posting
 
-Read the released `transactions`, `batches`, `assertions` and `evidence` together. Debit and credit are directions. Use the separate direction field when building a signed ledger value.
+Check `status` first. In a release, use `data.batches` for opening and closing balances, `data.transactions` for individual movements, and `assertions` for the checks that passed. If your ledger expects signed amounts for bank movements, subtract debits and add credits using the separate `direction` field. Use decimal arithmetic and keep the currency with each amount.
 </Step>
 </Steps>
 
 ## Design for mismatches
 
-Quarantine a file that returns `BALANCE_MISMATCH`. Check the original for omitted rows, incorrect date order, a wrong opening balance, or an export that combines periods. Rerun only after you can verify a correction from the source. Treat a refusal as its own record in the job history.
+1. Hold a file that returns `BALANCE_MISMATCH` for review and save the refusal in your job history.
+2. Check the opening amount and compare the source running balances and closing balance. Look for missing rows, a truncated export, duplicate transactions, or a file that combines statement periods.
+3. Re-export the statement or correct verified parameters, then run it again. Use [source evidence](/docs/output-contract#evidence-and-independent-checks) to trace the values in the release.
 
-Derived openings are opt-in. A derived amount does not count as independent evidence. Start with a documented opening balance when you can verify one.
+Supported layouts can derive an opening balance from the first movement and its running balance when you opt in. This arithmetic explains where the amount came from. Independent verification still requires evidence from the source. Use a documented opening balance when you can verify one.
 
 For a runnable fixture and JSON output, use the [bank CSV quickstart](/docs/quickstart).
+
+### Compare a release with a broken balance
+
+In the [workspace](/app), run **Bank statement CSV** alongside **Bank CSV with a tampered balance**. The second fixture uses a correct opening balance but contains a broken running-balance row. Its `BALANCE_MISMATCH` message reports that seven of eight rows tie out. Review the running-balance check and re-export the source if you encounter this in your own files. Changing a known opening balance would change the arithmetic for the rest of the statement.

@@ -1,46 +1,75 @@
 ---
-title: Install Open Books for Python, Node.js or the CLI
+title: Install Open Books
 description: Install the Open Books engine and npm wrappers, add OCR and model support, and verify engine discovery in your environment.
 ---
 
-## Pick your runtime
+## 1. Check your prerequisites
+
+Open Books runs on Python 3.11 or newer. The npm packages also need Node.js 20 or newer. Open a terminal in your project directory and check the runtime you plan to use.
+
+~~~bash
+python --version
+node --version
+npm --version
+~~~
+
+The last two checks apply to Node.js and the npm CLI. If your system uses `python3` for Python 3, use that command to create the environment below. To try a sample without a local installation, start with the [browser quickstart](/docs/quickstart).
+
+## 2. Create and activate a virtual environment
+
+A virtual environment keeps the engine and its dependencies together for one project. Run `python -m venv .venv` once. In each new terminal, activate it with the command for your shell.
+
+<Tabs items={["macOS and Linux", "Windows PowerShell"]}>
+<Tab value="macOS and Linux">
+~~~bash
+source .venv/bin/activate
+~~~
+</Tab>
+<Tab value="Windows PowerShell">
+~~~powershell
+.\.venv\Scripts\Activate.ps1
+~~~
+</Tab>
+</Tabs>
+
+If shell policy blocks activation, call the environment's Python directly. On Windows, use `.\.venv\Scripts\python.exe`. On macOS and Linux, use `./.venv/bin/python`.
+
+## 3. Install for your runtime
 
 <Tabs items={["Python", "Node.js", "npm CLI"]}>
 <Tab value="Python">
-Python 3.11 or newer is required. Use a virtual environment for each application.
+Install the Python distribution for both the importable API and the Python CLI.
 
 ~~~bash
-python -m venv .venv
-# macOS and Linux
-source .venv/bin/activate
-# PowerShell uses: .\.venv\Scripts\Activate.ps1
 python -m pip install "openbooks==0.2.0"
-python -m openbooks doctor
 ~~~
 </Tab>
 <Tab value="Node.js">
-Install Python 3.11+ and Node.js 20+. Install the engine into the same project environment that the wrapper will discover at runtime.
+Install the engine into the activated environment and the Node.js wrapper into your npm project. If the project has no `package.json`, run `npm init -y` first.
 
 ~~~bash
 python -m pip install "openbooks==0.2.0"
-npm install @lumeo_hq/openbooks-core@0.2.0
+npm install @lumeo_hq/openbooks-core
 ~~~
 
 Use an explicit interpreter path through `OPENBOOKS_PYTHON` in CI when the runner has more than one Python installation.
 </Tab>
 <Tab value="npm CLI">
-The npm CLI can install the Python engine with scan and model support using its install hook. Use `npx openbooks` with a project-local installation.
+The npm CLI can install the Python engine with scan and model support through its install hook. For a global command:
 
 ~~~bash
-npm install -g @lumeo_hq/openbooks@0.2.0
-openbooks doctor --deep
+npm install -g @lumeo_hq/openbooks
 ~~~
 
-If your package manager skips lifecycle hooks, run `openbooks install-engine --scan`. Activate your project virtual environment first when system Python disallows global pip installs.
+For a project-local command, run `npm install @lumeo_hq/openbooks` and invoke it with `npx openbooks`. If the install hook was skipped, run `openbooks install-engine --scan` (or prefix the command with `npx` for the local install) with your virtual environment active.
 </Tab>
 </Tabs>
 
-## Scan and model extras
+## 4. Verify engine discovery
+
+Run `python -m openbooks engine-info` and look for `schema_version: "openbooks.v1"` in the JSON. The `layouts` list shows the installed layout providers. Run `python -m openbooks doctor` for a readable diagnostic report. If you installed the npm CLI, `openbooks engine-info` should also find the engine. Check [installation troubleshooting](/docs/troubleshooting#check-the-installation) if it finds a different one.
+
+## Add scan and model support
 
 The base Python dependency set handles structured files and text-layer PDFs. Install the `scan` extra for image OCR and the local typed-head model. It adds EasyOCR and PyTorch, so allocate more disk and installation time.
 
@@ -64,3 +93,5 @@ See [PDF and OCR](/docs/pdf-and-ocr) for flag defaults. The Node.js wrapper enab
 | [`@lumeo_hq/openbooks`](https://www.npmjs.com/package/@lumeo_hq/openbooks) | Unified npm CLI and Python installer. |
 
 If you're upgrading Python from 0.1, install 0.2 in a fresh virtual environment. The `openbooks` distribution now owns all five Python modules. Existing code can still import `Params` and `process` from `openbooks.pipeline`, and new code can import them from `openbooks`.
+
+Run the [bank CSV quickstart](/docs/quickstart) to confirm your environment can process a file.

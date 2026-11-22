@@ -1,16 +1,18 @@
 ---
-title: Supported Open Books File Formats and Layouts
+title: Supported formats and layouts
 description: Find supported CSV, OFX, MT940, PDF, OCR and Excel formats, with layout identifiers and the requirements for each financial document.
 ---
 
-Open Books detects a layout using file contents and extension rules. An extension alone does not identify a layout. Check the released `file.layout_version` when routing a document in your application.
+An extension describes the container, such as `.csv` or `.xlsx`. A layout describes the document inside it, such as a bank statement or a Stripe balance report. Open Books uses file contents and extension rules to detect the layout. Check `file.layout_version` on a release when routing documents in your application.
+
+## Format matrix
 
 | Document | Layout ID | Inputs and requirements |
 | --- | --- | --- |
 | Bank statement CSV | `bank_csv.v1` | Recognised date, debit, credit and running-balance columns. Supply opening and currency when needed. |
 | OFX / QFX | `ofx.v1` | OFX content with currency and ledger balance. Supply the opening balance. |
 | SWIFT MT940 | `mt940.v1` | MT940 text, commonly `.sta`, `.mt940` or `.txt`. Opening and closing come from balance records. |
-| Bank statement PDF or scan | `bank_statement_pdf.v1` | `.pdf`, `.png`, `.jpg`, `.jpeg`. Scans need OCR. |
+| Bank statement PDF or scan | `bank_statement_pdf.v1` | `.pdf`, `.png`, `.jpg`, `.jpeg`. Scans need [OCR](/docs/pdf-and-ocr). |
 | Stripe balance export | `stripe_balance.v1` | Recognised Stripe balance table and payout evidence. |
 | Razorpay settlement | `razorpay_settlement.v1` | Recognised settlement table with settlement arithmetic. |
 | PayPal activity | `paypal_activity.v1` | Public export layout, exercised on synthetic examples. |
@@ -29,4 +31,11 @@ Open Books detects a layout using file contents and extension rules. An extensio
 - Supply `dmy` or `mdy` when date order is known but the dates are ambiguous. The bank CSV parser defaults to day-first where it cannot infer order. PayPal and Form 1099-B can require an explicit order.
 - Inspect live engine capabilities through [`GET /v1/health` and `GET /v1/formats`](/docs/engine-api) when using the service.
 
-An unknown layout returns `UNKNOWN_LAYOUT`. A supported layout with unreadable fields can instead return `PARSE_ERROR`. See [refusals](/docs/refusals) for recovery.
+## Check a new export
+
+1. Match the document and provider to a row in the matrix. For example, start with a balance export for Stripe.
+2. Preserve the original headers, amounts, and totals. For Excel, check that the workbook contains one table that matches a supported layout.
+3. Run one representative file with verified context. Read `file.layout_version` on release. For a refusal, use the code and message to decide whether to change the export or the run options.
+4. Test a range of statement periods and layout variations before scheduling a recurring import, especially for layouts exercised only on synthetic data.
+
+`UNKNOWN_LAYOUT` indicates that no available provider recognized the input. `PARSE_ERROR` can occur after a layout is recognized if required fields are missing or ambiguous. See [refusal handling](/docs/refusals) for recovery.

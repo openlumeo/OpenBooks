@@ -1,47 +1,56 @@
 ---
 title: Open Books Developer Documentation
-description: Convert bank statements, payment settlements, tax documents and Excel workpapers to verified JSON with Open Books, Python, Node.js or MCP.
+description: Turn financial files into verified JSON with Open Books. Start with a sample, then integrate through the CLI, Python, Node.js, HTTP, or MCP.
 ---
 
-Open Books reads bank statements, payment settlements, tax documents and workpapers. Each run returns either a released `openbooks.v1` document with verifiable checks and source evidence or a typed refusal.
-
-[Open the workspace](/app) to try a sample, upload financial files, and inspect release decisions. [Read the workspace guide](/docs/workspace) for upload, review, and export workflows.
+Open Books reads bank statements, payment settlements, tax documents, and Excel workpapers. For each file, it returns a complete `openbooks.v1` document with verification checks and source evidence, or a typed refusal that explains why the file could not be released.
 
 <Cards>
   <Card title="Run your first statement" href="/docs/quickstart">
-    Run a synthetic CSV in your browser, then repeat the workflow in Python or Node.js.
+    Start with a two-row bank CSV. Fix a missing opening balance and trace the result back to the source.
   </Card>
-  <Card title="Install the packages" href="/docs/installation">
-    Choose a local CLI, Python, or Node.js integration and check that the engine is ready.
+  <Card title="Try the browser workspace" href="/docs/workspace">
+    Use synthetic samples to learn how to run a batch, inspect its checks, and download a result.
   </Card>
-  <Card title="Read the output contract" href="/docs/output-contract">
-    Use the document status, exact money amounts and source evidence in downstream software.
+  <Card title="Install Open Books locally" href="/docs/installation">
+    Set up the Python engine, install the npm packages if needed, and verify your installation.
   </Card>
-  <Card title="Connect an AI agent" href="/docs/mcp">
-    Install the Open Books MCP server and run multiple verification operations in one call.
+  <Card title="Read the JSON contract" href="/docs/output-contract">
+    Learn how to branch on status, preserve exact amounts, and keep an audit trail.
   </Card>
 </Cards>
 
-## From a file to a decision
+## Build and test an integration
 
-<ol className="ob-flow">
-  <li><strong>Detect</strong><span>Match a known document layout.</span></li>
-  <li><strong>Extract</strong><span>Read fields and record where they came from.</span></li>
-  <li><strong>Verify</strong><span>Reconcile the amounts and check independent evidence.</span></li>
-  <li><strong>Return</strong><span>Release the complete JSON or return a refusal.</span></li>
-</ol>
+Once you've run the sample, [build a bank statement importer](/docs/build-an-importer) that saves each decision and computes exact debit and credit totals. Then [test your integration](/docs/test-an-integration) with bundled bank, PDF, settlement, and tax fixtures. The test guide covers invalid inputs, interrupted runs, retries, and what a reviewer should be able to trace.
+
+## How a file becomes verified JSON
+
+1. **Detect the layout.** Open Books identifies a table or file structure it knows how to read. Two CSV files can have different layouts even when they use the same extension.
+2. **Extract and normalize records.** The engine reads values such as dates, debits, credits, and balances into a consistent schema. It records the source text and its location when available.
+3. **Verify against the source.** For a bank statement, the engine can check that opening balance plus credits minus debits equals the closing balance. At least one check must use independent evidence from the document, such as a printed closing balance.
+4. **Return a decision.** A release has `status: "ok"` and includes records, assertions, and evidence. A refusal has `status: "refused"`, `data: null`, and a code you can act on. Read the status before importing records.
 
 ## Choose an integration
 
-| Environment | Entry point | Use it for |
+| Where you work | Start here | Use it for |
 | --- | --- | --- |
-| Python 3.11+ | [`openbooks`](/docs/python) | Run the engine inside a Python process with control over the extraction options. |
-| Node.js 20+ | [`@lumeo_hq/openbooks-core`](/docs/node) | Run the local Python engine from Node.js and consume typed results. |
-| Terminal | [Python and npm CLI commands](/docs/cli) | Convert files, run diagnostics and script batch jobs. |
-| Self-hosted HTTP | [FastAPI engine service](/docs/engine-api) | Stream batches from a trusted application server. |
-| AI agent | [Model Context Protocol](/docs/mcp) | Process local financial files and inspect released records, assertions and evidence. |
-| Browser | [Open the workspace](/app) | Try synthetic samples and inspect assertions, rows and source evidence. |
+| Browser | [Workspace](/docs/workspace) | Explore synthetic samples and review a batch by hand. |
+| Terminal | [CLI reference](/docs/cli) | Run local files, save JSON, and script jobs with exit codes. |
+| Python 3.11+ | [Python API](/docs/python) | Call the engine inside a Python process and pass context per file. |
+| Node.js 20+ | [Node.js and TypeScript](/docs/node) | Invoke the local Python engine and handle typed results. |
+| Application server | [Self-hosted HTTP API](/docs/engine-api) | Send uploads to a private engine and track per-file decisions in a stream. |
+| AI agent | [Model Context Protocol](/docs/mcp) | Run supported operations from an MCP client and retrieve parts of the proof. |
 
-Check [supported formats](/docs/formats) for the layouts, dates, currencies and OCR options each source needs. Agents can read the [documentation index](/llms.txt) or [complete Markdown export](/llms-full.txt).
+## Find a guide for your files
 
-The public engine packages are at 0.2.0. Training and evaluation use synthetic documents. Test the layouts you need before relying on the results in a production workflow.
+| Your input | What the guide covers |
+| --- | --- |
+| Bank CSV, OFX, QFX, or MT940 | [Bank statements](/docs/bank-statements) explains opening balances, date order, and signed movements. |
+| Stripe or Razorpay export | [Payment settlements](/docs/payment-settlements) covers fee checks, payout totals, and matching bank credits. |
+| Tax export or spreadsheet | [Tax documents and workpapers](/docs/tax-and-workpapers) covers supported tables, workbook preparation, and source totals. |
+| Bank PDF or image | [PDFs and OCR](/docs/pdf-and-ocr) explains text extraction, scan setup, and page evidence. |
+
+Check the [format matrix](/docs/formats) before integrating a new export. Open Books uses synthetic documents for training and evaluation. Test representative exports and the refusal path before scheduling imports. See [troubleshooting](/docs/troubleshooting) when setup or processing fails.
+
+The docs are also available as a [Markdown index](/llms.txt) and a [complete Markdown export](/llms-full.txt).

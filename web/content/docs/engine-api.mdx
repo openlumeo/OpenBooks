@@ -1,22 +1,32 @@
 ---
-title: Self-Hosted Open Books Engine API
+title: Self-hosted HTTP API
 description: Run the FastAPI engine on a private network, upload batches with multipart forms and consume server-sent release or refusal events.
 ---
 
-The FastAPI service wraps the same engine used by the packages. Run it on loopback or a private network and put application authentication and rate limiting on your own front end. The hosted browser workspace calls its own same-origin proxy. The self-hosted API below is the integration surface documented here.
+Use the self-hosted API when your application server needs to send files to a separate Open Books process and receive progress and decisions as they arrive. The FastAPI service wraps the Python engine. Run it on loopback or a private network and apply authentication and rate limiting at your application boundary.
 
-## Start the service
+## 1. Start the service
 
-Activate your Python virtual environment and run these commands from the source checkout.
+From the repository checkout, create and activate a Python 3.11+ virtual environment using the [installation guide](/docs/installation). Run these commands from the checkout root and leave the server running.
 
 ~~~bash
 python -m pip install -e packages/py/openbooks -e server
 python -m uvicorn openbooks_server.app:app --host 127.0.0.1 --port 8765
 ~~~
 
-The FastAPI service requires access to a source checkout. If OCR is needed, install `server[scan]` and satisfy its model and OCR runtime requirements. For a downloadable integration with local or streamable HTTP transport, use the [Open Books MCP server](/docs/mcp).
+If OCR is needed, use `-e "server[scan]"` in the installation command and check its OCR and model dependencies. For an MCP client, use the separate [Open Books MCP server](/docs/mcp).
 
-## Endpoints
+## 2. Check health and capabilities
+
+In a second terminal, request engine health. On Windows PowerShell, use `curl.exe` in place of `curl` if your shell treats `curl` as an alias.
+
+~~~bash
+curl http://127.0.0.1:8765/v1/health
+~~~
+
+Check that the service responds and reports `openbooks.v1`. Read the capability flags before sending scans, requesting model roles, or matching payouts. For example, check `link_available` before calling the optional linking endpoint.
+
+## Endpoint reference
 
 | Method and path | Request and response |
 | --- | --- |
@@ -28,17 +38,19 @@ The FastAPI service requires access to a source checkout. If OCR is needed, inst
 | `POST /v1/roles` | Multipart `file` and optional `params`. Returns `openbooks.roles.v1`. Requires model availability. |
 | `POST /v1/link` | JSON `{"docs": [...]}` containing released documents. Optional linker returns `openbooks.links.v1`. |
 
-One run takes up to 20 files. Parameters include `currency`, `opening` as a decimal string, `account`, `date_order`, `allow_derived_opening`, `ocr` and `model`. Keys in `file_params` are zero-based file indexes. Their fields override the shared parameters for that file.
+One run takes up to 20 files. The shared `params` field accepts `currency`, `opening` as a decimal string, `account`, `date_order` (`dmy` or `mdy`), and the boolean flags `allow_derived_opening`, `ocr`, and `model`. To override a field for a file, use its zero-based index in `file_params`. For example, `{"1":{"opening":"1590.12"}}` sets the opening balance for the second upload while retaining the other shared settings.
 
-## Stream a run
+## 3. Upload a file and read the stream
 
-<a href="/examples/statement.csv" download>Download the example CSV</a> into your current directory and run the following command in a POSIX shell.
+<a href="/examples/statement.csv" download>Download the example CSV</a> into your current directory. Run the following command in a POSIX shell, such as Bash. The `-F` options build the multipart form and `-N` displays events as curl receives them.
 
 ~~~bash
 curl -N http://127.0.0.1:8765/v1/runs \
   -F 'files=@statement.csv' \
   -F 'params={"currency":"INR","opening":"1000.00","date_order":"dmy"}'
 ~~~
+
+The response uses server-sent events (SSE). Each SSE frame has an event name and JSON data. The sample produces a `file.done` event at index `0` with `doc.status: "ok"`, followed by `run.done` with `released: 1` and `refused: 0`.
 
 | Event | Interpret it as |
 | --- | --- |
@@ -48,4 +60,23 @@ curl -N http://127.0.0.1:8765/v1/runs \
 | `run.done` | The run finished with aggregate counts. |
 | `run.error` | A run-level error interrupted processing. Inspect the reported cause. |
 
-Parse SSE frames across arbitrary network chunks. Inspect HTTP errors before reading events. A `422` response can indicate invalid input parameters, while `503` on roles or link can indicate an unavailable capability. On connection loss, track files lacking `file.done` as interrupted and retry those files. Expose only release documents to downstream accounting.
+### Override settings for one file
+
+The example sends the same sample twice to demonstrate how shared and per-file settings interact. The first file inherits the verified opening. The second clears it with `null` and needs review.
+
+~~~bash
+curl -N http://127.0.0.1:8765/v1/runs \
+  -F 'files=@statement.csv' \
+  -F 'files=@statement.csv' \
+  -F 'params={"currency":"INR","opening":"1000.00","date_order":"dmy"}' \
+  -F 'file_params={"1":{"opening":null}}'
+~~~
+
+Expect a `file.done` release at index `0`, a `file.done` refusal with `PARSE_ERROR` at index `1`, and `run.done` with `released: 1` and `refused: 1`. Use the index to associate each decision with its upload settings, even if the filenames are identical.
+
+## 4. Handle failures and interrupted runs
+
+1. Check the HTTP status before parsing SSE frames. A `422` can indicate invalid request parameters. A `503` on roles or link can indicate an unavailable capability.
+2. Use an SSE parser that can assemble a frame split across network chunks. Track file decisions by index and store each full `file.done` document.
+3. Use `run.done` as the batch completion signal. On `run.error` or a closed connection before completion, keep completed file decisions and mark files without `file.done` as interrupted.
+4. Retry interrupted files and handle `doc.status: "refused"` using the [refusal guide](/docs/refusals). Send only released documents to downstream accounting.

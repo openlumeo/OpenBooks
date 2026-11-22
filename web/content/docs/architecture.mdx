@@ -1,18 +1,19 @@
 ---
-title: Open Books Architecture and Financial Verification Pipeline
+title: Architecture and verification
 description: Understand parsing providers, Decimal normalization, deterministic verification, typed model cross-checks and the hosted runtime topology.
 ---
 
+The Python engine owns the document decision. The CLI, Node.js wrapper, web workspace, and MCP server give callers different ways to submit an input and inspect that decision.
+
 ## How a document is processed
 
-<ol className="ob-flow">
-  <li><strong>Detect layout</strong><span>Match the extension, signatures and layout headers.</span></li>
-  <li><strong>Read source</strong><span>Extract fields, grid positions and raw text from the appropriate provider.</span></li>
-  <li><strong>Normalise</strong><span>Build records with exact decimals, dates, currencies and links.</span></li>
-  <li><strong>Prove</strong><span>Run arithmetic and independent evidence checks, then validate the schema.</span></li>
-</ol>
+1. **Detection chooses the provider.** The engine examines the file type and content signatures, such as a CSV header or a structured balance record.
+2. **Extraction reads the document.** A structured parser reads fields directly. The document front end reads words and positions from PDF text or OCR. The provider records source evidence as it builds records.
+3. **Normalization produces a shared shape.** The engine represents amounts with exact decimals, records direction separately, and associates transactions with their batch and account.
+4. **Verification checks the source.** Statement batches can check opening balance plus signed movements against closing, running balances, and continuity. Settlements check row and total arithmetic. Tax providers apply their own checks.
+5. **Contract validation checks the release.** The engine checks schema, required evidence, record references, and the assertions. A failed financial check or insufficient independent evidence results in a typed refusal.
 
-Statement batches check opening balance plus signed movements against closing, as well as running balances and continuity where applicable. Settlements check row and total arithmetic. Tax providers add their own gates. A mismatch or missing independent check ends with a typed refusal.
+Trace these stages with the [two-row sample](/docs/quickstart). The supplied opening of INR `1000.00` and movements of `−100.00` and `+50.00` compute a closing balance of `950.00`. The source's printed balance supplies the independent comparison.
 
 ## Runtime paths
 
@@ -20,14 +21,15 @@ Statement batches check opening balance plus signed movements against closing, a
 Python application  ── process() ─────────────────→ Python engine
 Node.js application ── typed wrapper ── subprocess → Python engine
 Browser workspace   ── Next.js ── private HTTP ────→ FastAPI → Python engine
+MCP client          ── Open Books MCP server ──────→ Python engine
 ~~~
 
-The Python engine owns the parsing contract. The Node.js wrappers validate the documents they receive and optionally restrict accepted layouts. The Next.js web tier proxies uploads and streams decisions from FastAPI. Files are staged in a per-run temporary directory and cleaned up after processing. Workspace history and released outputs are kept in the user's browser. A deployment can enable Q&A for released documents, with deterministic calculations made by application code.
+The Node.js wrappers validate the documents they receive and can restrict accepted layouts. The Next.js web tier proxies workspace uploads and streams decisions from FastAPI. The service stages files in a per-run temporary directory and cleans them up after processing. The workspace keeps history and released outputs in the browser. Deployments can enable Q&A for released documents, with deterministic calculations performed by application code.
 
 ## Provider boundaries
 
 `openbooks.core` owns format detection, normalisation, validation and the provider registry. `openbooks.statements` handles bank files and the PDF/OCR front end. `openbooks.gateways` handles payment exports, `openbooks.tax` supplies tax and workpaper parsers, and `openbooks.doctor` reports install health.
 
-Providers are registered using Python distribution entry points such as `openbooks.layouts`, `openbooks.sniffers`, `openbooks.frontends` and `openbooks.gates`. Install editable packages with pip when developing so their entry points are available. Layout recognition and provider registration are separate: registering a parser does not by itself teach the detector a new header or signature.
+Providers are registered using Python distribution entry points such as `openbooks.layouts`, `openbooks.sniffers`, `openbooks.frontends`, and `openbooks.gates`. Install the package in editable mode when working from a checkout so Python can discover these entry points. Adding a layout requires both recognition rules for the input and a registered provider that can parse and verify it. Use `python -m openbooks engine-info` to inspect the installed layout IDs.
 
 See the [engine HTTP API](/docs/engine-api), [model guide](/docs/model), and [MCP integration](/docs/mcp) for the other runtime paths.

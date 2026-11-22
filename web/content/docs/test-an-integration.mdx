@@ -1,0 +1,53 @@
+---
+title: Test a document integration
+description: Verify release and refusal paths, use bundled fixtures for multiple layouts, and check retries and evidence before scheduling imports.
+---
+
+A document integration needs to handle released files, files that fail verification, and jobs that stop before making a decision. Use known fixtures first so you can tell a plumbing problem from a source-data problem.
+
+## 1. Establish a bank CSV baseline
+
+Install the [Python CLI](/docs/installation) and [download the two-row sample](/examples/statement.csv). Run each command individually from the directory with the sample. The last two commands return nonzero exit codes by design.
+
+~~~bash
+python -m openbooks run statement.csv --currency INR --date-order dmy --opening 1000.00 --out checks/release
+python -m openbooks run statement.csv --currency INR --date-order dmy --out checks/missing-opening
+python -m openbooks run statement.csv --currency INR --date-order dmy --opening 1200.00 --out checks/wrong-opening
+~~~
+
+| Case | Expected decision | Check in your application |
+| --- | --- | --- |
+| Verified opening | Exit `0`, `status: "ok"`, closing amount `"950.00"` | Exactly two transactions reach the import path. The full decision, including assertions and evidence, remains available. |
+| Missing opening | Exit `1`, `PARSE_ERROR`, `data: null` | The file goes to review with the message explaining which parameter it needs. |
+| Wrong opening | Exit `1`, `BALANCE_MISMATCH`, `data: null` | The file goes to review with the failed assertion in the message. |
+
+Each output directory contains the decision under the same input hash. This makes it easy to check whether your job history ties all three attempts to the same source while preserving their different settings and outcomes.
+
+## 2. Exercise the layouts you plan to use
+
+Open the [workspace sample picker](/app) or read the sample catalog from [`GET /v1/samples`](/docs/engine-api). For HTTP tests, use the catalog's `params` for each sample. Download the fixture bytes from `GET /v1/samples/{id}` and submit them through your integration.
+
+| Sample | Catalog ID | Expected check |
+| --- | --- | --- |
+| Bank CSV with a tampered balance | `bad_bank_balance_break` | `BALANCE_MISMATCH` identifies the running-balance check. |
+| MT940 statement | `ok_mt940` | The opening plus signed movements equals the source closing balance. |
+| Bank statement PDF | `ok_pdf_text` | The stated closing balance equals the last running balance. |
+| Razorpay settlement | `ok_razorpay` | Row arithmetic ties out and the net amounts match the payout. |
+| Stripe export, payout off by 0.01 | `bad_stripe_payout` | `BALANCE_MISMATCH` identifies the payout total. |
+| Form 26AS (TDS) | `ok_tds` | Deducted and deposited tax totals agree with the source. |
+| Trial balance workbook | `ok_tb_xlsx` | Debits and credits balance and each side matches its printed total. |
+
+The bundled documents are synthetic. Once these checks pass, test representative exports in an environment approved for those files. Include variations you expect to see, such as different date formats, statement periods, and PDF text or scan quality.
+
+## 3. Test a stopped job and retry
+
+1. In a test environment, stop or interrupt a batch after at least one file completes. For HTTP, test a stream that delivers `file.done` for one index and closes before `run.done`.
+2. Verify that your job records the finished decision and marks only files still waiting for a decision as incomplete.
+3. Retry an incomplete file with its original settings. If the first attempt did finish on the server, your application should still write each set of released records at most once.
+4. For a completed refusal, change the run only after obtaining verified context or a corrected source. Keep both decisions in the job history.
+
+Use the [refusal guide](/docs/refusals) to route document and execution outcomes. For HTTP streaming behavior, see the [engine API](/docs/engine-api).
+
+## 4. Check what a reviewer can trace
+
+Pick a released amount and ask someone to find it from the saved JSON. They should be able to identify the input by hash, locate the relevant assertion, and trace the amount back to a row, page, or bounding box where the engine supplies one. Also check that the application preserves exact decimal strings and keeps each amount with its currency. See the [output contract](/docs/output-contract) for the full field definitions.

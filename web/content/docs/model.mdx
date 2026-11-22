@@ -1,16 +1,21 @@
 ---
-title: Open Books Typed-Head Model and OCR Evidence
+title: Model-assisted document checks
 description: Learn how local role inference, calibrated abstention and model hashes work when processing PDF and scanned statements.
 ---
 
-The document model labels tokens using their text features, shape and bounding boxes. It has two heads: one predicts a column role such as debit, credit or balance, and one predicts a value type such as money or date. It runs locally in the Python engine with the `scan` extra.
+The optional model adds a cross-check for PDF and image processing. It runs locally in the Python engine with the `scan` extra. A token is a word or other extracted text item with a position on the page. The model uses the token's text, shape, and bounding box to make two predictions.
+
+| Prediction | Examples | What it checks |
+| --- | --- | --- |
+| Column role | Debit, credit, balance | Whether the token appears to belong to a particular part of a statement row. |
+| Value type | Money, date | Whether the token appears to contain the type of value expected there. |
 
 ## From words to a cross-check
 
 1. The document front end produces words and boxes from the PDF text layer or OCR.
 2. Geometry reconstructs rows and columns. The optional model cross-check predicts the roles and value types.
-3. Calibration turns scores into sets of plausible classes. A role set with anything other than one candidate is an abstention. Where applicable, balance constraints can help resolve ambiguous readings.
-4. Deterministic verification decides release. An unsupported model reading can produce `LOW_CONFIDENCE`. A release requires the financial checks regardless of the model output.
+3. Calibration maps prediction scores to a set of plausible classes. The model abstains when its role set has zero candidates or more than one. Where applicable, balance constraints can help resolve ambiguous readings.
+4. The engine uses the model as an additional check on an otherwise verified reading. An unsupported reading can produce `LOW_CONFIDENCE`. A release still requires the financial checks and independent evidence.
 
 ## Reproduce a model-checked run
 
@@ -20,10 +25,14 @@ python -m openbooks doctor --deep
 python -m openbooks run statement.pdf --currency INR --date-order dmy --model
 ~~~
 
-The distribution ships weights and their calibrated companion file. Calibration is bound to the weights by SHA-256. Releases that used the model record both hashes under `file.model`. `OPENBOOKS_MODELS_DIR` can override the location for a compatible local pair.
+The distribution ships model weights and a calibration file bound to those weights by SHA-256. If you set `OPENBOOKS_MODELS_DIR`, point it to a compatible pair. For a release that used the model, save the weights and calibration hashes under `file.model` with the input hash, engine version, and run options. Run `doctor --deep` to check the pair and the local model runtime when changing environments.
 
 ## Inspect model output
 
-[`POST /v1/roles`](/docs/engine-api) returns the model's view of a PDF or image in `openbooks.roles.v1`. Token records include `text`, a normalised `box`, `role`, `role_set`, `vtype`, `type_set` and `abstained`. Use this for inspection and layout debugging. It is a separate output from the verified document contract.
+The [role inspection endpoint](/docs/engine-api) returns `openbooks.roles.v1` for a PDF or image. Use `text` and the normalized `box` to locate a token on the page. Read `role`, `role_set`, `vtype`, `type_set`, and `abstained` to see what the model predicted and where it abstained. For a document decision, use the processing endpoint and read its [verified output](/docs/output-contract).
 
-Training, calibration and evaluation were carried out with synthetic data. Coverage depends on how closely future inputs resemble the calibration distribution. Measure release and refusal behavior on representative fixtures before expanding an integration. The two prediction heads share a six-layer Transformer encoder with roughly 19 million parameters. The shipped weights use 8-bit storage. Run `python -m openbooks doctor --deep` to verify the local pair and model runtime.
+## Evaluate on your inputs
+
+The model was trained, calibrated, and evaluated on synthetic data. Before enabling it for a layout, compare release and refusal behavior on representative inputs. Review which values or columns cause abstention and check whether those cases cluster around a scan quality or statement layout.
+
+The two prediction heads share a six-layer Transformer encoder with roughly 19 million parameters. The shipped weights use 8-bit storage.

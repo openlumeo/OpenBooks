@@ -1,9 +1,11 @@
 ---
-title: Handle Open Books Refusals and Execution Errors
+title: Refusals and execution errors
 description: Find all six refusal codes, diagnose failed documents, and design retry and review behavior for reliable financial imports.
 ---
 
-A refusal is a completed document decision with `data: null`. An execution failure means the run could not complete and needs operational handling. Keep both outcomes in your job history with their own states.
+A refusal is a completed document decision with `status: "refused"`, `data: null`, and a machine-readable code. An execution failure interrupts the job before it can produce a decision for one or more inputs. In a batch, keep decisions already returned and track the remaining files as incomplete.
+
+## Refusal codes
 
 | Code | Meaning | What to verify |
 | --- | --- | --- |
@@ -16,11 +18,21 @@ A refusal is a completed document decision with `data: null`. An execution failu
 
 ## Build a retry policy
 
-<ol className="ob-flow">
-  <li><strong>Record</strong><span>Store file hash, options, run version and the refusal or execution error.</span></li>
-  <li><strong>Review</strong><span>Separate operational faults from a source document or layout issue.</span></li>
-  <li><strong>Retry</strong><span>Rerun transient faults or supply verified document context.</span></li>
-  <li><strong>Reconcile</strong><span>Post only a released document after reviewing its checks.</span></li>
-</ol>
+1. **Record the outcome.** Save the input hash if available, the engine version, supplied parameters, and the refusal or execution error.
+2. **Read the message.** A missing opening balance can be corrected with a verified source amount. A layout or reconciliation problem usually needs the document or its export reviewed. Send an `error.internal` refusal for engine diagnosis.
+3. **Retry where appropriate.** Retry an interrupted file after checking the service. For a refusal, rerun when you can supply verified context or a corrected export.
+4. **Review the new decision.** Keep both attempts in history and send only released records onward.
 
-For Node.js, branch on `result.kind` and catch [`EngineError`](/docs/node). For the self-hosted HTTP service, consume `file.done` and require a final `run.done` event. A disconnected stream may leave files without a decision. See [the engine API guide](/docs/engine-api) for event semantics.
+## Follow an example
+
+The [bank CSV quickstart](/docs/quickstart) returns `PARSE_ERROR` on the first run because the sample has no opening balance. Supplying its known opening balance of INR `1000.00` lets the engine check the two movements against the running balances. The result changes to a release. A wrong opening balance can still fail reconciliation.
+
+## Find the outcome in your integration
+
+| Entry point | Where to look |
+| --- | --- |
+| [CLI](/docs/cli) | Read the exit code and inspect each written decision. |
+| [Python](/docs/python) | Inspect the returned document and handle engine exceptions when using strict mode. |
+| [Node.js](/docs/node) | Branch on `result.kind` and catch thrown `EngineError` values. |
+| [HTTP API](/docs/engine-api) | Read each `file.done` decision and use `run.done` to confirm batch completion. |
+| [MCP](/docs/mcp) | Read the document outcome and check each step for operation errors. |

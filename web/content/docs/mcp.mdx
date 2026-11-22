@@ -1,21 +1,31 @@
 ---
-title: Open Books MCP Server for AI Agents
+title: MCP for AI agents
 description: Download and install the Open Books Model Context Protocol server to verify financial files with an AI agent and inspect the evidence in one batched call.
 ---
 
-Use Open Books MCP to process bank statements, settlement exports, tax documents and workpapers from an MCP client. The local server uses the Python engine on your computer. It can read files from the input folder you approve and return released JSON, typed refusals, records and proof.
+Model Context Protocol (MCP) lets an AI client call tools supplied by another program. The Open Books MCP server lets a compatible client run the Python engine and retrieve decisions, records, and proof for financial files. Choose the setup path that matches what you want to do.
 
-## Onboard your agent
+| Goal | Start here |
+| --- | --- |
+| Verify that your client can connect | Use the connection test below. |
+| Process files from a folder you control | Install the local server and connect over stdio, where the client starts the server as a subprocess. |
+| Send uploads to a private shared server | Use Streamable HTTP with a bearer token. |
 
-Add the setup server in your client, then copy the prompt and paste it into the agent. The docs show confirmation after the agent calls `confirm_connection` with the setup code. Codes expire after ten minutes. This connection check uses a dedicated endpoint that accepts setup codes. For financial files, use the full server below.
+## Test your client's connection
+
+1. Add the setup server shown below to your client.
+2. Copy the generated prompt and paste it into the agent. The agent calls `confirm_connection` with the setup code.
+3. Watch for confirmation on this page. If the code expires after ten minutes, generate a fresh code.
+
+The setup endpoint confirms connectivity. Install the full server to process financial files.
 
 <AgentOnboarding />
 
-## Install the server
+## 1. Install the local server
 
 [Download the Open Books MCP wheel](/downloads/openbooks_mcp-0.1.0-py3-none-any.whl) · [SHA-256 checksum](/downloads/openbooks_mcp-0.1.0-py3-none-any.whl.sha256)
 
-Use Python 3.11 or newer in a virtual environment. Install the downloaded file, or install directly from the release URL.
+Use Python 3.11 or newer. Create a virtual environment and install the downloaded wheel, or use the release URL in the command below. A wheel is a packaged Python distribution.
 
 ~~~bash
 python -m venv .openbooks-mcp
@@ -26,15 +36,15 @@ python -m pip install https://openbooks.lumeo.co.in/downloads/openbooks_mcp-0.1.
 python -m openbooks_mcp --version
 ~~~
 
-For [scans or model checks](/docs/pdf-and-ocr), install the optional extras.
+The version command should print the installed server version. For [scans or model checks](/docs/pdf-and-ocr), install the optional extras into the same environment.
 
 ~~~bash
 python -m pip install "openbooks-mcp[scan] @ https://openbooks.lumeo.co.in/downloads/openbooks_mcp-0.1.0-py3-none-any.whl"
 ~~~
 
-## Connect an MCP client
+## 2. Connect an MCP client
 
-For clients that use an `mcpServers` configuration, set the command to the absolute path of the virtual environment’s Python interpreter. Use the `--root` argument to limit file reads to a dedicated folder. On Windows, use the `Scripts/python.exe` interpreter and forward slashes in JSON paths.
+Create a dedicated directory for inputs and put a synthetic file there for your first run. For clients that use an `mcpServers` configuration, replace both absolute paths in the following example. Point `command` to the virtual environment's Python and `--root` to your existing input folder. On Windows, the interpreter is under `Scripts/python.exe`. You can use forward slashes in JSON paths, for example `C:/Projects/.openbooks-mcp/Scripts/python.exe`.
 
 ~~~json
 {
@@ -55,9 +65,9 @@ claude mcp add openbooks -- /absolute/path/.openbooks-mcp/bin/python -m openbook
 
 Restart the MCP client and check that it lists `search` and `execute`. Start with the synthetic sample. Omit `--root` to use just samples and uploaded bytes. The MCP client may send tool responses to its model provider. Check your client's data settings before exposing financial records.
 
-## Discover and run operations
+## 3. Discover and run operations
 
-`search` returns operation names and descriptions for a keyword. Pass `details: true` to retrieve matching argument schemas. Clients load two tool definitions even as the operation catalogue grows. This follows the discovery-and-execution pattern in [Cloudflare’s Code Mode design](https://blog.cloudflare.com/code-mode-mcp/). Open Books accepts declarative batches of supported operations.
+`search` returns operation names and descriptions for a keyword. For example, send `{"query":"sample","details":true}` to get the operation and its argument schema. Then pass named steps to `execute`. A step that retrieves records points to a preceding processing step by ID. This follows a discovery-and-execution pattern. [Cloudflare Code Mode](https://blog.cloudflare.com/code-mode-mcp/)
 
 | Operation | What it returns |
 | --- | --- |
@@ -105,6 +115,16 @@ The first outcome is a `PARSE_ERROR` refusal. The second releases two transactio
 ~~~
 
 One batch accepts up to eight uniquely named steps. Documents referenced by `from_step` are held for the current batch. Results retain the engine's exact decimal strings. A document refusal appears inside a result. An operation error such as `INVALID_PATH` or `RESPONSE_LIMIT` appears as an error on the affected step. HTTP uses a 2 MiB request limit and batched output is bounded to 48 KiB.
+
+## Troubleshoot a connection or tool call
+
+| Symptom | Check |
+| --- | --- |
+| The client cannot start the server | Run the configured interpreter with `-m openbooks_mcp --version` and verify that the client config points to that interpreter. |
+| The client lists tools but `process_file` is missing | Use stdio with an existing directory passed to `--root`. |
+| `INVALID_PATH` | Pass a path relative to the approved folder, such as `january.csv`. |
+| `RESPONSE_LIMIT` | Use `records` with a smaller `limit` instead of retrieving the entire document. |
+| The document returns `PARSE_ERROR` | Read the document's message and follow the [refusal guide](/docs/refusals). |
 
 ## Private HTTP transport
 

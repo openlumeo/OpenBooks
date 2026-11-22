@@ -1,9 +1,11 @@
 ---
-title: Extract Tax Documents and Excel Workpapers
+title: Tax documents and workpapers
 description: Process Form 26AS, AIS, FIRA, Form 1099-B and trial balances, with source evidence and document-level reconciliation checks.
 ---
 
-Tax and workpaper providers use layout-specific checks. A released document carries its assertions alongside the extracted records. Review those assertions and source fields before posting or reconciling results.
+Start with an export from the source portal or system and verify the fields and totals the provider supports. Each layout supplies its own release checks, so review the assertions on each file.
+
+## 1. Identify the input
 
 | Input | Review after a release |
 | --- | --- |
@@ -13,18 +15,31 @@ Tax and workpaper providers use layout-specific checks. A released document carr
 | Form 1099-B | Inspect proceeds, basis and dates. The layout is tested on synthetic data. |
 | Trial balance or supported Excel workpaper | Inspect the totals and the selected sheet's evidence. |
 
+## 2. Prepare a workbook
+
+1. Keep one supported table in the workbook. If two sheets match known layouts, export the intended table to its own workbook.
+2. Preserve the header row and printed totals. Use plain values for required fields. A total based only on a workbook formula is insufficient evidence.
+3. For a trial balance, confirm that the debit and credit columns represent the same reporting period and currency. Keep the original workbook available during review.
+
+## 3. Process the files
+
+After following the [Node.js installation guide](/docs/installation), install the tax wrapper with `npm install @lumeo_hq/openbooks-tax`. Save this example as an `.mjs` file and run it from the directory containing the Form 26AS CSV and trial balance workbook.
+
 ~~~ts
 import { runFiles } from "@lumeo_hq/openbooks-tax";
 
 for (const result of await runFiles(["form-26as.csv", "trial-balance.xlsx"])) {
   if (result.kind === "released") {
     console.log(result.file, result.document.file.layout_version);
+    console.log(result.document.assertions);
   } else {
     console.error(result.file, result.code, result.message);
   }
 }
 ~~~
 
-## Prepare a workbook
+## 4. Review the records and proof
 
-Export one consistent table in the recognised layout. Use plain values for fields the engine must read and preserve the source totals. Check [supported formats](/docs/formats) when Excel is just the container for a bank or gateway export. Handle ambiguous spreadsheets and [refusals](/docs/refusals) in a review queue.
+Check the released layout ID and compare the applicable amounts in the table above with `assertions` and `evidence`. The [output contract](/docs/output-contract) describes the record collections and evidence fields. If the layout is unknown, compare the source headers with the [format matrix](/docs/formats). If an assertion fails, review the source totals and route the [refusal](/docs/refusals) for review.
+
+Use the [workspace samples](/app) to practice these checks. For **Form 26AS (TDS)**, open **Checks** and look for the printed totals for tax deducted and tax deposited. For **Trial balance workbook**, review both the equality of debits and credits and each side's comparison with its printed total. In **Evidence**, locate the source used for a reported amount before carrying it into another system.
