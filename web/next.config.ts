@@ -17,12 +17,6 @@ export const CSP = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  async redirects() {
-    return [
-      { source: "/auth/sign-in", destination: "/app", permanent: false },
-      { source: "/auth/sign-up", destination: "/app", permanent: false },
-    ];
-  },
   async headers() {
     return [
       {

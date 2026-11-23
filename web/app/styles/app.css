@@ -176,6 +176,10 @@
   }
   .ob-foot-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
+  .ob-user { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--hairline); }
+  .ob-user-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--text); }
+  .ob-user-out { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
   .ob-status { display: inline-flex; align-items: flex-start; gap: 8px; min-width: 0; }
   .ob-status .dot { margin-top: 3px; }
   .ob-status-text { line-height: 1.45; }

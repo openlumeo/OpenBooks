@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Instrument_Serif } from "next/font/google";
 import { useId, useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth/client";
+import { safeNextPath } from "@/lib/auth/next-path";
 import s from "./auth-form.module.css";
 
 const serif = Instrument_Serif({ weight: "400", subsets: ["latin"], variable: "--font-display", display: "swap" });
@@ -23,7 +24,8 @@ function friendly(message: string | undefined, mode: Mode): string {
   return message ?? "Something went wrong. Please try again.";
 }
 
-export function AuthForm({ mode }: { mode: Mode }) {
+export function AuthForm({ mode, next }: { mode: Mode; next?: string }) {
+  const target = safeNextPath(next);
   const id = useId();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -46,7 +48,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         setError(friendly(error.message, mode));
         setBusy(false);
       } else {
-        window.location.assign("/app");
+        window.location.assign(target);
       }
     } catch {
       setError("We couldn't reach the server. Check your connection and try again.");
@@ -57,7 +59,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   async function withGoogle() {
     setError(null);
     setBusy(true);
-    const { error } = await authClient.signIn.social({ provider: "google", callbackURL: "/app" });
+    const { error } = await authClient.signIn.social({ provider: "google", callbackURL: target });
     if (error) {
       setError("Google sign-in isn't available right now. Use your email instead.");
       setBusy(false);
@@ -97,7 +99,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           <button type="submit" className={`${s.btn} ${s.primary}`} disabled={busy}>{busy ? copy.busy : copy.cta}</button>
         </form>
 
-        <p className={s.alt}>{copy.alt[0]} <Link href={copy.alt[2]}>{copy.alt[1]}</Link></p>
+        <p className={s.alt}>{copy.alt[0]} <Link href={target === "/app" ? copy.alt[2] : `${copy.alt[2]}?next=${encodeURIComponent(target)}`}>{copy.alt[1]}</Link></p>
         {mode === "sign-up" && <p className={s.legal}>Open Books is in a training phase. We never keep your documents for training unless you opt in, upload by upload.</p>}
       </main>
     </div>

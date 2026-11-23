@@ -3,6 +3,7 @@
 import { BookOpen, FlaskConical, Plus, Trash2 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import { ThemeToggle } from "@/components/brand/theme-toggle";
+import { UserMenu } from "@/components/user-menu";
 import { Sketch } from "@/components/motion/sketch";
 import { fmtAgo } from "@/lib/format";
 import type { Workspace } from "@/lib/use-workspace";
@@ -105,6 +106,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
       </nav>
 
       <div className="ob-sidebar-foot">
+        <UserMenu />
         <a className="ob-maturity" href="/docs">
           <BookOpen size={15} aria-hidden="true" />
           <span>Developer docs</span>

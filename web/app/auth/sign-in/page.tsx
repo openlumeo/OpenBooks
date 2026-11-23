@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AuthForm } from "@/components/auth/auth-form";
 import { pageMetadata } from "@/lib/site";
+import { redirectIfSignedIn } from "@/lib/auth/redirect-if-signed-in";
 
 export const metadata: Metadata = {
   ...pageMetadata({
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-export default function SignInPage() {
-  return <AuthForm mode="sign-in" />;
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string | string[] }> }) {
+  const next = await redirectIfSignedIn((await searchParams).next);
+  return <AuthForm mode="sign-in" next={next} />;
 }
