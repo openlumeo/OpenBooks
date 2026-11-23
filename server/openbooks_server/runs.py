@@ -115,7 +115,13 @@ class Run:
         d.mkdir()
         path = d / safe_name(name, i)
         with open(path, "wb") as out:
-            out.write(stream.read(MAX_BYTES + 1))
+            remaining = MAX_BYTES + 1
+            while remaining:
+                chunk = stream.read(min(remaining, 1 << 20))
+                if not chunk:
+                    break
+                out.write(chunk)
+                remaining -= len(chunk)
         self.files.append(Staged(name or path.name, path, path.stat().st_size))
 
     def execute(self, params: Params, per_file: dict[int, Params], emit: Emit,

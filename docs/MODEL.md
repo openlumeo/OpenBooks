@@ -128,7 +128,7 @@ For a comparison that checks the contents of the held-out splits, rescore the sh
 | Test abstention | 0.653 |
 | Unseen layout families, abstention | 0.67 – 0.83 |
 
-On a **real** Indian bank PDF (6 pages, 2,611 words, a layout the model never saw) the heads abstained on **96%** of words. That is the intended safe behaviour, and it also means the model's own reading is not useful on unseen layouts until real, redacted samples are added to training. Debit/credit alone is abstained on 97–100% of the time and is resolved by the balance chain, not by the model.
+On AgamiAI's synthetic Digital Type 1 `00001.pdf` (6 pages, 2,611 words), the heads abstained on **96.86%** of words. The digital parser can read the records, and the running-balance gate refuses the file because its balances do not reconcile. See [the dataset pilot](DATASET_PILOT.md) for extraction and release baselines.
 
 ## 8. Inference cost
 

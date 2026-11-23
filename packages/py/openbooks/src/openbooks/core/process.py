@@ -6,8 +6,8 @@ from collections.abc import Callable
 from pathlib import Path
 
 from .evidence import sha256_file
-from .gates import run_gate
-from .guard import DOC_EXT, decode, guard
+from .gates import require_balance, run_gate
+from .guard import DOC_EXT, check_input, decode, read_text_input
 from .errors import EngineFault, Refusal
 from .frontends.xlsx import parse_xlsx
 from .params import Params
@@ -17,7 +17,7 @@ from .schema import SCHEMA_VERSION, refusal_doc, validate_output
 STAGES = ("detect", "parse", "normalise", "balance", "validate")
 
 
-def _extract(path: Path, raw: bytes, p: Params, reg: Registry, stage: Callable[[str], None]) -> tuple:
+def _extract(path: Path, p: Params, reg: Registry, stage: Callable[[str], None]) -> tuple:
     """Detect the format and parse the file. Returns (data, evidence, format name, layout, method)."""
     ext = path.suffix.lower()
     method = "parser"
@@ -28,7 +28,7 @@ def _extract(path: Path, raw: bytes, p: Params, reg: Registry, stage: Callable[[
         data, ev, fmt_name, layout = parse_xlsx(path, p, reg)
         stage("detect")
     else:
-        text = decode(raw)
+        text = decode(read_text_input(path))
         det = detect(text)
         fmt_name, layout = det.format, det.layout
         stage("detect")
@@ -37,16 +37,6 @@ def _extract(path: Path, raw: bytes, p: Params, reg: Registry, stage: Callable[[
         else:
             data, ev = reg.run_layout(layout, det.args, p)
     return data, ev, fmt_name, layout, method
-
-
-def _require_balance(assertions: list[dict]) -> None:
-    """Refuse unless every balance assertion passes and at least one is independent evidence."""
-    failed = [a for a in assertions if not a["passed"]]
-    if failed:
-        raise Refusal("BALANCE_MISMATCH", "; ".join(
-            f"{a['rule']} (expected {a['expected']}, got {a['computed']})" for a in failed))
-    if not any(a["independent"] for a in assertions):
-        raise Refusal("BALANCE_MISMATCH", "no independent balance evidence in this file")
 
 
 def process(path: str | Path, params: Params | None = None, on_stage: Callable[[str], None] | None = None,
@@ -61,13 +51,13 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
     sha = sha256_file(path)
     try:
         reg = registry or default_registry()
-        raw = guard(path)
+        check_input(path)
         ext = path.suffix.lower()
-        data, ev, fmt_name, layout, method = _extract(path, raw, p, reg, stage)
+        data, ev, fmt_name, layout, method = _extract(path, p, reg, stage)
         stage("parse")
         stage("normalise")
         assertions = run_gate(data, reg.gates({b["kind"] for b in data["batches"]}))
-        _require_balance(assertions)
+        require_balance(assertions)
         stage("balance")
         model_id = None
         if p.model and ext in DOC_EXT:

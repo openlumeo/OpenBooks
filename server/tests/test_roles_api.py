@@ -48,7 +48,7 @@ def post(client, path, params=None):
 
 
 def test_reading_of_a_pdf(client, pdf, model):
-    r = post(client, pdf)
+    r = post(client, pdf, {"currency": "INR", "date_order": "dmy"})
     assert r.status_code == 200, r.text
     doc = r.json()
     assert doc["schema_version"] == "openbooks.roles.v1"
@@ -61,8 +61,22 @@ def test_reading_of_a_pdf(client, pdf, model):
         x0, y0, x1, y1 = t["box"]
         assert -0.01 <= x0 <= x1 <= 1.01 and -0.01 <= y0 <= y1 <= 1.01
     assert doc["model"] == model.identity
+    assert doc["layout"]["refusal"] is None
+    assert doc["layout"]["supported"] == sum("layout_role" in token for token in toks) > 0
+    assert doc["layout"]["resolved_abstentions"] == sum(token["abstained"] and "layout_role" in token for token in toks)
     health = client.get("/v1/health").json()
     assert health["model_ready"] and health["model_identity"] == doc["model"]
+
+
+def test_balance_failure_leaves_model_reading_without_layout_roles(client, model):
+    sample = client.get("/v1/samples/bad_pdf_balance_cent")
+    assert sample.status_code == 200
+    response = client.post("/v1/roles", files={"file": ("bad.pdf", sample.content)},
+                           data={"params": json.dumps({"currency": "INR", "date_order": "dmy"})})
+    assert response.status_code == 200
+    doc = response.json()
+    assert doc["layout"] == {"supported": 0, "resolved_abstentions": 0, "refusal": "BALANCE_MISMATCH"}
+    assert all("layout_role" not in token for page in doc["pages"] for token in page["tokens"])
 
 
 def test_batched_logits_equal_the_stock_path(pdf, model):

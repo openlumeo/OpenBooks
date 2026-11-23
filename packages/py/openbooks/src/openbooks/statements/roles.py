@@ -77,14 +77,16 @@ class Predictions:
         wider, enumerate the readings inside the sets and keep those with one balance, at most one amount, and
         prev +/- amount = balance (prev=None skips the chain). Exactly one survivor resolves the row; zero or several
         abstain (LOW_CONFIDENCE). The balance gate still checks the whole statement afterwards."""
-        sets = [getattr(self.get(w), "role_set", ()) for w in tokens]
-        cands = [tuple(r for r in s if r in AMOUNT) for s in sets]
-        if all(len(c) == 1 for c in cands):
-            return {w: c[0] for w, c in zip(tokens, cands)}
-        keep = [a for a in product(*cands)
-                if a.count("balance") == 1 and len(a) - 1 <= 1 and _ties(a, tokens, prev, value)]
+        keep = []
+        if 1 <= len(tokens) <= 2:
+            sets = [getattr(self.get(w), "role_set", ()) for w in tokens]
+            cands = [tuple(r for r in s if r in AMOUNT) for s in sets]
+            if all(len(c) == 1 for c in cands):
+                return {w: c[0] for w, c in zip(tokens, cands)}
+            keep = [a for a in product(*cands) if a.count("balance") == 1 and _ties(a, tokens, prev, value)]
         if len(keep) != 1:
-            raise Refusal("LOW_CONFIDENCE", f"page {tokens[0].page}: the typed head is not sure which columns the amounts "
+            page = f"page {tokens[0].page}: " if tokens else ""
+            raise Refusal("LOW_CONFIDENCE", f"{page}the typed head is not sure which columns the amounts "
                                             f"are in ({len(keep)} readings tie the balance)")
         return dict(zip(tokens, keep[0]))
 

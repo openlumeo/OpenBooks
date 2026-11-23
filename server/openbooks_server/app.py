@@ -279,7 +279,7 @@ async def _count_ocr_pages(run: Run) -> int:
 @app.post("/v1/roles")
 async def post_roles(request: Request, file: UploadFile = File(...), params: str | None = Form(None)) -> JSONResponse:
     """The typed heads' own reading of one PDF or scan: per word role, value type, conformal sets, abstained.
-    Inputs match /v1/runs: `file` and `params` (ocr, date_order are used; the rest are ignored here)."""
+    Inputs use `file` and the same parsing `params` as /v1/runs. Layout roles require a passing balance check."""
     from openbooks.pipeline import MAX_BYTES
 
     try:

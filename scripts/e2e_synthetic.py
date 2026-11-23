@@ -71,7 +71,7 @@ def evaluate(tmp: Path, scans: bool, model: bool, output: Path | None, identity:
         expected_ok += status == "ok"
         released_ok += ok and status == "ok"
         problem = shape_problem(got)
-        if identity and got["status"] == "ok" and src.suffix.lower() in {".pdf", ".png", ".jpeg", ".jpg"}:
+        if identity and got["status"] == "ok" and Path(name).suffix.lower() in {".pdf", ".png", ".jpeg", ".jpg"}:
             if got["file"].get("model") != identity:
                 problem = "released without the candidate model identity"
         if problem:

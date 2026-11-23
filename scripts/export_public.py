@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import os
 import re
 import shutil
 import sys
@@ -52,14 +53,21 @@ def matches(rel: str, patterns: list[str]) -> bool:
 
 
 def selected() -> list[str]:
-    out = []
-    for p in sorted(ROOT.rglob("*")):
-        if not p.is_file():
+    out = set()
+    for entry in INCLUDE:
+        if not entry.endswith("/**"):
+            if (ROOT / entry).is_file() and not matches(entry, EXCLUDE):
+                out.add(entry)
             continue
-        rel = p.relative_to(ROOT).as_posix()
-        if matches(rel, INCLUDE) and not matches(rel, EXCLUDE):
-            out.append(rel)
-    return out
+        for base, dirs, files in os.walk(ROOT / entry.removesuffix("/**")):
+            parent = Path(base)
+            prefix = parent.relative_to(ROOT).as_posix()
+            dirs[:] = [name for name in dirs if not matches(f"{prefix}/{name}/", EXCLUDE)]
+            for name in files:
+                rel = f"{prefix}/{name}"
+                if not matches(rel, EXCLUDE) and (parent / name).is_file():
+                    out.add(rel)
+    return sorted(out)
 
 
 def scan_text(rel: str, text: str) -> list[str]:

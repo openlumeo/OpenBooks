@@ -29,7 +29,7 @@ The distribution ships model weights and a calibration file bound to those weigh
 
 ## Inspect model output
 
-The [role inspection endpoint](/docs/engine-api) returns `openbooks.roles.v1` for a PDF or image. Use `text` and the normalized `box` to locate a token on the page. Read `role`, `role_set`, `vtype`, `type_set`, and `abstained` to see what the model predicted and where it abstained. For a document decision, use the processing endpoint and read its [verified output](/docs/output-contract).
+The [role inspection endpoint](/docs/engine-api) returns `openbooks.roles.v1` for a PDF or image. Use `text` and the normalized `box` to locate a token on the page. Read `role`, `role_set`, `vtype`, `type_set`, and `abstained` to see what the model predicted and where it abstained. A recognized statement layout that passes its balance checks can also provide `layout_role` on individual tokens. The `layout` summary reports the number of supported tokens, the number of model abstentions covered by the checked layout, and any layout refusal code. For a document decision, use the processing endpoint and read its [verified output](/docs/output-contract).
 
 ## Evaluate on your inputs
 

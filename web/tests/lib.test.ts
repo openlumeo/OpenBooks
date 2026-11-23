@@ -3,7 +3,7 @@ import { parseNDJSON, parseSSE } from "@/lib/sse";
 import { fixesFor, stageForRefusal } from "@/lib/stages";
 import { batchSummary, columnsFor, groupAmount } from "@/lib/ledger";
 import { fileKeys, getEvidence, queryTransactions, type DocRef } from "@/lib/query";
-import { buildDigest, FULL_TXN_LIMIT } from "@/lib/digest";
+import { buildDigest } from "@/lib/digest";
 import type { RefusalCode, ReleasedDoc, RefusedDoc, Transaction } from "@/lib/types";
 
 function streamOf(chunks: string[]): ReadableStream<Uint8Array> {
@@ -153,7 +153,7 @@ describe("buildDigest", () => {
     expect(buildDigest(docs)).toBe(d);
   });
   it("omits big ledgers and says how to reach them", () => {
-    const tx = Array.from({ length: FULL_TXN_LIMIT + 1 }, () => ({ date: "2026-01-01", direction: "credit" as const, amount: m("1.00") }));
+    const tx = Array.from({ length: 201 }, () => ({ date: "2026-01-01", direction: "credit" as const, amount: m("1.00") }));
     const d = JSON.parse(buildDigest([{ file: "big.csv", doc: released("big.csv", tx) }]));
     expect(d.files[0].transactions).toBeUndefined();
     expect(d.files[0].transactions_note).toMatch(/query_transactions/);

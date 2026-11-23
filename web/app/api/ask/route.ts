@@ -45,7 +45,8 @@ export async function POST(req: Request) {
     { role: "user", content: question },
   ];
 
-  return new Response(answerStream(client, MODEL, messages, docs, req.signal), {
+  const collectUsage = ["openrouter.ai", "api.openai.com"].includes(new URL(BASE_URL).hostname);
+  return new Response(answerStream(client, MODEL, messages, docs, req.signal, collectUsage), {
     headers: { "content-type": "application/x-ndjson; charset=utf-8", "cache-control": "no-store" },
   });
 }

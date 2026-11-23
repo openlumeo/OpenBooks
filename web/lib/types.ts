@@ -157,11 +157,13 @@ type RoleToken = {
   vtype: "text" | "date" | "money" | "code";
   type_set: string[];
   abstained: boolean;
+  layout_role?: RoleName;
 };
 
 export type RolesDoc = {
   schema_version: "openbooks.roles.v1";
   method: "pdf_text" | "ocr";
+  layout?: { supported: number; resolved_abstentions: number; refusal: string | null };
   pages: { page: number; width: number; height: number; tokens: RoleToken[] }[];
   summary: { tokens: number; abstained: number; abstain_rate: number; by_role: Record<string, number>; inference_ms: number; device: string };
   model: { weights_sha256: string; calibration_sha256: string };

@@ -19,6 +19,16 @@ Add = Callable[[str, str, str, bool], None]
 CORE_KINDS = frozenset({"statement", "settlement"})
 
 
+def require_balance(assertions: list[dict]) -> None:
+    """Require all assertions to pass and at least one to use independent evidence."""
+    failed = [a for a in assertions if not a["passed"]]
+    if failed:
+        raise Refusal("BALANCE_MISMATCH", "; ".join(
+            f"{a['rule']} (expected {a['expected']}, got {a['computed']})" for a in failed))
+    if not any(a["independent"] for a in assertions):
+        raise Refusal("BALANCE_MISMATCH", "no independent balance evidence in this file")
+
+
 def amount_str(d, cur: str) -> str:
     """Format a Decimal amount with its currency code, e.g. '12.50 INR'."""
     return f"{fmt(d, cur)} {cur}"

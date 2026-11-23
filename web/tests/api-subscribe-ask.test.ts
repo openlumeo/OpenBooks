@@ -161,23 +161,38 @@ describe("POST /api/ask", () => {
             choices: [
               {
                 delta: {
+                  content: "An unchecked guess.",
                   tool_calls: [{ index: 0, id: "call-1", function: { name: "query_transactions", arguments: '{"direction":"credit"}' } }],
                 },
                 finish_reason: "tool_calls",
               },
             ],
           };
+          yield { choices: [], usage: { prompt_tokens: 30, completion_tokens: 10, total_tokens: 40 } };
         })(),
       )
       .mockResolvedValueOnce(
         (async function* () {
           yield { choices: [{ delta: { content: "None found." }, finish_reason: "stop" }] };
+          yield { choices: [], usage: { prompt_tokens: 50, completion_tokens: 5, total_tokens: 55 } };
         })(),
       );
     const res = await route.POST(question(validBody, String(validBody.length)));
     const events = (await res.text()).trim().split("\n").map((line) => JSON.parse(line) as { type: string; name?: string });
     expect(events.map((e) => e.type)).toEqual(["tool", "text", "done"]);
     expect(events[0]?.name).toBe("query_transactions");
+    expect(events[1]).toMatchObject({ text: "None found." });
+    expect(events[2]).toMatchObject({ usage: { prompt_tokens: 80, completion_tokens: 15, total_tokens: 95, reported_turns: 2, turns: 2 } });
     expect(llm.create).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not publish a truncated answer without tool calls", async () => {
+    const route = await loadAsk(enabled);
+    llm.create.mockResolvedValueOnce((async function* () {
+      yield { choices: [{ delta: { content: "Incomplete total" }, finish_reason: "length" }] };
+    })());
+    const res = await route.POST(question(validBody, String(validBody.length)));
+    const events = (await res.text()).trim().split("\n").map((line) => JSON.parse(line));
+    expect(events.map((event) => event.type)).toEqual(["error", "done"]);
   });
 });
