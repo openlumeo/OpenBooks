@@ -15,10 +15,12 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from openbooks.core.errors import Refusal
+from openbooks.core.gates import require_balance, run_gate
 from openbooks.core.params import Params
 from openbooks.statements.encoder import NOT_MONEY, tensors, windows
 from openbooks.statements.labels import ROLES, VTYPES
-from openbooks.statements.pdf_front import read_words
+from openbooks.statements.pdf_front import extract_statement, read_words
 from openbooks.statements.roles import Predictions, RoleModel
 
 MAX_BATCH_TOKENS = 4096
@@ -83,7 +85,16 @@ def predict_batched(model: RoleModel, pages, timings: dict | None = None) -> Pre
     return preds
 
 
-def _page_json(page_no: int, words, preds: Predictions) -> dict:
+def _layout_roles(pages, params: Params, method: str) -> tuple[dict, str | None]:
+    try:
+        data, _, assigned, _ = extract_statement(pages, params, method)
+        require_balance(run_gate(data))
+    except Refusal as refusal:
+        return {}, refusal.code
+    return dict(assigned), None
+
+
+def _page_json(page_no: int, words, preds: Predictions, layout_roles: dict) -> dict:
     pw, ph = words[0].pw, words[0].ph
     tokens = []
     for w in words:
@@ -96,6 +107,7 @@ def _page_json(page_no: int, words, preds: Predictions) -> dict:
             "role": p.role, "role_set": list(p.role_set),
             "vtype": p.vtype, "type_set": list(p.type_set),
             "abstained": len(p.role_set) != 1,
+            **({"layout_role": layout_roles[w]} if w in layout_roles else {}),
         })
     return {"page": page_no, "width": pw, "height": ph, "tokens": tokens}
 
@@ -114,18 +126,22 @@ def infer_file(path: Path, params: Params, model: RoleModel, timings: dict | Non
             torch.cuda.synchronize()
     ms = (time.perf_counter() - t0) * 1000
     t_ser = time.perf_counter()
-    out_pages = [_page_json(pg[0].page, pg, preds) for pg in pages if pg]
+    layout_roles, layout_refusal = _layout_roles(pages, params, method)
+    out_pages = [_page_json(pg[0].page, pg, preds, layout_roles) for pg in pages if pg]
     toks = [t for pg in out_pages for t in pg["tokens"]]
     by_role: dict[str, int] = {}
     for t in toks:
         by_role[t["role"]] = by_role.get(t["role"], 0) + 1
     n = len(toks)
     abstained = sum(t["abstained"] for t in toks)
+    supported = sum("layout_role" in t for t in toks)
+    resolved = sum(t["abstained"] and "layout_role" in t for t in toks)
     if timings is not None:
         timings["serialization"] = time.perf_counter() - t_ser
     return {
         "schema_version": "openbooks.roles.v1",
         "method": method,
+        "layout": {"supported": supported, "resolved_abstentions": resolved, "refusal": layout_refusal},
         "pages": out_pages,
         "summary": {
             "tokens": n,

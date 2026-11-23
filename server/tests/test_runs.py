@@ -94,6 +94,20 @@ def test_run_stage_records_name_size_and_defaults_empty_names():
         run.cleanup()
 
 
+def test_run_stage_continues_after_short_reads():
+    class ShortReads(io.BytesIO):
+        def read(self, size: int = -1) -> bytes:
+            assert 0 < size <= 1 << 20
+            return super().read(min(size, 2))
+
+    run = Run()
+    try:
+        run.stage("sample.csv", ShortReads(b"longer than two bytes"))
+        assert run.files[0].path.read_bytes() == b"longer than two bytes"
+    finally:
+        run.cleanup()
+
+
 def test_run_cleanup_removes_the_temporary_directory():
     run = Run()
     run.stage("a.csv", io.BytesIO(b"x"))

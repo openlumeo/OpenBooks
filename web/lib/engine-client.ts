@@ -125,7 +125,7 @@ export async function* runFiles(
   throw new Error("The connection ended before the engine confirmed the run.");
 }
 
-export async function predictRoles(file: File, params: Pick<RunParams, "ocr" | "date_order"> = {}, signal?: AbortSignal): Promise<RolesDoc> {
+export async function predictRoles(file: File, params: RunParams = {}, signal?: AbortSignal): Promise<RolesDoc> {
   const fd = new FormData();
   fd.append("file", file, file.name);
   fd.append("params", JSON.stringify(params));
@@ -149,7 +149,7 @@ type AskEvent =
   | { type: "text"; text: string }
   | { type: "tool"; name: string; summary: string }
   | { type: "error"; message: string }
-  | { type: "done" };
+  | { type: "done"; usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number; reported_turns: number; turns: number } };
 
 export async function* ask(
   body: { question: string; history: { role: "user" | "assistant"; content: string }[]; docs: { file: string; doc: EngineDoc }[] },

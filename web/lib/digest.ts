@@ -1,8 +1,5 @@
 import type { DocRef } from "./query";
 
-export const FULL_TXN_LIMIT = 200;
-const INLINE_TXN_BYTES = 32 * 1024;
-
 function stable(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(stable);
   if (v && typeof v === "object") {
@@ -12,16 +9,10 @@ function stable(v: unknown): unknown {
 }
 
 export function buildDigest(docs: DocRef[]): string {
-  const encoder = new TextEncoder();
-  let remaining = INLINE_TXN_BYTES;
   const files = docs.map(({ file, doc }) => {
     if (doc.status === "refused") {
       return { file, status: "refused", refusal: { code: doc.error.code, message: doc.error.message } };
     }
-    const tx = doc.data.transactions;
-    const bytes = tx.length <= FULL_TXN_LIMIT ? encoder.encode(promptJson(tx)).byteLength : Infinity;
-    const inline = bytes <= remaining;
-    if (inline) remaining -= bytes;
     return {
       file,
       status: "released",
@@ -30,10 +21,9 @@ export function buildDigest(docs: DocRef[]): string {
       method: doc.file.method,
       accounts: doc.data.accounts,
       batches: doc.data.batches,
-      assertions: doc.assertions,
-      transaction_count: tx.length,
-      transactions: inline ? tx : undefined,
-      transactions_note: inline ? undefined : `omitted (${tx.length} rows); use query_transactions`,
+      assertions: doc.assertions.map(({ id, rule, passed, independent }) => ({ id, rule, passed, independent })),
+      transaction_count: doc.data.transactions.length,
+      transactions_note: "Use query_transactions for all transaction rows, totals, and filtered counts.",
     };
   });
   return promptJson(stable({ schema: "openbooks.v1 digest", files }));

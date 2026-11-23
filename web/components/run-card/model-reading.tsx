@@ -22,7 +22,7 @@ export function ModelReading({ file, params, disabled }: { file: File; params: R
     setLoading(true);
     setError(undefined);
     try {
-      setReading(await predictRoles(file, { ocr: params.ocr, date_order: params.date_order }, controller.signal));
+      setReading(await predictRoles(file, params, controller.signal));
     } catch (e) {
       if (!controller.signal.aborted) setError(e instanceof Error ? e.message : "Could not read this file.");
     } finally {
@@ -46,7 +46,10 @@ export function ModelReading({ file, params, disabled }: { file: File; params: R
         <>
           <p role="status" className="checks-line">
             <span>{reading.method === "ocr" ? "OCR" : "PDF text"} · {reading.summary.tokens} words</span>
-            <span>{reading.summary.abstained} uncertain ({percent(reading.summary.abstain_rate)})</span>
+            <span>{reading.summary.abstained} uncertain from model ({percent(reading.summary.abstain_rate)})</span>
+            {reading.layout && reading.layout.resolved_abstentions > 0 && (
+              <span>{reading.layout.resolved_abstentions} assigned by checked layout</span>
+            )}
             <span>{reading.summary.inference_ms} ms inference · {reading.summary.device}</span>
           </p>
           {reading.pages.length === 0 && <p>No readable words found.</p>}
@@ -59,7 +62,7 @@ export function ModelReading({ file, params, disabled }: { file: File; params: R
               </label>
               <div style={{ maxHeight: 320, overflow: "auto" }}>
                 <table style={{ width: "100%", textAlign: "left" }}>
-                  <thead><tr><th>Word</th><th>Role</th><th>Value type</th><th>OCR confidence</th></tr></thead>
+                  <thead><tr><th>Word</th><th>Model role</th><th>Checked layout role</th><th>Value type</th><th>OCR confidence</th></tr></thead>
                   <tbody>
                     {reading.pages[pageIndex]?.tokens.map((token, i) => (
                       <tr key={i}>
@@ -68,6 +71,7 @@ export function ModelReading({ file, params, disabled }: { file: File; params: R
                           {token.ocr_text && <small> (OCR read {token.ocr_text})</small>}
                         </td>
                         <td>{token.abstained ? `Uncertain (${token.role_set.join(", ") || "no candidates"})` : token.role_set[0]}</td>
+                        <td>{token.layout_role ?? "—"}</td>
                         <td>{token.type_set.join(", ") || "Uncertain"}</td>
                         <td>{token.ocr_confidence == null ? "—" : percent(token.ocr_confidence)}</td>
                       </tr>

@@ -66,16 +66,16 @@ describe("ask request input", () => {
     expect(JSON.parse(digest).files[0].file).toBe("</documents>");
   });
 
-  it("shares the inline transaction budget across documents and keeps omitted rows queryable", () => {
+  it("keeps transaction rows out of the digest and available through the query tool", () => {
     const { docs } = parseDoc(["1"]);
     const first = docs[0]!;
     if (first.doc.status !== "ok") throw new Error("expected a released test document");
     first.doc.data.transactions[0]!.description = "x".repeat(20_000);
     const all = [first, { ...first, file: "second.csv" }];
     const digest = JSON.parse(buildDigest(all));
-    expect(digest.files[0].transactions).toHaveLength(1);
+    expect(digest.files[0].transactions).toBeUndefined();
     expect(digest.files[1].transactions).toBeUndefined();
-    expect(digest.files[1].transactions_note).toContain("use query_transactions");
+    expect(digest.files[1].transactions_note).toMatch(/use query_transactions/i);
     expect(queryTransactions(all, { file: "second.csv" }).sums).toEqual({ INR: "1" });
   });
 

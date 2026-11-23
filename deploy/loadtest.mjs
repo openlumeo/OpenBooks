@@ -126,8 +126,8 @@ function histQuantile(before, after, key, q) {
 }
 const pct = (sorted, q) => (sorted.length ? Math.round(sorted[Math.min(sorted.length - 1, Math.ceil(q * sorted.length) - 1)]) : "");
 
-// ---- one measured phase: `times` is the schedule of request start offsets in ms ----
-async function phase(runId, fixtures, times, picker) {
+// ---- one measured phase ----
+async function phase(runId, requests, offeredRps, picker) {
   const before = await scrape();
   let peakRss = 0, peakVram = 0, inFlight = 0, peakInFlight = 0, polling = true;
   const poll = (async () => {
@@ -140,15 +140,16 @@ async function phase(runId, fixtures, times, picker) {
   const results = [];
   const jobs = [];
   const start = performance.now();
-  for (let i = 0; i < times.length; i++) {
-    const wait = start + times[i] - performance.now();
+  for (let i = 0; i < requests; i++) {
+    const wait = start + i * 1000 / offeredRps - performance.now();
     if (wait > 0) await sleep(wait);
     const fx = picker();
     inFlight++; peakInFlight = Math.max(peakInFlight, inFlight);
     jobs.push(fire(fx, `${runId}-${i}`).then((r) => { inFlight--; results.push({ ...r, fx }); }));
   }
-  const windowS = Math.max(times.at(-1) ?? 0, 1) / 1000 + (times.length > 1 ? times.at(-1) / (times.length - 1) / 1000 : 0);
+  const windowS = requests / offeredRps;
   await Promise.all(jobs);
+  const completionWindowS = Math.max(windowS, (performance.now() - start) / 1000);
   polling = false;
   await poll;
   const after = await scrape();
@@ -165,7 +166,7 @@ async function phase(runId, fixtures, times, picker) {
     const hq = (stage, q = 0.95) => histQuantile(before, after, `${stage}|${kind}`, q);
     rows.push({
       run_id: runId, input_kind: kind, page_bucket: pb,
-      offered_rps: (n / windowS).toFixed(2), completed_rps: (ok.length / windowS).toFixed(2), in_flight: peakInFlight,
+      offered_rps: (n / windowS).toFixed(2), completed_rps: (ok.length / completionWindowS).toFixed(2), in_flight: peakInFlight,
       p50_ms: pct(ok, 0.5), p95_ms: pct(ok, 0.95), p99_ms: pct(ok, 0.99),
       queue_p95_ms: hq("queue_wait"), ocr_p95_ms: kind === "ocr" ? hq("extract") : "", model_p95_ms: hq("model"),
       peak_rss_mib: peakRss ? Math.round(peakRss / 2 ** 20) : "", peak_vram_mib: peakVram ? Math.round(peakVram / 2 ** 20) : "",
@@ -187,11 +188,9 @@ const pick = () => {
 };
 const id = o["run-id"] ?? `${o.mode}-${new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14)}`;
 const rows = [];
-const steps = (n, rps) => Array.from({ length: n }, (_, i) => (i * 1000) / rps);
-
 // Warmup always runs first (sequential), then the fixture parity pass, then the measured phases.
 for (let i = 0; i < num("warmup-requests"); i++) await fire(pick(), `${id}-warm-${i}`);
-if (o.mode === "warmup") rows.push(...(await phase(`${id}`, fixtures, steps(num("warmup-requests"), 1), pick)));
+if (o.mode === "warmup") rows.push(...(await phase(`${id}`, num("warmup-requests"), 1, pick)));
 
 const failures = [];
 if (!o["skip-fixtures"] && o.route === "runs") {
@@ -204,10 +203,10 @@ if (!o["skip-fixtures"] && o.route === "runs") {
   }
 }
 if (o.mode === "sustained") {
-  for (const rps of o.rps.split(",").map(Number)) rows.push(...(await phase(`${id}-r${rps}`, fixtures, steps(Math.max(1, Math.round(rps * num("duration"))), rps), pick)));
+  for (const rps of o.rps.split(",").map(Number)) rows.push(...(await phase(`${id}-r${rps}`, Math.max(1, Math.round(rps * num("duration"))), rps, pick)));
 } else if (o.mode === "burst") {
   const n = num("burst-requests"), w = num("burst-window");
-  rows.push(...(await phase(`${id}-burst`, fixtures, steps(n, n / w), pick)));
+  rows.push(...(await phase(`${id}-burst`, n, n / w, pick)));
 } else if (o.mode !== "warmup") throw new Error("--mode must be warmup, sustained or burst");
 
 const csv = [COLUMNS.join(","), ...rows.map((r) => COLUMNS.map((c) => r[c]).join(","))].join("\n") + "\n";

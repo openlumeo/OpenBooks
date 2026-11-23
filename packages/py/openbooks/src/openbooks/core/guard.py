@@ -10,15 +10,23 @@ DOC_EXT = {".pdf", ".png", ".jpg", ".jpeg"}
 ALLOWED_EXT = TEXT_EXT | DOC_EXT | {".xlsx"}
 
 
-def guard(path: Path) -> bytes:
+def check_input(path: Path) -> None:
     if path.suffix.lower() not in ALLOWED_EXT:
         raise Refusal("UNSUPPORTED_INPUT", f"file type {path.suffix!r} is not supported")
     if path.stat().st_size > MAX_BYTES:
         raise Refusal("UNSUPPORTED_INPUT", "file is over the 20 MB limit")
+
+
+def read_text_input(path: Path) -> bytes:
     raw = path.read_bytes()
-    if path.suffix.lower() in TEXT_EXT and b"\x00" in raw:
+    if b"\x00" in raw:
         raise Refusal("UNSUPPORTED_INPUT", "binary content")
     return raw
+
+
+def guard(path: Path) -> bytes:
+    check_input(path)
+    return read_text_input(path) if path.suffix.lower() in TEXT_EXT else path.read_bytes()
 
 
 def decode(raw: bytes) -> str:

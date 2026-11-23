@@ -3,7 +3,7 @@ import pytest
 
 from openbooks.core.errors import Refusal
 from openbooks.core.gates import run_gate
-from openbooks.core.process import _require_balance
+from openbooks.core.gates import require_balance as _require_balance
 
 
 def _m(amount: str, cur: str = "INR") -> dict:
