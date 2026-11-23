@@ -46,6 +46,8 @@ Profile native extraction, OCR, feature building, inference and validation separ
 
 The 23 November loopback run completed 4 requests per second at 84 ms p95 for the one-page native PDFs tested, with zero errors and zero rejections. A burst of 100 requests over five seconds completed 93, rejected seven and had zero errors. One-page p95 reached 1,147 ms during that burst. The local sustained run also passed packaged fixture decision checks. These rates describe the local native-PDF load mix and the existing engine limits.
 
+The one-page synthetic OCR smoke test completed both requests but measured 51.3 seconds p95 on CPU against an 8-second gate. Report completed throughput over the entire phase including drain time so a short submission window cannot conceal this backlog.
+
 For 2 GB per file, use resumable multipart upload directly to tenant-scoped object storage, then hand a verified object id to a worker. Enforce the byte quota during upload, validate the final size and checksum, and expire incomplete uploads. Use format-specific limits for PDF pages, OCR, workbook expansion and serialized results. CSV needs a bounded-memory reader with balance state across chunks. Process PDF pages incrementally from a seekable staged file, preserving cross-page balance state and evidence. Keep the 20 MiB synchronous limit until 2 GB tests cover interrupted uploads, retries, concurrent jobs, cleanup, parser memory and output equivalence.
 
 1. `POST /uploads` reserves declared bytes from the authenticated tenant and returns an upload id, part size, and expiry. The API issues signed URLs in small batches and binds each URL to the object key and part number. Store the object in a private bucket and track reservation and expiry in PostgreSQL.
