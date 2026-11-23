@@ -1,0 +1,104 @@
+---
+title: Connect an AI agent to Open Books MCP
+description: "Add the Open Books MCP server with npx to Claude Code, Codex, Claude Desktop or Cursor. Agents get proven JSON results or typed refusals for financial files."
+---
+
+Add the Open Books MCP server to your MCP client with `npx`. The agent then gets two tools, `search` and `execute`, and receives either a bank statement as proven JSON or a typed refusal that names the reason.
+
+## 1. Check the requirements
+
+- Node.js 20 or newer, for `npx`.
+- Python 3.11 or newer on the same machine. The verification engine is Python. It is a current prerequisite of the engine, and the npm packages provision it.
+
+## 2. Connect a client
+
+Claude Code:
+
+~~~bash
+claude mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp
+~~~
+
+Codex:
+
+~~~bash
+codex mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp
+~~~
+
+Claude Desktop, Cursor, Cline and Gemini CLI use an `mcpServers` entry:
+
+~~~json
+{
+  "mcpServers": {
+    "openbooks": {
+      "command": "npx",
+      "args": ["-y", "@lumeo_hq/openbooks-mcp"]
+    }
+  }
+}
+~~~
+
+`--root` lets the agent read files inside one folder. Add it with an absolute path, for example `"args": ["-y", "@lumeo_hq/openbooks-mcp", "--root", "/path/to/financial/files"]`. Leave it out and the server works only with the synthetic sample and small uploads sent inline.
+
+## 3. Check the engine
+
+Ask the agent to run the `doctor` operation first. If it reports that the engine is not installed, run this once and ask again:
+
+~~~bash
+npx -y @lumeo_hq/openbooks install-engine --scan
+~~~
+
+## 4. Know the two tools
+
+| Tool | Purpose |
+| --- | --- |
+| `search` | Lists the available operations. Pass `details: true` to see argument schemas. |
+| `execute` | Runs an ordered list of up to 8 steps. Each step has a unique `id`, an `operation` name and `arguments`. |
+
+The operations are `doctor`, `formats`, `process_sample`, `process_upload`, `process_file` (only when `--root` is set), `records` and `document`. `process_file` reads a relative path inside the root folder. `records` returns a bounded page of one collection from an earlier step, with at most 10 items per call. `document` returns the full JSON for an earlier step, subject to the response limit.
+
+## 5. Run a check
+
+This call verifies the built-in two-row sample. Supplying the opening balance is required for a release.
+
+~~~json
+{
+  "steps": [
+    {"id": "check", "operation": "process_sample", "arguments": {"opening": "1000.00"}},
+    {"id": "rows", "operation": "records", "arguments": {"from_step": "check", "collection": "transactions", "limit": 5}}
+  ]
+}
+~~~
+
+To verify a file in the root folder, use `process_file` with the same processing options:
+
+~~~json
+{
+  "steps": [
+    {"id": "verify", "operation": "process_file", "arguments": {"path": "statement.pdf", "currency": "INR", "date_order": "dmy", "opening": "1000.00"}},
+    {"id": "failed", "operation": "records", "arguments": {"from_step": "verify", "collection": "assertions", "limit": 10}}
+  ]
+}
+~~~
+
+In a chat, you can ask the agent: "verify statement.pdf and show any failed assertions." It then makes one `execute` call with these two steps.
+
+## 6. Limits
+
+- Files up to 2 GiB when read from `--root`. Text files (CSV, OFX, QFX, STA, MT940, TXT, XML) are limited to 64 MB.
+- Inline uploads through `process_upload` are limited to 1 MiB after base64 decoding. Use `--root` for anything larger.
+- Each `execute` response is capped at 48 KiB. Use `records` to page through long results instead of `document`.
+- The server runs at most two operations at a time. A call made while both slots are busy returns a `BUSY` error, so retry after the outstanding run finishes.
+
+See [supported formats and limits](/docs/supported-formats-and-limits) for the accepted extensions.
+
+## 7. Read the result
+
+A released document has `status: "ok"`, with `data`, `evidence` and `assertions`. A refused document has `status: "refused"`, `data: null` and an `error.code`. Pass the refusal code to your agent so it can explain the problem or ask for a corrected export. The codes are listed in [refusal handling](/docs/refusals), and the fields are described in the [JSON output contract](/docs/output-contract).
+
+Why a release means something is covered in [how verification works](/docs/how-verification-works).
+
+## Next steps
+
+- [Full MCP guide](/docs/mcp) for the complete operation reference and HTTP setup.
+- [Architecture and verification](/docs/architecture) for how the engine handles each request.
+- [Data handling](/docs/data-handling) for what happens to uploaded files.

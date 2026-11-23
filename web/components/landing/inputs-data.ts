@@ -11,9 +11,9 @@ export const INPUT_GROUPS: readonly InputGroup[] = [
   {
     id: "statements",
     title: "Bank statements",
-    inputs: ["CSV", "OFX / QFX", "MT940", "PDF (text layer)", "Scans (OCR)", "Wise statement"],
-    layouts: ["bank_csv.v1", "ofx.v1", "mt940.v1", "bank_statement_pdf.v1", "wise_statement.v1"],
-    extensions: [".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt", ".pdf", ".png", ".jpg", ".jpeg", ".xlsx"],
+    inputs: ["CSV", "OFX / QFX", "MT940", "CAMT.053 (XML)", "PDF (text layer)", "Scans (OCR)", "Wise statement"],
+    layouts: ["bank_csv.v1", "ofx.v1", "mt940.v1", "camt053.v1", "bank_statement_pdf.v1", "wise_statement.v1"],
+    extensions: [".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt", ".xml", ".pdf", ".png", ".jpg", ".jpeg", ".xlsx"],
     note: "Day-first dates are assumed for bank statements; you can set the order per file.",
   },
   {

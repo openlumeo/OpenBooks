@@ -5,6 +5,10 @@ description: Understand parsing providers, Decimal normalization, deterministic 
 
 The Python engine owns the document decision. The CLI, Node.js wrapper, web workspace, and MCP server give callers different ways to submit an input and inspect that decision.
 
+## When to use this
+
+Read this page when you need to know which component makes a decision, why a file was refused, or where a new layout belongs. For a first run, start with the [quickstart](/docs/quickstart). To list the layouts installed in your environment, run `python -m openbooks engine-info`.
+
 ## How a document is processed
 
 1. **Detection chooses the provider.** The engine examines the file type and content signatures, such as a CSV header or a structured balance record.
@@ -31,5 +35,16 @@ The Node.js wrappers validate the documents they receive and can restrict accept
 `openbooks.core` owns format detection, normalisation, validation and the provider registry. `openbooks.statements` handles bank files and the PDF/OCR front end. `openbooks.gateways` handles payment exports, `openbooks.tax` supplies tax and workpaper parsers, and `openbooks.doctor` reports install health.
 
 Providers are registered using Python distribution entry points such as `openbooks.layouts`, `openbooks.sniffers`, `openbooks.frontends`, and `openbooks.gates`. Install the package in editable mode when working from a checkout so Python can discover these entry points. Adding a layout requires both recognition rules for the input and a registered provider that can parse and verify it. Use `python -m openbooks engine-info` to inspect the installed layout IDs.
+
+## Common refusals and what they mean
+
+Each refusal names a code from the engine's decision. The architecture stage that produces it is listed here. The full retry guidance is on the [refusals page](/docs/refusals).
+
+- `UNKNOWN_LAYOUT`: detection found no layout, or a matched layout's provider is not registered. Check the install with `doctor`.
+- `UNSUPPORTED_INPUT`: the type, size, encoding or structure falls outside the supported inputs.
+- `PARSE_ERROR`: a required field, such as the opening balance, could not be read or interpreted.
+- `BALANCE_MISMATCH`: a verification check failed, or there was no independent balance evidence.
+- `LOW_CONFIDENCE`: the OCR or model-assisted reading was not confident enough.
+- `OUTPUT_INVALID`: the result failed contract validation.
 
 See the [engine HTTP API](/docs/engine-api), [model guide](/docs/model), and [MCP integration](/docs/mcp) for the other runtime paths.

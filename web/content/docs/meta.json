@@ -2,8 +2,8 @@
   "title": "Open Books developer docs",
   "pages": [
     "---Get started---", "index", "quickstart", "installation", "workspace",
-    "---Work with files---", "formats", "bank-statements", "payment-settlements", "tax-and-workpapers", "pdf-and-ocr",
-    "---Integrate Open Books---", "build-an-importer", "cli", "python", "node", "engine-api", "mcp",
-    "---Output and operations---", "output-contract", "refusals", "test-an-integration", "troubleshooting", "architecture", "model"
+    "---Work with files---", "formats", "supported-formats-and-limits", "camt053-mt940-ofx-field-map", "bank-statements", "payment-settlements", "tax-and-workpapers", "pdf-and-ocr",
+    "---Integrate Open Books---", "build-an-importer", "npm-cli-quickstart", "cli", "python", "node", "engine-api", "mcp", "mcp-quickstart-agents",
+    "---Output and operations---", "output-contract", "how-verification-works", "refusals", "test-an-integration", "troubleshooting", "data-handling", "architecture", "model"
   ]
 }

@@ -1,6 +1,6 @@
 ---
 title: Node.js and TypeScript
-description: Run the local Python engine from Node.js, integrate typed results and handle refusals separately from execution errors.
+description: Run the local Python engine from Node.js with typed results. Handle refusals as results, execution failures as EngineError, and validate each decision.
 ---
 
 Use these packages in a Node.js process with Python 3.11+ and `openbooks` installed. The wrapper starts a child process on the same machine, checks schema compatibility, and validates the result. Keep calls in your application server or job runner.

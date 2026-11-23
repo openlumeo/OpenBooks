@@ -1,0 +1,58 @@
+---
+title: How Open Books handles uploaded files
+description: What the Open Books server code does with uploaded statements, including the per-run temp directory, when files are deleted, and what the logs record.
+---
+
+Open Books copies each uploaded file into a temporary directory for one run, processes it, and deletes the copy when the run ends. The server code defines no retention period for uploads, and its log lines record request IDs, routes and timings rather than file names or contents.
+
+This page covers the Python server, the engine and the MCP server in this repository. It does not cover hosting infrastructure, reverse proxies or the Next.js web tier.
+
+## HTTP service uploads
+
+1. **Staging.** Each upload is copied into a new directory created with `tempfile.mkdtemp`, under the system temporary directory, with a prefix of `openbooks-run-`. Filenames are sanitised before they are written to disk. The caller's original name is kept in the output.
+2. **Size cut-off.** The copy stops reading after the 2 GiB limit plus one byte, so an oversized file is cut off at that point and then refused by the engine.
+3. **Per-file deletion.** After each file is processed, its staged copy is deleted.
+4. **Run cleanup.** The run's directory is removed in a `finally` block when processing ends, including when it fails or is cancelled. If staging fails, the directory is removed before the error is raised. A process that is killed hard does not run `finally` blocks, so a directory can remain after a crash.
+
+## Inside the engine
+
+Text inputs are read fully into memory as bytes. Spreadsheets, PDFs and images are read from their staged path. The engine returns a decision document for each file, and that document holds the input's SHA-256 hash and file name. Those values appear in the response you receive.
+
+## MCP server
+
+- `process_upload` decodes the base64 payload, writes it into a temporary directory and removes that directory when processing finishes.
+- `process_file` reads a file inside the `--root` folder in place. The code does not copy or delete it.
+- Inline uploads are limited to 1 MiB, and paths outside the root are rejected.
+
+## Logging
+
+The server logs one line per request with the request ID, method, route label, status and duration in milliseconds. Unexpected failures are logged with the request ID only. Metrics count requests by route and status. None of these log lines include file names or file contents.
+
+If `OPENBOOKS_ENGINE_KEY` is not set, the server logs a warning and accepts any caller that can reach it. Set the key whenever the engine listens on anything other than loopback.
+
+## Keeping files
+
+- The CLI writes proof documents to `--out` only when you pass that option. Those files stay where you put them.
+- The browser workspace keeps history and released outputs in the browser, as described in [architecture](/docs/architecture).
+- The server code keeps no upload store of its own. Uploads exist only in the run directory until processing ends.
+
+## What this page does not cover
+
+- How long a reverse proxy or host keeps request logs.
+- Where a hosted deployment stores data, or who can access it.
+- Whether any particular deployment sets `OPENBOOKS_ENGINE_KEY`.
+
+Check your own deployment for these points before you process sensitive statements.
+
+## Evidence
+
+- `server/openbooks_server/runs.py`: `Run.__init__` (temp directory), `Run.stage` (copy and size cut-off), `Run.execute` (per-file unlink and `finally` cleanup), `Run.cleanup`, `safe_name`.
+- `server/openbooks_server/app.py`: `_stage_uploads` (cleanup on staging failure), `post_runs`, and the `log.exception` call that logs the request ID.
+- `server/openbooks_server/middleware.py`: `_record`, the per-request log line.
+- `server/openbooks_server/auth.py`: `engine_key_from_env` and the warning when the key is unset.
+- `server/openbooks_server/jobs.py`: background job failure logging with request ID.
+- `packages/py/openbooks/src/openbooks/core/guard.py`: `read_text_input` (reads text inputs into memory) and the size checks.
+- `packages/py/openbooks/src/openbooks/core/process.py`: `process` (output includes the SHA-256 and file name).
+- `packages/js/mcp/src/operations.ts`: `withTempFile` (uploaded bytes are processed from a temporary directory).
+- `packages/js/cli/src/main.ts`: the `--out` option that writes `<sha256>.json` files.
+- `web/content/docs/architecture.mdx`: the browser-side history statement.

@@ -12,7 +12,7 @@ import { uid } from "@/lib/format";
 import { threadDocs, useWorkspace, type Workspace as WorkspaceState } from "@/lib/use-workspace";
 import type { RunParams, Sample } from "@/lib/types";
 
-const DEFAULT_MAX = 20 * 1024 * 1024;
+const DEFAULT_MAX = 2 * 1024 * 1024 * 1024;
 
 export function Workspace() {
   const ws = useWorkspace();

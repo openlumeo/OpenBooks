@@ -2,6 +2,7 @@
 
 import { ArrowRight, Download, Split, Square } from "lucide-react";
 import { LumeoMark } from "@/components/brand/lumeo-mark";
+import ThinkingState from "@/components/loading/thinking-state";
 import { RunCard } from "@/components/run-card/run-card";
 import { docText } from "@/components/run-card/json-tab";
 import { downloadText, fmtBytes, fmtTime, jsonFileName, paramSummary } from "@/lib/format";
@@ -79,6 +80,7 @@ export function RunView({
           <div>
             <h2 id={headingId}>Batch review</h2>
             <p className="mono-label">{turn.files.length} {turn.files.length === 1 ? "file" : "files"}{waiting ? ` · ${waiting} awaiting results` : ""}</p>
+            {turn.state === "running" && <ThinkingState className="batch-thinking" />}
           </div>
           {turn.state === "running" && (
             <button type="button" className="btn btn-ghost btn-xs" onClick={onStop}>

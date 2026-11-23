@@ -5,6 +5,10 @@ description: Upload bank statements, tax documents and payment settlements, revi
 
 [Open the workspace](/app) to process and review files in your browser. A batch groups files into one run. Each file still gets its own decision, so a refusal in one statement can appear alongside a release for another.
 
+## When to use this
+
+Use the workspace to check a few files by hand, review their checks and evidence, and download the decision. For batch imports from your own code, use [Python](/docs/python) or [Node.js](/docs/node).
+
 ## 1. Run two sample statements
 
 1. Open the sample picker and add **Bank statement CSV** and **Bank CSV without an opening balance**. The picker supplies the parameters configured for each fixture.
@@ -33,3 +37,16 @@ Check the [format matrix](/docs/formats), then attach the original exports. Open
 The hosted workspace processes uploads on the server and stores thread history in this browser. After a reload, you can review saved results, and a retry may ask for the original file again. Use [local Python](/docs/python) or [local MCP](/docs/mcp) if you need the extraction to run on your own machine.
 
 When Q&A is enabled, you can ask about released files in the current thread. Try asking which transactions contributed to a total and request the source records. Application code computes totals and counts. Answers can cite files or record IDs. Deployments with the optional linker can also report [payout matches](/docs/payment-settlements).
+
+## Common refusals and what they mean
+
+The refused card shows the code and message from the engine.
+
+- `PARSE_ERROR`: a required value, such as the opening balance, is missing or unreadable. Supply the verified value in **Params** and rerun.
+- `BALANCE_MISMATCH`: a check failed or no independent balance was found. Compare the file with the original export before retrying.
+- `UNKNOWN_LAYOUT`: no supported layout matched the file. Compare it with the [format matrix](/docs/formats).
+- `UNSUPPORTED_INPUT`: the file type, size or structure is not supported. Check whether a PDF is locked.
+- `LOW_CONFIDENCE`: the OCR or model reading was not confident enough. Review the scan quality and orientation.
+- `OUTPUT_INVALID`: the result failed contract validation. Keep the download for review.
+
+See the [refusals page](/docs/refusals) for the full list and retry guidance.

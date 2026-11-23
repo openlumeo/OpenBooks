@@ -41,7 +41,7 @@ export function DocArticle({ slug }: { slug: string[] }) {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Developer docs", item: siteUrl.href },
+          { "@type": "ListItem", position: 1, name: "Developer docs", item: new URL("/docs", siteUrl).href },
           { "@type": "ListItem", position: 2, name: page.data.title, item: new URL(page.url, siteUrl).href },
         ],
       }} />}

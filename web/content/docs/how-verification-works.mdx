@@ -1,0 +1,89 @@
+---
+title: How Open Books verifies a statement
+description: See the arithmetic checks behind a released bank statement, why a file is refused with BALANCE_MISMATCH, and what a passing check does not prove.
+---
+
+Open Books releases a bank statement only when every arithmetic check passes and at least one check uses independent evidence, such as a balance printed on the document. If a check fails, or the file has no independent balance, the result is a refusal with code `BALANCE_MISMATCH` and no data.
+
+## The statement checks
+
+The engine runs these checks on each statement batch. Each one appears in the released `assertions` array with its expected and computed values.
+
+| Check | Passes when |
+| --- | --- |
+| Opening + sum of transactions = closing | The opening balance plus the signed movements equals the closing balance. |
+| Running balance ties on every row | Each row's balance after the transaction equals the previous balance plus the signed amount. |
+| No-movement rows leave the balance unchanged | Rows that show a balance but no movement keep the same balance. |
+| Stated closing = last running balance | The closing balance printed on the document matches the last running balance. |
+| Account chain | Within one account, each statement's closing balance equals the next statement's opening balance. |
+
+If the document prints a total for a column, the engine also checks that the sum of that column equals the printed total.
+
+## Settlement checks
+
+Settlement files use these checks:
+
+| Check | Passes when |
+| --- | --- |
+| Sum of gross - sum of fees - sum of tax = sum of net | The row arithmetic adds up. |
+| Sum of net = payout | The net total matches the payout the document states. |
+
+## Independent evidence
+
+Every assertion is marked `independent: true` or `independent: false`. A check is independent when it compares against a figure the document prints. A check that depends on a derived opening balance is marked not independent. The CLI option `--allow-derived-opening` derives the opening from the first row, so the checks that use it provide no independent evidence.
+
+The engine requires two things before it releases a file:
+
+1. Every assertion passes.
+2. At least one assertion is independent.
+
+If either fails, the result is `BALANCE_MISMATCH`. The message lists each failed check with its expected and computed values.
+
+## A worked example
+
+The built-in sample has an opening balance of INR 1000.00, then movements of -100.00 and +50.00. The computed closing balance is 950.00. If the source prints a closing balance of 950.00, the closing check is independent and passes, so the sample is released. If the source prints 940.00, the check fails and the file is refused.
+
+Amounts are handled as exact decimals, not floating-point numbers.
+
+## Released or refused
+
+A released document contains the data, the evidence and the assertions:
+
+~~~json
+{
+  "schema_version": "openbooks.v1",
+  "status": "ok",
+  "file": { "sha256": "...", "name": "statement.csv", "detected_format": "...", "layout_version": "...", "method": "parser" },
+  "data": { "batches": [], "transactions": [] },
+  "evidence": {},
+  "assertions": [
+    { "id": "A1", "rule": "...", "expected": "950.00 INR", "computed": "950.00 INR", "passed": true, "independent": true }
+  ]
+}
+~~~
+
+A refused document has no data:
+
+~~~json
+{
+  "schema_version": "openbooks.v1",
+  "status": "refused",
+  "data": null,
+  "error": { "code": "BALANCE_MISMATCH", "message": "...", "file_sha256": "..." }
+}
+~~~
+
+Assertions are numbered A1, A2 and so on, in a fixed order. If a batch has no registered check, the engine refuses with `OUTPUT_INVALID` rather than releasing unchecked data.
+
+## What a passing check does not prove
+
+The checks show that the figures agree with each other and with any balance the document prints. They do not show that the document is genuine. A statement can add up correctly and still come from a wrong or altered source, so keep the original file and its source for review.
+
+The model cross-check is separate and optional. When it runs, the model identity is recorded in `file.model`, and it does not change the arithmetic result.
+
+## Next steps
+
+- [JSON output contract](/docs/output-contract) for every field in the document.
+- [Refusal codes](/docs/refusals) and how to act on each one.
+- [Architecture and verification](/docs/architecture) for the processing stages.
+- [Quickstart](/docs/quickstart) to run the sample yourself.

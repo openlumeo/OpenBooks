@@ -1,0 +1,56 @@
+---
+title: Supported file types and size limits
+description: Check which bank statement file types Open Books accepts, including CSV, OFX, MT940, PDF, PNG, JPG and XLSX, with exact size limits and text encoding rules.
+---
+
+Open Books accepts CSV, OFX, QFX, STA, MT940, TXT and CAMT.053 XML text files, PDF files, PNG, JPG and JPEG images, and XLSX workbooks. Any other extension is refused with `UNSUPPORTED_INPUT`, as are files over their size limit and text files that contain binary data or an unsupported encoding.
+
+## Accepted extensions
+
+| Extension | Kind | Notes |
+| --- | --- | --- |
+| `.csv` | Text | Bank statement CSV with recognised date, amount and balance columns. |
+| `.xml` | Text | ISO 20022 CAMT.053 statements (layout `camt053.v1`), recognised by a `BkToCstmrStmt` element. See the [field map](/docs/camt053-mt940-ofx-field-map). |
+| `.ofx`, `.qfx` | Text | OFX content. Supply the opening balance. |
+| `.sta`, `.mt940`, `.txt` | Text | SWIFT MT940 text. The layout is detected from the content. |
+| `.pdf` | Document | Text-layer or scanned statement. |
+| `.png`, `.jpg`, `.jpeg` | Document | Images need OCR. |
+| `.xlsx` | Workbook | Must contain exactly one sheet that matches a supported layout. |
+
+The layout IDs and provider requirements are in the [format matrix](/docs/formats).
+
+## Size limits
+
+| Limit | Value | Applies to |
+| --- | --- | --- |
+| Any input file | 2 GiB (2,147,483,648 bytes) | Every accepted extension. |
+| Text input | 64 MiB (67,108,864 bytes) | `.csv`, `.ofx`, `.qfx`, `.sta`, `.mt940`, `.txt`, `.xml`. |
+| Inline MCP upload | 1 MiB after base64 decoding | `process_upload` in the [MCP server](/docs/mcp-quickstart-agents). Use `--root` for larger files. |
+| Proof document output | 64 MiB by default | The CLI `--max-document-bytes` option. This caps output size, not input size. |
+
+Hosted services and reverse proxies can impose smaller request limits than the engine. Check your deployment before you upload large files.
+
+## Text encoding
+
+A text file is read in 1 MiB chunks. If any chunk contains a NUL byte, the file is refused as binary content. The text must then decode as UTF-8 (with or without a byte order mark) or Windows-1252. Other encodings are refused with `UNSUPPORTED_INPUT`.
+
+## PDFs and scanned images
+
+- A PDF with a text layer needs only the base engine. Select an amount in the PDF to check: if it selects as text, the text layer is present.
+- A scanned PDF, PNG or JPG needs OCR. Install the scan extra with `pip install "openbooks[scan]"` or `openbooks install-engine --scan`.
+- The CLI flag `--no-ocr` refuses scans instead of running OCR.
+
+See [bank PDFs and OCR](/docs/pdf-and-ocr) for the full setup.
+
+## Not accepted
+
+- Any extension not in the table. A `.xml` file is accepted only when it is a CAMT.053 statement; other XML is refused with `PARSE_ERROR` or `UNSUPPORTED_INPUT`.
+- Word documents, `.xls` workbooks and other spreadsheet formats. Only `.xlsx` is accepted.
+
+## Before you run a file
+
+1. Confirm the extension is in the table above and the file is within its size limit.
+2. Supply `--currency`, `--opening` and `--date-order` when the file does not state them and you know the values from the source.
+3. Run one representative file, then read the result. A refusal names the code and the reason. See [refusal handling](/docs/refusals).
+
+Start with the [quickstart](/docs/quickstart) if you have not run a file before.

@@ -9,7 +9,9 @@
     "build": "next build",
     "start": "next start -p 3000",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "seo:check": "node ../scripts/seo/check.mjs --base http://localhost:3000",
+    "seo:indexnow": "node ../scripts/seo/indexnow.mjs"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",

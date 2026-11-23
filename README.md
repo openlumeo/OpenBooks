@@ -1,5 +1,7 @@
 # Open Books
 
+Open Books returns one proven JSON document per financial file, or a typed refusal that names the reason. It reads bank statements, payment-gateway exports, Indian tax documents and Excel workpapers, and releases a result only when the file's own arithmetic balances.
+
 **Turn financial files into one proven JSON document per file, or a typed refusal. Never a partial or guessed result.**
 
 Open Books reads bank statements (CSV, OFX, MT940, PDF, scans), payment-gateway settlements, Indian tax documents and Excel workpapers. It normalises them to a canonical schema and then **proves** the result with balance checks. If the numbers do not tie out, or the layout is unknown, it refuses with a typed error and writes nothing.
@@ -236,3 +238,10 @@ Training knobs include `--alpha`, `--device`, `OB_SEED`, `OB_LOSS` (`ce`, `ls`, 
 ## License
 
 No license has been chosen yet. Until one is added, all rights are reserved.
+
+## Links
+
+- Developer docs: https://openbooks.lumeo.co.in/docs
+- MCP server for AI agents: https://openbooks.lumeo.co.in/docs/mcp (npm package `@lumeo_hq/openbooks-mcp`)
+- Python package: `openbooks` on PyPI; CLI: `@lumeo_hq/openbooks` on npm
+- Source: https://github.com/Sagexd08/OpenBooks

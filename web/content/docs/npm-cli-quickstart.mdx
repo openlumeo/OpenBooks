@@ -1,0 +1,82 @@
+---
+title: Install and run the openbooks npm CLI
+description: Install @lumeo_hq/openbooks with npm, run a first bank statement check, and use the CLI flags, exit codes and JSON output in scripts.
+---
+
+Install the CLI with `npm install -g @lumeo_hq/openbooks`, then run `openbooks statement.csv --currency INR --opening 1000.00`. The command prints one result per file and exits with `0` only when every file is released.
+
+## Requirements
+
+- Node.js 20 or newer.
+- Python 3.11 or newer for the engine. The npm install hook installs the Python engine, including OCR and PyTorch, which is a large download.
+
+## 1. Install and check the machine
+
+~~~sh
+npm install -g @lumeo_hq/openbooks
+openbooks doctor
+~~~
+
+`openbooks doctor` checks Node, Python, the engine, providers and model integrity. Add `--deep` to also import PyTorch and load the model.
+
+If the install hook was skipped, or you set `OPENBOOKS_SKIP_PYTHON=1`, run `openbooks install-engine --scan` to install the engine. If your system Python refuses global installs, create a `.venv` in your project and run that command from the same directory.
+
+## 2. Run a file
+
+~~~sh
+openbooks statement.csv --currency INR --opening 1000.00
+~~~
+
+`run` is the default command, so this is the same as `openbooks run statement.csv ...`. Use the layout-specific commands to restrict what is accepted:
+
+~~~sh
+openbooks statements run statement.csv --currency INR --opening 1000.00
+openbooks gateways run stripe.csv
+openbooks tax run form26as.pdf
+~~~
+
+`gateways run` accepts only payment gateway layouts, and anything else is refused.
+
+## 3. Flags
+
+| Flag | Meaning |
+| --- | --- |
+| `--currency <code>` | Currency, if the file does not state one. |
+| `--opening <amount>` | Opening balance as a plain decimal such as `1000.00`, if the file does not state one. |
+| `--account <number>` | Account number to use. |
+| `--allow-derived-opening` | Derive the opening balance from the first row. This is not independent evidence. |
+| `--date-order dmy\|mdy` | Day or month first for numeric dates. |
+| `--model` / `--no-model` | Cross-check PDFs and scans with the typed model heads, or skip the cross-check. |
+| `--no-ocr` | Refuse scans instead of running OCR. |
+| `--out <dir>` | Also write each document into this directory, named `<sha256>.json`. |
+| `--json` | Print the results as a JSON array instead of one line per file. |
+| `--python <path>` | The Python interpreter that has Open Books installed. Defaults to `OPENBOOKS_PYTHON`, then `./.venv`, then the system Python. |
+| `--timeout <ms>` | Stop the engine after this many milliseconds. Default 120000. |
+| `--max-document-bytes <bytes>` | Maximum size of each proof document. Default 67108864. |
+
+Run `openbooks doctor --json` to get a machine-readable health report.
+
+## 4. Automate a run
+
+~~~sh
+openbooks statements run statement.csv --currency INR --opening 1000.00 \
+  --date-order dmy --max-document-bytes 67108864 --out ./proofs --json
+~~~
+
+`--json` prints a result array to stdout. `--out` writes each document to a file named by its SHA-256 hash. Reusing the output directory replaces the result for identical input bytes, so use separate directories to compare runs with different settings.
+
+## 5. Exit codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Everything was released. |
+| `1` | At least one file was refused. |
+| `2` | Usage error, such as an invalid flag value. |
+| `3` | The engine could not run. |
+
+## Next steps
+
+- [CLI command reference](/docs/cli) for the full command list and troubleshooting.
+- [Installation](/docs/installation) for the Python engine and OCR setup.
+- [Supported formats and limits](/docs/supported-formats-and-limits) before you choose a file.
+- [Node.js and TypeScript](/docs/node) if you want to call the engine from code instead of the shell.

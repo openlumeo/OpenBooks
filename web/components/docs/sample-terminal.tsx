@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import ThinkingState from "@/components/loading/thinking-state";
 import { runFiles } from "@/lib/engine-client";
 import type { EngineDoc } from "@/lib/types";
 
@@ -72,7 +73,7 @@ export function SampleTerminal() {
         <button type="button" disabled={busy} onClick={() => void execute(releaseCommand)}>Run with opening</button>
       </div>
       {lastCommand && <code className="ob-terminal-command">$ {lastCommand}</code>}
-      <p role="status">{status}</p>
+      {busy ? <ThinkingState verbs={["Reading", "Reconciling", "Cross-checking", "Proving"]} /> : <p role="status">{status}</p>}
       {output && (
         <pre tabIndex={0} aria-label="Open Books engine JSON output"><code>{JSON.stringify(output, null, 2)}</code></pre>
       )}

@@ -12,10 +12,11 @@ export const metadata: Metadata = {
   metadataBase: siteUrl,
   title: { default: "Open Books by Lumeo", template: "%s | Open Books" },
   description:
-    "Open Books turns bank statements, payment settlements, tax documents and workpapers into one proven JSON per file, or a typed refusal that says why. Available as a CLI, npm and Python packages, and an MCP server.",
+    "Open Books turns bank statements, settlements and tax documents into JSON only when its arithmetic proves it, or a typed refusal that says why.",
   applicationName: "Open Books",
   keywords: [
     "bank statement parser",
+    "CAMT.053 parser",
     "financial document extraction",
     "bank statement to JSON",
     "OCR bank statements",

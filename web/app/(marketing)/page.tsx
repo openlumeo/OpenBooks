@@ -17,7 +17,7 @@ const description =
   "Open Books releases a financial file only when its own arithmetic proves it. Anything else comes back as a typed refusal that says why.";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Open Books by Lumeo",
+  title: "Bank statement to verified JSON | Open Books",
   description,
   path: "/",
 });
@@ -40,6 +40,24 @@ export default function LandingPage() {
         <FinalCta />
       </main>
       <SiteFooter />
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Lumeo",
+          url: siteUrl.href,
+          sameAs: ["https://github.com/Sagexd08/OpenBooks", "https://www.npmjs.com/package/@lumeo_hq/openbooks"],
+        }}
+      />
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Open Books by Lumeo",
+          alternateName: "Open Books",
+          url: siteUrl.href,
+        }}
+      />
       <StructuredData
         data={{
           "@context": "https://schema.org",

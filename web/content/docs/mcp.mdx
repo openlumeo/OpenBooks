@@ -1,15 +1,20 @@
 ---
 title: MCP for AI agents
-description: Download and install the Open Books Model Context Protocol server to verify financial files with an AI agent and inspect the evidence in one batched call.
+description: "Run the Open Books MCP server with npx to verify bank statements and tax files with an AI agent, then inspect the proof in one batched call."
 ---
 
-Model Context Protocol (MCP) lets an AI client call tools supplied by another program. The Open Books MCP server lets a compatible client run the Python engine and retrieve decisions, records, and proof for financial files. Choose the setup path that matches what you want to do.
+Model Context Protocol (MCP) lets an AI client call tools supplied by another program. The Open Books MCP server, published as the npm package `@lumeo_hq/openbooks-mcp`, lets a compatible client check a financial file and read the proof behind the decision. Choose the setup path that matches what you want to do.
 
 | Goal | Start here |
 | --- | --- |
 | Verify that your client can connect | Use the connection test below. |
-| Process files from a folder you control | Install the local server and connect over stdio, where the client starts the server as a subprocess. |
-| Send uploads to a private shared server | Use Streamable HTTP with a bearer token. |
+| Process files from a folder you control | Run the server over stdio with `--root`, so the client starts it as a subprocess. |
+| Send uploads to a private shared service | Run Streamable HTTP with a bearer token, bound to localhost. |
+
+## Requirements
+
+- Node.js 20 or newer, for `npx`.
+- Python 3.11 or newer on the same machine. The verification engine is Python, and the npm packages provision it. Python is a current prerequisite of the engine; you do not install the server with pip.
 
 ## Test your client's connection
 
@@ -21,66 +26,79 @@ The setup endpoint confirms connectivity. Install the full server to process fin
 
 <AgentOnboarding />
 
-## 1. Install the local server
+## 1. Start the server
 
-[Download the Open Books MCP wheel](/downloads/openbooks_mcp-0.1.0-py3-none-any.whl) · [SHA-256 checksum](/downloads/openbooks_mcp-0.1.0-py3-none-any.whl.sha256)
-
-Use Python 3.11 or newer. Create a virtual environment and install the downloaded wheel, or use the release URL in the command below. A wheel is a packaged Python distribution.
+The server runs on demand, so there is nothing to install globally:
 
 ~~~bash
-python -m venv .openbooks-mcp
-# macOS and Linux
-source .openbooks-mcp/bin/activate
-# PowerShell uses: .\.openbooks-mcp\Scripts\Activate.ps1
-python -m pip install https://openbooks.lumeo.co.in/downloads/openbooks_mcp-0.1.0-py3-none-any.whl
-python -m openbooks_mcp --version
+npx -y @lumeo_hq/openbooks-mcp
 ~~~
 
-The version command should print the installed server version. For [scans or model checks](/docs/pdf-and-ocr), install the optional extras into the same environment.
+On first use, ask the agent to run the `doctor` operation. It reports whether the Python engine is available. If it is not, run the engine setup once and then check again:
 
 ~~~bash
-python -m pip install "openbooks-mcp[scan] @ https://openbooks.lumeo.co.in/downloads/openbooks_mcp-0.1.0-py3-none-any.whl"
+npx -y @lumeo_hq/openbooks install-engine --scan
 ~~~
 
 ## 2. Connect an MCP client
 
-Create a dedicated directory for inputs and put a synthetic file there for your first run. For clients that use an `mcpServers` configuration, replace both absolute paths in the following example. Point `command` to the virtual environment's Python and `--root` to your existing input folder. On Windows, the interpreter is under `Scripts/python.exe`. You can use forward slashes in JSON paths, for example `C:/Projects/.openbooks-mcp/Scripts/python.exe`.
+Add the server with your client's command. Claude Code:
+
+~~~bash
+claude mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp
+~~~
+
+Codex:
+
+~~~bash
+codex mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp
+~~~
+
+Claude Desktop, Cursor, Cline and Gemini CLI use an `mcpServers` entry:
 
 ~~~json
 {
   "mcpServers": {
     "openbooks": {
-      "command": "/absolute/path/.openbooks-mcp/bin/python",
-      "args": ["-m", "openbooks_mcp", "--root", "/absolute/path/financial-inbox"]
+      "command": "npx",
+      "args": ["-y", "@lumeo_hq/openbooks-mcp"]
     }
   }
 }
 ~~~
 
-For Claude Code, register the same launch command.
+To let the agent read files from one folder, add `--root` and an absolute path to your input folder. Create a dedicated folder and put a synthetic file there for your first run.
 
-~~~bash
-claude mcp add openbooks -- /absolute/path/.openbooks-mcp/bin/python -m openbooks_mcp --root /absolute/path/financial-inbox
+~~~json
+{
+  "mcpServers": {
+    "openbooks": {
+      "command": "npx",
+      "args": ["-y", "@lumeo_hq/openbooks-mcp", "--root", "/absolute/path/financial-inbox"]
+    }
+  }
+}
 ~~~
 
-Restart the MCP client and check that it lists `search` and `execute`. Start with the synthetic sample. Omit `--root` to use just samples and uploaded bytes. The MCP client may send tool responses to its model provider. Check your client's data settings before exposing financial records.
+Restart the MCP client and check that it lists `search` and `execute`. Start with the synthetic sample; without `--root` the server works with the sample and inline uploads only. The MCP client may send tool responses to its model provider, so check your client's data settings before exposing financial records.
 
 ## 3. Discover and run operations
 
-`search` returns operation names and descriptions for a keyword. For example, send `{"query":"sample","details":true}` to get the operation and its argument schema. Then pass named steps to `execute`. A step that retrieves records points to a preceding processing step by ID. This follows a discovery-and-execution pattern. [Cloudflare Code Mode](https://blog.cloudflare.com/code-mode-mcp/)
+`search` returns operation names and descriptions for a keyword. For example, send `{"query":"sample","details":true}` to get the operation and its argument schema. Then pass named steps to `execute`. A step that reads records points to an earlier processing step by its ID.
 
 | Operation | What it returns |
 | --- | --- |
+| `doctor` | Engine status, with the install command if the engine is missing. |
 | `formats` | Installed layouts, supported extensions, engine contract and file limits. |
 | `process_sample` | Release or refusal summary for a synthetic bank CSV. |
-| `process_file` | A decision for a path relative to the approved local folder. Available with `--root` over stdio. |
 | `process_upload` | A decision for up to 1 MiB of standard base64 file bytes. |
-| `records` | A page of the specified collection from an earlier successful processing step. |
-| `document` | The entire release or refusal document from an earlier processing step, subject to the response limit. |
+| `process_file` | A decision for a path relative to the `--root` folder. Available only with `--root`. |
+| `records` | A page of one collection from an earlier processing step. |
+| `document` | The full release or refusal document from an earlier processing step, subject to the response limit. |
 
 ### Process and inspect a statement in one call
 
-Send these arguments to `execute`. It processes two versions of the sample and reads the released batch balance and verification assertions in the same call.
+Send these arguments to `execute`. It processes two versions of the sample and reads the batch balance and verification assertions in the same call.
 
 ~~~json
 {
@@ -93,7 +111,7 @@ Send these arguments to `execute`. It processes two versions of the sample and r
 }
 ~~~
 
-The first outcome is a `PARSE_ERROR` refusal. The second releases two transactions and the balance record shows a `950.00` INR closing amount. Each successful processing operation starts with a compact summary. Use `records` with `offset` and `limit` to retrieve only the needed items. For evidence, use `prefix` to match a record ID such as `txn-00001.`.
+The first step is refused with a `PARSE_ERROR` because the opening balance is missing. The second releases the sample, and the balance record shows the closing amount. Use `records` with `offset` and `limit` to retrieve only the items you need. For evidence, use `prefix` to match a record ID such as `txn-00001.`.
 
 ### Process a local export
 
@@ -114,25 +132,45 @@ The first outcome is a `PARSE_ERROR` refusal. The second releases two transactio
 }
 ~~~
 
-One batch accepts up to eight uniquely named steps. Documents referenced by `from_step` are held for the current batch. Results retain the engine's exact decimal strings. A document refusal appears inside a result. An operation error such as `INVALID_PATH` or `RESPONSE_LIMIT` appears as an error on the affected step. HTTP uses a 2 MiB request limit and batched output is bounded to 48 KiB.
+One batch accepts up to eight uniquely named steps. Documents referenced by `from_step` are held for the current batch. Results keep the engine's exact decimal strings. A document refusal appears inside its result. An operation error such as `INVALID_PATH` or `RESPONSE_LIMIT` appears on the affected step.
+
+## Resources and prompts
+
+The server also exposes three resources: `openbooks://schema/released` (the released document schema), `openbooks://guide/refusals` (refusal codes and fixes) and `openbooks://samples/statement.csv` (the synthetic sample). It provides three prompts: `verify_document`, `explain_refusal` and `try_sample`.
 
 ## Troubleshoot a connection or tool call
 
 | Symptom | Check |
 | --- | --- |
-| The client cannot start the server | Run the configured interpreter with `-m openbooks_mcp --version` and verify that the client config points to that interpreter. |
-| The client lists tools but `process_file` is missing | Use stdio with an existing directory passed to `--root`. |
-| `INVALID_PATH` | Pass a path relative to the approved folder, such as `january.csv`. |
-| `RESPONSE_LIMIT` | Use `records` with a smaller `limit` instead of retrieving the entire document. |
+| The client cannot start the server | Run `npx -y @lumeo_hq/openbooks-mcp` in a terminal and confirm Node.js 20 or newer with `node --version`. |
+| `doctor` reports the engine is missing | Run `npx -y @lumeo_hq/openbooks install-engine --scan` and confirm Python 3.11 or newer is installed. |
+| The client lists tools but `process_file` is missing | Start the server with `--root` pointing to an existing folder. |
+| `INVALID_PATH` | Pass a path relative to the `--root` folder, such as `january.csv`. |
+| `RESPONSE_LIMIT` | Use `records` with a smaller `limit` instead of `document`. |
+| `BUSY` | Two runs are already active. Retry when one finishes. |
 | The document returns `PARSE_ERROR` | Read the document's message and follow the [refusal guide](/docs/refusals). |
+
+## Limits
+
+- Local files read through `--root` can be up to 2 GiB. Text files (CSV, OFX, QFX, STA, MT940, TXT, XML) are limited to 64 MB.
+- Inline uploads through `process_upload` are limited to 1 MiB after base64 decoding. Use `--root` for larger files.
+- Each `execute` response is capped at 48 KiB. Page through long results with `records`.
+- One batch runs at most 8 steps. The server runs at most two operations at a time; a call made while both are busy returns `BUSY`.
+
+See [supported formats and limits](/docs/supported-formats-and-limits) for accepted extensions.
 
 ## Private HTTP transport
 
-Use Streamable HTTP for an organisation-managed service. Run it with `OPENBOOKS_MCP_TOKEN` set to a high-entropy secret. It listens on loopback, requires that token as an `Authorization: Bearer …` header, and supports in-memory uploads and the synthetic sample. Connect using a private SSH tunnel or an authenticated TLS gateway managed by your organisation.
+Use Streamable HTTP for a service on one machine. Set `OPENBOOKS_MCP_TOKEN` to a random value of at least 32 ASCII characters, then start the server:
 
 ~~~bash
-python -m openbooks_mcp --transport streamable-http
+OPENBOOKS_MCP_TOKEN="<at least 32 ASCII characters>" npx -y @lumeo_hq/openbooks-mcp --http --port 8791
+~~~
+
+The server listens on localhost only. Clients send the token in an `Authorization: Bearer` header. To reach it from another machine, use a private SSH tunnel or an authenticated TLS gateway that you manage:
+
+~~~bash
 ssh -N -L 8791:127.0.0.1:8791 developer@your-vps
 ~~~
 
-Configure the MCP client for Streamable HTTP at `http://127.0.0.1:8791/mcp` and supply the bearer token via its secret store. The base installation handles structured files and text-layer PDFs. The local engine's `scan` extra adds the OCR and model runtime on deployments where those resources are available.
+Keep the token in your client's secret store and never commit it to a repository.

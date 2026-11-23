@@ -1,6 +1,6 @@
 ---
 title: Model-assisted document checks
-description: Learn how local role inference, calibrated abstention and model hashes work when processing PDF and scanned statements.
+description: "Optional local model cross-checks PDF and scan words: it predicts column roles and value types, abstains when ambiguous, and records model hashes."
 ---
 
 The optional model adds a cross-check for PDF and image processing. It runs locally in the Python engine with the `scan` extra. A token is a word or other extracted text item with a position on the page. The model uses the token's text, shape, and bounding box to make two predictions.

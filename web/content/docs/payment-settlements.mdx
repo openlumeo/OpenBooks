@@ -5,6 +5,10 @@ description: Check gateway settlement arithmetic and payout totals with Open Boo
 
 Payment providers collect money, deduct fees, and send payouts to a bank account. A settlement export explains how the provider arrived at a payout. Open Books checks the arithmetic within the export. Matching that payout to the receiving bank statement is a second step.
 
+## When to use this
+
+Use this page when a gateway payout must be proven from its settlement export, or when a payout must be matched to a bank credit. For bank statements alone, see [bank statements](/docs/bank-statements).
+
 ## 1. Export the settlement detail
 
 Choose the provider's balance or settlement report for the payout you want to verify. Keep the original headers, transaction identifiers, fee columns, and payout totals. See the [format matrix](/docs/formats) for recognized Stripe, Razorpay, PayPal, and Wise layouts.
@@ -42,3 +46,11 @@ Try **Razorpay settlement** and **Stripe export, payout off by 0.01** in the [wo
 Open Books' optional source-checkout linker applies exact amounts, same currency and a date window. It can report ties and grouped payouts. Check `link_available` in engine health before using [`POST /v1/link`](/docs/engine-api).
 
 PayPal activity and Wise statement layouts follow publicly documented export formats and have been exercised on synthetic files. Verify representative exports before scheduling imports.
+
+## Common refusals and what they mean
+
+- `BALANCE_MISMATCH`: the payout or row arithmetic in the export does not match its computed value. The Stripe sample refuses for this reason, with a 0.01 difference. Trace the payout total and the rows it sums.
+- `PARSE_ERROR`: a required amount, date or currency could not be read. Check the headers and the fee columns.
+- `UNKNOWN_LAYOUT`: the export does not match a layout accepted by the gateway wrapper. Compare it with the [format matrix](/docs/formats).
+
+See the [refusals page](/docs/refusals) for the full list and retry guidance.

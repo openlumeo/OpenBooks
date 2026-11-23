@@ -1,0 +1,88 @@
+---
+title: CAMT.053 field map and parser reference
+description: Map CAMT.053 (ISO 20022) fields to MT940 and OFX, with a minimal valid statement, the command to run it and the conditions that refuse a file.
+---
+
+Open Books supports CAMT.053 (ISO 20022 XML) bank statements as layout `camt053.v1`. Files with the `.xml` extension are routed to this parser when the document contains a `BkToCstmrStmt` element. This page lists the CAMT.053 elements the parser reads, shows how they line up with MT940 and OFX, and gives a sample to run.
+
+## Field map
+
+| Generic field | CAMT.053 (read by the parser) | MT940 | OFX |
+| --- | --- | --- | --- |
+| Account identifier | `Stmt/Acct/Id/IBAN`, or `Stmt/Acct/Id/Othr/Id` when no IBAN is present | `:25:` | `BANKACCTFROM` (`BANKID`, `ACCTID`) |
+| Statement reference | `Stmt/Id` | `:20:` transaction reference, and `:28C:` statement number | No equivalent element |
+| Currency | `Ccy` on `Acct`, and the `Ccy` attribute on each `Amt` | Currency code inside `:60F:`, `:62F:` and `:64:` | `CURDEF` |
+| Opening balance | `Bal` with type code `OPBD` or `PRCD` | `:60F:`, or `:60M:` for an intermediate balance | No opening balance element |
+| Closing balance | `Bal` with type code `CLBD` | `:62F:`, or `:62M:` for an intermediate balance | `LEDGERBAL` (`BALAMT`, `DTASOF`) |
+| Balance sign | `CdtDbtInd` on the balance: `CRDT` is positive, `DBIT` is negative | `C` or `D` mark | Sign of `BALAMT` |
+| Balance date | `Bal/Dt/Dt` | Date in `:60F:` and `:62F:` | `DTASOF` |
+| Transaction entry | `Ntry`, booked only (`Sts` is `BOOK`, or absent) | `:61:` statement line | `STMTTRN` |
+| Booking date | `Ntry/BookgDt/Dt` | Entry date in `:61:` | `DTPOSTED` |
+| Amount | `Ntry/Amt`, unsigned and positive | Amount in `:61:`, with a comma decimal mark | `TRNAMT`, signed |
+| Direction | `Ntry/CdtDbtInd` (`CRDT` or `DBIT`). `RvslInd` of `true` flips it. | `D` or `C` in `:61:`. `RD` and `RC` mark reversals. | Sign of `TRNAMT` |
+| Bank reference | `Ntry/AcctSvcrRef` | After `//` in `:61:` | `FITID` |
+| Customer reference | `Ntry/NtryDtls/TxDtls/Refs/EndToEndId`, used when `AcctSvcrRef` is absent | Before `//` in `:61:` | `REFNUM`, optional |
+| Narrative | `TxDtls/RmtInf/Ustrd` lines, otherwise `Ntry/AddtlNtryInf` | `:86:`, free text | `NAME` and `MEMO` |
+
+Dates in CAMT.053 are ISO dates (`YYYY-MM-DD`). Amounts are decimal text with a point, and the sign is carried by `CdtDbtInd`, as in the table above.
+
+## Sample statement
+
+This is a minimal valid statement. It has one account, an opening balance (`OPBD`), a closing balance (`CLBD`) and two booked entries, one credit and one debit.
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+  <BkToCstmrStmt>
+    <Stmt>
+      <Id>S1</Id>
+      <Acct><Id><IBAN>DE89370400440532013000</IBAN></Id><Ccy>EUR</Ccy></Acct>
+      <Bal><Tp><CdOrPrtry><Cd>OPBD</Cd></CdOrPrtry></Tp><Amt Ccy="EUR">1000.00</Amt><CdtDbtInd>CRDT</CdtDbtInd><Dt><Dt>2025-01-01</Dt></Dt></Bal>
+      <Bal><Tp><CdOrPrtry><Cd>CLBD</Cd></CdOrPrtry></Tp><Amt Ccy="EUR">1150.50</Amt><CdtDbtInd>CRDT</CdtDbtInd><Dt><Dt>2025-01-31</Dt></Dt></Bal>
+      <Ntry><Amt Ccy="EUR">200.00</Amt><CdtDbtInd>CRDT</CdtDbtInd><Sts>BOOK</Sts><BookgDt><Dt>2025-01-05</Dt></BookgDt>
+        <AcctSvcrRef>REF1</AcctSvcrRef><NtryDtls><TxDtls><RmtInf><Ustrd>Invoice 42</Ustrd></RmtInf></TxDtls></NtryDtls></Ntry>
+      <Ntry><Amt Ccy="EUR">49.50</Amt><CdtDbtInd>DBIT</CdtDbtInd><Sts>BOOK</Sts><BookgDt><Dt>2025-01-20</Dt></BookgDt>
+        <AddtlNtryInf>Card payment</AddtlNtryInf></Ntry>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>
+~~~
+
+The opening balance plus the signed entries (1000.00 + 200.00 - 49.50) gives the closing balance of 1150.50, which is the check Open Books runs before it releases the document.
+
+## Run it
+
+~~~sh
+openbooks run sample_camt.xml
+~~~
+
+The command prints one line per file. For this sample it prints `sample_camt.xml: ok -> <sha256>.json`. Add `--out ./proofs` to keep the proof document.
+
+## What makes a file refused
+
+A CAMT.053 file is refused with `PARSE_ERROR` when any of these hold:
+
+- The XML is not well-formed.
+- The file contains a DOCTYPE or entity declaration. These are refused before parsing.
+- There is no `BkToCstmrStmt` element, or it contains no `Stmt`.
+- A statement has no account identifier.
+- A statement has no `OPBD` or `PRCD` opening balance, or no `CLBD` closing balance.
+- The currency changes inside a statement.
+- An amount or a date is missing or unreadable, or an amount has no `Ccy` attribute.
+- An entry's currency differs from the account currency.
+- An amount is zero or negative. The direction comes from `CdtDbtInd`, not from the sign.
+- No entry is booked. Entries whose `Sts` is not `BOOK` are skipped, not refused.
+
+A text file over 64 MiB is refused with `UNSUPPORTED_INPUT`, because `.xml` is a text-type extension. Documents of up to 2 GiB are accepted in other formats. See [supported file types and size limits](/docs/supported-formats-and-limits).
+
+## How Open Books handles these formats
+
+- MT940 is read as `mt940.v1`, and OFX and QFX as `ofx.v1`. CAMT.053 is read as `camt053.v1`.
+- OFX has no opening balance element, so the opening balance must be supplied with `--opening`.
+- Multiple `Stmt` elements in one document are supported. Each becomes its own batch.
+- The opening plus signed movements check is described in [how verification works](/docs/how-verification-works).
+
+## Next steps
+
+- [Supported formats and layouts](/docs/formats) for the Open Books layout IDs.
+- [Supported file types and size limits](/docs/supported-formats-and-limits) for extensions and limits.
