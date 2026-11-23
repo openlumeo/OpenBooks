@@ -307,7 +307,7 @@ def test_engine_info_lists_every_known_layout_and_the_contract(capsys):
     assert rc == 0 and info["schema_version"] == "openbooks.v1"
     ids = {x["id"] for x in info["known_layouts"]}
     assert ids == {"stripe_balance.v1", "razorpay_settlement.v1", "paypal_activity.v1", "wise_statement.v1", "form_1099b.v1", "tds_26as.v1",
-                   "ais.v1", "fira.v1", "bank_csv.v1", "trial_balance.v1", "ofx.v1", "mt940.v1"}, ids
+                   "ais.v1", "fira.v1", "bank_csv.v1", "bank_csv_signed.v1", "trial_balance.v1", "ofx.v1", "mt940.v1", "camt053.v1"}, ids
 
 
 def test_a_workbook_without_openpyxl_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch, capsys):

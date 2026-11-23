@@ -28,6 +28,7 @@ openbooks-doctor = "openbooks.doctor.cli:main"
 # The built-in providers register through the same entry points a third-party plugin would use, so the registry treats them alike.
 [project.entry-points."openbooks.layouts"]
 "bank_csv.v1" = "openbooks.statements.parsers:parse_bank_csv"
+"bank_csv_signed.v1" = "openbooks.statements.parsers:parse_bank_csv_signed"
 "stripe_balance.v1" = "openbooks.gateways.parsers:parse_stripe"
 "razorpay_settlement.v1" = "openbooks.gateways.parsers:parse_razorpay"
 "paypal_activity.v1" = "openbooks.gateways.parsers:parse_paypal"
@@ -41,6 +42,7 @@ openbooks-doctor = "openbooks.doctor.cli:main"
 [project.entry-points."openbooks.sniffers"]
 "ofx.v1" = "openbooks.statements.parsers:parse_ofx"
 "mt940.v1" = "openbooks.statements.parsers:parse_mt940"
+"camt053.v1" = "openbooks.statements.parsers:parse_camt053"
 
 [project.entry-points."openbooks.frontends"]
 document = "openbooks.statements.frontend:FRONTEND"

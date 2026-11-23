@@ -10,12 +10,13 @@ from openbooks.core.errors import PluginLoadError
 from openbooks.core.gates import run_gate
 
 ORDER = ["stripe_balance.v1", "razorpay_settlement.v1", "paypal_activity.v1", "wise_statement.v1", "form_1099b.v1",
-         "tds_26as.v1", "ais.v1", "fira.v1", "bank_csv.v1", "trial_balance.v1"]
+         "tds_26as.v1", "ais.v1", "fira.v1", "bank_csv.v1", "bank_csv_signed.v1", "trial_balance.v1"]
 BANK = ["date", "narration", "withdrawal_amt", "deposit_amt", "closing_balance"]
 HEADERS = {"stripe_balance.v1": sorted(R.STRIPE_REQ), "razorpay_settlement.v1": sorted(R.RAZORPAY_REQ),
            "paypal_activity.v1": sorted(R.PAYPAL_REQ), "wise_statement.v1": sorted(R.WISE_REQ),
            "form_1099b.v1": sorted(R.B1099_REQ), "tds_26as.v1": sorted(R.TDS_REQ), "ais.v1": sorted(R.AIS_REQ),
-           "fira.v1": sorted(R.FIRA_REQ), "bank_csv.v1": BANK, "trial_balance.v1": sorted(R.TB_REQ)}
+           "fira.v1": sorted(R.FIRA_REQ), "bank_csv.v1": BANK,
+           "bank_csv_signed.v1": ["date", "description", "amount", "balance"], "trial_balance.v1": sorted(R.TB_REQ)}
 
 
 def csv_of(*rows):
@@ -25,7 +26,7 @@ def csv_of(*rows):
 def test_detection_order_is_the_product_order():
     assert [s.id for s in R.KNOWN_LAYOUTS] == ORDER
     assert [s.rank for s in R.KNOWN_LAYOUTS] == sorted(s.rank for s in R.KNOWN_LAYOUTS)
-    assert [s.id for s in R.KNOWN_SNIFFERS] == ["ofx.v1", "mt940.v1"]
+    assert [s.id for s in R.KNOWN_SNIFFERS] == ["ofx.v1", "mt940.v1", "camt053.v1"]
 
 
 @pytest.mark.parametrize("a", ORDER)

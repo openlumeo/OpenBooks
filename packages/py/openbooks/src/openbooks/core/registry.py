@@ -43,6 +43,13 @@ BANK_ROLES = {
     "balance": ("balance", "closing_balance", "running_balance"),
     "ref": ("ref_no", "reference", "chq_ref_no", "utr", "cheque_no"),
 }
+SIGNED_BANK_ROLES = {
+    "date": BANK_ROLES["date"],
+    "desc": BANK_ROLES["desc"],
+    "amount": ("amount", "amt", "transaction_amount", "signed_amount"),
+    "balance": BANK_ROLES["balance"],
+}
+DIRECTION_HEADERS = ("type", "dr_cr", "drcr", "cr_dr", "crdr", "indicator", "debit_credit", "direction", "txn_type", "transaction_type")
 STRIPE_REQ = {"balance_transaction_id", "created", "currency", "gross", "fee", "net"}
 RAZORPAY_REQ = {"entity_id", "type", "debit", "credit", "amount", "fee", "tax", "settlement_id"}
 TDS_REQ = {"deductor_name", "tan", "section", "transaction_date", "amount_paid_credited", "tax_deducted", "tds_deposited"}
@@ -56,6 +63,19 @@ B1099_REQ = {"description", "date_acquired", "date_sold", "proceeds", "cost_basi
 
 def bank_cols(hs: list[str]) -> dict[str, int]:
     return {r: hs.index(next(n for n in names if n in hs)) for r, names in BANK_ROLES.items() if any(n in hs for n in names)}
+
+
+def signed_bank_cols(hs: list[str]) -> dict[str, int] | None:
+    """Column index per role when every role has exactly one header and nothing hints at a debit/credit split or direction flag."""
+    if any(n in hs for n in (*BANK_ROLES["debit"], *BANK_ROLES["credit"], *DIRECTION_HEADERS)):
+        return None
+    found: dict[str, int] = {}
+    for role, names in SIGNED_BANK_ROLES.items():
+        hits = [i for i, h in enumerate(hs) if h in names]
+        if len(hits) != 1:
+            return None
+        found[role] = hits[0]
+    return found
 
 
 @dataclass(frozen=True)
@@ -83,6 +103,8 @@ KNOWN_LAYOUTS: tuple[LayoutSpec, ...] = (
     LayoutSpec("fira.v1", 80, TAX, frozenset({"fira"}), _req(FIRA_REQ)),
     LayoutSpec("bank_csv.v1", 90, STATEMENTS, frozenset({"statement"}),
                lambda hs, s: {"date", "desc", "debit", "credit", "balance"} <= set(bank_cols(hs))),
+    LayoutSpec("bank_csv_signed.v1", 95, STATEMENTS, frozenset({"statement"}),
+               lambda hs, s: signed_bank_cols(hs) is not None),
     LayoutSpec("trial_balance.v1", 100, TAX, frozenset({"trial_balance"}), _req(TB_REQ)),
 )
 LAYOUT_BY_ID = {s.id: s for s in KNOWN_LAYOUTS}
@@ -106,8 +128,13 @@ def _is_mt940(text: str) -> bool:
     return all(re.search(rf"^:{t}:", text, re.M) for t in ("20", "60[FM]", "62[FM]"))
 
 
+def _is_camt053(text: str) -> bool:
+    return re.search(r"<(\w+:)?BkToCstmrStmt[\s>]", text[:8000]) is not None
+
+
 KNOWN_SNIFFERS: tuple[SnifferSpec, ...] = (SnifferSpec("ofx.v1", "ofx", STATEMENTS, _is_ofx),
-                                           SnifferSpec("mt940.v1", "mt940", STATEMENTS, _is_mt940))
+                                           SnifferSpec("mt940.v1", "mt940", STATEMENTS, _is_mt940),
+                                           SnifferSpec("camt053.v1", "camt053", STATEMENTS, _is_camt053))
 SNIFFER_BY_ID = {s.id: s for s in KNOWN_SNIFFERS}
 FRONTEND_DISTRIBUTION = {"document": STATEMENTS}
 GATE_OWNER = {"tax_statement": TAX, "ais": TAX, "form_1099b": TAX, "fira": TAX, "trial_balance": TAX,

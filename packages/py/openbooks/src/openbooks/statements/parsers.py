@@ -5,8 +5,9 @@ from __future__ import annotations
 import re
 from datetime import datetime
 from decimal import Decimal
+from xml.etree import ElementTree
 
-from openbooks.core.registry import bank_cols
+from openbooks.core.registry import bank_cols, signed_bank_cols
 from openbooks.core.builders import (D, body_rows as _body, cell_getter as _cell, currency_of as _currency, empty_data as _empty_data,
                                      finish_batch as _finish, money_fields as _money_fields, settlement_batch as _settlement,
                                      split_total as _split_total, stated_totals as _stated_totals, statement_doc)
@@ -38,6 +39,33 @@ def parse_bank_csv(args, p: Params):
             "amt": cre or deb, "amt_raw": g("credit") if cre else g("debit"), "date_raw": g("date"),
             "bal": to_dec(g("balance"), f"row {n} balance", dr_cr=True), "bal_raw": g("balance"),
             "desc": g("desc"), "ref": g("ref") or None,
+        })
+    return statement_doc(recs, cur, p.account, p.opening)
+
+
+def parse_bank_csv_signed(args, p: Params):
+    rows, hi, hs = args
+    idx = signed_bank_cols(hs)
+    if idx is None:
+        raise Refusal("UNKNOWN_LAYOUT", "ambiguous amount columns: need exactly one signed amount column")
+    body = _body(rows, hi, hs)
+    cur = _currency(hs, [r for _, r in body], p)
+    if p.opening is None and not p.allow_derived_opening:
+        raise Refusal("PARSE_ERROR", "statement has no stated opening balance; supply --opening")
+    order = date_order([r[idx["date"]] for _, r in body], p.date_order, default="dmy", where="date column")
+    recs = []
+    for n, row in body:
+        def g(role: str) -> str:
+            return row[idx[role]].strip()
+
+        amount = to_dec(g("amount"), f"row {n} amount")
+        if amount == 0:
+            raise Refusal("PARSE_ERROR", f"row {n}: zero amount")
+        recs.append({
+            "row": n, "date": to_date(g("date"), f"row {n}", order), "dir": "credit" if amount > 0 else "debit",
+            "amt": abs(amount), "amt_raw": g("amount"), "date_raw": g("date"),
+            "bal": to_dec(g("balance"), f"row {n} balance", dr_cr=True), "bal_raw": g("balance"),
+            "desc": g("desc"), "ref": None,
         })
     return statement_doc(recs, cur, p.account, p.opening)
 
@@ -192,4 +220,128 @@ def parse_ofx(text: str, p: Params):
     evidence(ev, "batch-1", "closing", None, bal)
     evidence(ev, "batch-1", "period_start", None, min(dates))
     evidence(ev, "batch-1", "period_end", None, max(dates))
+    return data, ev
+
+
+_CAMT_OPENING_CODES = ("OPBD", "PRCD")
+_CAMT_DECLARATIONS = re.compile(r"<!\s*(DOCTYPE|ENTITY)", re.I)
+
+
+def _local(element) -> str:
+    return element.tag.rsplit("}", 1)[-1]
+
+
+def _camt_path(element, *names: str) -> list:
+    found = [element]
+    for name in names:
+        found = [child for node in found for child in node if _local(child) == name]
+    return found
+
+
+def _camt_text(element, *names: str) -> str | None:
+    found = _camt_path(element, *names)
+    return (found[0].text or "").strip() if found else None
+
+
+def _camt_date(element, container: str, where: str) -> tuple[str, str]:
+    raw = _camt_text(element, container, "Dt") or _camt_text(element, container, "DtTm")
+    if not raw:
+        raise Refusal("PARSE_ERROR", f"{where}: missing date")
+    try:
+        return datetime.strptime(raw[:10], "%Y-%m-%d").date().isoformat(), raw
+    except ValueError:
+        raise Refusal("PARSE_ERROR", f"{where}: unreadable date {raw!r}") from None
+
+
+def _camt_amount(element, where: str) -> tuple[Decimal, str, str]:
+    nodes = _camt_path(element, "Amt")
+    if not nodes or not (nodes[0].text or "").strip():
+        raise Refusal("PARSE_ERROR", f"{where}: missing amount")
+    raw = nodes[0].text.strip()
+    currency = (nodes[0].get("Ccy") or "").upper()
+    if not currency:
+        raise Refusal("PARSE_ERROR", f"{where}: amount has no currency")
+    return to_dec(raw, where), currency, raw
+
+
+def _camt_balances(statement, where: str) -> tuple[tuple, tuple]:
+    opening = closing = None
+    for balance in _camt_path(statement, "Bal"):
+        code = _camt_text(balance, "Tp", "CdOrPrtry", "Cd")
+        if code not in (*_CAMT_OPENING_CODES, "CLBD"):
+            continue
+        amount, currency, raw = _camt_amount(balance, f"{where} {code}")
+        sign = -1 if _camt_text(balance, "CdtDbtInd") == "DBIT" else 1
+        day, _ = _camt_date(balance, "Dt", f"{where} {code}")
+        found = (sign * amount, day, currency, raw)
+        if code == "CLBD":
+            closing = found
+        elif opening is None:
+            opening = found
+    if not (opening and closing):
+        raise Refusal("PARSE_ERROR", f"{where}: missing opening (OPBD) or closing (CLBD) balance")
+    return opening, closing
+
+
+def _camt_entry(entry, tid: str, bid: str, aid: str, currency: str, data: dict, ev: dict) -> None:
+    amount, entry_currency, raw_amount = _camt_amount(entry, tid)
+    if entry_currency != currency:
+        raise Refusal("PARSE_ERROR", f"{tid}: currency {entry_currency} differs from account currency {currency}")
+    if amount <= 0:
+        raise Refusal("PARSE_ERROR", f"{tid}: amount must be positive")
+    credit = _camt_text(entry, "CdtDbtInd") == "CRDT"
+    if (_camt_text(entry, "RvslInd") or "").lower() == "true":
+        credit = not credit
+    day, raw_date = _camt_date(entry, "BookgDt", tid)
+    detail = _camt_path(entry, "NtryDtls", "TxDtls")
+    lines = [(node.text or "").strip() for node in _camt_path(detail[0], "RmtInf", "Ustrd")] if detail else []
+    description = " ".join(part for part in lines if part) or _camt_text(entry, "AddtlNtryInf") or ""
+    ref = _camt_text(entry, "AcctSvcrRef") or (_camt_text(detail[0], "Refs", "EndToEndId") if detail else None)
+    data["transactions"].append({
+        "id": tid, "batch_id": bid, "account_id": aid, "date": day,
+        "direction": "credit" if credit else "debit", "amount": money(amount, currency),
+        "description": description, "reference": None if ref in (None, "", "NOTPROVIDED") else ref,
+    })
+    evidence(ev, tid, "date", None, raw_date)
+    evidence(ev, tid, "amount", None, raw_amount)
+
+
+def _camt_statement(statement, si: int, data: dict, ev: dict, accts: dict) -> None:
+    where = f"statement {si}"
+    account = _camt_text(statement, "Acct", "Id", "IBAN") or _camt_text(statement, "Acct", "Id", "Othr", "Id")
+    if not account:
+        raise Refusal("PARSE_ERROR", f"{where}: missing account identifier")
+    (opening, open_day, open_cur, open_raw), (closing, close_day, close_cur, close_raw) = _camt_balances(statement, where)
+    if open_cur != close_cur:
+        raise Refusal("PARSE_ERROR", f"{where}: currency changes inside statement")
+    aid = accts.setdefault(account, f"acct-{len(accts) + 1}")
+    if not any(a["id"] == aid for a in data["accounts"]):
+        data["accounts"].append({"id": aid, "number": account, "currency": open_cur})
+    bid = f"batch-{si}"
+    data["batches"].append({"id": bid, "kind": "statement", "account_id": aid, "currency": open_cur,
+                            "period_start": open_day, "period_end": close_day, "opening": money(opening, open_cur),
+                            "closing": money(closing, close_cur), "opening_derived": False})
+    for field, raw in (("opening", open_raw), ("closing", close_raw), ("period_start", open_day), ("period_end", close_day)):
+        evidence(ev, bid, field, None, raw)
+    booked = [e for e in _camt_path(statement, "Ntry")
+              if (_camt_text(e, "Sts") or _camt_text(e, "Sts", "Cd") or "BOOK") == "BOOK"]
+    for k, entry in enumerate(booked, 1):
+        _camt_entry(entry, f"txn-{si}-{k:05d}", bid, aid, open_cur, data, ev)
+
+
+def parse_camt053(text: str, p: Params):
+    if _CAMT_DECLARATIONS.search(text):
+        raise Refusal("PARSE_ERROR", "DTD and entity declarations are not accepted in camt.053")
+    try:
+        root = ElementTree.fromstring(text)
+    except ElementTree.ParseError as e:
+        raise Refusal("PARSE_ERROR", f"camt.053 is not well-formed XML ({e})") from None
+    statements = [s for group in root.iter() if _local(group) == "BkToCstmrStmt" for s in _camt_path(group, "Stmt")]
+    if not statements:
+        raise Refusal("PARSE_ERROR", "no statements in camt.053")
+    data, ev, accts = _empty_data(), {}, {}
+    for si, statement in enumerate(statements, 1):
+        _camt_statement(statement, si, data, ev, accts)
+    if not data["transactions"]:
+        raise Refusal("PARSE_ERROR", "no booked entries in camt.053")
     return data, ev

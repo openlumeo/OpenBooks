@@ -7,7 +7,7 @@ from .errors import Refusal
 MAX_BYTES = 2 * 1024 * 1024 * 1024
 MAX_TEXT_BYTES = 64 * 1024 * 1024
 CHUNK_BYTES = 1024 * 1024
-TEXT_EXT = {".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt"}
+TEXT_EXT = {".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt", ".xml"}
 DOC_EXT = {".pdf", ".png", ".jpg", ".jpeg"}
 ALLOWED_EXT = TEXT_EXT | DOC_EXT | {".xlsx"}
 

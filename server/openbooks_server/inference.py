@@ -9,6 +9,7 @@ The heads are a cross-check only. Nothing returned here can release a document.
 """
 from __future__ import annotations
 
+import contextlib
 import copy
 import os
 import threading
@@ -26,6 +27,8 @@ from openbooks.statements.pdf_front import extract_statement, read_words
 from openbooks.statements.roles import Predictions, RoleModel
 
 MAX_BATCH_TOKENS = 4096
+PAD_MULTIPLE = 0
+DTYPE_ENV = "OPENBOOKS_INFERENCE_DTYPE"
 ONNX_ENV = "OPENBOOKS_ONNX_MODEL"
 ONNX_FILL = (0, 0, 0, True, None, 0)
 
@@ -79,9 +82,36 @@ def onnx_model(model: RoleModel) -> RoleModel:
     return served
 
 
+def _padded_len(length: int) -> int:
+    if not PAD_MULTIPLE:
+        return length
+    return -(-length // PAD_MULTIPLE) * PAD_MULTIPLE
+
+
+def _groups(lengths: list[int], max_tokens: int) -> list[list[int]]:
+    groups: list[list[int]] = []
+    for k in sorted(range(len(lengths)), key=lambda k: lengths[k]):
+        if groups and (len(groups[-1]) + 1) * _padded_len(lengths[k]) <= max_tokens:
+            groups[-1].append(k)
+        else:
+            groups.append([k])
+    return groups
+
+
+def _autocast_dtype(model: RoleModel) -> torch.dtype | None:
+    if isinstance(model.net, OnnxNet):
+        return None
+    name = os.environ.get(DTYPE_ENV, "fp32").strip().lower()
+    if name == "bf16":
+        return torch.bfloat16
+    if name == "fp16" and model.dev.type == "cuda":
+        return torch.float16
+    return None
+
+
 def _pad(parts: list[tuple], dev) -> tuple:
     """Collate batch-of-one tensors (W,S,X,pad,R,H) of different lengths into one padded batch. Pads are masked."""
-    n = max(p[0].shape[1] for p in parts)
+    n = _padded_len(max(p[0].shape[1] for p in parts))
     fills = (0, 0, 0, True, None, 0)
     out = []
     for i, fill in enumerate(fills):
@@ -105,16 +135,12 @@ def logits_batched(model: RoleModel, words, max_tokens: int = MAX_BATCH_TOKENS) 
     role = np.zeros((len(words), len(ROLES)), dtype=np.float32)
     vt = np.zeros((len(words), len(VTYPES)), dtype=np.float32)
     wins = windows(words)
-    order = sorted(range(len(wins)), key=lambda k: len(wins[k]))
-    i = 0
-    while i < len(order):
-        group = [order[i]]
-        i += 1
-        while i < len(order) and (len(group) + 1) * len(wins[order[i]]) <= max_tokens:
-            group.append(order[i])
-            i += 1
+    dtype = _autocast_dtype(model)
+    for group in _groups([len(w) for w in wins], max_tokens):
         batch = _pad([tensors(words, wins[k], model.dev) for k in group], model.dev)
-        r, t = model.net(*batch)
+        scope = torch.autocast(model.dev.type, dtype=dtype) if dtype is not None else contextlib.nullcontext()
+        with scope:
+            r, t = model.net(*batch)
         r, t = r.float().cpu().numpy(), t.float().cpu().numpy()
         for b, k in enumerate(group):
             n = len(wins[k])

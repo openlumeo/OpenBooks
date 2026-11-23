@@ -7,7 +7,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-PROPRIETARY = {"openbooks-lab", "openbooks-mcp"}
+PROPRIETARY = {"openbooks-lab"}
 
 import export_public as ex  # noqa: E402
 
@@ -55,7 +55,7 @@ def test_every_open_package_carries_the_same_apache_licence_text():
     assert "Apache License" in master and "Version 2.0, January 2004" in master and "END OF TERMS AND CONDITIONS" in master
     dirs = [d for d in (ROOT / "packages" / "py").iterdir() if d.is_dir() and d.name not in PROPRIETARY]
     dirs += [d for d in (ROOT / "packages" / "js").iterdir() if (d / "package.json").exists()]
-    assert len(dirs) == 7
+    assert len(dirs) == 8
     for d in dirs:
         assert (d / "LICENSE").read_text(encoding="utf-8") == master, d.name
 
@@ -68,9 +68,6 @@ def test_open_packages_declare_apache_and_the_lab_stays_proprietary():
         meta = tomllib.loads((d / "pyproject.toml").read_text(encoding="utf-8"))["project"]
         if d.name == "openbooks-lab":
             assert meta["license"] == "LicenseRef-Lumeo-Proprietary" and "Private :: Do Not Upload" in meta["classifiers"]
-        elif d.name == "openbooks-mcp":
-            assert meta["license"] == "LicenseRef-Lumeo" and meta["license-files"] == ["LICENSE"]
-            assert not (d / "LICENSE").read_text(encoding="utf-8").startswith("                                 Apache")
         else:
             assert meta["license"] == "Apache-2.0" and meta["license-files"] == ["LICENSE"], d.name
     for d in (ROOT / "packages" / "js").iterdir():

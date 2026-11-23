@@ -1,6 +1,6 @@
 [build]
   base = "web"
-  command = "python -m pip install --disable-pip-version-check build==1.6.1 && python ../deploy/build-public-assets.py && pnpm run build"
+  command = "python ../deploy/build-public-assets.py && pnpm run build"
   publish = ".next"
 
 [build.environment]

@@ -1,6 +1,6 @@
 # openbooks
 
-Financial documents in, **one proven JSON document per file out, or a typed refusal**. Never guessed. Never partially released.
+Open Books returns **one proven JSON document per file, or a typed refusal** for bank statements, payment-gateway exports and tax documents. Never guessed. Never partially released.
 
 Open Books reads bank statements, payment-gateway exports and tax documents into a canonical `openbooks.v1` record. A file is
 released only if its numbers prove themselves (balances tie, totals match, and at least one check is independent evidence from the
@@ -41,5 +41,17 @@ Exit codes: `0` everything released, `1` something was refused, `2` usage error,
 
 > **Status: 0.2, pre-release.** Every layout has been exercised on synthetic fixtures only, not on real exports, and PayPal, Wise
 > and all the tax layouts are experimental. Do not rely on it for real filings.
+
+## Formats and limits
+
+- Limits: 2 GB per document. Text formats (`.csv`, `.ofx`, `.qfx`, `.sta`, `.mt940`, `.txt`, `.xml`) are capped at 64 MB.
+- Scans and images (`.pdf`, `.png`, `.jpg`, `.jpeg`) need the `[scan]` extra for OCR. Excel workpapers (`.xlsx`) are also accepted.
+- Everything is tested on synthetic fixtures only.
+
+## Links
+
+- Developer docs: https://openbooks.lumeo.co.in/docs
+- MCP server (`@lumeo_hq/openbooks-mcp` on npm): https://openbooks.lumeo.co.in/docs/mcp
+- Source: https://github.com/Sagexd08/OpenBooks
 
 Licence: Apache-2.0.
