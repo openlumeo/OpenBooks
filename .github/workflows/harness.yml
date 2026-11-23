@@ -1,0 +1,55 @@
+name: harness
+
+on:
+  push:
+    paths:
+      - "harness/**"
+      - "packages/js/mcp/**"
+      - "scripts/harness/**"
+      - ".github/workflows/harness.yml"
+  pull_request:
+    paths:
+      - "harness/**"
+      - "packages/js/mcp/**"
+      - "scripts/harness/**"
+      - ".github/workflows/harness.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  selfcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install and build the MCP server
+        run: |
+          corepack enable
+          pnpm --dir packages/js install --frozen-lockfile
+          pnpm --dir packages/js build
+
+      - name: Install the Python MCP client
+        run: python -m pip install --upgrade mcp
+
+      - name: Run the install self-check
+        run: python harness/eval/selfcheck.py --command "node packages/js/mcp/dist/cli.js" --repeat 3
+
+      - name: Build the harness kit
+        run: python scripts/harness/build_kit.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openbooks-harness
+          path: |
+            web/public/downloads/openbooks-harness.zip
+            web/public/downloads/openbooks-harness.zip.sha256
+          if-no-files-found: error

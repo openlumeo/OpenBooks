@@ -1,0 +1,73 @@
+name: seo
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+        working-directory: web
+      - run: pnpm build
+        working-directory: web
+      - name: Start server
+        working-directory: web
+        run: |
+          nohup pnpm start > "$RUNNER_TEMP/server.log" 2>&1 &
+          for attempt in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/ || true)
+            if [ "$code" != "000" ]; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/server.log"
+          exit 1
+      - run: node scripts/seo/check.mjs --base http://localhost:3000
+
+  indexnow:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Detect IndexNow key
+        id: key
+        run: |
+          if [ -n "$INDEXNOW_KEY" ] || ls web/public | grep -qE '^[a-f0-9]{8,128}\.txt$'; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.key.outputs.present == 'true'
+        with:
+          node-version: 20
+      - name: Submit changed URLs
+        if: steps.key.outputs.present == 'true'
+        run: node scripts/seo/indexnow.mjs --changed-only

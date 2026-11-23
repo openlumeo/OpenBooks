@@ -1,0 +1,10 @@
+{
+  "name": "openbooks",
+  "version": "0.1.0",
+  "description": "Verify bank statements, settlements and tax documents into proven JSON or a typed refusal.",
+  "author": { "name": "Lumeo" },
+  "homepage": "https://openbooks.lumeo.co.in",
+  "repository": "https://github.com/Sagexd08/OpenBooks",
+  "license": "LicenseRef-Lumeo",
+  "keywords": ["mcp", "bank-statement", "reconciliation", "accounting"]
+}

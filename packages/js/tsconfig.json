@@ -1,6 +1,6 @@
 {
   "files": [],
   "references": [
-    { "path": "core" }, { "path": "statements" }, { "path": "gateways" }, { "path": "tax" }, { "path": "doctor" }, { "path": "cli" }
+    { "path": "core" }, { "path": "statements" }, { "path": "gateways" }, { "path": "tax" }, { "path": "doctor" }, { "path": "cli" }, { "path": "mcp" }
   ]
 }

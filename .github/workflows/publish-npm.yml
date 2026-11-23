@@ -48,6 +48,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          for p in core statements gateways tax doctor cli; do
+          for p in core statements gateways tax doctor cli mcp; do
             (cd $p && pnpm publish --access public --no-git-checks)
           done

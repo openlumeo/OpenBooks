@@ -76,17 +76,15 @@ jobs:
       - run: python -m pip install build twine
       - run: |
           python -m build --sdist --wheel --outdir dist packages/py/openbooks
-          python -m build --sdist --wheel --outdir dist packages/py/openbooks-mcp
           twine check --strict dist/*
       - name: Install the built wheels into a clean venv
         run: |
           python -m venv /tmp/clean
           bin=/tmp/clean/bin; [ -d "$bin" ] || bin=/tmp/clean/Scripts
-          "$bin/python" -m pip install --find-links dist openbooks openbooks-mcp
+          "$bin/python" -m pip install --find-links dist openbooks
           "$bin/python" -m pip check
           "$bin/openbooks" --help > /dev/null
-          "$bin/openbooks-mcp" --version
-          cd /tmp && "$bin/python" -c "import openbooks, openbooks_mcp; print(openbooks.__version__)"
+          cd /tmp && "$bin/python" -c "import openbooks; print(openbooks.__version__)"
 
   full:
     timeout-minutes: 30
@@ -111,12 +109,12 @@ jobs:
       - name: CPU PyTorch on Linux (the default wheel is CUDA and several GB)
         if: runner.os == 'Linux'
         run: python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-      - run: python -m pip install -e "packages/py/openbooks[scan]" -e packages/py/openbooks-lab -e packages/py/openbooks-mcp -e server pytest hypothesis httpx build
+      - run: python -m pip install -e "packages/py/openbooks[scan]" -e packages/py/openbooks-lab -e server pytest hypothesis httpx build
       - name: Behaviour is frozen (868 results; the pdf section runs where PyMuPDF imports)
         run: |
           python tests/characterise/run.py verify --section main
           python tests/characterise/run.py verify --section pdf
-      - run: python -m pytest -q tests packages/py/openbooks/tests packages/py/openbooks-mcp/tests server/tests
+      - run: python -m pytest -q tests packages/py/openbooks/tests server/tests
 
   record-pdf-baseline:
     # Manual. The PDF/scan part of the characterisation baseline needs PyMuPDF, so it is recorded here, on the commit

@@ -1,0 +1,10 @@
+extensions:
+  openbooks:
+    name: Open Books
+    cmd: npx
+    args: ["-y", "@lumeo_hq/openbooks-mcp"]
+    enabled: true
+    envs: {}
+    type: stdio
+    timeout: 300
+    description: Verify financial documents

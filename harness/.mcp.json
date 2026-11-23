@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "openbooks": { "command": "npx", "args": ["-y", "@lumeo_hq/openbooks-mcp"] }
+  }
+}

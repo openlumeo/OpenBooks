@@ -1,0 +1,7 @@
+{
+  "name": "openbooks",
+  "owner": { "name": "Lumeo" },
+  "plugins": [
+    { "name": "openbooks", "source": "./", "description": "Open Books agent kit: MCP server config, verify skill, slash commands.", "version": "0.1.0" }
+  ]
+}

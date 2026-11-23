@@ -12,7 +12,7 @@ beforeEach(() => vi.clearAllMocks());
 
 describe("statements facade", () => {
   it("accepts only the bank-statement layouts, and the list is not empty", () => {
-    expect(LAYOUTS).toEqual(["bank_csv.v1", "ofx.v1", "mt940.v1", "bank_statement_pdf.v1"]);
+    expect(LAYOUTS).toEqual(["bank_csv.v1", "bank_csv_signed.v1", "ofx.v1", "mt940.v1", "camt053.v1", "bank_statement_pdf.v1"]);
   });
 
   it("passes the gateway layouts as accept on every entry point and keeps caller options", async () => {

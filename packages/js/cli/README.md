@@ -1,5 +1,7 @@
 # openbooks
 
+Open Books returns one proven JSON document per file, or a typed refusal, from the command line. A file is released only if its own arithmetic balances.
+
 ```bash
 npm install -g @lumeo_hq/openbooks   # also installs the Python engine with OCR and model support
 openbooks statement.csv --currency INR --opening 1000.00   # same as: openbooks run statement.csv ...
@@ -23,5 +25,18 @@ openbooks statements run statement.csv --currency INR --opening 1000.00 \
 ~~~
 
 `--json` emits a result array on stdout. `--out` also writes the engine documents to hash-named files. Reusing the output directory replaces any result for identical input bytes. Use separate output directories to compare runs with different settings. An oversized proof reports an engine error. For per-file options and streaming decisions, use the [Node.js SDK](https://openbooks.lumeo.co.in/docs/node).
+
+## Formats and limits
+
+- Bank statements: CSV, OFX, MT940 and text-layer PDFs. Scans and images need OCR (installed by the Python engine with `[scan]`).
+- Payment gateway exports and tax documents are read by the same engine; PayPal, Wise and the tax layouts are experimental.
+- Limits: 2 GB per document. Text formats (`.csv`, `.ofx`, `.qfx`, `.sta`, `.mt940`, `.txt`, `.xml`) are capped at 64 MB. `.xml` is accepted for CAMT.053 statements (`camt053.v1`).
+- Everything is tested on synthetic fixtures only. Pre-release.
+
+## Links
+
+- Developer docs: https://openbooks.lumeo.co.in/docs
+- MCP server for AI agents: https://openbooks.lumeo.co.in/docs/mcp (npm package `@lumeo_hq/openbooks-mcp`)
+- Source: https://github.com/Sagexd08/OpenBooks
 
 [CLI command reference and troubleshooting](https://openbooks.lumeo.co.in/docs/cli)

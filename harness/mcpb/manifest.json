@@ -1,0 +1,15 @@
+{
+  "manifest_version": "0.3",
+  "name": "openbooks",
+  "version": "0.1.0",
+  "description": "Verify bank statements, settlements and tax documents into proven JSON or a typed refusal.",
+  "author": { "name": "Lumeo", "url": "https://openbooks.lumeo.co.in" },
+  "homepage": "https://openbooks.lumeo.co.in",
+  "repository": { "type": "git", "url": "https://github.com/Sagexd08/OpenBooks" },
+  "license": "LicenseRef-Lumeo",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": { "command": "npx", "args": ["-y", "@lumeo_hq/openbooks-mcp"] }
+  }
+}
