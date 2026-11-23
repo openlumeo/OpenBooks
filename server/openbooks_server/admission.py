@@ -24,6 +24,8 @@ POLL_INTERVAL_S = 0.02
 IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg")
 _PDF_PAGE_OBJECT = re.compile(rb"/Type\s*/Page\b")
 _PDF_FONT_MARKER = b"/Font"
+_SCAN_CHUNK = 1024 * 1024
+_SCAN_OVERLAP = 4096
 
 
 class Rejected(Exception):
@@ -172,7 +174,16 @@ def estimate_ocr_pages(path: Path) -> int:
         return 1
     if suffix != ".pdf":
         return 0
-    data = path.read_bytes()
-    if _PDF_FONT_MARKER in data:
-        return 0
-    return max(1, len(_PDF_PAGE_OBJECT.findall(data)))
+    pages = 0
+    carry = b""
+    with path.open("rb") as f:
+        while True:
+            chunk = f.read(_SCAN_CHUNK)
+            buf = carry + chunk
+            if _PDF_FONT_MARKER in buf:
+                return 0
+            if not chunk:
+                return max(1, pages + len(_PDF_PAGE_OBJECT.findall(buf)))
+            cut = max(0, len(buf) - _SCAN_OVERLAP)
+            pages += sum(1 for m in _PDF_PAGE_OBJECT.finditer(buf) if m.start() < cut)
+            carry = buf[cut:]

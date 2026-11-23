@@ -48,6 +48,38 @@ The 23 November loopback run completed 4 requests per second at 84 ms p95 for th
 
 The one-page synthetic OCR smoke test completed both requests but measured 51.3 seconds p95 on CPU against an 8-second gate. Report completed throughput over the entire phase including drain time so a short submission window cannot conceal this backlog.
 
+## Measured results
+
+| Area | Result |
+|---|---|
+| Role model, 6,435 tokens, 8 held-out PDFs | Top-1 66.23% shipped vs 66.14% challenger. Abstention 88.72% to 37.03%. Confident wrong 13 to 714. Challenger rejected. |
+| Role model challenger-02, mixed Type 1 and Type 2 training (60 files) and calibration (24 files), same 8 held-out files | Top-1 99.32%, coverage 99.95%, abstention 1.77%, confident wrong 1. Not yet promoted: synthetic data from one generator family only. |
+| Challenger-02 ONNX export (fixed 512-token window, padded), 20,820 held-out tokens | fp32 75.6 MB: argmax agreement 100%, max logit diff 6.7e-06. int8 19.7 MB: argmax agreement 99.02%, max logit diff 0.110. int8 fails the parity gate (argmax and abstain identical to torch); keep fp32 or re-quantize with calibration. |
+| Q&A trimmed prompt and tool text, 6 passing models | 24/24 passes unchanged. Input tokens 69,848 to 62,487 (10.5% less). Output tokens 4,187 to 4,148. Results in `out/dataset-pilot/ask-benchmark-trimmed.json`. |
+| Native load, 1-page PDFs | 4 req/s sustained, 84 ms p95, 0 errors. |
+| Burst, 100 requests in 5 s | 93 completed, 7 rejected, 0 errors, 1,147 ms p95. |
+| CPU OCR smoke, 2 requests | 51.3 s p95 against an 8 s gate. Fails. |
+| Q&A benchmark, 10 model families via OpenRouter | 33/40 passes. 116,572 tokens: 107,813 input and 8,759 output. Production-wide usage is unmeasured. |
+
+Q&A benchmark per model, four cases each (signed net, date filter, evidence, refusal):
+
+| Model | Pass | Input tokens | Output tokens | Median ms |
+|---|---|---|---|---|
+| nvidia/nemotron-3-ultra-550b-a55b:free | 4/4 | 13,688 | 984 | 8,458 |
+| deepseek/deepseek-v3.2 | 4/4 | 12,790 | 642 | 7,356 |
+| google/gemma-4-31b-it | 4/4 | 11,001 | 295 | 3,978 |
+| minimax/minimax-m2.5 | 4/4 | 11,401 | 964 | 6,171 |
+| moonshotai/kimi-k2.5 | 4/4 | 9,734 | 314 | 2,817 |
+| z-ai/glm-4.7 | 4/4 | 11,234 | 988 | 12,846 |
+| mistralai/mistral-small-3.2-24b-instruct | 3/4 | 11,341 | 369 | 3,664 |
+| openai/gpt-oss-120b | 2/4 | 6,836 | 3,487 | 8,499 |
+| qwen/qwen3-next-80b-a3b-instruct | 2/4 | 9,571 | 450 | 1,991 |
+| meta-llama/llama-3.3-70b-instruct | 2/4 | 10,217 | 266 | 1,603 |
+
+Sources: `out/ask-benchmark-compact-digest.json`, `out/dataset-pilot/ask-benchmark-more-models.json`, `out/dataset-pilot/load-*.csv`, `out/dataset-pilot/challenger-01/report.json`.
+
+Sandbox MCP over stdio: `search` returns the operation catalog. `execute` takes `steps[]` of `id`, `operation`, `arguments` and returns a result or error per step. Captured shapes are in `out/dataset-pilot/mcp-shapes.json`.
+
 For 2 GB per file, use resumable multipart upload directly to tenant-scoped object storage, then hand a verified object id to a worker. Enforce the byte quota during upload, validate the final size and checksum, and expire incomplete uploads. Use format-specific limits for PDF pages, OCR, workbook expansion and serialized results. CSV needs a bounded-memory reader with balance state across chunks. Process PDF pages incrementally from a seekable staged file, preserving cross-page balance state and evidence. Keep the 20 MiB synchronous limit until 2 GB tests cover interrupted uploads, retries, concurrent jobs, cleanup, parser memory and output equivalence.
 
 1. `POST /uploads` reserves declared bytes from the authenticated tenant and returns an upload id, part size, and expiry. The API issues signed URLs in small batches and binds each URL to the object key and part number. Store the object in a private bucket and track reservation and expiry in PostgreSQL.

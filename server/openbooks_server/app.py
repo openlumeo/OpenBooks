@@ -324,7 +324,8 @@ async def _read_roles(request: Request, run: Run, p: Params, *, detached: bool =
         if early is not None:
             return early
         model = await asyncio.to_thread(load_model)
-        from .inference import infer_file
+        from .inference import infer_file, onnx_model
+        model = await asyncio.to_thread(onnx_model, model)
 
         timings: dict[str, float] = {}
         doc = await asyncio.to_thread(infer_file, staged.path, p, model, timings)

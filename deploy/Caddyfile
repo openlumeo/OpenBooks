@@ -1,6 +1,6 @@
 {$OPENBOOKS_SITE_ADDRESS} {
 	request_body {
-		max_size 100MB
+		max_size 2GB
 	}
 	reverse_proxy web:3000
 }

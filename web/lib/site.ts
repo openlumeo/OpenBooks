@@ -7,10 +7,10 @@ export function pageMetadata({
 }: { title: string; description: string; path: string }): Metadata {
   const socialTitle = path === "/" ? title : title + " | Open Books";
   const images = [{
-    url: "/opengraph-image",
-    width: 1200,
-    height: 630,
-    alt: "Open Books by Lumeo developer documentation and workspace",
+    url: "/og.png",
+    width: 1920,
+    height: 1080,
+    alt: "Open Books by Lumeo: financial documents to proven JSON",
   }];
   return {
     title: path === "/" ? { absolute: title } : title,

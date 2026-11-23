@@ -2,6 +2,22 @@
   "name": "@lumeo_hq/openbooks-gateways",
   "version": "0.2.3",
   "description": "Open Books gateways wrapper: typed access to the Python engine, restricted to the gateways layouts",
+  "keywords": [
+    "bank-statement",
+    "financial-documents",
+    "ocr",
+    "json",
+    "reconciliation",
+    "mcp",
+    "accounting",
+    "openbooks",
+    "lumeo"
+  ],
+  "homepage": "https://openbooks.lumeo.co.in",
+  "bugs": {
+    "url": "https://github.com/Sagexd08/openbooks-js/issues"
+  },
+  "author": "Lumeo",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

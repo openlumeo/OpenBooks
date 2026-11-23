@@ -9,6 +9,8 @@ The heads are a cross-check only. Nothing returned here can release a document.
 """
 from __future__ import annotations
 
+import copy
+import os
 import threading
 import time
 from pathlib import Path
@@ -24,8 +26,57 @@ from openbooks.statements.pdf_front import extract_statement, read_words
 from openbooks.statements.roles import Predictions, RoleModel
 
 MAX_BATCH_TOKENS = 4096
+ONNX_ENV = "OPENBOOKS_ONNX_MODEL"
+ONNX_FILL = (0, 0, 0, True, None, 0)
 
 _GPU = threading.Lock()
+_ONNX_LOCK = threading.Lock()
+_ONNX_CACHE: dict[str, "OnnxNet"] = {}
+
+
+class OnnxNet:
+    def __init__(self, path: Path):
+        import onnxruntime as ort
+        from openbooks.statements.encoder import MAXLEN
+
+        self.maxlen = MAXLEN
+        self.session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+
+    def _padded(self, window: tuple, tokens: int) -> dict:
+        feed = {}
+        for name, tensor, fill in zip(("W", "S", "X", "pad", "R", "H"), window, ONNX_FILL):
+            tensor = tensor.cpu()
+            shape = (1, self.maxlen - tokens, *tensor.shape[2:])
+            if fill is None:
+                extra = torch.zeros(shape, dtype=tensor.dtype)
+                extra[..., 0] = NOT_MONEY
+            else:
+                extra = torch.full(shape, fill, dtype=tensor.dtype)
+            feed[name] = torch.cat([tensor, extra], dim=1).numpy()
+        return feed
+
+    def __call__(self, *batch):
+        total, tokens = batch[0].shape[0], batch[0].shape[1]
+        roles, types = [], []
+        for row in range(total):
+            window = tuple(tensor[row:row + 1] for tensor in batch)
+            role, vtype = self.session.run(["role_logits", "type_logits"], self._padded(window, tokens))
+            roles.append(torch.from_numpy(role[:, :tokens]))
+            types.append(torch.from_numpy(vtype[:, :tokens]))
+        return torch.cat(roles, 0), torch.cat(types, 0)
+
+
+def onnx_model(model: RoleModel) -> RoleModel:
+    path = os.environ.get(ONNX_ENV)
+    if not path:
+        return model
+    with _ONNX_LOCK:
+        net = _ONNX_CACHE.get(path)
+        if net is None:
+            net = _ONNX_CACHE[path] = OnnxNet(Path(path))
+    served = copy.copy(model)
+    served.net, served.dev = net, torch.device("cpu")
+    return served
 
 
 def _pad(parts: list[tuple], dev) -> tuple:

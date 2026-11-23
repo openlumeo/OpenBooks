@@ -5,7 +5,7 @@
 }
 :8765 {
 	request_body {
-		max_size 100MB
+		max_size 2GB
 	}
 	reverse_proxy engine-a:8765 engine-b:8765 {
 		lb_policy header X-OpenBooks-Job {

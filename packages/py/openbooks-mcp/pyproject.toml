@@ -5,11 +5,23 @@ build-backend = "hatchling.build"
 [project]
 name = "openbooks-mcp"
 version = "0.1.0"
-description = "Connect MCP-compatible agents to the Open Books financial document verification engine."
+description = "MCP server that lets AI agents verify bank statements, settlements and tax documents with Open Books and get proven JSON or a typed refusal."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "LicenseRef-Lumeo"
 license-files = ["LICENSE"]
+keywords = ["mcp", "model-context-protocol", "ai-agents", "bank-statement", "financial-documents", "ocr", "reconciliation", "openbooks"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Accounting",
+    "Topic :: Software Development :: Libraries",
+]
 dependencies = [
     "mcp>=2.2,<3",
     "openbooks>=0.2,<0.3",
@@ -21,7 +33,10 @@ dependencies = [
 scan = ["openbooks[scan]>=0.2,<0.3"]
 
 [project.urls]
+Homepage = "https://openbooks.lumeo.co.in"
 Documentation = "https://openbooks.lumeo.co.in/docs/mcp"
+Repository = "https://github.com/Sagexd08/OpenBooks"
+Issues = "https://github.com/Sagexd08/OpenBooks/issues"
 
 [project.scripts]
 openbooks-mcp = "openbooks_mcp.__main__:main"

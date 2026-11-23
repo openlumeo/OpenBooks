@@ -65,8 +65,8 @@ Chat request, fixed in `web/app/api/ask/route.ts`: streaming, `temperature` 0, `
 
 | Route | Limit | Over the limit |
 |---|---|---|
-| `/api/runs` | 100 MB declared body | 413 |
-| `/api/roles` | 25 MB declared body | 413 |
+| `/api/runs` | 2 GB declared body | 413 |
+| `/api/roles` | 2 GB declared body | 413 |
 | `/api/link` | 4 MB declared body | 413 |
 | `/api/ask` | 4 MB declared body, 30 questions per minute | 413, 429 |
 | any upload or JSON route | no `Content-Length` | 411 |

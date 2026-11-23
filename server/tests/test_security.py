@@ -37,11 +37,13 @@ def test_stage_stays_inside_run_dir_for_traversal_names():
         run.cleanup()
 
 
-def test_stage_never_writes_more_than_engine_limit():
+def test_stage_never_writes_more_than_engine_limit(monkeypatch):
+    limit = 1024 * 1024
+    monkeypatch.setattr("openbooks_server.runs.MAX_BYTES", limit)
     run = Run()
     try:
-        run.stage("big.pdf", io.BytesIO(b"0" * (MAX_BYTES + 5_000)))
-        assert run.files[0].size == MAX_BYTES + 1
+        run.stage("big.pdf", io.BytesIO(b"0" * (limit + 5_000)))
+        assert run.files[0].size == limit + 1
     finally:
         run.cleanup()
 

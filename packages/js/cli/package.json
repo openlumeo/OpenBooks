@@ -1,7 +1,23 @@
 {
   "name": "@lumeo_hq/openbooks",
   "version": "0.2.3",
-  "description": "Open Books: financial documents in, one proven JSON per file out (or a typed refusal). `npm i @lumeo_hq/openbooks` installs every JS package and the Python engine.",
+  "description": "Open Books CLI: verify bank statements, settlements and tax documents and get one proven JSON per file, or a typed refusal. Install with `npm i @lumeo_hq/openbooks`.",
+  "keywords": [
+    "bank-statement",
+    "financial-documents",
+    "ocr",
+    "json",
+    "reconciliation",
+    "mcp",
+    "accounting",
+    "openbooks",
+    "lumeo"
+  ],
+  "homepage": "https://openbooks.lumeo.co.in",
+  "bugs": {
+    "url": "https://github.com/Sagexd08/openbooks-js/issues"
+  },
+  "author": "Lumeo",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

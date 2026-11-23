@@ -93,3 +93,17 @@ Export benchmark rows with `run_id,input_kind,page_bucket,offered_rps,completed_
 The [capacity scenarios CSV](inference-capacity-scenarios.csv) contains illustrative inputs for plotting. It assumes 40% scans, two seconds of OCR service per scan and a 65% utilization target. Required OCR slots equal `ceil(scan requests/s × mean OCR seconds / target utilization)`. A slot means one concurrently served OCR job at the resources measured in the benchmark. The 1,000-user sustained case is roughly 17 requests/s, and 1,000 submissions over five seconds is 200 requests/s. Use measured service time and traffic mix before provisioning. An instantaneous burst larger than the admission limit should produce bounded waits and explicit rejections.
 
 Use proposed canary objectives of under 300 ms to the first status after upload, under 2 seconds p95 for warm single-page text PDFs, and under 8 seconds p95 for single-page scans at the agreed offered load. Revisit them after the baseline. Promotion requires matching release and refusal results on the fixture suite, no out-of-memory restarts during the sustained run, and acceptable p95 latency with enough memory headroom for the next traffic step.
+
+## ONNX serving (slice 2)
+
+Export the shipped role network to ONNX (CPU, fp32 plus a dynamic int8 variant) and check parity against torch:
+
+    cd scripts && ../.venv/Scripts/python.exe export_onnx_roles.py --out ../models/onnx
+
+Measured on the shipped model (20,820 held-out tokens): fp32 argmax agreement 100%, max logit diff 1.2e-5; int8 argmax agreement 99.36%, max logit diff 0.33. int8 fails the parity gate, so serve fp32.
+
+Serve it by pointing the inference server at the fp32 file:
+
+    OPENBOOKS_ONNX_MODEL=models/onnx/role-net.onnx
+
+Unset, the server keeps using the torch model. Calibration and model identity are unchanged because the ONNX network is the same weights. On CPU the ONNX path matched torch speed on a 2,519 token statement (0.59 s vs 0.58 s), so the benefit is a torch-free runtime, not speed. Windows are padded to MAXLEN and run one at a time.

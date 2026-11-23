@@ -54,7 +54,7 @@ def engine_layouts() -> set[str]:
 
 def test_health_and_formats(client):
     h = client.get("/v1/health").json()
-    assert h["schema_version"] == "openbooks.v1" and h["max_bytes"] == 20 * 1024 * 1024
+    assert h["schema_version"] == "openbooks.v1" and h["max_bytes"] == 2 * 1024 * 1024 * 1024
     f = client.get("/v1/formats").json()
     assert [g["title"] for g in f["groups"]] == ["Bank statements", "Gateway settlements", "Tax documents", "Excel workpapers"]
     assert {u["layout"] for u in f["unverified"]} <= engine_layouts() and all(u["name"] for u in f["unverified"])
