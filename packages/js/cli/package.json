@@ -70,7 +70,8 @@
     "dist",
     "schema",
     "scripts/postinstall.mjs",
-    "README.md"
+    "README.md",
+    "MCP.md"
   ],
   "engines": {
     "node": ">=20"
