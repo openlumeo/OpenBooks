@@ -32,7 +32,6 @@ REMOTE_ENV = "OPENBOOKS_ALLOW_REMOTE_OCR"
 MAX_REMOTE_PAGES = 20
 CLOUD_ENGINES = frozenset({"azure_docintel", "google_docai", "aws_textract", "mistral_ocr", "llamaparse"})
 SECRET_SHAPE = re.compile(r"sk-[A-Za-z0-9_-]{16,}|AIza[0-9A-Za-z_-]{20,}|xai-[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|ya29\.[0-9A-Za-z_-]{20,}|eyJ[\w-]{10,}\.[\w-]{10,}\.[\w-]{10,}|[0-9a-f]{32,}")
-PAGE_MARKER = re.compile(rb"/Type\s*/Page(?!s)")
 HEADER = "| Provider | Status | Docs | Release acc | Field acc | Wrong releases | p50 s | p95 s | Pages | Est. cost USD | Refusals / notes |"
 
 
@@ -77,6 +76,7 @@ class ProviderRun:
     observations: tuple[Observation, ...]
     price_per_page: float | None
     remote: bool
+    requests_per_document: int = 1
 
 
 @dataclass(frozen=True)
@@ -100,37 +100,43 @@ def _currency(value: Any) -> str | None:
 
 
 def load_sample(pdf: Path) -> Sample | None:
+    import pypdfium2
+
     raw = json.loads(pdf.with_suffix(".json").read_text(encoding="utf-8"))
     label = Figures(_to_decimal(raw.get("opening_balance")), _to_decimal(raw.get("closing_balance")), _currency(raw.get("currency")))
     if label.opening is None or label.closing is None or label.currency is None:
         return None
-    pages = len(PAGE_MARKER.findall(pdf.read_bytes()))
+    with pypdfium2.PdfDocument(str(pdf)) as document:
+        pages = len(document)
     return Sample(f"{pdf.parent.name}/{pdf.stem}", pdf, label, pages)
 
 
 def list_samples(fixtures: Path, limit: int, seed: int) -> list[Sample]:
     pdfs = sorted(p for p in fixtures.rglob("*.pdf") if p.with_suffix(".json").is_file())
     pool = [p for p in pdfs if SCANNED_MARK in p.parent.name.lower()] or pdfs
-    chosen = sorted(random.Random(seed).sample(pool, min(limit, len(pool))))
-    return [sample for sample in map(load_sample, chosen) if sample is not None]
+    samples = [sample for sample in map(load_sample, pool) if sample is not None]
+    return sorted(random.Random(seed).sample(samples, min(limit, len(samples))), key=lambda sample: sample.name)
 
 
 def extract_with_pipeline(sample: Sample) -> Extraction:
-    from openbooks.core import Params
-    from openbooks.core.errors import Refusal
+    from openbooks.core import Params, process
     from openbooks.statements import pdf_front
 
+    previous_session = pdf_front.last_ocr_session()
     try:
-        data, *_ = pdf_front.extract_document(sample.path, Params())
-        batch = data["batches"][0]
-        figures = Figures(_to_decimal(batch["opening"]["amount"]), _to_decimal(batch["closing"]["amount"]), _currency(batch.get("currency")))
-        result = Extraction("released", None, figures)
-    except Refusal as refusal:
-        result = Extraction("refused", refusal.code)
+        doc = process(sample.path, Params())
+        if doc.get("status") == "ok":
+            batch = doc["data"]["batches"][0]
+            figures = Figures(_to_decimal(batch["opening"]["amount"]), _to_decimal(batch["closing"]["amount"]), _currency(batch.get("currency")))
+            result = Extraction("released", None, figures)
+        else:
+            result = Extraction("refused", (doc.get("error") or {}).get("code"))
     except Exception as error:
         result = Extraction("error", type(error).__name__)
-    session = pdf_front.last_ocr_run()
-    engines = tuple(pdf_front.last_ocr_engines())
+    session = pdf_front.last_ocr_session()
+    if session is previous_session:
+        session = None
+    engines = tuple(pdf_front.last_ocr_engines()) if session is not None else ()
     return replace(result, engines=engines, fallback=bool(session and session.fallback_used), remote=bool(session and session.remote_used))
 
 
@@ -142,7 +148,12 @@ def observe(samples: Sequence[Sample], extract: Callable[[Sample], Extraction], 
             started = time.perf_counter()
             attempts.append((extract(sample), time.perf_counter() - started))
         latencies = tuple(round(elapsed, 4) for index, (_, elapsed) in enumerate(attempts) if repeats == 1 or index > 0)
-        observations.append(Observation(sample.name, attempts[0][0], latencies, sample.pages))
+        first = attempts[0][0]
+        extractions = [result for result, _ in attempts]
+        combined = replace(first, engines=tuple(engine for result in extractions for engine in result.engines),
+                           fallback=any(result.fallback for result in extractions),
+                           remote=any(result.remote for result in extractions))
+        observations.append(Observation(sample.name, combined, latencies, sample.pages))
     return tuple(observations)
 
 
@@ -150,7 +161,7 @@ def preflight(provider_id: str, settings_path: Path | None) -> tuple[str, bool, 
     from openbooks.core.errors import EngineFault
     from openbooks.statements import ocr_providers, pdf_front
 
-    if not (hasattr(pdf_front, "last_ocr_run") and hasattr(pdf_front, "last_ocr_engines")):
+    if not (hasattr(pdf_front, "last_ocr_session") and hasattr(pdf_front, "last_ocr_engines")):
         return "", False, "pipeline does not route OCR through ocr_providers yet"
     try:
         settings = ocr_providers.load_settings(settings_path)
@@ -190,31 +201,35 @@ def remote_block(remote: bool, allow_flag: bool, environ: Mapping[str, str]) -> 
     return None
 
 
-def remote_page_block(samples: Sequence[Sample], limit: int) -> str | None:
-    pages = sum(sample.pages for sample in samples)
+def remote_page_block(samples: Sequence[Sample], limit: int, repeats: int = 1) -> str | None:
+    pages = sum(sample.pages for sample in samples) * repeats
     return f"{pages} pages exceed --max-remote-pages {limit}" if pages > limit else None
 
 
 def mislabel_reason(observations: Sequence[Observation], expected: str) -> str | None:
     mixed = any(o.extraction.fallback or any(e != expected for e in o.extraction.engines) for o in observations)
-    return f"engines used differ from requested {expected} (fallback or other engine); not scored" if mixed else None
+    if mixed:
+        return f"engines used differ from requested {expected} (fallback or other engine); not scored"
+    if not any(o.extraction.engines for o in observations):
+        return "no OCR engine was invoked; not scored"
+    return None
 
 
 def run_provider(provider_id: str, samples: Sequence[Sample], settings_path: Path | None, repeats: int, allow_remote: bool, max_pages: int, price_per_page: float | None) -> ProviderRun:
     with provider_environment(provider_id, settings_path):
         expected, remote_hint, reason = preflight(provider_id, settings_path)
         if reason is None and remote_hint:
-            reason = remote_block(True, allow_remote, os.environ) or remote_page_block(samples, max_pages)
+            reason = remote_block(True, allow_remote, os.environ) or remote_page_block(samples, max_pages, repeats)
         if reason is not None:
             return ProviderRun(provider_id, "skipped", reason, (), price_per_page, False)
         if remote_hint:
-            sys.stderr.write(f"privacy notice: {provider_id} is a remote OCR provider; {sum(s.pages for s in samples)} page(s) will be sent to it\n")
+            sys.stderr.write(f"privacy notice: {provider_id} is a remote OCR provider; up to {sum(s.pages for s in samples) * repeats} page(s) will be sent to it\n")
         observations = observe(samples, extract_with_pipeline, repeats)
     remote = any(o.extraction.remote for o in observations)
     reason = mislabel_reason(observations, expected) or remote_block(remote, allow_remote, os.environ)
     if reason is not None:
         return ProviderRun(provider_id, "skipped", reason, (), price_per_page, False)
-    return ProviderRun(provider_id, "ok", None, observations, price_per_page, remote)
+    return ProviderRun(provider_id, "ok", None, observations, price_per_page, remote, repeats)
 
 
 def field_matches(actual: Figures | None, label: Figures) -> int:
@@ -245,7 +260,7 @@ def score_run(run: ProviderRun, expected: Mapping[str, Figures]) -> RunScores:
     )
     latencies = [value for o in run.observations for value in o.latencies]
     pages = sum(o.pages for o in run.observations)
-    cost = (None if run.price_per_page is None else round(pages * run.price_per_page, 4)) if run.remote else 0.0
+    cost = (None if run.price_per_page is None else round(pages * run.requests_per_document * run.price_per_page, 4)) if run.remote else 0.0
     return RunScores(
         provider_id=run.provider_id,
         status="ok",
@@ -296,7 +311,7 @@ def build_payload(meta: Mapping[str, Any], samples: Sequence[Sample], runs: Sequ
         "providers": [asdict(score) for score in scores],
         "observations": {
             run.provider_id: [
-                {"name": o.name, "status": o.extraction.status, "code": o.extraction.code, "latencies_s": list(o.latencies), "pages": o.pages}
+                {"name": o.name, "status": o.extraction.status, "code": o.extraction.code, "latencies_s": list(o.latencies), "pages": o.pages, "engines": list(o.extraction.engines)}
                 for o in run.observations
             ]
             for run in runs
@@ -365,6 +380,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     if args.self_check:
         return self_check()
+    if args.limit < 1 or args.repeats < 1 or args.max_remote_pages < 1:
+        sys.stderr.write("--limit, --repeats and --max-remote-pages must be positive\n")
+        return 2
     providers = [item.strip() for item in args.providers.split(",") if item.strip()]
     try:
         secrets = secret_values(args.settings, os.environ)
@@ -430,6 +448,8 @@ def _run_self_check() -> None:
     _expect(remote_block(True, True, {}) is not None, "remote needs env")
     _expect(remote_block(False, False, {}) is None, "local runs are not gated")
     _expect(remote_page_block(samples, 8) is None and remote_page_block(samples, 7) is not None, "remote page cap")
+    _expect(remote_page_block(samples, 15, 2) is not None, "remote page cap includes repeats")
+    _expect(mislabel_reason(observe(samples[:1], lambda s: Extraction("refused"), 1), "tesseract") is not None, "OCR must run")
     names = secret_env_names(None)
     _expect("AZURE_DOCINTEL_KEY" in names and "AWS_SESSION_TOKEN" in names, "allowlisted secret names")
     secrets = secret_values(None, {"AZURE_DOCINTEL_KEY": FAKE_ENV_VALUE, "AWS_SESSION_TOKEN": "token-selfcheck"})

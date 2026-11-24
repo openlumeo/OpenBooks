@@ -140,7 +140,7 @@ def handle(root, message):
         return {
             "protocolVersion": PROTOCOL_VERSION,
             "capabilities": {"tools": {"listChanged": True}},
-            "serverInfo": {"name": "openbooks", "title": "Open Books", "version": "0.2.4"},
+            "serverInfo": {"name": "openbooks", "title": "Open Books", "version": "0.2.5"},
         }
     if method == "tools/list":
         return {"tools": [SEARCH_TOOL, EXECUTE_TOOL]}

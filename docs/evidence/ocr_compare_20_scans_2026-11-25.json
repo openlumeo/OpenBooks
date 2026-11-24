@@ -1,0 +1,434 @@
+{
+  "created_at": "2026-11-24T19:45:09+00:00",
+  "documents": [
+    "India_Bank_Statement_Scanned_Type1/00002",
+    "India_Bank_Statement_Scanned_Type1/00004",
+    "India_Bank_Statement_Scanned_Type1/00005",
+    "India_Bank_Statement_Scanned_Type1/00020",
+    "India_Bank_Statement_Scanned_Type1/00021",
+    "India_Bank_Statement_Scanned_Type1/00024",
+    "India_Bank_Statement_Scanned_Type1/00040",
+    "India_Bank_Statement_Scanned_Type1/00046",
+    "India_Bank_Statement_Scanned_Type1/00053",
+    "India_Bank_Statement_Scanned_Type1/00059",
+    "India_Bank_Statement_Scanned_Type1/00082",
+    "India_Bank_Statement_Scanned_Type1/00084",
+    "India_Bank_Statement_Scanned_Type1/00100",
+    "India_Bank_Statement_Scanned_Type2/00016",
+    "India_Bank_Statement_Scanned_Type2/00034",
+    "India_Bank_Statement_Scanned_Type2/00036",
+    "India_Bank_Statement_Scanned_Type2/00037",
+    "India_Bank_Statement_Scanned_Type2/00063",
+    "India_Bank_Statement_Scanned_Type2/00082",
+    "India_Bank_Statement_Scanned_Type2/00085"
+  ],
+  "meta": {
+    "fixtures": "train",
+    "limit": 20,
+    "repeats": 1,
+    "seed": 20260601
+  },
+  "observations": {
+    "easyocr": [
+      {
+        "code": "UNKNOWN_LAYOUT",
+        "latencies_s": [
+          89.1542
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00002",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          64.6991
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00004",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          68.166
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00005",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          58.9237
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00020",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          63.4914
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00021",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          61.1499
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00024",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          65.4246
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00040",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "UNKNOWN_LAYOUT",
+        "latencies_s": [
+          66.641
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00046",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "UNKNOWN_LAYOUT",
+        "latencies_s": [
+          66.4865
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00053",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          62.6185
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00059",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          64.424
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00082",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "UNKNOWN_LAYOUT",
+        "latencies_s": [
+          72.895
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00084",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          65.9547
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00100",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          66.4045
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00016",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          75.2292
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00034",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          71.6967
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00036",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          68.2055
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00037",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          89.59
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00063",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          78.4986
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00082",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          98.8215
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00085",
+        "pages": 5,
+        "status": "refused"
+      }
+    ],
+    "tesseract": [
+      {
+        "code": "BALANCE_MISMATCH",
+        "latencies_s": [
+          36.0776
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00002",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          39.394
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00004",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          41.0801
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00005",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          50.1316
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00020",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          44.9247
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00021",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          48.7105
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00024",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          45.1672
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00040",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          37.8131
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00046",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          46.4209
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00053",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "BALANCE_MISMATCH",
+        "latencies_s": [
+          39.75
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00059",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "BALANCE_MISMATCH",
+        "latencies_s": [
+          46.8161
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00082",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          55.0762
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00084",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          52.512
+        ],
+        "name": "India_Bank_Statement_Scanned_Type1/00100",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          44.3537
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00016",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          54.0551
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00034",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          30.9717
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00036",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          26.2216
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00037",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          26.0592
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00063",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          27.5928
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00082",
+        "pages": 6,
+        "status": "refused"
+      },
+      {
+        "code": "PARSE_ERROR",
+        "latencies_s": [
+          28.5201
+        ],
+        "name": "India_Bank_Statement_Scanned_Type2/00085",
+        "pages": 5,
+        "status": "refused"
+      }
+    ]
+  },
+  "providers": [
+    {
+      "documents": 20,
+      "est_cost_usd": 0.0,
+      "field_accuracy": null,
+      "p50_s": 41.08,
+      "p95_s": 54.055,
+      "pages": 119,
+      "provider_id": "tesseract",
+      "reason": null,
+      "refusal_codes": {
+        "BALANCE_MISMATCH": 3,
+        "PARSE_ERROR": 17
+      },
+      "release_accuracy": 0.0,
+      "status": "ok",
+      "wrong_release_count": 0
+    },
+    {
+      "documents": 20,
+      "est_cost_usd": 0.0,
+      "field_accuracy": null,
+      "p50_s": 66.487,
+      "p95_s": 89.59,
+      "pages": 119,
+      "provider_id": "easyocr",
+      "reason": null,
+      "refusal_codes": {
+        "PARSE_ERROR": 16,
+        "UNKNOWN_LAYOUT": 4
+      },
+      "release_accuracy": 0.0,
+      "status": "ok",
+      "wrong_release_count": 0
+    }
+  ],
+  "schema": "ocr-compare.v1"
+}

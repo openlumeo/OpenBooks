@@ -59,6 +59,10 @@ def last_ocr_run() -> OcrRun | None:
     return session.run if session is not None else None
 
 
+def last_ocr_session() -> OcrSession | None:
+    return getattr(_RUNS, "session", None)
+
+
 def last_ocr_engines() -> tuple[str, ...]:
     session = getattr(_RUNS, "session", None)
     return session.engine_ids if session is not None else ()

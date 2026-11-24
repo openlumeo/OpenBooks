@@ -18,7 +18,7 @@ from bench.providers import Provider, ProviderError, ToolCall, Usage
 from bench.score import score_bundle
 
 SCHEMA = "openbooks.bench.v1"
-DEFAULT_KIT_VERSION = "0.2.4"
+DEFAULT_KIT_VERSION = "0.2.5"
 RESULT_FILE = "bench-result.v1.json"
 SCORECARD_FILE = "results.md"
 REPO_ROOT = Path(__file__).resolve().parents[2]

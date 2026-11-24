@@ -7,13 +7,13 @@
     "source": "github",
     "subfolder": "packages/js/cli"
   },
-  "version": "0.2.4",
+  "version": "0.2.5",
   "websiteUrl": "https://openbooks.lumeo.co.in/docs/mcp",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@lumeo_hq/openbooks",
-      "version": "0.2.4",
+      "version": "0.2.5",
       "runtimeHint": "npx",
       "packageArguments": [
         { "type": "positional", "value": "mcp" }
