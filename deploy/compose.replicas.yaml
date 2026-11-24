@@ -8,9 +8,11 @@ x-engine: &engine
   image: openbooks-engine:${OPENBOOKS_ENGINE_TAG:-local}
   restart: unless-stopped
   stop_grace_period: 130s
+  mem_limit: ${OPENBOOKS_ENGINE_MEMORY_LIMIT:-2g}
   environment:
     OMP_NUM_THREADS: ${OPENBOOKS_CPU_THREADS:-2}
     MKL_NUM_THREADS: ${OPENBOOKS_CPU_THREADS:-2}
+    OPENBOOKS_OCR_PROVIDER: ${OPENBOOKS_OCR_PROVIDER:-tesseract}
     OPENBOOKS_ENGINE_KEY: ${OPENBOOKS_ENGINE_KEY:-}
   healthcheck:
     test: ["CMD", "python", "/app/ready.py"]

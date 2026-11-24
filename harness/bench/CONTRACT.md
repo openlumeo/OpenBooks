@@ -86,7 +86,7 @@ The key is read from the environment variable named by `--api-key-env`; there is
 ```json
 {
   "schema": "openbooks.bench.v1",
-  "kit_version": "0.2.4",
+  "kit_version": "0.2.5",
   "run_id": "uuid4",
   "created_at": "ISO-8601 UTC",
   "model": {"provider": "anthropic", "name": "claude-..."},

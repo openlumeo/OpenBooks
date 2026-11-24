@@ -15,6 +15,7 @@ from openbooks.core.builders import statement_doc
 from openbooks.core.errors import EngineFault, Refusal
 from openbooks.core.normalise import date_order, to_date, to_dec
 from openbooks.core.params import Params
+from openbooks.statements.ocr_providers import OcrRun, OcrSession, PageInput, ProviderSettings, load_settings, select_engine
 from openbooks.statements.pdf_words import _EU, _MONEY, Word, _date_spans, _lines
 from openbooks.statements.scan_decimals import _OCR_COMMA_DECIMAL, _repair_scan_decimal_commas  # noqa: F401
 from openbooks.statements.table_header import HEADER, _IND, _header_cols, _near, find_header  # noqa: F401
@@ -41,6 +42,7 @@ def _loc(ws: list[Word]) -> tuple[int, list[float], float | None]:
 
 _READER = None
 _DOCUMENT_LOCK = threading.Lock()
+_RUNS = threading.local()
 
 
 def ocr_runtime():
@@ -52,30 +54,26 @@ def ocr_runtime():
     return easyocr, torch
 
 
-def _ocr_page(page, number: int) -> list[Word]:
-    global _READER
-    if _READER is None:
-        easyocr, torch = ocr_runtime()
-        try:
-            _READER = easyocr.Reader(["en"], gpu=torch.cuda.is_available(), verbose=False)
-        except (OSError, RuntimeError) as e:
-            raise EngineFault("Could not initialize OCR. Check the EasyOCR model files and the PyTorch runtime.") from e
-    pw, ph = page.width, page.height
-    scale = min(OCR_DPI / 72, OCR_MAX_PX / max(pw, ph))
-    img = page.render_rgb(scale)
-    out = []
-    for poly, text, conf in _READER.readtext(img, paragraph=False):
-        xs, ys = [q[0] / scale for q in poly], [q[1] / scale for q in poly]
-        compact = text.replace(" ", "")
-        parts = [compact] if _OCR_AMOUNT.match(compact) else text.split()
-        total = sum(len(s) for s in parts) or 1
-        x, span = min(xs), max(xs) - min(xs)
-        for s in parts:
-            w = span * len(s) / total
-            fixed = _ocr_fix(s)
-            out.append(Word(fixed, x, min(ys), x + w, max(ys), number, float(conf), pw, ph, s if fixed != s else None))
-            x += w
-    return _join_split_amounts(out)
+def last_ocr_run() -> OcrRun | None:
+    session = getattr(_RUNS, "session", None)
+    return session.run if session is not None else None
+
+
+def last_ocr_session() -> OcrSession | None:
+    return getattr(_RUNS, "session", None)
+
+
+def last_ocr_engines() -> tuple[str, ...]:
+    session = getattr(_RUNS, "session", None)
+    return session.engine_ids if session is not None else ()
+
+
+def _ocr_page(page, number: int, session: OcrSession, dpi: float) -> list[Word]:
+    with _DOCUMENT_LOCK:
+        pw, ph = page.width, page.height
+        scale = min(dpi / 72, OCR_MAX_PX / max(pw, ph))
+        image = page.render_rgb(scale)
+    return _join_split_amounts(session.read_page(PageInput(image, scale, number, (pw, ph))))
 
 
 _DIGITS_COMMAS = re.compile(r"^[\d,]+$")
@@ -129,32 +127,54 @@ def _ocr_fix(s: str) -> str:
 
 
 def read_words(path: Path | bytes, p: Params) -> tuple[list[list[Word]], str]:
+    _RUNS.session = None
+    settings = load_settings()
+    session = OcrSession(settings)
+    _RUNS.session = session
+    return _read_words(path, p, session, settings)
+
+
+def _locked_pages(doc):
     with _DOCUMENT_LOCK:
-        return _read_words(path, p)
+        pages = iter(doc.pages())
+    while True:
+        with _DOCUMENT_LOCK:
+            page = next(pages, None)
+        if page is None:
+            return
+        yield page
 
 
-def _read_words(path: Path | bytes, p: Params) -> tuple[list[list[Word]], str]:
+def _read_words(path: Path | bytes, p: Params, session: OcrSession, settings: ProviderSettings) -> tuple[list[list[Word]], str]:
     from .pdf_backend import open_document
 
     is_image = isinstance(path, Path) and path.suffix.lower() in (".png", ".jpg", ".jpeg")
-    doc = open_document(path, image=is_image)
+    with _DOCUMENT_LOCK:
+        doc = open_document(path, image=is_image)
     try:
-        if doc.page_count > MAX_PAGES:
+        with _DOCUMENT_LOCK:
+            page_count = doc.page_count
+        if page_count > MAX_PAGES:
             raise Refusal("UNSUPPORTED_INPUT", f"more than {MAX_PAGES} pages")
         pages, method = [], "pdf_text"
-        for i, page in enumerate(doc.pages(), 1):
-            pw, ph = page.width, page.height
-            ws = [Word(t, x0, y0, x1, y1, i, None, pw, ph) for t, x0, y0, x1, y1 in page.words()]
+        ocr_dpi: float | None = None
+        for i, page in enumerate(_locked_pages(doc), 1):
+            with _DOCUMENT_LOCK:
+                pw, ph = page.width, page.height
+                ws = [Word(t, x0, y0, x1, y1, i, None, pw, ph) for t, x0, y0, x1, y1 in page.words()]
             if len(ws) < TEXT_LAYER_MIN_WORDS:
                 if not p.ocr:
                     raise Refusal("UNSUPPORTED_INPUT", f"page {i} has no text layer and OCR is off")
-                ws, method = _repair_scan_decimal_commas(_ocr_page(page, i)), "ocr"
+                if ocr_dpi is None:
+                    ocr_dpi = select_engine(settings).preferred_dpi
+                ws, method = _repair_scan_decimal_commas(_ocr_page(page, i, session, ocr_dpi)), "ocr"
             if len(ws) > MAX_WORDS_PER_PAGE:
                 raise Refusal("UNSUPPORTED_INPUT", f"page {i} has more than {MAX_WORDS_PER_PAGE} words")
             pages.append(ws)
         return pages, method
     finally:
-        doc.close()
+        with _DOCUMENT_LOCK:
+            doc.close()
 
 
 

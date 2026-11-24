@@ -1,6 +1,6 @@
 {
   "name": "@lumeo_hq/openbooks",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Open Books: verify bank statements, settlements and tax documents and get one proven JSON per file, or a typed refusal. One package with the CLI, the typed library and the MCP server for AI agents.",
   "keywords": [
     "bank-statement",

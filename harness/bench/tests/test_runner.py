@@ -107,7 +107,7 @@ def test_bundle_shape_digest_and_engine_outcomes(tasks_root, tmp_path):
 
     assert list(bundle) == ["schema", "kit_version", "run_id", "created_at", "model", "tasks", "scores", "tasks_digest"]
     assert bundle["schema"] == "openbooks.bench.v1"
-    assert bundle["kit_version"] == "0.2.4"
+    assert bundle["kit_version"] == "0.2.5"
     assert str(uuid.UUID(bundle["run_id"])) == bundle["run_id"]
     assert UTC_STAMP.match(bundle["created_at"])
     assert bundle["model"] == {"provider": "anthropic", "name": "claude-test"}

@@ -1,0 +1,66 @@
+default = "tesseract"
+fallback = "tesseract"
+allow_remote = false
+
+[providers.tesseract]
+engine = "tesseract"
+remote = false
+
+[providers.tesseract.options]
+lang = "eng"
+psm = "6"
+cmd_env = "OPENBOOKS_TESSERACT_CMD"
+
+[providers.easyocr]
+engine = "easyocr"
+remote = false
+
+[providers.azure]
+engine = "azure_docintel"
+remote = true
+
+[providers.azure.env]
+endpoint = "AZURE_DOCINTEL_ENDPOINT"
+key = "AZURE_DOCINTEL_KEY"
+
+[providers.azure-layout]
+engine = "azure_docintel"
+remote = true
+
+[providers.azure-layout.env]
+endpoint = "AZURE_DOCINTEL_ENDPOINT"
+key = "AZURE_DOCINTEL_KEY"
+
+[providers.azure-layout.options]
+model = "prebuilt-layout"
+
+[providers.google]
+engine = "google_docai"
+remote = true
+
+[providers.google.env]
+processor = "GOOGLE_DOCAI_PROCESSOR"
+credentials = "GOOGLE_APPLICATION_CREDENTIALS"
+
+[providers.aws]
+engine = "aws_textract"
+remote = true
+
+[providers.aws.env]
+access_key_id = "AWS_ACCESS_KEY_ID"
+secret_access_key = "AWS_SECRET_ACCESS_KEY"
+region = "AWS_REGION"
+
+[providers.mistral]
+engine = "mistral_ocr"
+remote = true
+
+[providers.mistral.env]
+key = "MISTRAL_API_KEY"
+
+[providers.llamaparse]
+engine = "llamaparse"
+remote = true
+
+[providers.llamaparse.env]
+key = "LLAMA_CLOUD_API_KEY"

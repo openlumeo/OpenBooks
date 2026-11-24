@@ -52,10 +52,11 @@ const processing = {
   allow_derived_opening: z.boolean().default(false),
   ocr: z.boolean().default(true),
   model: z.boolean().default(false),
+  detail: z.enum(["verdict", "standard", "figures"]).optional().describe("verdict, standard or figures (default standard)"),
 };
 
 const NoArguments = z.object({}).strict();
-const SampleInput = z.object({ opening: opening.optional() }).strict();
+const SampleInput = z.object({ opening: opening.optional(), detail: processing.detail }).strict();
 const FileInput = z.object({ ...processing, path: z.string().min(1).max(512) }).strict();
 const UploadInput = z.object({
   ...processing,
@@ -125,6 +126,10 @@ async function withTempFile<T>(payload: Buffer, filename: string, use: (path: st
   }
 }
 
+function countsOf(data: Record<string, unknown>): Record<string, number> {
+  return Object.fromEntries(Object.entries(data).map(([name, items]) => [name, Array.isArray(items) ? items.length : 0]));
+}
+
 function summarise(result: RunResult, documents: Documents, step: string): Doc {
   const document = result.document as unknown as Doc;
   documents.set(step, document);
@@ -137,9 +142,20 @@ function summarise(result: RunResult, documents: Documents, step: string): Doc {
   return {
     ...summary,
     file: document.file,
-    counts: Object.fromEntries(Object.entries(data).map(([name, items]) => [name, Array.isArray(items) ? items.length : 0])),
+    counts: countsOf(data),
     assertions,
   };
+}
+
+function shapeDetail(result: RunResult, detail: "verdict" | "figures", engineVersion: string | undefined): Doc {
+  const verdict: Doc = { status: result.kind, engine_version: engineVersion };
+  if (result.kind === "refused") return { ...verdict, code: result.code };
+  if (detail === "verdict") return verdict;
+  const document = result.document as unknown as Doc;
+  const data = (document.data ?? {}) as Record<string, unknown>;
+  const batches = Array.isArray(data.batches) ? (data.batches as Doc[]) : [];
+  const batch: Doc = batches[0] ?? {};
+  return { ...verdict, counts: countsOf(data), opening_balance: batch.opening, closing_balance: batch.closing, currency: batch.currency };
 }
 
 function stripNulls(value: unknown): unknown {
@@ -375,12 +391,16 @@ export class Operations {
 
   private async processPath(path: string, args: ProcessingArguments, documents: Documents, step: string): Promise<Doc> {
     const result = await runFile(path, { ...this.engine, ...documentOptions(args), maxDocumentBytes: MAX_DOCUMENT_BYTES });
-    return summarise(result, documents, step);
+    const summary = summarise(result, documents, step);
+    if (args.detail === undefined || args.detail === "standard") return summary;
+    const engine = await this.engineInfo();
+    return shapeDetail(result, args.detail, engine?.info.version);
   }
 
   private async processSample(args: z.infer<typeof SampleInput>, documents: Documents, step: string): Promise<Doc> {
     const options: ProcessingArguments = { currency: "INR", date_order: "dmy", allow_derived_opening: false, ocr: true, model: false };
     if (args.opening !== undefined) options.opening = args.opening;
+    if (args.detail !== undefined) options.detail = args.detail;
     return withTempFile(Buffer.from(SAMPLE_STATEMENT), "statement.csv", (path) => this.processPath(path, options, documents, step));
   }
 
@@ -432,7 +452,7 @@ export class Operations {
         const summary = await job.run();
         const failure = summary.error as { code?: string } | undefined;
         const counts = summary.counts as Record<string, number> | undefined;
-        return stripNulls({ name: job.name, status: summary.status, code: failure?.code, rows: counts?.transactions, assertions: summary.assertions }) as Doc;
+        return stripNulls({ name: job.name, status: summary.status, code: failure?.code ?? summary.code, rows: counts?.transactions, assertions: summary.assertions }) as Doc;
       } catch (error) {
         const code = error instanceof OperationError ? error.code : "ENGINE_ERROR";
         return { name: job.name, status: "error", code };
