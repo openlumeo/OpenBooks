@@ -1,0 +1,33 @@
+{
+  "schema": "risk-coverage.v1",
+  "sources": [
+    "..\\docs\\evidence\\ocr_compare_20_scans_2026-11-25.json"
+  ],
+  "notes": [
+    "Coverage is the share of all documents released. The curve releases released documents whose confidence is at or above each threshold.",
+    "Rule of three: 3/n approximates the one-sided 95% upper bound on the wrong-release rate when zero wrong releases are observed among n released documents. It is an approximation.",
+    "overall_only mode: the input has no per-document confidence and correctness, so only the overall wrong-release count is reported; coverage at zero wrong is not determined when errors exist."
+  ],
+  "providers": [
+    {
+      "provider_id": "easyocr",
+      "mode": "overall_only",
+      "documents": 20,
+      "released": 0,
+      "wrong_release_count": 0,
+      "max_coverage_at_zero_wrong": 0.0,
+      "zero_wrong_upper_bound": null,
+      "curve": []
+    },
+    {
+      "provider_id": "tesseract",
+      "mode": "overall_only",
+      "documents": 20,
+      "released": 0,
+      "wrong_release_count": 0,
+      "max_coverage_at_zero_wrong": 0.0,
+      "zero_wrong_upper_bound": null,
+      "curve": []
+    }
+  ]
+}

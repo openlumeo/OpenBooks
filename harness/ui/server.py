@@ -56,7 +56,7 @@ TEXT_FIELDS = frozenset({"currency", "date_order", "opening", "provider", "remot
 DATE_ORDERS = frozenset({"dmy", "mdy"})
 CURRENCY = re.compile(r"[A-Za-z]{3}")
 PLAIN_NUMBER = re.compile(r"[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)")
-CONTENT_TYPES = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png"}
+CONTENT_TYPES = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2"}
 SECURITY_HEADERS = (
     ("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"),
     ("X-Frame-Options", "DENY"),
