@@ -310,8 +310,11 @@ def test_a_scan_without_the_ocr_extra_is_an_engine_problem_with_an_install_hint(
     from openbooks.core.errors import EngineFault
     from openbooks.statements import pdf_front
 
+    from openbooks.statements import ocr_providers
+
     monkeypatch.setitem(sys.modules, "easyocr", None)
     monkeypatch.setattr(pdf_front, "_READER", None)
+    monkeypatch.setattr(ocr_providers, "_resolve_tesseract", lambda *args, **kwargs: None)
     f = tmp_path / "scan.pdf"
     f.write_bytes(pdf_bytes([text(36, 700, "two words")]))
     with pytest.raises(EngineFault, match=r"openbooks\[scan\]"):

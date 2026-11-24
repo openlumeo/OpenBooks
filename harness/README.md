@@ -31,8 +31,9 @@ Client config file locations and deeplinks are UNVERIFIED except where the resea
 
 - `.claude-plugin/` plugin manifest and self-hosted marketplace (`openbooks`).
 - `.mcp.json` server config, shared by plugin clients.
-- `skills/openbooks-verify/SKILL.md` verification workflow.
+- `skills/openbooks-verify/SKILL.md` verification workflow; `skills/openbooks-benchmark/SKILL.md` runs and reports the agent benchmark.
 - `commands/` slash commands: `/verify`, `/doctor`, `/explain-refusal`.
+- `skills/openbooks-ocr-setup/SKILL.md` OCR provider choice, environment-variable setup and the remote OCR gate.
 - `AGENTS.md`, `CLAUDE.md` operating rules; `.cursor/rules/openbooks.mdc` for statement files.
 - `gemini-extension.json`, `mcpb/manifest.json` for Gemini CLI and Claude Desktop bundles.
 - `clients/` one config file per client; `samples/` a balanced and a tampered CSV and a camt.053 file with expected outcomes.
@@ -45,6 +46,10 @@ The server exposes `search` and `execute`, plus resources `openbooks://schema/re
 - A `refused` result is a final decision. Report its code (see `openbooks://guide/refusals`). Never present a refused document as verified.
 - Supply an opening balance only from a trusted source.
 - With `--root`, files stay on your machine. Without it, the server works only on bundled samples and small uploads.
+
+## Bring your own OCR
+
+Pick an OCR provider in `openbooks.providers.toml`; it holds only environment variable names, never keys, and remote providers stay off until `allow_remote = true`.
 
 ## Benchmark your agent
 
