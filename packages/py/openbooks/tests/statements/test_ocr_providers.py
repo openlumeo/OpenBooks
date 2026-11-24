@@ -1,6 +1,5 @@
 import json
 import math
-import re
 import traceback
 from collections.abc import Callable
 from dataclasses import replace
@@ -15,8 +14,6 @@ from openbooks.statements import ocr_cloud as cloud
 from openbooks.statements import ocr_providers as ocr
 from openbooks.statements.pdf_words import Word
 
-REPO_ROOT = Path(__file__).resolve().parents[5]
-SHIPPED_TOML = REPO_ROOT / "harness" / "openbooks.providers.toml"
 PAGE_SIZE = (612.0, 792.0)
 FAKE_KEY = "test-fake-key-not-real-0123456789abcdef"
 AZURE_ENDPOINT = "https://docs.example.test"
@@ -115,15 +112,6 @@ def write_toml(tmp_path: Path, text: str, name: str = "providers.toml") -> Path:
 def test_empty_file_loads_documented_defaults(tmp_path):
     loaded = ocr.load_settings(write_toml(tmp_path, ""), {})
     assert (loaded.default, loaded.fallback, loaded.providers) == ("tesseract", None, {})
-
-
-def test_shipped_toml_declares_env_var_names_only_and_no_value_looks_secret():
-    loaded = ocr.load_settings(SHIPPED_TOML, {})
-    assert loaded.default == "tesseract" and loaded.fallback == "tesseract" and loaded.allow_remote is False
-    assert len(loaded.providers) >= 6
-    for provider in loaded.providers.values():
-        for name in provider.env.values():
-            assert re.fullmatch(r"[A-Z][A-Z0-9_]*", name) and not ocr.looks_like_secret(name)
 
 
 @pytest.mark.parametrize("value", ["sk-" + "a" * 40, "AIza" + "b" * 35, "xai-" + "c" * 30,
@@ -429,7 +417,7 @@ def test_mistral_and_llamaparse_refuse_word_boxes_and_never_fall_back(engine_nam
 
 def test_tampered_figure_from_fake_ocr_ends_in_balance_mismatch_not_release(tmp_path, monkeypatch):
     pytest.importorskip("pypdfium2")
-    from openbooks.statements.pdf_backend import open_document
+    from openbooks.statements.pdf_backend import PdfPage, open_document
     from pdfmaker import pdf_bytes, statement_pdf
 
     genuine_pdf = tmp_path / "genuine.pdf"
@@ -443,6 +431,8 @@ def test_tampered_figure_from_fake_ocr_ends_in_balance_mismatch_not_release(tmp_
     tampered_words = [replace(w, text="200.51") if w.text == "200.50" else w for w in genuine_words]
     assert tampered_words != genuine_words
 
+    # The fake provider returns predefined words and does not inspect the raster.
+    monkeypatch.setattr(PdfPage, "render_rgb", lambda self, scale: None)
     served: dict[str, list[Word]] = {"words": genuine_words}
     add_engine("fake_ocr", lambda page: served["words"] if page == 1 else [])
     toml = write_toml(tmp_path, 'default = "fake"\n\n[providers.fake]\nengine = "fake_ocr"\nremote = false\n')

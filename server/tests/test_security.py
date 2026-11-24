@@ -6,7 +6,8 @@ import pytest
 from fastapi.testclient import TestClient
 from openbooks.pipeline import MAX_BYTES
 
-from openbooks_server.app import _sse, app
+from openbooks_server.app import app
+from openbooks_server.execution import _sse
 from openbooks_server.runs import Run, parse_params, safe_name
 
 XSS = '<script>alert(1)</script>"\'><img src=x onerror=alert(1)>'

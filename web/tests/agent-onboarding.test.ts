@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { createAgentSetupStore } from "@/lib/server/agent-setup-store";
 import { handleAgentSetupMcp } from "@/lib/server/agent-setup-mcp";
 
-describe("agent onboarding on isolated PostgreSQL", () => {
+// Cold PGlite startup can exceed the default timeout on shared CI runners.
+describe("agent onboarding on isolated PostgreSQL", { timeout: 30_000 }, () => {
   it("confirms a real MCP tool call and isolates, expires and prunes receipts", async () => {
     const db = new PGlite();
     try {

@@ -9,23 +9,37 @@ const METHOD_LABEL: Record<string, string> = {
   "ocr+model": "OCR, model cross-checked",
 };
 
-export function EvidenceTab({ doc, record, onRecord }: { doc: ReleasedDoc; record: string; onRecord: (id: string) => void }) {
+export function EvidenceTab({
+  doc,
+  record,
+  onRecord,
+}: {
+  doc: ReleasedDoc;
+  record: string;
+  onRecord: (id: string) => void;
+}) {
   const inputId = useId();
   const records = useMemo(() => {
     const ids = new Set<string>();
     for (const k of Object.keys(doc.evidence)) ids.add(k.slice(0, k.indexOf(".")));
-    return [...ids].sort((a, b) => (a.startsWith("batch") === b.startsWith("batch") ? a.localeCompare(b) : a.startsWith("batch") ? -1 : 1));
+    return [...ids].sort((a, b) =>
+      a.startsWith("batch") === b.startsWith("batch") ? a.localeCompare(b) : a.startsWith("batch") ? -1 : 1,
+    );
   }, [doc]);
-  const current = records.includes(record) ? record : records[0] ?? "";
+  const current = records.includes(record) ? record : (records[0] ?? "");
   const fields = Object.entries(doc.evidence).filter(([k]) => k.startsWith(`${current}.`));
 
   return (
     <div className="panel">
       <div className="evidence-pick">
-        <label htmlFor={inputId} className="mono-label">Record</label>
+        <label htmlFor={inputId} className="mono-label">
+          Record
+        </label>
         <select id={inputId} className="field" value={current} onChange={(e) => onRecord(e.target.value)}>
           {records.map((r) => (
-            <option key={r} value={r}>{r}</option>
+            <option key={r} value={r}>
+              {r}
+            </option>
           ))}
         </select>
         <span className="t-body-sm">Where every value of this record was read from.</span>

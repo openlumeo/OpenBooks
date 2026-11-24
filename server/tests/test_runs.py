@@ -8,7 +8,7 @@ import pytest
 from openbooks.pipeline import Params
 
 from openbooks_server import runs
-from openbooks_server.app import _run_params, _sse, _stage_uploads
+from openbooks_server.execution import _run_params, _sse, _stage_uploads
 from openbooks_server.runs import Run, parse_params, safe_name
 
 

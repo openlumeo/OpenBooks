@@ -59,7 +59,12 @@ export function RunCard({
   const sha = doc?.status === "ok" ? doc.file.sha256 : doc?.status === "refused" ? doc.error.file_sha256 : null;
 
   return (
-    <article id={id} tabIndex={-1} className={`run-card${doc?.status === "refused" ? " run-card--refused" : ""}`} aria-label={`${file.name}: ${verdictWord(file)}`}>
+    <article
+      id={id}
+      tabIndex={-1}
+      className={`run-card${doc?.status === "refused" ? " run-card--refused" : ""}`}
+      aria-label={`${file.name}: ${verdictWord(file)}`}
+    >
       <header className="run-card-head">
         <h3 className="run-card-name">{file.name}</h3>
         <Verdict file={file} />
@@ -67,9 +72,15 @@ export function RunCard({
           <span className="meta-item">{fmtBytes(file.size)}</span>
           {doc?.status === "ok" && (
             <>
-              <span className="meta-item"><b>{doc.file.detected_format}</b></span>
-              <span className="meta-item"><b>{doc.file.layout_version}</b></span>
-              <span className="meta-item">method <b>{doc.file.method}</b></span>
+              <span className="meta-item">
+                <b>{doc.file.detected_format}</b>
+              </span>
+              <span className="meta-item">
+                <b>{doc.file.layout_version}</b>
+              </span>
+              <span className="meta-item">
+                method <b>{doc.file.method}</b>
+              </span>
               {doc.file.model && (
                 <span
                   className="meta-item"
@@ -107,7 +118,9 @@ export function RunCard({
       <div className="run-card-body">
         {!doc && file.state !== "interrupted" && (
           <div aria-live="polite" className="panel">
-            <span className="t-body-sm">{file.state === "queued" ? "Waiting for the files before it." : "Reading and checking this file."}</span>
+            <span className="t-body-sm">
+              {file.state === "queued" ? "Waiting for the files before it." : "Reading and checking this file."}
+            </span>
             <div className="skeleton-run" aria-hidden="true">
               <div className="skeleton" style={{ width: "62%" }} />
               <div className="skeleton" style={{ width: "38%" }} />
@@ -117,10 +130,17 @@ export function RunCard({
 
         {file.state === "interrupted" && (
           <div className="interrupted-recovery">
-            <p className="fix-note">{available
-              ? "The run stopped before this file finished. Retry with the same settings."
-              : "The run stopped before this file finished. Attach the original file again to retry."}</p>
-            <button type="button" className="btn btn-ghost btn-xs" disabled={recoveryDisabled} onClick={() => available ? onRerun(file.index, {}) : onAttach()}>
+            <p className="fix-note">
+              {available
+                ? "The run stopped before this file finished. Retry with the same settings."
+                : "The run stopped before this file finished. Attach the original file again to retry."}
+            </p>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs"
+              disabled={recoveryDisabled}
+              onClick={() => (available ? onRerun(file.index, {}) : onAttach())}
+            >
               {available ? <RotateCw size={14} /> : <Paperclip size={14} />}
               {available ? "Retry file" : "Attach original file"}
             </button>
@@ -146,7 +166,12 @@ export function RunCard({
         {doc?.status === "ok" && (
           <>
             <p className="checks-line">
-              <span><strong>{doc.assertions.filter((a) => a.passed).length} of {doc.assertions.length}</strong> checks tie out</span>
+              <span>
+                <strong>
+                  {doc.assertions.filter((a) => a.passed).length} of {doc.assertions.length}
+                </strong>{" "}
+                checks tie out
+              </span>
               <span>{doc.assertions.filter((a) => a.independent).length} independent of the parser</span>
               <span>{doc.data.transactions.length} rows</span>
             </p>
@@ -199,7 +224,11 @@ export function RunCard({
         {doc && (
           <div className="run-card-foot">
             <span className="mono-label">{doc.schema_version}</span>
-            <button type="button" className="btn btn-ghost btn-xs" onClick={() => downloadText(jsonFileName(file.name), docText(doc))}>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs"
+              onClick={() => downloadText(jsonFileName(file.name), docText(doc))}
+            >
               <Download size={14} /> {doc.status === "ok" ? "Download JSON" : "Download refusal"}
             </button>
           </div>

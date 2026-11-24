@@ -7,8 +7,13 @@ import {
   MAX_FILES,
   problemsFor,
   type Pending,
-} from "@/components/composer-parts/problems";
-import { draftError, draftToParams, isCurrencyInvalid, isOpeningInvalid } from "@/components/composer-parts/params-draft";
+} from "@/components/workspace/composer-parts/problems";
+import {
+  draftError,
+  draftToParams,
+  isCurrencyInvalid,
+  isOpeningInvalid,
+} from "@/components/workspace/composer-parts/params-draft";
 import { HISTORY_MESSAGES, priorExchanges, threadDocs, titleFor, trimHistory } from "@/lib/workspace/history";
 import type { EngineDoc, RunParams, Thread, Turn } from "@/lib/types";
 
@@ -19,7 +24,9 @@ const ALLOWED = [".csv", ".pdf"];
 describe("titleFor", () => {
   it("uses the file name for one file and a count for several", () => {
     expect(titleFor([new File(["a"], "jan.csv")], "")).toBe("jan.csv");
-    expect(titleFor([new File(["a"], "jan.csv"), new File(["b"], "feb.csv"), new File(["c"], "x.pdf")], "")).toBe("jan.csv + 2 more");
+    expect(titleFor([new File(["a"], "jan.csv"), new File(["b"], "feb.csv"), new File(["c"], "x.pdf")], "")).toBe(
+      "jan.csv + 2 more",
+    );
   });
 
   it("collapses whitespace and truncates long questions with an ellipsis", () => {
@@ -43,10 +50,9 @@ describe("threadDocs", () => {
   });
 
   it("lists only files that have a document, in turn order", () => {
-    const docs = threadDocs(thread([
-      run([{ name: "a.csv", doc: doc("A") }, { name: "b.csv" }]),
-      run([{ name: "c.csv", doc: doc("C") }]),
-    ]));
+    const docs = threadDocs(
+      thread([run([{ name: "a.csv", doc: doc("A") }, { name: "b.csv" }]), run([{ name: "c.csv", doc: doc("C") }])]),
+    );
     expect(docs.map((d) => d.doc)).toEqual([doc("A"), doc("C")]);
     expect(docs).toHaveLength(2);
   });
@@ -54,32 +60,48 @@ describe("threadDocs", () => {
 
 describe("priorExchanges", () => {
   it("pairs a question with the answer that followed it, when the answer is complete", () => {
-    const history = priorExchanges(thread([
-      ask("q1"), answer("a1"),
-    ]));
-    expect(history).toEqual([{ role: "user", content: "q1" }, { role: "assistant", content: "a1" }]);
+    const history = priorExchanges(thread([ask("q1"), answer("a1")]));
+    expect(history).toEqual([
+      { role: "user", content: "q1" },
+      { role: "assistant", content: "a1" },
+    ]);
   });
 
   it("skips streaming, failed, empty and unanswered exchanges", () => {
-    const history = priorExchanges(thread([
-      ask("streaming"), answer("partial", "streaming"),
-      ask("failed"), answer("oops", "done", "boom"),
-      ask("blank"), answer("   "),
-      ask("unanswered"),
-      ask("good"), answer("ok"),
-    ]));
-    expect(history).toEqual([{ role: "user", content: "good" }, { role: "assistant", content: "ok" }]);
+    const history = priorExchanges(
+      thread([
+        ask("streaming"),
+        answer("partial", "streaming"),
+        ask("failed"),
+        answer("oops", "done", "boom"),
+        ask("blank"),
+        answer("   "),
+        ask("unanswered"),
+        ask("good"),
+        answer("ok"),
+      ]),
+    );
+    expect(history).toEqual([
+      { role: "user", content: "good" },
+      { role: "assistant", content: "ok" },
+    ]);
   });
 
   it("returns nothing for a missing thread and keeps unicode content", () => {
     expect(priorExchanges(undefined)).toEqual([]);
-    expect(priorExchanges(thread([ask("支払いはいくら"), answer("₹100")]))[1]).toEqual({ role: "assistant", content: "₹100" });
+    expect(priorExchanges(thread([ask("支払いはいくら"), answer("₹100")]))[1]).toEqual({
+      role: "assistant",
+      content: "₹100",
+    });
   });
 });
 
 describe("trimHistory", () => {
   it("keeps short histories unchanged", () => {
-    const h = [{ role: "user" as const, content: "q" }, { role: "assistant" as const, content: "a" }];
+    const h = [
+      { role: "user" as const, content: "q" },
+      { role: "assistant" as const, content: "a" },
+    ];
     expect(trimHistory(h)).toEqual(h);
   });
 
@@ -137,8 +159,9 @@ describe("problemsFor", () => {
   });
 
   it("names the first unsupported file and lists what is accepted", () => {
-    expect(problemsFor([pendingFile("ok.csv"), pendingFile("bad.exe"), pendingFile("worse.zip")], ALLOWED, MB))
-      .toBe("bad.exe is not a supported type. Accepted: .csv .pdf.");
+    expect(problemsFor([pendingFile("ok.csv"), pendingFile("bad.exe"), pendingFile("worse.zip")], ALLOWED, MB)).toBe(
+      "bad.exe is not a supported type. Accepted: .csv .pdf.",
+    );
   });
 
   it("names the first file over the size limit", () => {
@@ -153,8 +176,14 @@ describe("problemsFor", () => {
 
 describe("composerHint", () => {
   const base = {
-    operation: null, engineUp: true, problem: null, hasFiles: false, hasImage: false,
-    hasText: false, hasDocs: false, askEnabled: true,
+    operation: null,
+    engineUp: true,
+    problem: null,
+    hasFiles: false,
+    hasImage: false,
+    hasText: false,
+    hasDocs: false,
+    askEnabled: true,
   } as const;
 
   it("reports the current operation before anything else", () => {
@@ -163,12 +192,16 @@ describe("composerHint", () => {
   });
 
   it("reports an unreachable engine before a file problem", () => {
-    expect(composerHint({ ...base, engineUp: false, problem: "bad" })).toBe("The engine is not reachable, so files cannot be checked right now.");
+    expect(composerHint({ ...base, engineUp: false, problem: "bad" })).toBe(
+      "The engine is not reachable, so files cannot be checked right now.",
+    );
   });
 
   it("shows a file problem, then the OCR issue only for image files", () => {
     expect(composerHint({ ...base, problem: "too big", hasFiles: true })).toBe("too big");
-    expect(composerHint({ ...base, hasFiles: true, ocrIssue: "no OCR" })).toBe("Each file is checked on its own. Nothing is released unless its numbers tie out.");
+    expect(composerHint({ ...base, hasFiles: true, ocrIssue: "no OCR" })).toBe(
+      "Each file is checked on its own. Nothing is released unless its numbers tie out.",
+    );
     expect(composerHint({ ...base, hasFiles: true, hasImage: true, ocrIssue: "no OCR" })).toBe("no OCR");
   });
 
@@ -221,15 +254,26 @@ describe("params draft", () => {
   });
 });
 
-
 function thread(turns: Turn[]): Thread {
   return { id: "t", title: "t", createdAt: 0, updatedAt: 0, turns };
 }
 
 function run(files: { name: string; doc?: EngineDoc }[]): Turn {
   return {
-    id: `run-${files.map((f) => f.name).join("-")}`, kind: "run", at: 0, sourceTurnId: "u", state: "done",
-    files: files.map((f, index) => ({ index, name: f.name, size: 1, stages: [], state: "done", params: {}, doc: f.doc })),
+    id: `run-${files.map((f) => f.name).join("-")}`,
+    kind: "run",
+    at: 0,
+    sourceTurnId: "u",
+    state: "done",
+    files: files.map((f, index) => ({
+      index,
+      name: f.name,
+      size: 1,
+      stages: [],
+      state: "done",
+      params: {},
+      doc: f.doc,
+    })),
   } as unknown as Turn;
 }
 

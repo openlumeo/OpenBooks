@@ -1,9 +1,9 @@
 """The public export must stay free of private material, and must not be possible without a licence."""
+
 import subprocess
 import sys
 from pathlib import Path
 
-import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -19,22 +19,44 @@ def test_the_public_set_has_no_private_material():
 def test_every_included_path_exists_and_nothing_private_is_included():
     files = ex.selected()
     assert files, "the include list matched nothing"
-    private_prefixes = ("server/", "web/", "scripts/", "docs/", "packages/py/openbooks-lab/", "tests/characterise/", ".github/")
+    private_prefixes = (
+        "server/",
+        "web/",
+        "scripts/",
+        "docs/",
+        "packages/py/openbooks-lab/",
+        "tests/characterise/",
+        ".github/",
+    )
     assert not [f for f in files if f.startswith(private_prefixes)]
     assert "models/roles_manifest.json" not in files and not [f for f in files if "jepa" in f]
 
 
 def test_the_scanner_catches_what_it_is_for():
-    leaks = {"a.py": b"from openbooks_lab import synth", "b.md": b"see docs/evidence", "c.json": b'{"x": "pretrained on CORD"}',
-             "d.py": b"path = 'C:\\\\Users\\\\someone'", "e.bin": b"\x00\x01"}
+    leaks = {
+        "a.py": b"from openbooks_lab import synth",
+        "b.md": b"see docs/evidence",
+        "c.json": b'{"x": "pretrained on CORD"}',
+        "d.py": b"path = 'C:\\\\Users\\\\someone'",
+        "e.bin": b"\x00\x01",
+    }
     hits = ex.scan_tree(leaks)
     for needle in ("a.py", "b.md", "c.json", "d.py", "e.bin"):
         assert any(h.startswith(needle) for h in hits), needle
 
 
 def test_a_real_export_refuses_to_run_without_a_licence(tmp_path):
-    r = subprocess.run([sys.executable, str(ROOT / "scripts" / "export_public.py"), str(tmp_path / "out"), "--licence-file", str(tmp_path / "none")],
-                       capture_output=True, text=True)
+    r = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "export_public.py"),
+            str(tmp_path / "out"),
+            "--licence-file",
+            str(tmp_path / "none"),
+        ],
+        capture_output=True,
+        text=True,
+    )
     assert r.returncode == 2 and "licence" in r.stderr and not (tmp_path / "out").exists()
 
 
@@ -52,7 +74,9 @@ def test_the_weights_file_carries_no_private_strings():
 
 def test_every_open_package_carries_the_same_apache_licence_text():
     master = (ROOT / "tools" / "public" / "LICENSE").read_text(encoding="utf-8")
-    assert "Apache License" in master and "Version 2.0, January 2004" in master and "END OF TERMS AND CONDITIONS" in master
+    assert (
+        "Apache License" in master and "Version 2.0, January 2004" in master and "END OF TERMS AND CONDITIONS" in master
+    )
     dirs = [d for d in (ROOT / "packages" / "py").iterdir() if d.is_dir() and d.name not in PROPRIETARY]
     dirs += [d for d in (ROOT / "packages" / "js").iterdir() if (d / "package.json").exists()]
     assert len(dirs) == 2
@@ -67,7 +91,9 @@ def test_open_packages_declare_apache_and_the_lab_stays_proprietary():
     for d in (ROOT / "packages" / "py").iterdir():
         meta = tomllib.loads((d / "pyproject.toml").read_text(encoding="utf-8"))["project"]
         if d.name == "openbooks-lab":
-            assert meta["license"] == "LicenseRef-Lumeo-Proprietary" and "Private :: Do Not Upload" in meta["classifiers"]
+            assert (
+                meta["license"] == "LicenseRef-Lumeo-Proprietary" and "Private :: Do Not Upload" in meta["classifiers"]
+            )
         else:
             assert meta["license"] == "Apache-2.0" and meta["license-files"] == ["LICENSE"], d.name
     for d in (ROOT / "packages" / "js").iterdir():
@@ -79,3 +105,14 @@ def test_the_export_ships_the_licence_and_notice_at_the_root():
     files = ex.build((ROOT / "tools" / "public" / "LICENSE").read_bytes())
     assert b"Apache License" in files["LICENSE"][:200] and b"Lumeo" in files["NOTICE"]
     assert "LICENSE.md" not in files
+
+
+def test_only_tracked_source_files_are_selected(tmp_path, monkeypatch):
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    package = tmp_path / "packages" / "py" / "openbooks"
+    package.mkdir(parents=True)
+    (package / "tracked.py").write_text("# source", encoding="utf-8")
+    (package / "untracked.py").write_text("# local material", encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", str(package / "tracked.py")], check=True)
+    monkeypatch.setattr(ex, "ROOT", tmp_path.resolve())
+    assert ex.selected() == ["packages/py/openbooks/tracked.py"]

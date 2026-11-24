@@ -1,22 +1,17 @@
-"""Build the public Open Books tree from this (private) repository into an empty directory.
+"""Export the Apache-licensed source tree into an empty directory.
 
-    python scripts/export_public.py OUT_DIR --licence-file PATH_TO_LICENCE_TEXT [--dry-run]
+    python scripts/export_public.py OUT_DIR [--licence-file PATH] [--dry-run]
 
-What it does: copies an explicit allow-list of paths (nothing is public by default), overlays the public README, CI, security and
-contribution files from tools/public/, writes the licence file you give it, then scans the result for private material and exits
-1 if it finds any. It runs no git commands and publishes nothing. The new repository should start with a single fresh commit:
-never push this repository's history (it holds the training recipe, evidence, weights lineage and the hosted product).
-
---dry-run lists what would be copied and scans in memory; it needs no licence file. A real export refuses to run without one (the default is the Apache-2.0 text),
-because a public tree without a licence grants nobody any rights.
+Git supplies the list of tracked source files. The exporter adds the public
+README, policies and CI, then scans the result before writing anything.
 """
+
 from __future__ import annotations
 
 import argparse
 import fnmatch
-import os
 import re
-import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -25,25 +20,68 @@ ROOT = Path(__file__).resolve().parents[1]
 INCLUDE = [
     "packages/py/openbooks/**",
     "packages/js/**",
-    "models/roles_head.pt", "models/roles_calibration.json", "models/roles_model_card.json",
-    "tests/packaging/**", "tests/test_cli_machine.py", "tests/test_model_card.py",
+    "models/roles_head.pt",
+    "models/roles_calibration.json",
+    "models/roles_model_card.json",
+    "tests/packaging/**",
+    "tests/test_cli_machine.py",
+    "tests/test_model_card.py",
 ]
-EXCLUDE = ["**/node_modules/**", "**/dist/**", "**/__pycache__/**", "**/*.egg-info/**", "**/.pytest_cache/**", "**/.venv/**",
-           "**/*.tsbuildinfo", "**/*.pyc", "**/build/**"]
-OVERLAY = {"README.md": "README.md", "CONTRIBUTING.md": "CONTRIBUTING.md", "SECURITY.md": "SECURITY.md", "THIRD_PARTY.md": "THIRD_PARTY.md", "NOTICE": "NOTICE",
-           "ci.yml": ".github/workflows/ci.yml", "gitignore": ".gitignore", "pytest.toml": "pyproject.toml"}
+EXCLUDE = [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/__pycache__/**",
+    "**/*.egg-info/**",
+    "**/.pytest_cache/**",
+    "**/.venv/**",
+    "**/*.tsbuildinfo",
+    "**/*.pyc",
+    "**/build/**",
+]
+OVERLAY = {
+    "README.md": "README.md",
+    "CONTRIBUTING.md": "CONTRIBUTING.md",
+    "SECURITY.md": "SECURITY.md",
+    "THIRD_PARTY.md": "THIRD_PARTY.md",
+    "NOTICE": "NOTICE",
+    "ci.yml": ".github/workflows/ci.yml",
+    "gitignore": ".gitignore",
+    "pytest.toml": "pyproject.toml",
+}
 
 FORBIDDEN = {
     "private package or module": [r"openbooks_lab", r"lumeo-openbooks-lab", r"lumeo_private"],
-    "training recipe or internal weights": [r"jepa_encoder", r"train_roles", r"score_family_candidate", r"promote\.py", r"roles_manifest"],
+    "training recipe or internal weights": [
+        r"jepa_encoder",
+        r"train_roles",
+        r"score_family_candidate",
+        r"promote\.py",
+        r"roles_manifest",
+    ],
     "third-party training data": [r"\bCORD\b", r"\bFUNSD\b", r"\bSROIE\b", r"invoice-ner"],
     "internal documents": [r"HANDOFF", r"format_catalog", r"docs/evidence", r"PRODUCT\.md", r"docs/research"],
     "hosted product": [r"OPENBOOKS_LLM_API_KEY", r"openbooks_server", r"OPENBOOKS_ENGINE_URL"],
     "personal or machine details": [r"Rohit", r"Victus", r"gmail\.com", r"C:\\{1,2}Users", r"/Users/"],
 }
-SCAN_ALLOW = {"tests/packaging/test_wheels.py": {"private package or module", "training recipe or internal weights"},
-              "scripts/export_public.py": set(FORBIDDEN)}
-TEXT_SUFFIXES = {".py", ".ts", ".mjs", ".json", ".toml", ".md", ".yml", ".yaml", ".txt", ".cfg", ".lock", ".gitignore", ""}
+SCAN_ALLOW = {
+    "tests/packaging/test_wheels.py": {"private package or module", "training recipe or internal weights"},
+    "scripts/export_public.py": set(FORBIDDEN),
+}
+TEXT_SUFFIXES = {
+    ".py",
+    ".ts",
+    ".mjs",
+    ".json",
+    ".toml",
+    ".md",
+    ".yml",
+    ".yaml",
+    ".txt",
+    ".cfg",
+    ".lock",
+    ".gitignore",
+    "",
+}
 BINARY_ALLOWED = {"models/roles_head.pt"}
 EMPTY_MARKERS = {"py.typed"}
 
@@ -52,22 +90,26 @@ def matches(rel: str, patterns: list[str]) -> bool:
     return any(fnmatch.fnmatch(rel, p) or fnmatch.fnmatch(rel, p.replace("/**", "/*")) for p in patterns)
 
 
+def tracked_files(*pathspecs: str) -> list[str]:
+    """List candidate source files without discovering local or ignored files."""
+    result = subprocess.run(
+        ["git", "ls-files", "--cached", "--deduplicate", "-z", "--", *pathspecs],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        check=True,
+    )
+    return sorted(result.stdout.decode("utf-8").rstrip("\0").split("\0")) if result.stdout else []
+
+
+def read_source(rel: str) -> bytes:
+    path = ROOT / rel
+    if path.is_symlink() or path.resolve() != path or not path.is_file():
+        raise ValueError(f"expected a regular source file: {rel}")
+    return path.read_bytes()
+
+
 def selected() -> list[str]:
-    out = set()
-    for entry in INCLUDE:
-        if not entry.endswith("/**"):
-            if (ROOT / entry).is_file() and not matches(entry, EXCLUDE):
-                out.add(entry)
-            continue
-        for base, dirs, files in os.walk(ROOT / entry.removesuffix("/**")):
-            parent = Path(base)
-            prefix = parent.relative_to(ROOT).as_posix()
-            dirs[:] = [name for name in dirs if not matches(f"{prefix}/{name}/", EXCLUDE)]
-            for name in files:
-                rel = f"{prefix}/{name}"
-                if not matches(rel, EXCLUDE) and (parent / name).is_file():
-                    out.add(rel)
-    return sorted(out)
+    return [rel for rel in tracked_files() if matches(rel, INCLUDE) and not matches(rel, EXCLUDE)]
 
 
 def scan_text(rel: str, text: str) -> list[str]:
@@ -98,11 +140,9 @@ def scan_tree(files: dict[str, bytes]) -> list[str]:
 
 
 def build(licence: bytes | None) -> dict[str, bytes]:
-    files = {rel: (ROOT / rel).read_bytes() for rel in selected()}
+    files = {rel: read_source(rel) for rel in selected()}
     for src, dest in OVERLAY.items():
-        p = ROOT / "tools" / "public" / src
-        if p.exists():
-            files[dest] = p.read_bytes()
+        files[dest] = read_source(f"tools/public/{src}")
     if licence is not None:
         files["LICENSE"] = licence
     return files
@@ -111,30 +151,41 @@ def build(licence: bytes | None) -> dict[str, bytes]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("out", type=Path)
-    ap.add_argument("--licence-file", type=Path, default=ROOT / "tools" / "public" / "LICENSE",
-                    help="the licence text to ship as LICENSE (default: the Apache-2.0 text in tools/public/LICENSE)")
+    ap.add_argument(
+        "--licence-file",
+        type=Path,
+        default=ROOT / "tools" / "public" / "LICENSE",
+        help="the licence text to ship as LICENSE (default: the Apache-2.0 text in tools/public/LICENSE)",
+    )
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args(argv)
     if not a.dry_run and not a.licence_file.is_file():
-        ap.error(f"licence file {a.licence_file} not found: a public repository without a licence grants nobody any rights")
+        ap.error(
+            f"licence file {a.licence_file} not found: a public repository without a licence grants nobody any rights"
+        )
     if a.licence_file.is_file() and not a.licence_file.read_text(encoding="utf-8").strip():
         ap.error("the licence file is empty")
-    if not a.dry_run and a.out.exists() and any(a.out.iterdir()):
+    if not a.dry_run and a.out.exists() and (not a.out.is_dir() or any(a.out.iterdir())):
         ap.error(f"{a.out} is not empty; export into a new directory")
-    files = build(a.licence_file.read_bytes() if a.licence_file.is_file() else None)
+    try:
+        files = build(a.licence_file.read_bytes() if a.licence_file.is_file() else None)
+    except (OSError, ValueError, subprocess.CalledProcessError) as exc:
+        ap.error(f"could not read public export sources: {exc}")
     problems = scan_tree(files)
     for line in problems:
         print(f"PRIVATE MATERIAL {line}")
     print(f"{len(files)} files, {sum(len(v) for v in files.values()) / 1e6:.1f} MB, {len(problems)} problems")
-    if a.dry_run or problems:
-        if problems:
-            print("nothing written" if not a.dry_run else "")
-        return 1 if problems else 0
+    if problems:
+        return 1
+    if a.dry_run:
+        return 0
     for rel, data in files.items():
         dest = a.out / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(data)
-    print(f"wrote {a.out}. Start a NEW repository from it with a single commit; do not reuse this repository's history.")
+    print(
+        f"wrote {a.out}. Start a NEW repository from it with a single commit; do not reuse this repository's history."
+    )
     return 0
 
 

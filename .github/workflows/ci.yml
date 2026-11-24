@@ -56,6 +56,18 @@ jobs:
           python-version: "3.12"
       - run: python scripts/check_versions.py
 
+  public-export:
+    if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pytest
+      - run: python -m pytest -q tests/test_export_public.py tests/test_export_npm.py
+
   wheels:
     # What users get from PyPI: build the wheels, install them into a clean venv (no editable installs, no repo on the path).
     if: ${{ !inputs.record_pdf_baseline && !inputs.export_pdf_fixtures }}

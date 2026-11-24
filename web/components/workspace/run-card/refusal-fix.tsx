@@ -32,7 +32,9 @@ export function RefusalFix({
   const orderOk = !fields.includes("date_order") || order !== "";
 
   if (!available) {
-    const names = fields.map((f) => (f === "date_order" ? "a date order" : f === "opening" ? "an opening balance" : "a currency"));
+    const names = fields.map((f) =>
+      f === "date_order" ? "a date order" : f === "opening" ? "an opening balance" : "a currency",
+    );
     return (
       <div className="interrupted-recovery">
         <p className="fix-note">Attach the original file again and set {names.join(" and ")} in Params.</p>
@@ -60,7 +62,9 @@ export function RefusalFix({
       <p className="fix-note">The engine named what it needs. Supply it and re-run this file:</p>
       {fields.includes("opening") && (
         <div className="fix-field">
-          <label className="mono-label" htmlFor={`${uid}-opening`}>Opening balance</label>
+          <label className="mono-label" htmlFor={`${uid}-opening`}>
+            Opening balance
+          </label>
           <input
             id={`${uid}-opening`}
             className="field num"
@@ -71,12 +75,18 @@ export function RefusalFix({
             aria-invalid={touched && !openingOk}
             aria-describedby={touched && !openingOk ? `${uid}-opening-err` : undefined}
           />
-          {touched && !openingOk && <span id={`${uid}-opening-err`} className="field-error"><span className="dot" />A plain number, like 1000.00</span>}
+          {touched && !openingOk && (
+            <span id={`${uid}-opening-err`} className="field-error">
+              <span className="dot" />A plain number, like 1000.00
+            </span>
+          )}
         </div>
       )}
       {fields.includes("currency") && (
         <div className="fix-field">
-          <label className="mono-label" htmlFor={`${uid}-currency`}>Currency</label>
+          <label className="mono-label" htmlFor={`${uid}-currency`}>
+            Currency
+          </label>
           <input
             id={`${uid}-currency`}
             className="field num"
@@ -87,12 +97,19 @@ export function RefusalFix({
             aria-invalid={touched && !currencyOk}
             aria-describedby={touched && !currencyOk ? `${uid}-currency-err` : undefined}
           />
-          {touched && !currencyOk && <span id={`${uid}-currency-err`} className="field-error"><span className="dot" />Three letters, like INR</span>}
+          {touched && !currencyOk && (
+            <span id={`${uid}-currency-err`} className="field-error">
+              <span className="dot" />
+              Three letters, like INR
+            </span>
+          )}
         </div>
       )}
       {fields.includes("date_order") && (
         <div className="fix-field" style={{ flexBasis: 260 }}>
-          <label className="mono-label" htmlFor={`${uid}-order`}>Date order</label>
+          <label className="mono-label" htmlFor={`${uid}-order`}>
+            Date order
+          </label>
           <select
             id={`${uid}-order`}
             className="field"
@@ -105,13 +122,18 @@ export function RefusalFix({
             <option value="dmy">Day first: 03/04 is 3 April</option>
             <option value="mdy">Month first: 03/04 is 4 March</option>
           </select>
-          {touched && !orderOk && <span className="field-error"><span className="dot" />Pick the order the export uses</span>}
+          {touched && !orderOk && (
+            <span className="field-error">
+              <span className="dot" />
+              Pick the order the export uses
+            </span>
+          )}
         </div>
       )}
       {fields.includes("date_order") && (
         <p id={`${uid}-order-help`} className="fix-note">
-          Every date in this file has a day and month of 12 or less, so the file itself cannot prove the order. Check one date
-          against the source before choosing: the wrong order moves transactions between months.
+          Every date in this file has a day and month of 12 or less, so the file itself cannot prove the order. Check
+          one date against the source before choosing: the wrong order moves transactions between months.
         </p>
       )}
       <button type="submit" className="btn btn-primary-landing btn-sm" disabled={disabled}>

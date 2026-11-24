@@ -8,7 +8,6 @@ import {
   STDIO_SERVER,
   TRY_PROMPTS,
   cursorDeeplink,
-  encodeBase64,
 } from "@/components/onboard/onboard-data";
 
 const ALLOWED_PLACEHOLDER = "/path/to/files";
@@ -28,7 +27,9 @@ describe("onboard data", () => {
   it("starts Claude Code, Codex and VS Code commands with their programs", () => {
     const byId = new Map(AGENTS.map((agent) => [agent.id, agent]));
     for (const card of byId.get("claude-code")?.cards ?? []) {
-      expect(card.code.startsWith("claude mcp add openbooks -- npx -y -p @lumeo_hq/openbooks openbooks-mcp")).toBe(true);
+      expect(card.code.startsWith("claude mcp add openbooks -- npx -y -p @lumeo_hq/openbooks openbooks-mcp")).toBe(
+        true,
+      );
     }
     for (const card of byId.get("codex")?.cards ?? []) {
       if (card.id === "add") expect(card.code.startsWith("codex ")).toBe(true);

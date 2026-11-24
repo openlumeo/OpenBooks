@@ -304,7 +304,8 @@ def test_rows_fixture_is_the_statement_the_other_tests_assume():
     assert len(ROWS) == 3
 
 
-def test_a_scan_without_the_ocr_extra_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch):
+@pytest.mark.parametrize("dependency", ["easyocr", "numpy"])
+def test_a_scan_without_the_ocr_extra_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch, dependency):
     import sys
 
     from openbooks.core.errors import EngineFault
@@ -312,7 +313,7 @@ def test_a_scan_without_the_ocr_extra_is_an_engine_problem_with_an_install_hint(
 
     from openbooks.statements import ocr_providers
 
-    monkeypatch.setitem(sys.modules, "easyocr", None)
+    monkeypatch.setitem(sys.modules, dependency, None)
     monkeypatch.setattr(pdf_front, "_READER", None)
     monkeypatch.setattr(ocr_providers, "_resolve_tesseract", lambda *args, **kwargs: None)
     f = tmp_path / "scan.pdf"

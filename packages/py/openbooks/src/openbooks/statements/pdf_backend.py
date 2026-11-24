@@ -106,7 +106,10 @@ class PdfPage:
 
     def render_rgb(self, scale: float):
         bitmap = self._page.render(scale=scale, rev_byteorder=True)
-        return bitmap.to_numpy()[:, :, :3].copy()
+        try:
+            return bitmap.to_numpy()[:, :, :3].copy()
+        finally:
+            bitmap.close()
 
 
 class ImagePage:

@@ -4,6 +4,7 @@ FORMATS is the human-readable grouping shown in the web app. It is written by ha
 tests/test_server.py checks it against every layout id the engine source can emit: adding a
 parser without listing it here (or listing one that does not exist) fails the build.
 """
+
 from __future__ import annotations
 
 import io
@@ -14,9 +15,10 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from zipfile import ZipFile
 
-from openbooks.pipeline import ALLOWED_EXT, MAX_BYTES, SCHEMA_VERSION
 from openbooks.core.errors import EngineFault, PluginLoadError
+from openbooks.core.guard import ALLOWED_EXT, MAX_BYTES
 from openbooks.core.registry import default_registry
+from openbooks.core.schema import SCHEMA_VERSION
 from openbooks.statements.assets import CALIBRATION_NAME, MODELS_DIR, WEIGHTS_NAME, ModelUnavailable
 from openbooks.statements.pdf_front import ocr_runtime
 
@@ -53,13 +55,35 @@ def installed_linker():
     except PluginLoadError:
         return None
 
+
 FORMATS = [
     {
         "id": "statements",
         "title": "Bank statements",
         "inputs": ["CSV", "OFX / QFX", "MT940", "PDF (text layer)", "Scans (OCR)", "Wise statement"],
-        "layouts": ["bank_csv.v1", "bank_csv_signed.v1", "ofx.v1", "mt940.v1", "camt053.v1", "bank_statement_pdf.v1", "wise_statement.v1"],
-        "extensions": [".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt", ".xml", ".pdf", ".png", ".jpg", ".jpeg", ".xlsx"],
+        "layouts": [
+            "bank_csv.v1",
+            "bank_csv_signed.v1",
+            "ofx.v1",
+            "mt940.v1",
+            "camt053.v1",
+            "bank_statement_pdf.v1",
+            "wise_statement.v1",
+        ],
+        "extensions": [
+            ".csv",
+            ".ofx",
+            ".qfx",
+            ".sta",
+            ".mt940",
+            ".txt",
+            ".xml",
+            ".pdf",
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".xlsx",
+        ],
     },
     {
         "id": "gateways",
@@ -134,7 +158,12 @@ UNVERIFIED = [
 
 
 def formats() -> dict:
-    return {"groups": FORMATS, "unverified": UNVERIFIED, "allowed_extensions": sorted(ALLOWED_EXT), "max_bytes": MAX_BYTES}
+    return {
+        "groups": FORMATS,
+        "unverified": UNVERIFIED,
+        "allowed_extensions": sorted(ALLOWED_EXT),
+        "max_bytes": MAX_BYTES,
+    }
 
 
 class Samples:

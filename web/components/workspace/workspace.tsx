@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BookOpen, Menu, Upload } from "lucide-react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
-import { Composer, type Pending } from "@/components/composer";
-import { EmptyState } from "@/components/empty-state";
-import { Sidebar } from "@/components/sidebar";
-import { AnswerView, LinksView, RunView, UserAsk, UserRun } from "@/components/turns";
+import { Composer, type Pending } from "./composer";
+import { EmptyState } from "./empty-state";
+import { Sidebar } from "./sidebar";
+import { AnswerView, LinksView, RunView, UserAsk, UserRun } from "./turns";
 import { fetchSampleFile } from "@/lib/engine-client";
 import { uid } from "@/lib/format";
-import { threadDocs, useWorkspace, type Workspace as WorkspaceState } from "@/lib/use-workspace";
+import { threadDocs } from "@/lib/workspace/history";
+import { useWorkspace, type Workspace as WorkspaceState } from "@/lib/workspace/use-workspace";
 import type { RunParams, Sample } from "@/lib/types";
 
 const DEFAULT_MAX = 2 * 1024 * 1024 * 1024;
@@ -33,7 +34,12 @@ export function Workspace() {
         }}
       />
       {drawer && <div className="ob-scrim" onClick={() => setDrawer(false)} aria-hidden="true" />}
-      <WorkspaceMain key={ws.activeId ?? `new-${draftVersion}`} ws={ws} drawer={drawer} openDrawer={() => setDrawer(true)} />
+      <WorkspaceMain
+        key={ws.activeId ?? `new-${draftVersion}`}
+        ws={ws}
+        drawer={drawer}
+        openDrawer={() => setDrawer(true)}
+      />
     </div>
   );
 }
@@ -80,31 +86,39 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
   }, []);
 
   const setPending = useCallback((fn: (p: Pending[]) => Pending[]) => setPendingState(fn), []);
-  const addFiles = useCallback((files: File[]) => {
-    if (!inputLocked && files.length) setPendingState((p) => [...p, ...files.map((file) => ({ id: uid(), file }))]);
-  }, [inputLocked]);
+  const addFiles = useCallback(
+    (files: File[]) => {
+      if (!inputLocked && files.length) setPendingState((p) => [...p, ...files.map((file) => ({ id: uid(), file }))]);
+    },
+    [inputLocked],
+  );
 
-  const addSample = useCallback(async (s: Sample) => {
-    if (inputLocked) return;
-    const controller = new AbortController();
-    sampleRequests.current.add(controller);
-    setSampleError(null);
-    try {
-      const file = await fetchSampleFile(s, controller.signal);
-      if (controller.signal.aborted) return;
-      const own: RunParams = { currency: s.params.currency ?? "", opening: s.params.opening ?? "", ...s.params };
-      setPendingState((p) => [...p, { id: uid(), file, params: own, sample: s.id }]);
-    } catch (e) {
-      if (!controller.signal.aborted) setSampleError(e instanceof Error ? e.message : "Could not load the sample.");
-    } finally {
-      sampleRequests.current.delete(controller);
-    }
-  }, [inputLocked]);
+  const addSample = useCallback(
+    async (s: Sample) => {
+      if (inputLocked) return;
+      const controller = new AbortController();
+      sampleRequests.current.add(controller);
+      setSampleError(null);
+      try {
+        const file = await fetchSampleFile(s, controller.signal);
+        if (controller.signal.aborted) return;
+        const own: RunParams = { currency: s.params.currency ?? "", opening: s.params.opening ?? "", ...s.params };
+        setPendingState((p) => [...p, { id: uid(), file, params: own, sample: s.id }]);
+      } catch (e) {
+        if (!controller.signal.aborted) setSampleError(e instanceof Error ? e.message : "Could not load the sample.");
+      } finally {
+        sampleRequests.current.delete(controller);
+      }
+    },
+    [inputLocked],
+  );
 
   const turns = ws.active?.turns ?? [];
   const lastTurn = turns[turns.length - 1];
   const fingerprint = `${ws.activeId}:${turns.length}:${lastTurn?.kind === "answer" ? lastTurn.text.length : ""}:${
-    lastTurn?.kind === "run" ? `${lastTurn.state}:${lastTurn.files.map((f) => f.stages.length + (f.doc ? 9 : 0)).join(",")}` : ""
+    lastTurn?.kind === "run"
+      ? `${lastTurn.state}:${lastTurn.files.map((f) => f.stages.length + (f.doc ? 9 : 0)).join(",")}`
+      : ""
   }`;
 
   useEffect(() => {
@@ -157,7 +171,13 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
       }}
     >
       <header className="ob-topbar">
-        <button type="button" className="icon-btn icon-btn--boxed" aria-label="Open history" aria-expanded={drawer} onClick={openDrawer}>
+        <button
+          type="button"
+          className="icon-btn icon-btn--boxed"
+          aria-label="Open history"
+          aria-expanded={drawer}
+          onClick={openDrawer}
+        >
           <Menu size={16} />
         </button>
         <BrandLockup markSize={22} />
@@ -178,7 +198,8 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
           {ws.engine.status === "down" && (
             <div className="ob-banner" role="alert" style={{ marginTop: 20 }}>
               <span className="dot dot--bad" aria-hidden="true" />
-              The Open Books engine is not reachable. Start it with <code className="num">pnpm dev:engine</code>; this page reconnects on its own.
+              The Open Books engine is not reachable. Start it with <code className="num">pnpm dev:engine</code>; this
+              page reconnects on its own.
             </div>
           )}
           {sampleError && (
@@ -187,9 +208,18 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
               {sampleError}
             </div>
           )}
-          {ws.storageError && <div className="ob-banner storage-banner" role="alert">{ws.storageError}</div>}
+          {ws.storageError && (
+            <div className="ob-banner storage-banner" role="alert">
+              {ws.storageError}
+            </div>
+          )}
           {turns.length === 0 ? (
-            <EmptyState formats={ws.formats} samples={ws.samples} onSample={addSample} engineUp={engineUp && !inputLocked} />
+            <EmptyState
+              formats={ws.formats}
+              samples={ws.samples}
+              onSample={addSample}
+              engineUp={engineUp && !inputLocked}
+            />
           ) : (
             <div className="ob-conversation" aria-label={ws.active?.title}>
               {turns.map((t) => {
@@ -199,7 +229,16 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
                   case "user-ask":
                     return <UserAsk key={t.id} turn={t} />;
                   case "run":
-                    return <RunView key={t.id} turn={t} recoveryDisabled={inputLocked || !engineUp} onStop={ws.stop} onRerun={ws.rerunFile} onAttach={() => attachInput.current?.click()} />;
+                    return (
+                      <RunView
+                        key={t.id}
+                        turn={t}
+                        recoveryDisabled={inputLocked || !engineUp}
+                        onStop={ws.stop}
+                        onRerun={ws.rerunFile}
+                        onAttach={() => attachInput.current?.click()}
+                      />
+                    );
                   case "answer":
                     return <AnswerView key={t.id} turn={t} onStop={ws.stop} />;
                   case "links":

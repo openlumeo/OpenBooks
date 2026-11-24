@@ -1,8 +1,8 @@
 name: publish
 
-# Publishes the six @lumeo_hq/openbooks* packages from a version tag (v0.2.3) with npm provenance.
+# Publishes @lumeo_hq/openbooks from a matching version tag with npm provenance.
 # Authentication is npm trusted publishing (OIDC): there is no token in this repository or its secrets.
-# One-time setup on npmjs.com, for each package: Settings > Trusted Publisher > GitHub Actions,
+# Configure the package's trusted publisher on npmjs.com under Settings > Trusted Publisher > GitHub Actions:
 # repository Sagexd08/openbooks-js, workflow filename publish.yml.
 
 on:
@@ -31,6 +31,8 @@ jobs:
       - name: Trusted publishing needs npm 11.5.1 or newer
         run: npm install -g npm@latest
       - run: pnpm install --frozen-lockfile
+        env:
+          OPENBOOKS_SKIP_PYTHON: "1"
       - name: The tag matches the package version
         run: |
           version=$(node -p "require('./cli/package.json').version")
@@ -39,7 +41,7 @@ jobs:
       - name: Pack
         run: |
           mkdir tarballs
-          pnpm --filter @lumeo_hq/openbooks pack --pack-destination ../tarballs
+          pnpm --filter @lumeo_hq/openbooks pack --pack-destination "$GITHUB_WORKSPACE/tarballs"
       - name: Publish with provenance
         run: |
           version=$(node -p "require('./cli/package.json').version")

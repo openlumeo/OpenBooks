@@ -48,7 +48,7 @@ export const STDIO_SERVER = { command: STDIO_COMMAND, args: STDIO_ARGS } as cons
 
 export const MCP_SERVERS_JSON = JSON.stringify({ mcpServers: { [SERVER_NAME]: STDIO_SERVER } }, null, 2);
 
-export function encodeBase64(text: string): string {
+function encodeBase64(text: string): string {
   return btoa(text);
 }
 

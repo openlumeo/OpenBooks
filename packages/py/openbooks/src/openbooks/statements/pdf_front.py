@@ -72,7 +72,10 @@ def _ocr_page(page, number: int, session: OcrSession, dpi: float) -> list[Word]:
     with _DOCUMENT_LOCK:
         pw, ph = page.width, page.height
         scale = min(dpi / 72, OCR_MAX_PX / max(pw, ph))
-        image = page.render_rgb(scale)
+        try:
+            image = page.render_rgb(scale)
+        except ImportError as error:
+            raise EngineFault("Cannot render a page for OCR. Install 'openbooks[scan]'.") from error
     return _join_split_amounts(session.read_page(PageInput(image, scale, number, (pw, ph))))
 
 

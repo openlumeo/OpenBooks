@@ -1,13 +1,15 @@
 """Compatibility facade: `openbooks.pipeline` keeps working while the engine lives in openbooks.core.
 
 New code should import from `openbooks` (or `openbooks.core`, the contract and registry) and the provider subpackages. Everything here is
-re-exported unchanged; the names below are the ones 0.1 callers, tests and the hosted server rely on.
+re-exported unchanged for callers of the 0.1 API.
 """
+# ruff: noqa: F401
+
 from __future__ import annotations
 
 import sys
 
-from openbooks.core.builders import D, empty_data as _empty_data, settlement_batch as _settlement, statement_doc  # noqa: F401
+from openbooks.core.builders import D, empty_data as _empty_data, settlement_batch as _settlement, statement_doc
 from openbooks.core.cli import main
 from openbooks.core.errors import Refusal
 from openbooks.core.evidence import evidence, sha256_file
@@ -17,8 +19,22 @@ from openbooks.core.guard import ALLOWED_EXT, DOC_EXT, MAX_BYTES, TEXT_EXT, deco
 from openbooks.core.normalise import EXPONENT, YEAR_RANGE, date_order, fmt, money, norm, to_date, to_dec
 from openbooks.core.params import Params
 from openbooks.core.process import STAGES, dumps, process
-from openbooks.core.registry import (AIS_REQ, B1099_REQ, BANK_ROLES, FIRA_REQ, HEADER_SCAN_ROWS, PAYPAL_REQ, RAZORPAY_REQ,
-                                     STRIPE_REQ, TB_REQ, TDS_REQ, WISE_REQ, bank_cols, default_registry, find_header)
+from openbooks.core.registry import (
+    AIS_REQ,
+    B1099_REQ,
+    BANK_ROLES,
+    FIRA_REQ,
+    HEADER_SCAN_ROWS,
+    PAYPAL_REQ,
+    RAZORPAY_REQ,
+    STRIPE_REQ,
+    TB_REQ,
+    TDS_REQ,
+    WISE_REQ,
+    bank_cols,
+    default_registry,
+    find_header,
+)
 from openbooks.core.registry import detect as _detect
 from openbooks.core.report import run_report
 from openbooks.core.schema import SCHEMA_VERSION, load_schema, refusal_doc, validate_output

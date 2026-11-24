@@ -1,4 +1,4 @@
-import type { RunParams } from "../../lib/types";
+import type { RunParams } from "@/lib/types";
 
 export type ParamsDraft = { currency: string; opening: string; account: string };
 

@@ -3,11 +3,21 @@
 import { BookOpen, FlaskConical, Plus, Trash2 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import { ThemeToggle } from "@/components/brand/theme-toggle";
-import { UserMenu } from "@/components/user-menu";
+import { UserMenu } from "./user-menu";
 import { fmtAgo } from "@/lib/format";
-import type { Workspace } from "@/lib/use-workspace";
+import type { Workspace } from "@/lib/workspace/use-workspace";
 
-export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: boolean; onNavigate: () => void; onNew: () => void }) {
+export function Sidebar({
+  ws,
+  open,
+  onNavigate,
+  onNew,
+}: {
+  ws: Workspace;
+  open: boolean;
+  onNavigate: () => void;
+  onNew: () => void;
+}) {
   const { engine } = ws;
   const h = engine.health;
   const status =
@@ -20,7 +30,14 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
   return (
     <aside className="ob-sidebar" data-open={open} aria-label="Threads">
       <div className="ob-sidebar-head">
-        <a href="/app" aria-label="Open Books by Lumeo, new run" onClick={(e) => { e.preventDefault(); onNew(); }}>
+        <a
+          href="/app"
+          aria-label="Open Books by Lumeo, new run"
+          onClick={(e) => {
+            e.preventDefault();
+            onNew();
+          }}
+        >
           <BrandLockup />
         </a>
         <button
@@ -29,7 +46,9 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
           onClick={onNew}
           disabled={ws.busy}
         >
-          <span className="inline-flex items-center gap-2"><Plus size={15} /> New run</span>
+          <span className="inline-flex items-center gap-2">
+            <Plus size={15} /> New run
+          </span>
         </button>
       </div>
 
@@ -41,7 +60,8 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
               type="button"
               className="copy-inline"
               onClick={() => {
-                if (window.confirm("Delete every thread stored in this browser? Results cannot be recovered.")) ws.clearAll();
+                if (window.confirm("Delete every thread stored in this browser? Results cannot be recovered."))
+                  ws.clearAll();
               }}
               disabled={ws.busy}
             >
@@ -110,8 +130,15 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
           <span>Developer docs</span>
         </a>
         <div className="ob-foot-row">
-          <span className="ob-status mono-label" role="status" title={engine.message ?? (h?.model_issue ? `${status}. Model: ${h.model_issue}` : status)}>
-            <span className={`dot ${engine.status === "up" ? "dot--live" : engine.status === "down" ? "dot--bad" : ""}`} aria-hidden="true" />
+          <span
+            className="ob-status mono-label"
+            role="status"
+            title={engine.message ?? (h?.model_issue ? `${status}. Model: ${h.model_issue}` : status)}
+          >
+            <span
+              className={`dot ${engine.status === "up" ? "dot--live" : engine.status === "down" ? "dot--bad" : ""}`}
+              aria-hidden="true"
+            />
             <span className="ob-status-text">{status}</span>
           </span>
           <ThemeToggle />

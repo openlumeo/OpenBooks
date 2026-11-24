@@ -34,7 +34,9 @@ export function JsonTab({ doc, name }: { doc: EngineDoc; name: string }) {
           <Download size={14} /> Download {jsonFileName(name)}
         </button>
       </div>
-      <pre className="json" tabIndex={0} aria-label="openbooks.v1 JSON">{text}</pre>
+      <pre className="json" tabIndex={0} aria-label="openbooks.v1 JSON">
+        {text}
+      </pre>
     </div>
   );
 }

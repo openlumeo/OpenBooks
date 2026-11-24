@@ -1,4 +1,4 @@
-import { Workspace } from "@/components/workspace";
+import { Workspace } from "@/components/workspace/workspace";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <>
-      <a href="#conversation" className="skip-link">Skip to conversation</a>
+      <a href="#conversation" className="skip-link">
+        Skip to conversation
+      </a>
       <Workspace />
     </>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { RunParams } from "../../lib/types";
+import type { RunParams } from "@/lib/types";
 import { draftError, draftToParams, isCurrencyInvalid, isOpeningInvalid } from "./params-draft";
 
 type ParamsPanelProps = {
@@ -31,19 +31,49 @@ export function ParamsPanel({ id, params, setParams, onError, modelAvailable, mo
   return (
     <div className="params" id={id} role="group" aria-label="Run parameters">
       <div className="params-field">
-        <label className="mono-label" htmlFor={`${id}-cur`}>Currency</label>
-        <input id={`${id}-cur`} className="field num" placeholder="From file" maxLength={3} value={currency} onChange={(e) => setCurrency(e.target.value)} aria-invalid={isCurrencyInvalid(currency)} />
+        <label className="mono-label" htmlFor={`${id}-cur`}>
+          Currency
+        </label>
+        <input
+          id={`${id}-cur`}
+          className="field num"
+          placeholder="From file"
+          maxLength={3}
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+          aria-invalid={isCurrencyInvalid(currency)}
+        />
       </div>
       <div className="params-field">
-        <label className="mono-label" htmlFor={`${id}-open`}>Opening balance</label>
-        <input id={`${id}-open`} className="field num" inputMode="decimal" placeholder="From file" value={opening} onChange={(e) => setOpening(e.target.value)} aria-invalid={isOpeningInvalid(opening)} />
+        <label className="mono-label" htmlFor={`${id}-open`}>
+          Opening balance
+        </label>
+        <input
+          id={`${id}-open`}
+          className="field num"
+          inputMode="decimal"
+          placeholder="From file"
+          value={opening}
+          onChange={(e) => setOpening(e.target.value)}
+          aria-invalid={isOpeningInvalid(opening)}
+        />
       </div>
       <div className="params-field">
-        <label className="mono-label" htmlFor={`${id}-acct`}>Account</label>
-        <input id={`${id}-acct`} className="field" placeholder="Optional label" value={account} onChange={(e) => setAccount(e.target.value)} />
+        <label className="mono-label" htmlFor={`${id}-acct`}>
+          Account
+        </label>
+        <input
+          id={`${id}-acct`}
+          className="field"
+          placeholder="Optional label"
+          value={account}
+          onChange={(e) => setAccount(e.target.value)}
+        />
       </div>
       <div className="params-field">
-        <label className="mono-label" htmlFor={`${id}-order`}>Date order</label>
+        <label className="mono-label" htmlFor={`${id}-order`}>
+          Date order
+        </label>
         <select
           id={`${id}-order`}
           className="field"
@@ -63,7 +93,11 @@ export function ParamsPanel({ id, params, setParams, onError, modelAvailable, mo
       </div>
       <div className="params-toggles">
         <label className="check">
-          <input type="checkbox" checked={params.ocr !== false} onChange={(e) => setParams({ ...params, ocr: e.target.checked })} />
+          <input
+            type="checkbox"
+            checked={params.ocr !== false}
+            onChange={(e) => setParams({ ...params, ocr: e.target.checked })}
+          />
           Read scans with OCR
         </label>
         <label className="check">
@@ -74,15 +108,24 @@ export function ParamsPanel({ id, params, setParams, onError, modelAvailable, mo
           />
           Allow derived opening balance
         </label>
-        <label className="check" title={modelAvailable ? undefined : `Unavailable: ${modelIssue ?? "the engine has no usable model"}`}>
-          <input type="checkbox" checked={!!params.model} disabled={!modelAvailable} onChange={(e) => setParams({ ...params, model: e.target.checked || undefined })} />
+        <label
+          className="check"
+          title={modelAvailable ? undefined : `Unavailable: ${modelIssue ?? "the engine has no usable model"}`}
+        >
+          <input
+            type="checkbox"
+            checked={!!params.model}
+            disabled={!modelAvailable}
+            onChange={(e) => setParams({ ...params, model: e.target.checked || undefined })}
+          />
           Model cross-check for PDFs and scans
         </label>
       </div>
       <p className="params-help">
-        Applies to every file in this run; sample files bring their own. A derived opening never counts as independent evidence.
-        Dates are read in the order the file proves (a day above 12); bank statements without proof are read day-first, and
-        PayPal and 1099-B refuse rather than guess. The model cross-check can only add refusals, never a release.
+        Applies to every file in this run; sample files bring their own. A derived opening never counts as independent
+        evidence. Dates are read in the order the file proves (a day above 12); bank statements without proof are read
+        day-first, and PayPal and 1099-B refuse rather than guess. The model cross-check can only add refusals, never a
+        release.
       </p>
     </div>
   );

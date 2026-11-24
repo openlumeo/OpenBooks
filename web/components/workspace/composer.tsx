@@ -4,16 +4,10 @@ import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { ArrowUp, FileText, Paperclip, SlidersHorizontal, Square, X } from "lucide-react";
 import { fmtBytes, paramSummary } from "@/lib/format";
 import type { RunParams, Sample } from "@/lib/types";
-import type { Workspace } from "@/lib/use-workspace";
+import type { Workspace } from "@/lib/workspace/use-workspace";
 import { ParamsPanel } from "./composer-parts/params-panel";
 import { SamplesMenu } from "./composer-parts/samples-menu";
-import {
-  composerHint,
-  isImageName,
-  isOverLimit,
-  problemsFor,
-  type Pending,
-} from "./composer-parts/problems";
+import { composerHint, isImageName, isOverLimit, problemsFor, type Pending } from "./composer-parts/problems";
 
 export type { Pending } from "./composer-parts/problems";
 
@@ -83,15 +77,29 @@ export function Composer(props: ComposerProps) {
       ? "Ask about the released documents, or attach more files"
       : "Attach files to check, or drop them anywhere here";
   const hint = composerHint({
-    operation, engineUp, problem, hasFiles, hasText, hasDocs: props.hasDocs, askEnabled,
-    ocrIssue: props.ocrIssue, hasImage: pending.some(({ file }) => isImageName(file.name)),
+    operation,
+    engineUp,
+    problem,
+    hasFiles,
+    hasText,
+    hasDocs: props.hasDocs,
+    askEnabled,
+    ocrIssue: props.ocrIssue,
+    hasImage: pending.some(({ file }) => isImageName(file.name)),
   });
 
   return (
     <div className="ob-dock">
       <div className="composer">
         {showParams && (
-          <ParamsPanel id={`${ids}-params`} params={params} setParams={setParams} onError={setParamError} modelAvailable={props.modelAvailable} modelIssue={props.modelIssue} />
+          <ParamsPanel
+            id={`${ids}-params`}
+            params={params}
+            setParams={setParams}
+            onError={setParamError}
+            modelAvailable={props.modelAvailable}
+            modelIssue={props.modelIssue}
+          />
         )}
         {hasFiles && (
           <ul className="chips composer-chips" aria-label="Files to check">
@@ -102,8 +110,16 @@ export function Composer(props: ComposerProps) {
                 <li key={p.id} className={`chip${over ? " chip--over" : ""}`}>
                   <FileText className="chip-icon" size={14} aria-hidden="true" />
                   <span className="chip-name">{p.file.name}</span>
-                  <span className="chip-size">{fmtBytes(p.file.size)}{summaryText ? ` · ${summaryText}` : ""}</span>
-                  <button type="button" className="icon-btn" aria-label={`Remove ${p.file.name}`} onClick={() => setPending((list) => list.filter((x) => x.id !== p.id))}>
+                  <span className="chip-size">
+                    {fmtBytes(p.file.size)}
+                    {summaryText ? ` · ${summaryText}` : ""}
+                  </span>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={`Remove ${p.file.name}`}
+                    onClick={() => setPending((list) => list.filter((x) => x.id !== p.id))}
+                  >
                     <X size={13} />
                   </button>
                 </li>
@@ -111,7 +127,9 @@ export function Composer(props: ComposerProps) {
             })}
           </ul>
         )}
-        <label htmlFor={`${ids}-input`} className="sr-only">Message</label>
+        <label htmlFor={`${ids}-input`} className="sr-only">
+          Message
+        </label>
         <textarea
           id={`${ids}-input`}
           ref={area}
@@ -170,7 +188,13 @@ export function Composer(props: ComposerProps) {
               <Square size={13} /> Stop
             </button>
           ) : (
-            <button type="button" className="btn btn-primary-landing btn-sm" onClick={send} disabled={!canSend} aria-busy={locked || undefined}>
+            <button
+              type="button"
+              className="btn btn-primary-landing btn-sm"
+              onClick={send}
+              disabled={!canSend}
+              aria-busy={locked || undefined}
+            >
               {sendLabel} <ArrowUp size={15} />
             </button>
           )}
