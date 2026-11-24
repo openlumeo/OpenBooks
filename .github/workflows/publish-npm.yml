@@ -43,11 +43,8 @@ jobs:
       - run: pnpm exec vitest run
         env:
           OPENBOOKS_PYTHON: python
-      - name: Publish (dependencies first, the meta package last)
+      - name: Publish @lumeo_hq/openbooks
         if: github.ref_type == 'tag'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          for p in core statements gateways tax doctor cli mcp; do
-            (cd $p && pnpm publish --access public --no-git-checks)
-          done
+        run: pnpm --filter @lumeo_hq/openbooks publish --access public --no-git-checks

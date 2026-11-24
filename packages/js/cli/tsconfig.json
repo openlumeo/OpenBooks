@@ -1,2 +1,1 @@
-{ "extends": "../tsconfig.base.json", "compilerOptions": { "outDir": "dist", "rootDir": "src" }, "include": ["src"],
-  "references": [{ "path": "../core" }, { "path": "../statements" }, { "path": "../gateways" }, { "path": "../tax" }, { "path": "../doctor" }] }
+{ "extends": "../tsconfig.base.json", "compilerOptions": { "outDir": "dist", "rootDir": "src", "types": ["node"] }, "include": ["src"] }

@@ -9,7 +9,7 @@ Research status (docs/seo/research/04-dev-discovery-channels.md, 2e): one server
 Place it in the finance or documents category, alphabetically among its neighbours by the server name. Check the category name in the live file first.
 
 ```markdown
-- [Sagexd08/OpenBooks](https://github.com/Sagexd08/OpenBooks) - Verify bank statements, settlements and tax documents: one proven JSON per file, or a typed refusal that names the reason. npm package `@lumeo_hq/openbooks-mcp`, run with `npx -y @lumeo_hq/openbooks-mcp`.
+- [Sagexd08/OpenBooks](https://github.com/Sagexd08/OpenBooks) - Verify bank statements, settlements and tax documents: one proven JSON per file, or a typed refusal that names the reason. npm package `@lumeo_hq/openbooks`, run with `npx -y -p @lumeo_hq/openbooks openbooks-mcp`.
 ```
 
 Remove the emoji or marker suffixes unless the neighbouring lines use them. If they do, add the same markers that the file's own legend defines (UNVERIFIED which ones apply).
@@ -25,7 +25,7 @@ Add Open Books MCP server (openbooks-mcp)
 ```markdown
 Adds Open Books, an MCP server that lets an agent verify bank statements, payment settlements and tax documents.
 
-- Repository: https://github.com/Sagexd08/OpenBooks (public, npm package `@lumeo_hq/openbooks-mcp`)
+- Repository: https://github.com/Sagexd08/OpenBooks (public, npm package `@lumeo_hq/openbooks`)
 - Output: one JSON document per file, released only if its own arithmetic balances, otherwise a typed refusal with a reason code. Nothing is partially released.
 - Status: v0.1 pre-release. Layouts are tested on synthetic fixtures only, not on real bank exports. The README says so.
 - Listing: the MCP Registry entry is pending the owner's publish step. Glama listing: [add the Glama link here once the owner has claimed the server, or delete this line].

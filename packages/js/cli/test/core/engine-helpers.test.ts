@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { EngineError } from "../src/errors.js";
-import { parseMachineLines, splitBatches, type Input } from "../src/engine.js";
+import { EngineError } from "../../src/core/errors.js";
+import { parseMachineLines, splitBatches, type Input } from "../../src/core/engine.js";
 
 const input = (name: string, sha: string): Input => ({ path: `/in/${name}`, sha });
 const RESULT = (file: string, status: "ok" | "refused" = "ok", code: string | null = null) =>

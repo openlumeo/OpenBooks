@@ -1,6 +1,6 @@
-import type { Engine, RunResult } from "@lumeo_hq/openbooks-core";
-import type { Doc, ExecuteResult } from "../src/operations.js";
-import type { Operations } from "../src/operations.js";
+import type { Engine, RunResult } from "../../src/core/index.js";
+import type { Doc, ExecuteResult } from "../../src/mcp/operations.js";
+import type { Operations } from "../../src/mcp/operations.js";
 
 export const ENGINE: Engine = {
   python: ["python"],

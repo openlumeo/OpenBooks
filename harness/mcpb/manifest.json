@@ -10,6 +10,6 @@
   "server": {
     "type": "node",
     "entry_point": "server/index.js",
-    "mcp_config": { "command": "npx", "args": ["-y", "@lumeo_hq/openbooks-mcp"] }
+    "mcp_config": { "command": "npx", "args": ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp"] }
   }
 }

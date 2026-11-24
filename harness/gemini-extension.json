@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Verify bank statements, settlements and tax documents into proven JSON or a typed refusal.",
   "mcpServers": {
-    "openbooks": { "command": "npx", "args": ["-y", "@lumeo_hq/openbooks-mcp"] }
+    "openbooks": { "command": "npx", "args": ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp"] }
   },
   "contextFileName": "AGENTS.md"
 }

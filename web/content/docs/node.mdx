@@ -16,7 +16,7 @@ Use these packages in a Node.js process with Python 3.11+ and `openbooks` instal
 This example uses two CSV files with the same verified opening amount, currency, and date order. Save it as an `.mjs` file to run it with Node.js, or use it in a TypeScript project.
 
 ~~~ts
-import { EngineError, isReleased, runFiles } from "@lumeo_hq/openbooks-core";
+import { EngineError, isReleased, runFiles } from "@lumeo_hq/openbooks/core";
 
 try {
   const results = await runFiles(["january.csv", "february.csv"], {
@@ -45,10 +45,10 @@ Batch options apply to every file in the call. Results arrive as an array in inp
 
 The core package and format wrappers expose `runJobs()` from version 0.2.1. Pass an iterable or async iterable of jobs and handle each result as it arrives in input order. This lets you persist or review each result without holding an entire completed batch in memory. Runtime settings such as the interpreter, layout allowlist, and response limits apply across the stream.
 
-Install `@lumeo_hq/openbooks-statements` for this example. Shared options set the currency and date order. Each job supplies its own opening balance.
+Use the `@lumeo_hq/openbooks/statements` subpath for this example. Shared options set the currency and date order. Each job supplies its own opening balance.
 
 ~~~ts
-import { runJobs } from "@lumeo_hq/openbooks-statements";
+import { runJobs } from "@lumeo_hq/openbooks/statements";
 
 for await (const result of runJobs([
   { file: "jan.csv", options: { opening: "1000.00" } },
@@ -74,11 +74,11 @@ for await (const result of runJobs([
 
 | Package | Exports and scope |
 | --- | --- |
-| `@lumeo_hq/openbooks-core` | `runFile`, `runFiles`, `isReleased`, `findEngine`, validation helpers and contract types. Supports the engine's installed layouts. |
-| `@lumeo_hq/openbooks-statements` | The runner and `LAYOUTS` for bank CSV, OFX/QFX, MT940 and bank statement PDFs/scans. |
-| `@lumeo_hq/openbooks-gateways` | The runner and `LAYOUTS` for Stripe, Razorpay, PayPal and Wise. |
-| `@lumeo_hq/openbooks-tax` | The runner and `LAYOUTS` for Form 26AS, AIS, FIRA, Form 1099-B and trial balance. |
-| `@lumeo_hq/openbooks-doctor` | `runDoctor(options)` returns checks, summary counts and `ok`. Set `deep: true` to load the model. |
+| `@lumeo_hq/openbooks/core` | `runFile`, `runFiles`, `isReleased`, `findEngine`, validation helpers and contract types. Supports the engine's installed layouts. |
+| `@lumeo_hq/openbooks/statements` | The runner and `LAYOUTS` for bank CSV, OFX/QFX, MT940 and bank statement PDFs/scans. |
+| `@lumeo_hq/openbooks/gateways` | The runner and `LAYOUTS` for Stripe, Razorpay, PayPal and Wise. |
+| `@lumeo_hq/openbooks/tax` | The runner and `LAYOUTS` for Form 26AS, AIS, FIRA, Form 1099-B and trial balance. |
+| `@lumeo_hq/openbooks/doctor` | `runDoctor(options)` returns checks, summary counts and `ok`. Set `deep: true` to load the model. |
 | `@lumeo_hq/openbooks` | CLI, engine installer and programmatic `main` and `installEngine` entry points. |
 
 ## Handle results and errors

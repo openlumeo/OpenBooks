@@ -3,10 +3,10 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
-import { clearEngineCache, EngineError, isReleased, runFile, runFiles, runJobs } from "../src/index.js";
+import { clearEngineCache, EngineError, isReleased, runFile, runFiles, runJobs } from "../../src/core/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repo = resolve(here, "../../../..");
+const repo = resolve(here, "../../../../..");
 const venvPython = join(repo, ".venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
 const realPython = process.env.OPENBOOKS_PYTHON ?? (existsSync(venvPython) ? venvPython : undefined);
 const fake = [process.execPath, join(here, "fake-engine.mjs")];

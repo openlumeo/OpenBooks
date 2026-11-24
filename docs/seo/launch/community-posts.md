@@ -9,11 +9,11 @@ UNVERIFIED: self-promotion rules, flair requirement.
 Title: Open-source MCP server that returns a bank statement as proven JSON, or a refusal
 
 ```text
-I work on Open Books, an open-source MCP server (npm package @lumeo_hq/openbooks-mcp) that lets an agent check a financial file before it uses the numbers.
+I work on Open Books, an open-source MCP server (npm package @lumeo_hq/openbooks) that lets an agent check a financial file before it uses the numbers.
 
 The rule: a file is released only if its own arithmetic proves it. For a bank statement that means opening + transactions = closing, and the running balance ties on every row. If the check fails or the layout is unknown, the tool returns a typed refusal with a reason code and no partial data.
 
-Setup is one command (npx -y @lumeo_hq/openbooks-mcp) and a stdio config entry. The README has the JSON for Claude Desktop and Cursor style clients.
+Setup is one command (npx -y -p @lumeo_hq/openbooks openbooks-mcp) and a stdio config entry. The README has the JSON for Claude Desktop and Cursor style clients.
 
 It is pre-release (v0.2 engine). Tests use synthetic fixtures, not real bank exports, so I have no accuracy number and I am not claiming one. Feedback welcome, especially on the refusal shape and on which tool names are clear.
 

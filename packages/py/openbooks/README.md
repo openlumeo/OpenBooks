@@ -51,7 +51,7 @@ Exit codes: `0` everything released, `1` something was refused, `2` usage error,
 ## Links
 
 - Developer docs: https://openbooks.lumeo.co.in/docs
-- MCP server (`@lumeo_hq/openbooks-mcp` on npm): https://openbooks.lumeo.co.in/docs/mcp
+- MCP server (`@lumeo_hq/openbooks` on npm, `openbooks-mcp` bin): https://openbooks.lumeo.co.in/docs/mcp
 - Source: https://github.com/Sagexd08/OpenBooks
 
 Licence: Apache-2.0.

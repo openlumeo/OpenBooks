@@ -1,12 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import type { RunJob } from "@lumeo_hq/openbooks-core";
+import type { RunJob } from "../../src/core/index.js";
 
 const core = vi.hoisted(() => ({
   runFile: vi.fn(), runFiles: vi.fn(), runJobs: vi.fn(),
 }));
-vi.mock("@lumeo_hq/openbooks-core", async (importOriginal) => ({ ...(await importOriginal<object>()), ...core }));
+vi.mock("../../src/core/index.js", async (importOriginal) => ({ ...(await importOriginal<object>()), ...core }));
 
-import { LAYOUTS, runFile, runFiles, runJobs } from "../src/index.js";
+import { LAYOUTS, runFile, runFiles, runJobs } from "../../src/gateways/index.js";
 
 beforeEach(() => vi.clearAllMocks());
 

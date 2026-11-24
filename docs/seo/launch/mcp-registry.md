@@ -1,4 +1,4 @@
-# Publish @lumeo_hq/openbooks-mcp to the official MCP Registry
+# Publish @lumeo_hq/openbooks to the official MCP Registry
 
 Status: DRAFT. Manual owner steps. Nothing here has been run.
 
@@ -6,9 +6,9 @@ Source of the steps: docs/seo/research/04-dev-discovery-channels.md (section 2a)
 
 ## Facts from the repo
 
-- Server manifest: `packages/js/mcp/server.json`. Name `io.github.Sagexd08/openbooks-mcp`, version `0.2.3`, npm package `@lumeo_hq/openbooks-mcp`, transport `stdio`.
-- npm ownership marker: `packages/js/mcp/package.json` has `"mcpName": "io.github.Sagexd08/openbooks-mcp"`. The registry verifies npm packages through this field, not through a README line.
-- Version: `packages/js/mcp/package.json` says `0.2.3`. The npm package must be published at that version before the registry listing points to it.
+- Server manifest: `packages/js/cli/server.json`. Name `io.github.Sagexd08/openbooks-mcp`, version `0.2.3`, npm package `@lumeo_hq/openbooks`, transport `stdio`.
+- npm ownership marker: `packages/js/cli/package.json` has `"mcpName": "io.github.Sagexd08/openbooks-mcp"`. The registry verifies npm packages through this field, not through a README line.
+- Version: `packages/js/cli/package.json` says `0.2.3`. The npm package must be published at that version before the registry listing points to it.
 - The Python package `openbooks-mcp` on PyPI is retired. Its `server.json` was removed; do not publish a PyPI release.
 
 ## Open decision before publishing: name casing
@@ -18,7 +18,7 @@ The namespace uses the exact GitHub login, io.github.Sagexd08/openbooks-mcp, in 
 ## Steps (owner)
 
 1. Install the publisher CLI (method per the registry quickstart: https://modelcontextprotocol.io/registry/quickstart).
-2. Publish the npm package at `0.2.3` from `packages/js/mcp` (owner runs this; not done by the agent). Confirm the npm page shows the package and that `npm view @lumeo_hq/openbooks-mcp mcpName` prints the namespace.
+2. Publish the npm package at `0.2.3` from `packages/js/mcp` (owner runs this; not done by the agent). Confirm the npm page shows the package and that `npm view @lumeo_hq/openbooks mcpName` prints the namespace.
 3. Validate the manifest:
    ```bash
    cd packages/js/mcp

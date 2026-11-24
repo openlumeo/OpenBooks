@@ -2,7 +2,7 @@
 import { realpathSync, statSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import type { DiscoverOptions } from "@lumeo_hq/openbooks-core";
+import type { DiscoverOptions } from "../core/index.js";
 import { DEFAULT_HTTP_PORT, MIN_TOKEN_LENGTH, SERVER_NAME } from "./constants.js";
 import { startHttp } from "./http.js";
 import { buildServer, packageVersion } from "./server.js";

@@ -28,7 +28,7 @@ describe("onboard data", () => {
   it("starts Claude Code, Codex and VS Code commands with their programs", () => {
     const byId = new Map(AGENTS.map((agent) => [agent.id, agent]));
     for (const card of byId.get("claude-code")?.cards ?? []) {
-      expect(card.code.startsWith("claude mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp")).toBe(true);
+      expect(card.code.startsWith("claude mcp add openbooks -- npx -y -p @lumeo_hq/openbooks openbooks-mcp")).toBe(true);
     }
     for (const card of byId.get("codex")?.cards ?? []) {
       if (card.id === "add") expect(card.code.startsWith("codex ")).toBe(true);
@@ -41,7 +41,7 @@ describe("onboard data", () => {
     const config = new URL(href).searchParams.get("config");
     expect(config).not.toBeNull();
     expect(JSON.parse(atob(config ?? ""))).toEqual(STDIO_SERVER);
-    expect(atob(config ?? "")).toBe('{"command":"npx","args":["-y","@lumeo_hq/openbooks-mcp"]}');
+    expect(atob(config ?? "")).toBe('{"command":"npx","args":["-y","-p","@lumeo_hq/openbooks","openbooks-mcp"]}');
     expect(href.startsWith("cursor://anysphere.cursor-deeplink/mcp/install?name=openbooks&config=")).toBe(true);
   });
 

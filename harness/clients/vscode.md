@@ -8,7 +8,7 @@ Add to `.vscode/mcp.json` in the workspace:
     "openbooks": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@lumeo_hq/openbooks-mcp"]
+      "args": ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp"]
     }
   }
 }

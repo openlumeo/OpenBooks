@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { RunResult } from "@lumeo_hq/openbooks-core";
-import type { DoctorReport } from "@lumeo_hq/openbooks-doctor";
+import type { RunResult } from "../src/core/index.js";
+import type { DoctorReport } from "../src/doctor/index.js";
 import { formatDoctorText, formatRunJson, formatRunText } from "../src/output.js";
 import { parseMaxDocumentBytes, parseTimeout } from "../src/main.js";
 import { EXIT } from "../src/main.js";

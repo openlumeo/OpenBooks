@@ -26,7 +26,7 @@ import { GET as llmsGET } from "@/app/llms.txt/route";
 import { DocArticle } from "@/components/docs/article";
 import { pageMetadata } from "@/lib/site";
 
-const PACKAGE_NAMES = ["cli", "core", "statements", "gateways", "doctor"] as const;
+const PACKAGE_NAMES = ["cli"] as const;
 const PACKAGES_DIR = new URL("../../packages/js/", import.meta.url);
 const AI_CRAWLERS = ["GPTBot", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "Perplexity-User", "Applebot-Extended"];
 const PRIVATE_PATHS = ["/api/", "/auth/"];

@@ -3,11 +3,11 @@ import { readFileSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Command, CommanderError } from "commander";
-import { EngineError, findEngine, MAX_TIMEOUT_MS, runFiles, type RunOptions, type RunResult } from "@lumeo_hq/openbooks-core";
-import * as gateways from "@lumeo_hq/openbooks-gateways";
-import * as statements from "@lumeo_hq/openbooks-statements";
-import * as tax from "@lumeo_hq/openbooks-tax";
-import { runDoctor } from "@lumeo_hq/openbooks-doctor";
+import { EngineError, findEngine, MAX_TIMEOUT_MS, runFiles, type RunOptions, type RunResult } from "./core/index.js";
+import * as gateways from "./gateways/index.js";
+import * as statements from "./statements/index.js";
+import * as tax from "./tax/index.js";
+import { runDoctor } from "./doctor/index.js";
 import { installEngine } from "./install-engine.js";
 import { formatDoctorText, formatRunJson, formatRunText } from "./output.js";
 

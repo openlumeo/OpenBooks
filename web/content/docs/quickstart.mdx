@@ -61,13 +61,13 @@ The script prints `2026-01-02 debit 100.00 INR` and `2026-01-03 credit 50.00 INR
 <Tab value="Node.js">
 ~~~bash
 python -m pip install "openbooks==0.2.0"
-npm install @lumeo_hq/openbooks-core
+npm install @lumeo_hq/openbooks
 ~~~
 
 Save this as `quickstart.mjs` and run `node quickstart.mjs`.
 
 ~~~js
-import { runFile } from "@lumeo_hq/openbooks-core";
+import { runFile } from "@lumeo_hq/openbooks/core";
 
 const result = await runFile("statement.csv", {
   currency: "INR",

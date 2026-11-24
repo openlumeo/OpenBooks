@@ -1,15 +1,15 @@
-# @lumeo_hq/openbooks-mcp
+# @lumeo_hq/openbooks MCP server
 
 Open Books MCP is a Model Context Protocol server that lets an AI agent verify bank statements, payment settlements and tax documents. Each file comes back as one proven JSON result, or as a typed refusal that names the reason. A file is released only when its own arithmetic proves it.
 
-The server is distributed only as this npm package. Run it with `npx`; there is no pip package to install.
+The server ships in the single npm package `@lumeo_hq/openbooks`, as the `openbooks-mcp` bin. Run it with `npx`; there is no pip package to install.
 
 ## Quickstart
 
 Requires Node.js 20 or newer.
 
 ```bash
-npx -y @lumeo_hq/openbooks-mcp
+npx -y -p @lumeo_hq/openbooks openbooks-mcp
 ```
 
 Add it to your client (see the next section). The server starts on stdio, so the client launches it as a subprocess.
@@ -20,20 +20,20 @@ On first use, ask the agent to run the `doctor` operation. It reports whether th
 npx -y @lumeo_hq/openbooks install-engine --scan
 ```
 
-The engine itself is Python, so Python 3.11 or newer must be present on the machine. The npm packages install and provision the engine, but they do not install Python.
+The engine itself is Python, so Python 3.11 or newer must be present on the machine. The npm package installs and provisions the engine, but it does not install Python.
 
 ## Connect a client
 
 Claude Code:
 
 ```bash
-claude mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp
+claude mcp add openbooks -- npx -y -p @lumeo_hq/openbooks openbooks-mcp
 ```
 
 Codex:
 
 ```bash
-codex mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp
+codex mcp add openbooks -- npx -y -p @lumeo_hq/openbooks openbooks-mcp
 ```
 
 Claude Desktop, Cursor, Cline and Gemini CLI use the `mcpServers` form:
@@ -43,7 +43,7 @@ Claude Desktop, Cursor, Cline and Gemini CLI use the `mcpServers` form:
   "mcpServers": {
     "openbooks": {
       "command": "npx",
-      "args": ["-y", "@lumeo_hq/openbooks-mcp"]
+      "args": ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp"]
     }
   }
 }
@@ -56,7 +56,7 @@ To let the agent read files from one folder, add `--root` with the folder path:
   "mcpServers": {
     "openbooks": {
       "command": "npx",
-      "args": ["-y", "@lumeo_hq/openbooks-mcp", "--root", "/absolute/path/to/financial/files"]
+      "args": ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp", "--root", "/absolute/path/to/financial/files"]
     }
   }
 }
@@ -124,7 +124,7 @@ Without `--root`, the server works only with the built-in sample and inline uplo
 For a service on the same machine, run the server in Streamable HTTP mode:
 
 ```bash
-OPENBOOKS_MCP_TOKEN="<at least 32 ASCII characters>" npx -y @lumeo_hq/openbooks-mcp --http --port 8791
+OPENBOOKS_MCP_TOKEN="<at least 32 ASCII characters>" npx -y -p @lumeo_hq/openbooks openbooks-mcp --http --port 8791
 ```
 
 - `OPENBOOKS_MCP_TOKEN` is required and must be at least 32 ASCII characters. Generate a random value and keep it in your secret store.
@@ -161,13 +161,13 @@ Use `records` to page through long results rather than `document`.
 | `INVALID_PATH` | Pass a path relative to the `--root` folder. |
 | `RESPONSE_LIMIT` | Use `records` with a smaller `limit` instead of `document`. |
 | `BUSY` | Two runs are already active. Retry when one finishes. |
-| The client cannot start the server | Confirm Node.js 20 or newer with `node --version`, then run `npx -y @lumeo_hq/openbooks-mcp` in a terminal. |
+| The client cannot start the server | Confirm Node.js 20 or newer with `node --version`, then run `npx -y -p @lumeo_hq/openbooks openbooks-mcp` in a terminal. |
 
 ## Links
 
 - [MCP guide](https://openbooks.lumeo.co.in/docs/mcp)
 - [Quickstart for agents](https://openbooks.lumeo.co.in/docs/mcp-quickstart-agents)
-- npm CLI: `@lumeo_hq/openbooks`
+- npm package: `@lumeo_hq/openbooks` (CLI, library subpaths and this MCP server)
 - Source: https://github.com/Sagexd08/OpenBooks
 
 License: Apache-2.0.

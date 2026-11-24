@@ -1,14 +1,14 @@
 import { readFileSync } from "node:fs";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { findEngine, runFile } from "@lumeo_hq/openbooks-core";
+import { findEngine, runFile } from "../../src/core/index.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { INSTRUCTIONS, MAX_STEPS, PROMPT_NAMES, REFUSAL_CODES, RESOURCE_URIS, SAMPLE_STATEMENT, TOOL_NAMES } from "../src/constants.js";
-import { buildServer, packageVersion } from "../src/server.js";
+import { INSTRUCTIONS, MAX_STEPS, PROMPT_NAMES, REFUSAL_CODES, RESOURCE_URIS, SAMPLE_STATEMENT, TOOL_NAMES } from "../../src/mcp/constants.js";
+import { buildServer, packageVersion } from "../../src/mcp/server.js";
 import { ENGINE, released } from "./helpers.js";
 
-vi.mock("@lumeo_hq/openbooks-core", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@lumeo_hq/openbooks-core")>()),
+vi.mock("../../src/core/index.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/core/index.js")>()),
   runFile: vi.fn(),
   findEngine: vi.fn(),
 }));
@@ -46,7 +46,7 @@ describe("server identity", () => {
   });
 
   it("matches package.json", () => {
-    const manifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
+    const manifest = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as { version: string };
     expect(packageVersion()).toBe(manifest.version);
   });
 

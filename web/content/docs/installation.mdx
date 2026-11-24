@@ -49,7 +49,7 @@ Install the engine into the activated environment and the Node.js wrapper into y
 
 ~~~bash
 python -m pip install "openbooks==0.2.0"
-npm install @lumeo_hq/openbooks-core
+npm install @lumeo_hq/openbooks
 ~~~
 
 Use an explicit interpreter path through `OPENBOOKS_PYTHON` in CI when the runner has more than one Python installation.
@@ -85,12 +85,7 @@ See [PDF and OCR](/docs/pdf-and-ocr) for flag defaults. The Node.js wrapper enab
 | Distribution | Purpose |
 | --- | --- |
 | [`openbooks` on PyPI](https://pypi.org/project/openbooks/) | Python engine, provider registry, Python API and CLI. |
-| [`@lumeo_hq/openbooks-core`](https://www.npmjs.com/package/@lumeo_hq/openbooks-core) | Typed runner, engine discovery and output validation. |
-| [`@lumeo_hq/openbooks-statements`](https://www.npmjs.com/package/@lumeo_hq/openbooks-statements) | Runner restricted to bank statement layouts. |
-| [`@lumeo_hq/openbooks-gateways`](https://www.npmjs.com/package/@lumeo_hq/openbooks-gateways) | Runner restricted to payment gateway layouts. |
-| [`@lumeo_hq/openbooks-tax`](https://www.npmjs.com/package/@lumeo_hq/openbooks-tax) | Runner restricted to tax and trial-balance layouts. |
-| [`@lumeo_hq/openbooks-doctor`](https://www.npmjs.com/package/@lumeo_hq/openbooks-doctor) | Programmatic diagnostics for Node.js. |
-| [`@lumeo_hq/openbooks`](https://www.npmjs.com/package/@lumeo_hq/openbooks) | Unified npm CLI and Python installer. |
+| [`@lumeo_hq/openbooks`](https://www.npmjs.com/package/@lumeo_hq/openbooks) | npm package with subpath modules `/core` (typed runner, engine discovery, output validation), `/statements`, `/gateways`, `/tax` (layout-restricted runners), `/doctor` (diagnostics) and `/mcp`. Commands: `openbooks` (CLI) and `openbooks-mcp` (MCP server). |
 
 If you're upgrading Python from 0.1, install 0.2 in a fresh virtual environment. The `openbooks` distribution now owns all five Python modules. Existing code can still import `Params` and `process` from `openbooks.pipeline`, and new code can import them from `openbooks`.
 

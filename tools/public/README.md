@@ -22,7 +22,7 @@ One Python package, `openbooks` (`pip install openbooks`; add `[scan]` for OCR a
 | `openbooks.tax` | Form 26AS, AIS, FIRA, Form 1099-B, trial balance |
 | `openbooks.doctor` | `openbooks doctor`: installation, provider and model-integrity checks |
 
-npm: `@lumeo_hq/openbooks-core`, `@lumeo_hq/openbooks-statements`, `@lumeo_hq/openbooks-gateways`, `@lumeo_hq/openbooks-tax`, `@lumeo_hq/openbooks-doctor` and the `openbooks`
+npm: `@lumeo_hq/openbooks/core`, `@lumeo_hq/openbooks/statements`, `@lumeo_hq/openbooks/gateways`, `@lumeo_hq/openbooks/tax`, `@lumeo_hq/openbooks/doctor` and the `openbooks`
 CLI are typed wrappers that run the Python engine. They parse nothing themselves.
 
 A missing provider never causes a guess: a file that looks like a known layout whose provider is not registered is refused
@@ -37,7 +37,7 @@ python -m openbooks doctor
 ```
 
 ```ts
-import { runFile } from "@lumeo_hq/openbooks-core";
+import { runFile } from "@lumeo_hq/openbooks/core";
 const r = await runFile("statement.csv", { currency: "INR", opening: "1000.00" });
 if (r.kind === "released") console.log(r.document.data.transactions[0]?.amount?.amount); // a string, never a float
 else console.log(r.code, r.message); // a refusal is a value, not an exception

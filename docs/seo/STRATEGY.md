@@ -36,4 +36,4 @@ E. Distribution drafts: registry, awesome list, Show HN, dev.to, READMEs.
 
 ## Manual steps that need the owner
 
-Search Console and Bing Webmaster verification, npm publish of `@lumeo_hq/openbooks-mcp` 0.2.3 with `mcpName` set, MCP Registry publish with mcp-publisher, posting launches, and setting the INDEXNOW_KEY repository secret.
+Search Console and Bing Webmaster verification, npm publish of `@lumeo_hq/openbooks` 0.2.3 with `mcpName` set, MCP Registry publish with mcp-publisher, posting launches, and setting the INDEXNOW_KEY repository secret.

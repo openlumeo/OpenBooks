@@ -25,7 +25,7 @@ Audience: a teammate with write access who will pull this repo, split it into th
 
 1. Resolve the open decisions in section 9 (they gate a public release).
 2. Python: split `src/openbooks` into `openbooks-core`, `-statements`, `-gateways`, `-tax`, `-doctor` behind a layout registry (section 3). Keep `pip install openbooks` as a meta package so nothing breaks.
-3. npm: add the `openbooks` CLI with subcommands plus `@lumeo_hq/openbooks-*` packages that wrap the Python engine and ship typed, validated output (section 4).
+3. npm: one package, `@lumeo_hq/openbooks`, with the `openbooks` CLI, subpath modules and the `openbooks-mcp` server, all wrapping the Python engine and ship typed, validated output (section 4).
 4. ML: close the end-to-end gaps (section 6).
 5. Publish to TestPyPI and an npm dry run first, then real (section 7).
 
@@ -49,7 +49,7 @@ Map from today's modules to the diagram's packages:
 The Python engine stays the single source of truth for parsing and proving. Re-implementing parsers in TypeScript would fork the accuracy story, so npm packages are **typed wrappers** over the engine:
 
 ```
-npm: @lumeo_hq/openbooks (CLI) -> @lumeo_hq/openbooks-{core,statements,gateways,tax,doctor}
+npm: @lumeo_hq/openbooks (CLI and MCP bins; subpaths /core, /statements, /gateways, /tax, /doctor, /mcp)
           |  spawns:  python -m openbooks.pipeline run ...   (JSON in <out>/<sha256>.json)
           v
 PyPI: openbooks (meta) -> openbooks-{core,statements,gateways,tax,doctor}
@@ -137,13 +137,15 @@ An `openbooks doctor` subcommand. It should check and print pass/fail with a fix
 
 ```
 packages/js/
-  package.json              { "private": true, "workspaces": ["*"] }
-  core/         @lumeo_hq/openbooks-core         types + Zod schema + runEngine()
-  statements/   @lumeo_hq/openbooks-statements   openbooks statements ...
-  gateways/     @lumeo_hq/openbooks-gateways     openbooks gateways ...
-  tax/          @lumeo_hq/openbooks-tax          openbooks tax ...
-  doctor/       @lumeo_hq/openbooks-doctor       openbooks doctor
-  cli/          openbooks               the umbrella binary with all subcommands
+  package.json              { "private": true, "workspaces": ["cli"] }
+  cli/          @lumeo_hq/openbooks       one package; bins: openbooks (CLI), openbooks-mcp (MCP server)
+    src/core/       types + Zod schema + runEngine()          subpath /core
+    src/statements/ openbooks statements ...                  subpath /statements
+    src/gateways/   openbooks gateways ...                    subpath /gateways
+    src/tax/        openbooks tax ...                         subpath /tax
+    src/doctor/     openbooks doctor                          subpath /doctor
+    src/mcp/        MCP server                                subpath /mcp, bin openbooks-mcp
+    schema/         openbooks.v1 schema copies
 ```
 
 ### 4.2 Generate the types from the real schema
@@ -157,7 +159,7 @@ npx json-schema-to-zod -i packages/js/core/schema/openbooks.v1.schema.json -o pa
 
 Add that export as a script in `package.json` and a CI check that fails if the committed file differs from a fresh export. A refusal document is `{ "schema_version": "openbooks.v1", "status": "refused", "data": null, "error": {"code","message","file_sha256"} }` (no `file` block; see `refusal_doc` in `pipeline.py`): add its Zod type by hand in `core` and export `OpenBooksResult = z.union([Ok, Refused])`.
 
-### 4.3 `@lumeo_hq/openbooks-core`
+### 4.3 Core module (`@lumeo_hq/openbooks/core`)
 
 ```ts
 // src/engine.ts
@@ -281,7 +283,7 @@ PyPI (use TestPyPI first):
 npm:
 1. Use the `@lumeo_hq` org; enable 2FA on the publishing account.
 2. `npm pack` in each package and inspect the tarball (only `dist`, `schema`, README, licence).
-3. `npm publish --dry-run`, then publish from CI with `--access public --provenance`. Publish `@lumeo_hq/openbooks-core` first, `openbooks` last. Note that npm unpublish is time-limited: treat every publish as permanent.
+3. `npm publish --dry-run`, then publish from CI with `--access public --provenance`. Publish the single `@lumeo_hq/openbooks` package from `packages/js/cli`. Note that npm unpublish is time-limited: treat every publish as permanent.
 
 Both: one version number for all packages (changesets or a script), a CHANGELOG, and a licence file (none is chosen yet; see section 9).
 

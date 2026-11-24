@@ -1,12 +1,12 @@
 import { request } from "node:http";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { findEngine, runFile } from "@lumeo_hq/openbooks-core";
-import { MAX_HTTP_BODY_BYTES, MIN_TOKEN_LENGTH } from "../src/constants.js";
-import { startHttp, type RunningHttpServer } from "../src/http.js";
+import { findEngine, runFile } from "../../src/core/index.js";
+import { MAX_HTTP_BODY_BYTES, MIN_TOKEN_LENGTH } from "../../src/mcp/constants.js";
+import { startHttp, type RunningHttpServer } from "../../src/mcp/http.js";
 import { ENGINE, released } from "./helpers.js";
 
-vi.mock("@lumeo_hq/openbooks-core", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@lumeo_hq/openbooks-core")>()),
+vi.mock("../../src/core/index.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/core/index.js")>()),
   runFile: vi.fn(),
   findEngine: vi.fn(),
 }));

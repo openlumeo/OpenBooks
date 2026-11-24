@@ -1,7 +1,7 @@
 {
   "name": "@lumeo_hq/openbooks",
-  "version": "0.2.3",
-  "description": "Open Books CLI: verify bank statements, settlements and tax documents and get one proven JSON per file, or a typed refusal. Install with `npm i @lumeo_hq/openbooks`.",
+  "version": "0.2.4",
+  "description": "Open Books: verify bank statements, settlements and tax documents and get one proven JSON per file, or a typed refusal. One package with the CLI, the typed library and the MCP server for AI agents.",
   "keywords": [
     "bank-statement",
     "financial-documents",
@@ -9,6 +9,8 @@
     "json",
     "reconciliation",
     "mcp",
+    "model-context-protocol",
+    "ai-agents",
     "accounting",
     "openbooks",
     "lumeo"
@@ -24,29 +26,71 @@
     "url": "git+https://github.com/Sagexd08/openbooks-js.git",
     "directory": "cli"
   },
+  "mcpName": "io.github.Sagexd08/openbooks-mcp",
   "type": "module",
   "bin": {
-    "openbooks": "./dist/cli.js"
+    "openbooks": "./dist/cli.js",
+    "openbooks-mcp": "./dist/mcp/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./statements": {
+      "types": "./dist/statements/index.d.ts",
+      "import": "./dist/statements/index.js"
+    },
+    "./gateways": {
+      "types": "./dist/gateways/index.d.ts",
+      "import": "./dist/gateways/index.js"
+    },
+    "./tax": {
+      "types": "./dist/tax/index.d.ts",
+      "import": "./dist/tax/index.js"
+    },
+    "./doctor": {
+      "types": "./dist/doctor/index.d.ts",
+      "import": "./dist/doctor/index.js"
+    },
+    "./mcp": {
+      "types": "./dist/mcp/index.d.ts",
+      "import": "./dist/mcp/index.js"
+    },
+    "./schema/*": "./schema/*",
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
-    "scripts",
+    "schema",
+    "scripts/postinstall.mjs",
     "README.md"
   ],
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "postinstall": "node scripts/postinstall.mjs"
+    "build": "tsc -p tsconfig.json",
+    "postinstall": "node scripts/postinstall.mjs",
+    "test": "vitest run",
+    "gen:workspace": "node scripts/gen-workspace.mjs",
+    "sync-schema": "node scripts/sync-schema.mjs",
+    "generate": "node scripts/generate-types.mjs",
+    "check-generated": "node scripts/sync-schema.mjs --check && node scripts/generate-types.mjs --check"
   },
   "dependencies": {
-    "@lumeo_hq/openbooks-core": "workspace:*",
-    "@lumeo_hq/openbooks-statements": "workspace:*",
-    "@lumeo_hq/openbooks-gateways": "workspace:*",
-    "@lumeo_hq/openbooks-tax": "workspace:*",
-    "@lumeo_hq/openbooks-doctor": "workspace:*",
-    "commander": "^14.0.0"
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "ajv": "^8.17.1",
+    "commander": "^14.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^15.0.4"
   }
 }

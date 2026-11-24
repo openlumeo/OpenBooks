@@ -27,10 +27,10 @@ Use this page when a Form 26AS, AIS, FIRA, Form 1099-B or trial balance must be 
 
 ## 3. Process the files
 
-After following the [Node.js installation guide](/docs/installation), install the tax wrapper with `npm install @lumeo_hq/openbooks-tax`. Save this example as an `.mjs` file and run it from the directory containing the Form 26AS CSV and trial balance workbook.
+After following the [Node.js installation guide](/docs/installation), install the tax wrapper with `npm install @lumeo_hq/openbooks`. Save this example as an `.mjs` file and run it from the directory containing the Form 26AS CSV and trial balance workbook.
 
 ~~~ts
-import { runFiles } from "@lumeo_hq/openbooks-tax";
+import { runFiles } from "@lumeo_hq/openbooks/tax";
 
 for (const result of await runFiles(["form-26as.csv", "trial-balance.xlsx"])) {
   if (result.kind === "released") {

@@ -2,7 +2,7 @@ extensions:
   openbooks:
     name: Open Books
     cmd: npx
-    args: ["-y", "@lumeo_hq/openbooks-mcp"]
+    args: ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp"]
     enabled: true
     envs: {}
     type: stdio

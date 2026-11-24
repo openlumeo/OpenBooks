@@ -15,13 +15,13 @@ Add the Open Books MCP server to your MCP client with `npx`. The agent then gets
 Claude Code:
 
 ~~~bash
-claude mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp
+claude mcp add openbooks -- npx -y -p @lumeo_hq/openbooks openbooks-mcp
 ~~~
 
 Codex:
 
 ~~~bash
-codex mcp add openbooks -- npx -y @lumeo_hq/openbooks-mcp
+codex mcp add openbooks -- npx -y -p @lumeo_hq/openbooks openbooks-mcp
 ~~~
 
 Claude Desktop, Cursor, Cline and Gemini CLI use an `mcpServers` entry:
@@ -31,13 +31,13 @@ Claude Desktop, Cursor, Cline and Gemini CLI use an `mcpServers` entry:
   "mcpServers": {
     "openbooks": {
       "command": "npx",
-      "args": ["-y", "@lumeo_hq/openbooks-mcp"]
+      "args": ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp"]
     }
   }
 }
 ~~~
 
-`--root` lets the agent read files inside one folder. Add it with an absolute path, for example `"args": ["-y", "@lumeo_hq/openbooks-mcp", "--root", "/path/to/financial/files"]`. Leave it out and the server works only with the synthetic sample and small uploads sent inline.
+`--root` lets the agent read files inside one folder. Add it with an absolute path, for example `"args": ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp", "--root", "/path/to/financial/files"]`. Leave it out and the server works only with the synthetic sample and small uploads sent inline.
 
 ## 3. Check the engine
 

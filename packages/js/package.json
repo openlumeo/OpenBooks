@@ -4,8 +4,8 @@
   "type": "module",
   "engines": { "node": ">=20" },
   "scripts": {
-    "sync-schema": "pnpm --filter @lumeo_hq/openbooks-core run sync-schema",
-    "generate": "pnpm --filter @lumeo_hq/openbooks-core run generate",
+    "sync-schema": "pnpm --filter @lumeo_hq/openbooks run sync-schema",
+    "generate": "pnpm --filter @lumeo_hq/openbooks run generate",
     "build": "tsc -b",
     "test": "vitest run",
     "typecheck": "tsc -b --noEmit"

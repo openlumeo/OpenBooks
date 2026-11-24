@@ -4,12 +4,12 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import * as core from "@lumeo_hq/openbooks-core";
-import { clearEngineCache, findEngine } from "@lumeo_hq/openbooks-core";
-import * as gateways from "@lumeo_hq/openbooks-gateways";
-import * as statements from "@lumeo_hq/openbooks-statements";
-import * as tax from "@lumeo_hq/openbooks-tax";
-import { runDoctor } from "@lumeo_hq/openbooks-doctor";
+import * as core from "../src/core/index.js";
+import { clearEngineCache, findEngine } from "../src/core/index.js";
+import * as gateways from "../src/gateways/index.js";
+import * as statements from "../src/statements/index.js";
+import * as tax from "../src/tax/index.js";
+import { runDoctor } from "../src/doctor/index.js";
 import { EXIT, main } from "../src/main.js";
 import { engineRange, installEngine } from "../src/install-engine.js";
 
@@ -17,7 +17,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../../../..");
 const venv = join(repo, ".venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
 const python = process.env.OPENBOOKS_PYTHON ?? (existsSync(venv) ? venv : undefined);
-const fake = join(repo, "packages/js/core/test/fake-engine.mjs");
+const fake = join(repo, "packages/js/cli/test/core/fake-engine.mjs");
 
 const BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2026,Pay,,5.00,1005.00\n";
 const STRIPE = "balance_transaction_id,created,currency,gross,fee,net\nt1,2026-01-15 10:00:00,usd,100.00,3.20,96.80\n";
@@ -217,11 +217,5 @@ describe("engine version line", () => {
   it("installs the engine from the same major.minor line as the CLI", () => {
     expect(versionOf("cli")).toMatch(/^0\.2\.\d+$/);
     expect(engineRange()).toBe("~=0.2.0");
-  });
-
-  it("keeps all six npm packages on one major.minor line", () => {
-    const line = (v: string) => v.split(".").slice(0, 2).join(".");
-    const want = line(versionOf("cli"));
-    for (const d of ["core", "statements", "gateways", "tax", "doctor"]) expect(line(versionOf(d)), d).toBe(want);
   });
 });

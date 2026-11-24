@@ -38,13 +38,13 @@ export type TryPrompt = {
 };
 
 export const SERVER_NAME = "openbooks";
-export const PACKAGE_NAME = "@lumeo_hq/openbooks-mcp";
+export const PACKAGE_NAME = "@lumeo_hq/openbooks";
 export const SITE_LLMS_URL = "https://openbooks.lumeo.co.in/llms.txt";
 export const KIT_HREF = "/downloads/openbooks-harness.zip";
 export const KIT_TEXT = "Includes MCP config for every client, a verify skill, sample statements and a self-check.";
 
 export const STDIO_COMMAND = "npx";
-export const STDIO_ARGS = ["-y", PACKAGE_NAME] as const;
+export const STDIO_ARGS = ["-y", "-p", PACKAGE_NAME, "openbooks-mcp"] as const;
 export const STDIO_SERVER = { command: STDIO_COMMAND, args: STDIO_ARGS } as const;
 
 export const MCP_SERVERS_JSON = JSON.stringify({ mcpServers: { [SERVER_NAME]: STDIO_SERVER } }, null, 2);
@@ -59,11 +59,11 @@ export function cursorDeeplink(): string {
 }
 
 export const GOOSE_DEEPLINK =
-  "goose://extension?cmd=npx&arg=-y&arg=%40lumeo_hq%2Fopenbooks-mcp&timeout=300&id=openbooks&name=Open%20Books&description=Verify%20financial%20documents";
+  "goose://extension?cmd=npx&arg=-y&arg=-p&arg=%40lumeo_hq%2Fopenbooks&arg=openbooks-mcp&timeout=300&id=openbooks&name=Open%20Books&description=Verify%20financial%20documents";
 
-const CLAUDE_CODE_ADD = `claude mcp add ${SERVER_NAME} -- npx -y ${PACKAGE_NAME}`;
-const CODEX_ADD = `codex mcp add ${SERVER_NAME} -- npx -y ${PACKAGE_NAME}`;
-const VSCODE_ADD = `code --add-mcp '{"name":"${SERVER_NAME}","type":"stdio","command":"npx","args":["-y","${PACKAGE_NAME}"]}'`;
+const CLAUDE_CODE_ADD = `claude mcp add ${SERVER_NAME} -- npx -y -p ${PACKAGE_NAME} openbooks-mcp`;
+const CODEX_ADD = `codex mcp add ${SERVER_NAME} -- npx -y -p ${PACKAGE_NAME} openbooks-mcp`;
+const VSCODE_ADD = `code --add-mcp '{"name":"${SERVER_NAME}","type":"stdio","command":"npx","args":["-y","-p","${PACKAGE_NAME}","openbooks-mcp"]}'`;
 
 export const AGENT_CHAT_PROMPT = `set up Open Books — ${SITE_LLMS_URL}`;
 export const CHECK_PROMPT = "Run the Open Books doctor and tell me if my setup is healthy.";
@@ -131,7 +131,7 @@ export const AGENTS: readonly AgentSetup[] = [
       {
         id: "toml",
         label: "~/.codex/config.toml",
-        code: `[mcp_servers.${SERVER_NAME}]\ncommand = "${STDIO_COMMAND}"\nargs = ["-y", "${PACKAGE_NAME}"]`,
+        code: `[mcp_servers.${SERVER_NAME}]\ncommand = "${STDIO_COMMAND}"\nargs = ["-y", "-p", "${PACKAGE_NAME}", "openbooks-mcp"]`,
       },
     ],
   },

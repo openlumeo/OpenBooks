@@ -1,5 +1,5 @@
-import type { RunResult } from "@lumeo_hq/openbooks-core";
-import type { DoctorReport } from "@lumeo_hq/openbooks-doctor";
+import type { RunResult } from "./core/index.js";
+import type { DoctorReport } from "./doctor/index.js";
 
 export function formatRunText(results: readonly RunResult[]): string {
   return results

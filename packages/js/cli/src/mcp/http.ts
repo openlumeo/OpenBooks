@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import type { DiscoverOptions } from "@lumeo_hq/openbooks-core";
+import type { DiscoverOptions } from "../core/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { MAX_HTTP_BODY_BYTES, MIN_TOKEN_LENGTH } from "./constants.js";
 import { Operations } from "./operations.js";

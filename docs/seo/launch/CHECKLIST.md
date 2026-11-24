@@ -5,9 +5,9 @@ Source: docs/seo/research/04-dev-discovery-channels.md, section 4. Every item is
 ## Days 1-3: metadata (cheap, unblocks the rest)
 
 - [ ] 1. Fill npm `keywords`, `description`, `repository`, `homepage` in the four `@lumeo_hq/openbooks-*` packages and the root CLI package; confirm README renders on npm. (agent-ready, owner publishes)
-- [ ] 2. Check that `@lumeo_hq/openbooks-mcp` package.json has `mcpName` set to `io.github.Sagexd08/openbooks-mcp`, the license matches the README (Apache-2.0), and the version is 0.2.3. The Python `openbooks-mcp` package is retired; do not republish it.
+- [ ] 2. Check that `@lumeo_hq/openbooks` package.json has `mcpName` set to `io.github.Sagexd08/openbooks-mcp`, the license matches the README (Apache-2.0), and the version is 0.2.3. The Python `openbooks-mcp` package is retired; do not republish it.
 - [ ] 3. Add GitHub topics and a social preview image to Sagexd08/OpenBooks (manual upload).
-- [ ] 4. Publish `@lumeo_hq/openbooks-mcp` 0.2.3 to npm from packages/js/mcp. See mcp-registry.md.
+- [ ] 4. Publish `@lumeo_hq/openbooks` 0.2.3 to npm from packages/js/mcp. See mcp-registry.md.
 
 ## Days 4-7: MCP registry
 
@@ -35,7 +35,7 @@ Source: docs/seo/research/04-dev-discovery-channels.md, section 4. Every item is
 ## Measure (weekly)
 
 - [ ] npm weekly downloads for `@lumeo_hq/openbooks`
-- [ ] npm weekly downloads for `@lumeo_hq/openbooks-mcp`
+- [ ] npm weekly downloads for `@lumeo_hq/openbooks`
 - [ ] Registry search hits for `io.github.Sagexd08/openbooks-mcp`
 - [ ] Referrals from GitHub, dev.to and HN to https://openbooks.lumeo.co.in/docs (analytics tool of the owner's choice)
 

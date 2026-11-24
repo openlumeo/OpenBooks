@@ -1,24 +1,25 @@
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const root = join(here, "..", "..");
-const ROLE_LENGTH = 120;
+const manifest = JSON.parse(readFileSync(join(here, "..", "package.json"), "utf8"));
 
-const packages = readdirSync(root, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && entry.name !== "node_modules")
-  .flatMap((entry) => {
-    try {
-      const manifest = JSON.parse(readFileSync(join(root, entry.name, "package.json"), "utf8"));
-      if (manifest.private === true) return [];
-      const role = String(manifest.description ?? "").split(/(?<=\.)\s/)[0].slice(0, ROLE_LENGTH);
-      return [{ name: manifest.name, version: manifest.version, role }];
-    } catch {
-      return [];
-    }
-  })
-  .sort((a, b) => a.name.localeCompare(b.name));
+const MODULES = [
+  ["", "Open Books CLI: verify bank statements, settlements and tax documents and get one proven JSON per file, or a typed refusal."],
+  ["core", "Typed wrapper around the Open Books Python engine: run a financial document, get an openbooks.v1 document or a typed refusal."],
+  ["statements", "Typed access to the Python engine, restricted to the bank-statement layouts."],
+  ["gateways", "Typed access to the Python engine, restricted to the payment-gateway layouts."],
+  ["tax", "Typed access to the Python engine, restricted to the tax-document layouts."],
+  ["doctor", "Typed access to the Python engine, restricted to the doctor layouts."],
+  ["mcp", "MCP server that lets AI agents verify bank statements, settlements and tax documents and get proven JSON or a typed refusal."],
+];
+
+const packages = MODULES.map(([module, role]) => ({
+  name: module === "" ? manifest.name : `${manifest.name}/${module}`,
+  version: manifest.version,
+  role,
+}));
 
 const body = `export interface WorkspacePackage {
   name: string;
@@ -28,4 +29,4 @@ const body = `export interface WorkspacePackage {
 
 export const WORKSPACE_PACKAGES: readonly WorkspacePackage[] = ${JSON.stringify(packages, null, 2)};
 `;
-writeFileSync(join(here, "..", "src", "workspace.generated.ts"), body);
+writeFileSync(join(here, "..", "src", "mcp", "workspace.generated.ts"), body);

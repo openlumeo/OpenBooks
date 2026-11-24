@@ -15,10 +15,10 @@ Choose the provider's balance or settlement report for the payout you want to ve
 
 ## 2. Process the export
 
-This Node.js example uses a Razorpay CSV in INR. Follow the [Node.js setup](/docs/installation), then install the gateway wrapper with `npm install @lumeo_hq/openbooks-gateways`.
+This Node.js example uses a Razorpay CSV in INR. Follow the [Node.js setup](/docs/installation), then install the gateway wrapper with `npm install @lumeo_hq/openbooks`.
 
 ~~~ts
-import { runFile } from "@lumeo_hq/openbooks-gateways";
+import { runFile } from "@lumeo_hq/openbooks/gateways";
 
 const result = await runFile("razorpay-settlement.csv", { currency: "INR" });
 if (result.kind === "released") {

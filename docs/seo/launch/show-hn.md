@@ -26,7 +26,7 @@ Try it on your machine with no account:
 
 Use a CSV from the repo's synthetic samples to start. The npm install also installs the Python engine (Python 3.11+). If the hook is skipped, run `openbooks install-engine --scan`. Exit code 0 means released, 1 means at least one refusal.
 
-For agents there is an MCP server on npm, `@lumeo_hq/openbooks-mcp` (`npx -y @lumeo_hq/openbooks-mcp`).
+For agents there is an MCP server on npm, `@lumeo_hq/openbooks` (`npx -y -p @lumeo_hq/openbooks openbooks-mcp`).
 
 Limits, stated plainly:
 - Version 0.2 is pre-release. All fixtures and tests are synthetic. I have not measured accuracy on real bank exports, so I cannot give you an accuracy number.

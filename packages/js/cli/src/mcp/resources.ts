@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import { REFUSAL_CODES, SAMPLE_STATEMENT } from "./constants.js";
 
-const SCHEMA_SPECIFIER = "@lumeo_hq/openbooks-core/schema/openbooks.v1.schema.json";
+const SCHEMA_PATH = "../../schema/openbooks.v1.schema.json";
 
 export function refusalGuide(): string {
   const rows = Object.entries(REFUSAL_CODES).map(([code, meaning]) => `- \`${code}\`: ${meaning}`).join("\n");
@@ -16,7 +16,7 @@ export function refusalGuide(): string {
 
 export async function releasedSchema(): Promise<string> {
   try {
-    const path = createRequire(import.meta.url).resolve(SCHEMA_SPECIFIER);
+    const path = fileURLToPath(new URL(SCHEMA_PATH, import.meta.url));
     return JSON.stringify(JSON.parse(await readFile(path, "utf8")));
   } catch {
     return JSON.stringify({ error: "The output schema is not bundled with this installation." });

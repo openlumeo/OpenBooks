@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { clearEngineCache, EngineError, findEngine, runProcess } from "@lumeo_hq/openbooks-core";
+import { clearEngineCache, EngineError, findEngine, runProcess } from "./core/index.js";
 
 export interface InstallOptions {
   scan?: boolean;

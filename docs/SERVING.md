@@ -43,7 +43,7 @@ Design rules that follow from this:
 
 ### npm (`packages/js/`, pnpm workspace)
 
-`@lumeo_hq/openbooks-core`, `@lumeo_hq/openbooks-statements`, `@lumeo_hq/openbooks-gateways`, `@lumeo_hq/openbooks-tax`, `@lumeo_hq/openbooks-doctor` and the `@lumeo_hq/openbooks` command-line package are **typed wrappers around the Python engine**. No parsing happens in JavaScript; they need `pip install openbooks` on the same machine. The web app in `web/` is a separate Next.js project that talks to the engine service over HTTP and does not use these packages.
+`@lumeo_hq/openbooks` is one npm package, with subpath modules `/core`, `/statements`, `/gateways`, `/tax`, `/doctor` and `/mcp`, and two commands, `openbooks` (CLI) and `openbooks-mcp` (MCP server). It is a **typed wrapper around the Python engine**. No parsing happens in JavaScript; they need `pip install openbooks` on the same machine. The web app in `web/` is a separate Next.js project that talks to the engine service over HTTP and does not use these packages.
 
 ### How the parts find each other
 

@@ -1,7 +1,7 @@
 import { mkdtemp, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { extname, isAbsolute, join, parse, relative, sep } from "node:path";
-import { EngineError, findEngine, runFile, type DocumentOptions, type DiscoverOptions, type RunResult } from "@lumeo_hq/openbooks-core";
+import { EngineError, findEngine, runFile, type DocumentOptions, type DiscoverOptions, type RunResult } from "../core/index.js";
 import { z } from "zod";
 import {
   COLLECTIONS,

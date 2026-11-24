@@ -1,7 +1,7 @@
-import { runFile as coreRunFile, runFiles as coreRunFiles, runJobs as coreRunJobs, type RunJob, type RunOptions, type RunResult } from "@lumeo_hq/openbooks-core";
+import { runFile as coreRunFile, runFiles as coreRunFiles, runJobs as coreRunJobs, type RunJob, type RunOptions, type RunResult } from "../core/index.js";
 
-export type { DocumentOptions, RunJob, RunOptions, RunResult, Released, Refused } from "@lumeo_hq/openbooks-core";
-export { isReleased, EngineError } from "@lumeo_hq/openbooks-core";
+export type { DocumentOptions, RunJob, RunOptions, RunResult, Released, Refused } from "../core/index.js";
+export { isReleased, EngineError } from "../core/index.js";
 
 export const LAYOUTS = ["bank_csv.v1", "bank_csv_signed.v1", "ofx.v1", "mt940.v1", "camt053.v1", "bank_statement_pdf.v1"] as const;
 

@@ -4,13 +4,13 @@ on:
   push:
     paths:
       - "harness/**"
-      - "packages/js/mcp/**"
+      - "packages/js/cli/**"
       - "scripts/harness/**"
       - ".github/workflows/harness.yml"
   pull_request:
     paths:
       - "harness/**"
-      - "packages/js/mcp/**"
+      - "packages/js/cli/**"
       - "scripts/harness/**"
       - ".github/workflows/harness.yml"
 
@@ -41,7 +41,7 @@ jobs:
         run: python -m pip install --upgrade mcp
 
       - name: Run the install self-check
-        run: python harness/eval/selfcheck.py --command "node packages/js/mcp/dist/cli.js" --repeat 3
+        run: python harness/eval/selfcheck.py --command "node packages/js/cli/dist/mcp/cli.js" --repeat 3
 
       - name: Build the harness kit
         run: python scripts/harness/build_kit.py

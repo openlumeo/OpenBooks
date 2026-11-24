@@ -17,7 +17,7 @@ from mcp.client.stdio import stdio_client
 HERE = Path(__file__).resolve().parent
 FIXTURES = HERE / "fixtures"
 DEFAULT_REPORT = HERE / "report.json"
-DEFAULT_COMMAND = "npx -y @lumeo_hq/openbooks-mcp"
+DEFAULT_COMMAND = "npx -y -p @lumeo_hq/openbooks openbooks-mcp"
 RESPONSE_BYTES = 48 * 1024
 UPLOAD_BYTES = 1024 * 1024
 EXPECTED_TOOLS = {"search", "execute"}

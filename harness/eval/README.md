@@ -8,17 +8,17 @@ Deterministic install self-check for the Open Books MCP server. It starts the se
 python harness/eval/selfcheck.py
 ```
 
-The default server command is `npx -y @lumeo_hq/openbooks-mcp`. Point it at a local build with `--command`:
+The default server command is `npx -y -p @lumeo_hq/openbooks openbooks-mcp`. Point it at a local build with `--command`:
 
 ```bash
-python harness/eval/selfcheck.py --command "node packages/js/mcp/dist/cli.js"
+python harness/eval/selfcheck.py --command "node packages/js/cli/dist/mcp/cli.js"
 ```
 
 Options:
 
 | Flag | Meaning |
 |---|---|
-| `--command` | Command that starts the MCP server over stdio. Default `npx -y @lumeo_hq/openbooks-mcp`. |
+| `--command` | Command that starts the MCP server over stdio. Default `npx -y -p @lumeo_hq/openbooks openbooks-mcp`. |
 | `--report` | JSON report path. Default `harness/eval/report.json`. |
 | `--repeat N` | Run the suite N times. Reports pass@1 and pass^N. |
 | `--root DIR` | Directory passed as `--root` to the scoped server for task T9. Default is a temporary directory. |
@@ -60,11 +60,11 @@ Fixtures are in `harness/eval/fixtures/`.
 
 ## CI
 
-`.github/workflows/harness.yml` runs on changes under `harness/**`, `packages/js/mcp/**` and `scripts/harness/**`. It:
+`.github/workflows/harness.yml` runs on changes under `harness/**`, `packages/js/cli/**` and `scripts/harness/**`. It:
 
 1. Installs Node 20 and Python 3.12.
 2. Builds `packages/js` with the pnpm workspace (`pnpm --dir packages/js install --frozen-lockfile`, then `pnpm --dir packages/js build`).
-3. Runs `harness/eval/selfcheck.py --command "node packages/js/mcp/dist/cli.js" --repeat 3`.
+3. Runs `harness/eval/selfcheck.py --command "node packages/js/cli/dist/mcp/cli.js" --repeat 3`.
 4. Builds the kit with `scripts/harness/build_kit.py` and uploads the zip and its `.sha256` file as an artifact.
 
 Any failing check fails the job.

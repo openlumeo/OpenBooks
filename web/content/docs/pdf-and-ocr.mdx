@@ -30,10 +30,10 @@ python -m openbooks run statement.pdf --currency INR --date-order dmy --model
 OCR is enabled by default. For a selectable-text PDF with the base engine, run the same command without `--model` and add `--no-ocr` to restrict extraction to the text layer. Pass `--model` when you want an additional check of the detected roles and values.
 </Tab>
 <Tab value="Node.js">
-Complete the [Node.js setup](/docs/installation) and run `npm install @lumeo_hq/openbooks-statements`. Save the following as an `.mjs` file next to the PDF.
+Complete the [Node.js setup](/docs/installation) and run `npm install @lumeo_hq/openbooks`. Save the following as an `.mjs` file next to the PDF.
 
 ~~~ts
-import { runFile } from "@lumeo_hq/openbooks-statements";
+import { runFile } from "@lumeo_hq/openbooks/statements";
 
 const result = await runFile("statement.pdf", {
   currency: "INR",

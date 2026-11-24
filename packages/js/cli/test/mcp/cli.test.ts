@@ -4,11 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { findEngine } from "@lumeo_hq/openbooks-core";
+import { findEngine } from "../../src/core/index.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-const CLI = join(import.meta.dirname, "..", "dist", "cli.js");
-const MCP_PACKAGE = join(import.meta.dirname, "..", "package.json");
+const CLI = join(import.meta.dirname, "..", "..", "dist", "mcp", "cli.js");
+const MCP_PACKAGE = join(import.meta.dirname, "..", "..", "package.json");
 const VERSION = (JSON.parse(readFileSync(MCP_PACKAGE, "utf8")) as { version: string }).version;
 const engineAvailable = await findEngine().then(() => true, () => false);
 

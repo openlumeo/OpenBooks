@@ -1,15 +1,15 @@
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
-import { EngineError, findEngine, runFile } from "@lumeo_hq/openbooks-core";
+import { EngineError, findEngine, runFile } from "../../src/core/index.js";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { EXTENSIONS, MAX_CONCURRENT_RUNS, MAX_ENCODED_UPLOAD, MAX_STEPS, MAX_UPLOAD_BYTES, PROMPT_NAMES, REFUSAL_CODES, RESOURCE_URIS, TOOL_NAMES } from "../src/constants.js";
-import { Operations, StepSchema, type Doc } from "../src/operations.js";
-import { WORKSPACE_PACKAGES } from "../src/workspace.generated.js";
+import { EXTENSIONS, MAX_CONCURRENT_RUNS, MAX_ENCODED_UPLOAD, MAX_STEPS, MAX_UPLOAD_BYTES, PROMPT_NAMES, REFUSAL_CODES, RESOURCE_URIS, TOOL_NAMES } from "../../src/mcp/constants.js";
+import { Operations, StepSchema, type Doc } from "../../src/mcp/operations.js";
+import { WORKSPACE_PACKAGES } from "../../src/mcp/workspace.generated.js";
 import { call, encode, ENGINE, errorCode, refused, released, resultOf, sleep } from "./helpers.js";
 
-vi.mock("@lumeo_hq/openbooks-core", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@lumeo_hq/openbooks-core")>()),
+vi.mock("../../src/core/index.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/core/index.js")>()),
   runFile: vi.fn(),
   findEngine: vi.fn(),
 }));
@@ -765,23 +765,14 @@ describe("packages", () => {
     }
   });
 
-  it("matches the package.json files on disk", async () => {
-    const { readdirSync, readFileSync } = await import("node:fs");
-    const base = join(root, "..", "..", "..");
-    void base;
-    const here = join(import.meta.dirname, "..", "..");
-    const onDisk = readdirSync(here, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory() && entry.name !== "node_modules")
-      .flatMap((entry) => {
-        try {
-          const manifest = JSON.parse(readFileSync(join(here, entry.name, "package.json"), "utf8")) as { name: string; version: string };
-          return [`${manifest.name}@${manifest.version}`];
-        } catch {
-          return [];
-        }
-      })
-      .sort();
-    expect(WORKSPACE_PACKAGES.map((entry) => `${entry.name}@${entry.version}`).sort()).toEqual(onDisk);
+  it("lists every module of the one package at the version on disk", async () => {
+    const { readFileSync } = await import("node:fs");
+    const manifest = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "package.json"), "utf8")) as { name: string; version: string };
+    expect(WORKSPACE_PACKAGES.length).toBeGreaterThan(1);
+    for (const entry of WORKSPACE_PACKAGES) {
+      expect(entry.name.startsWith(manifest.name)).toBe(true);
+      expect(entry.version).toBe(manifest.version);
+    }
   });
 
   it("includes the Python engine version", async () => {

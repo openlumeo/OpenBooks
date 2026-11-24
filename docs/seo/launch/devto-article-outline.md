@@ -48,10 +48,10 @@ Explain that a refusal is a value, not an exception, and show the loop over `doc
 
 ## 5. Give an agent the same check over MCP (about 200 words)
 
-Source: `packages/js/mcp/README.md`.
+Source: `packages/js/cli/README.md`.
 
 ```bash
-npx -y @lumeo_hq/openbooks-mcp
+npx -y -p @lumeo_hq/openbooks openbooks-mcp
 ```
 
 ```json
@@ -59,7 +59,7 @@ npx -y @lumeo_hq/openbooks-mcp
   "mcpServers": {
     "openbooks": {
       "command": "npx",
-      "args": ["-y", "@lumeo_hq/openbooks-mcp", "--root", "/path/to/financial/files"]
+      "args": ["-y", "-p", "@lumeo_hq/openbooks", "openbooks-mcp", "--root", "/path/to/financial/files"]
     }
   }
 }

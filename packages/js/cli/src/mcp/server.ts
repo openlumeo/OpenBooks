@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { DiscoverOptions } from "@lumeo_hq/openbooks-core";
+import type { DiscoverOptions } from "../core/index.js";
 import { z } from "zod";
 import {
   DOCS_URL,
@@ -26,7 +26,7 @@ const ExecuteOutput = {
   error: z.object({ code: z.string(), message: z.string() }).optional(),
 };
 
-const PACKAGE_JSON_URL = new URL("../package.json", import.meta.url);
+const PACKAGE_JSON_URL = new URL("../../package.json", import.meta.url);
 
 export function packageVersion(): string {
   const parsed: unknown = JSON.parse(readFileSync(PACKAGE_JSON_URL, "utf8"));

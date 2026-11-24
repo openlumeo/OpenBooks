@@ -174,9 +174,9 @@ jobs:
           OPENBOOKS_PYTHON: python
       - name: What would be published
         run: |
-          mkdir ../../tarballs
-          for p in core statements gateways tax doctor cli; do (cd $p && pnpm pack --pack-destination ../../../tarballs); done
-          ls ../../tarballs
+          mkdir -p "$GITHUB_WORKSPACE/tarballs"
+          pnpm --filter @lumeo_hq/openbooks pack --pack-destination "$GITHUB_WORKSPACE/tarballs"
+          ls "$GITHUB_WORKSPACE/tarballs"
         shell: bash
       - name: Install the tarballs into a clean project (what npm users get)
         shell: bash

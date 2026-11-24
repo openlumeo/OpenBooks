@@ -242,6 +242,6 @@ No license has been chosen yet. Until one is added, all rights are reserved.
 ## Links
 
 - Developer docs: https://openbooks.lumeo.co.in/docs
-- MCP server for AI agents: https://openbooks.lumeo.co.in/docs/mcp (npm package `@lumeo_hq/openbooks-mcp`)
+- MCP server for AI agents: https://openbooks.lumeo.co.in/docs/mcp (npm package `@lumeo_hq/openbooks`)
 - Python package: `openbooks` on PyPI; CLI: `@lumeo_hq/openbooks` on npm
 - Source: https://github.com/Sagexd08/OpenBooks

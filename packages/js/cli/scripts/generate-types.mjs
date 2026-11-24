@@ -10,7 +10,7 @@ const out =
   "// GENERATED from schema/*.json by scripts/generate-types.mjs. Do not edit; run `pnpm generate`.\n\n" +
   (await compile(read("openbooks.v1.schema.json"), "OpenBooksDocument", opts)) + "\n" +
   (await compile(read("openbooks.v1.refusal.schema.json"), "OpenBooksRefusal", opts));
-const target = join(here, "../src/generated/openbooks.ts");
+const target = join(here, "../src/core/generated/openbooks.ts");
 if (process.argv.includes("--check")) {
   let cur = "";
   try { cur = readFileSync(target, "utf8"); } catch {}

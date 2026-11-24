@@ -3,7 +3,7 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import type { ValidateFunction } from "ajv/dist/2020.js";
 import type { OpenBooksDocument, OpenBooksRefusal } from "./generated/openbooks.js";
 
-const load = (name: string): object => JSON.parse(readFileSync(new URL(`../schema/${name}`, import.meta.url), "utf8")) as object;
+const load = (name: string): object => JSON.parse(readFileSync(new URL(`../../schema/${name}`, import.meta.url), "utf8")) as object;
 
 let compiled: { document: ValidateFunction; refusal: ValidateFunction } | undefined;
 
