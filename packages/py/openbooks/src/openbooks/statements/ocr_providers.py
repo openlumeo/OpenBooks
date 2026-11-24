@@ -21,7 +21,8 @@ from openbooks.statements.pdf_words import Word
 
 MAX_WORDS_PER_PAGE = 20_000
 TESSERACT_TIMEOUT_SECONDS = 60
-TESSERACT_DPI = 300
+# Render common statement sizes below the page pixel cap at a consistent sampling scale.
+TESSERACT_DPI = 240
 EASYOCR_DPI = 200
 PROVIDER_ENV = "OPENBOOKS_OCR_PROVIDER"
 PROVIDERS_FILE_ENV = "OPENBOOKS_PROVIDERS_FILE"
