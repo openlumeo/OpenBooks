@@ -54,6 +54,7 @@ Running the benchmark, checking that the MCP server and engine are healthy, and 
 2. Let it run the Open Books benchmark against a chosen model and key, unattended or on a schedule, and write a clear summary.
 3. Let it run recurring verification jobs (for example a daily batch of statements) and summarise outcomes: what was released, what was refused and why.
 4. Keep everything local by default: files, keys and memory stay on the user's machine.
+5. Also ship Open Books as a skill pack plus MCP configuration that works inside Hermes itself, so Hermes users get the same capability without installing our agent. Both deliverables are required, and they share the same skills and MCP server.
 
 ### 2.3 Non-goals
 
@@ -121,8 +122,26 @@ Proposed layout:
 | F8 | Sub-agents: run benchmark tasks or file batches in parallel with isolated sessions and a concurrency limit | Could |
 | F9 | Optional submission of a bundle to the leaderboard after an explicit confirmation | Could |
 | F10 | Delivery of the summary to a channel (file, email or chat webhook) | Could (Phase 2) |
+| F11 | Hermes skill pack: the same `SKILL.md` skills (`openbooks-verify`, `run-benchmark`, `explain-refusal`, `periodic-summary`) plus a ready MCP server entry (`npx -y @lumeo_hq/openbooks mcp --root <dir>`), documented install steps for Hermes, and a check that Hermes can call `search` and `execute` | Must |
+| F12 | Periodic financial summary across statements (see 2.7) | Must |
+| F13 | Every summary includes a tool-call trace (see 2.7) | Must |
 
-### 2.7 Non-functional requirements
+### 2.7 Summaries and the tool-call trace
+
+The agent produces three kinds of summary, all as `summary.md` in the session folder plus a machine-readable `summary.json`. A plain-language paragraph comes first; numbers below it come straight from the engine or the scorer, never from the model's own arithmetic.
+
+1. Benchmark summary: overall and per-dimension scores, per-category breakdown, failed tasks with the reason, critical errors, cost and tokens, comparison with the previous run.
+2. Verification summary: for a folder or file list, how many files were released and refused, each refusal code in plain language, what the user should do next. Refused files are never described as verified.
+3. Periodic financial summary across statements (daily, weekly or monthly, set in `cron/jobs.toml`): only from released documents, grouped by account and currency: opening and closing balance, total credits and debits, transaction count, the largest movements, date range covered, and a list of files that were refused or missing in the period so gaps are visible. The agent does no new parsing; it reads the records the engine returned. Figures it cannot trace to a released document are not reported.
+
+Tool-call trace, included in every summary:
+
+- One row per tool call: order, tool (`search` or `execute`), a short description of the operation, the files involved, the engine status (released or refused and code), duration, input and output tokens.
+- Totals: number of calls, batched calls, tokens, estimated cost, wall time.
+- The trace is built from the MCP calls the runner actually executed, not from the model's description of what it did. The full raw transcript stays in `transcript.jsonl` with keys redacted.
+- A summary whose trace and numbers do not agree with the engine outcomes is a bug; a test must fail on it.
+
+### 2.8 Non-functional requirements
 
 - Security: keys only from environment variables; never written to disk, logs, transcripts or bundles; redaction tests required. Document text is untrusted: the agent must ignore instructions found inside files (the benchmark's injection tasks test this). Memory and skill writes are limited to the home directory.
 - Honesty: the agent must never present a refused document as verified, never invent figures after a refusal, and must always show the refusal code.
@@ -131,7 +150,7 @@ Proposed layout:
 - Portability: Python 3.11+ and Node 20+, Windows, macOS and Linux; standard library only for the core, to match the benchmark runner.
 - Testing: unit tests with scripted fake providers and a fake MCP server (already the pattern in `harness/bench/tests`), plus one end-to-end test against the real MCP server on sample files.
 
-### 2.8 Success metrics
+### 2.9 Success metrics
 
 - A new user reaches a first summary in under 5 minutes from `init` with a valid key.
 - Summary is accurate: every number in `summary.md` equals the scorer output (tested).
@@ -143,7 +162,7 @@ Proposed layout:
 
 ### 3.1 Phases
 
-1. Phase 1 (about 1 to 2 weeks): `init`, `bench`, `summary.md`, SOUL.md, `openbooks-verify` skill, memory files read and written, tests. CLI only.
+1. Phase 1 (about 1 to 2 weeks): `init`, `bench`, the three summaries with the tool-call trace, SOUL.md, the skills, memory files read and written, the Hermes skill pack and its install guide, tests. CLI only.
 2. Phase 2: cron jobs and `run-due`, verification jobs over folders, delivery to a file or webhook, skills proposed by the agent with approval.
 3. Phase 3: sub-agents with concurrency, a private held-out task set and a signed server challenge for the leaderboard, optional gateway.
 
@@ -158,13 +177,18 @@ Proposed layout:
 | Hermes layout changes upstream | We mirror concepts, not code; verify names against the official repository before release |
 | Scorer drift between Python and TypeScript | Parity test is a required check |
 
-### 3.3 Open questions
+### 3.3 Decisions (resolved on 2026-11-24)
 
-1. What exactly should "run the summary" mean? This PRD assumes it means the agent runs the benchmark or a verification job and produces `summary.md`. Confirm, or specify another summary (for example a periodic financial summary across statements).
-2. Hermes-compatible or Hermes-inspired? Should the agent be loadable inside Hermes itself as a skill pack and MCP server (cheap, no new agent needed), or ship as its own CLI? The first option may meet the need sooner.
-3. Where should the agent code live: `harness/agent` in this repository, or a new repository?
-4. Which gateway channels, if any, are required for Phase 2?
-5. Who owns the held-out task set and how often is it rotated?
+1. "Run the summary": all three summary types in 2.7 (benchmark, verification, periodic financial summary), each with the tool-call trace.
+2. Hermes: do both. Build our own Hermes-style harness (2.4) and also ship the Hermes skill pack and MCP configuration (F11). They share skills and the MCP server so there is one implementation of each capability.
+
+### 3.4 Still open
+
+1. Where should the agent code live: `harness/agent` in this repository, or a new repository?
+2. Which gateway channels, if any, are required for Phase 2?
+3. Who owns the held-out task set and how often is it rotated?
+4. The periodic summary's currency handling: report per currency only (proposed), or convert using a rate source?
+5. Retention: how long are session folders and transcripts kept?
 
 ## 4. Knowledge-transfer appendix
 
