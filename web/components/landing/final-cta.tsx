@@ -3,7 +3,6 @@ import path from "node:path";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
-import { SketchAnnotation } from "@/components/motion/sketch";
 import { BalanceLine } from "./balance-line";
 import { LoopFrame, type LoopSource } from "./media-frame";
 import styles from "./final-cta.module.css";
@@ -41,9 +40,7 @@ export function FinalCta() {
         <Reveal as="div" y={14} stagger={0.1} className={styles.copy}>
           <h2 id="start-heading" data-reveal-child className={`t-display t-h2 ${styles.heading}`}>
             Bring one client&apos;s month-end. See what{" "}
-            <SketchAnnotation kind="underline" tone="mint" className={styles.underline}>
-              ties out.
-            </SketchAnnotation>
+            ties out.
           </h2>
           <p data-reveal-child className={`t-lede ${styles.lede}`}>
             Open the workspace, drop a file, and watch it released or refused with the reason on the page.

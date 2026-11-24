@@ -4,7 +4,6 @@ import { BookOpen, FlaskConical, Plus, Trash2 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import { ThemeToggle } from "@/components/brand/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
-import { Sketch } from "@/components/motion/sketch";
 import { fmtAgo } from "@/lib/format";
 import type { Workspace } from "@/lib/use-workspace";
 
@@ -31,7 +30,6 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
           disabled={ws.busy}
         >
           <span className="inline-flex items-center gap-2"><Plus size={15} /> New run</span>
-          <span className="cta-dot" style={{ width: 7, height: 7 }} aria-hidden="true" />
         </button>
       </div>
 
@@ -80,7 +78,7 @@ export function Sidebar({ ws, open, onNavigate, onNew }: { ws: Workspace; open: 
                     }
                   }}
                 >
-                  {t.id === ws.activeId && <Sketch kind="tick" tone="mint" className="ob-thread-marker" />}
+                  {t.id === ws.activeId && <span className="ob-thread-marker" aria-hidden="true" />}
                   <span className="ob-thread-title">{t.title}</span>
                   <span className="ob-thread-meta">
                     {fmtAgo(t.updatedAt)}

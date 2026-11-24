@@ -30,11 +30,6 @@ import {
 import styles from "./onboard.module.css";
 
 const COPIED_MS = 1600;
-const BAR_HEIGHTS = [12, 20, 28, 34, 34, 28, 20, 12];
-const BAR_VIEW_HEIGHT = 36;
-const BAR_WIDTH = 5;
-const BAR_STEP = 8;
-const BAR_VIEW_WIDTH = (BAR_HEIGHTS.length - 1) * BAR_STEP + BAR_WIDTH;
 
 const TRY_ICONS: Record<TryIcon, LucideIcon> = {
   shield: ShieldCheck,
@@ -226,8 +221,6 @@ function ArtPanel({ agent }: { agent: AgentSetup }) {
   const style = { "--art-from": agent.art.from, "--art-to": agent.art.to } as CSSProperties;
   return (
     <div className={styles.art} style={style}>
-      <span className={styles.artShape} aria-hidden="true" />
-      <span className={styles.artDots} aria-hidden="true" />
       <span className={styles.artName}>{agent.name}</span>
     </div>
   );
@@ -250,23 +243,8 @@ function InstallCardView({ card, announce }: { card: InstallCard; announce: Anno
 
 function PromptCard({ prompt, announce }: { prompt: TryPrompt; announce: Announce }) {
   const Icon = TRY_ICONS[prompt.icon];
-  const artStyle = { "--hue": prompt.hue } as CSSProperties;
   return (
     <article className={styles.promptCard}>
-      <div className={styles.promptArt} style={artStyle} aria-hidden="true">
-        <svg className={styles.bars} viewBox={`0 0 ${BAR_VIEW_WIDTH} ${BAR_VIEW_HEIGHT}`}>
-          {BAR_HEIGHTS.map((height, index) => (
-            <rect
-              key={index}
-              x={index * BAR_STEP}
-              y={BAR_VIEW_HEIGHT - height}
-              width={BAR_WIDTH}
-              height={height}
-              rx={BAR_WIDTH / 2}
-            />
-          ))}
-        </svg>
-      </div>
       <div className={styles.promptBody}>
         <div className={styles.promptHead}>
           <Icon size={16} aria-hidden="true" />

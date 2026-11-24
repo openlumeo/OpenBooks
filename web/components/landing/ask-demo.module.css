@@ -5,35 +5,10 @@
 }
 
 .conversation {
-  position: relative;
   display: grid;
   gap: clamp(20px, 3vw, 28px);
   padding: clamp(16px, 2.5vw, 24px);
   min-width: 0;
-}
-
-.sketchEdge {
-  position: absolute;
-  inset: -8px;
-  width: calc(100% + 16px);
-  height: calc(100% + 16px);
-  overflow: visible;
-  pointer-events: none;
-  fill: none;
-  stroke: var(--hairline);
-  stroke-width: 1.25px;
-  stroke-dasharray: 6 5;
-  transition: stroke 200ms ease-out;
-}
-
-.conversation:hover .sketchEdge {
-  stroke: var(--text-faint);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sketchEdge {
-    transition: none;
-  }
 }
 
 .turn {

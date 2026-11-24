@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
-import { SketchAnnotation } from "@/components/motion/sketch";
 import { MEASURED } from "./measured-data";
 import { MeasuredCounter } from "./measured-counter";
 import { ReconPanel } from "./reconciliation";
@@ -8,10 +7,10 @@ import rec from "./reconciliation.module.css";
 import { Section } from "./section";
 import styles from "./measured.module.css";
 
-const ROWS: { value: number; label: string; tick?: boolean }[] = [
+const ROWS: { value: number; label: string }[] = [
   { value: MEASURED.endToEndCases, label: "end-to-end cases" },
   { value: MEASURED.released, label: "released" },
-  { value: MEASURED.falseAccepts, label: "false accepts", tick: true },
+  { value: MEASURED.falseAccepts, label: "false accepts" },
   { value: MEASURED.schemaViolations, label: "schema violations" },
 ];
 
@@ -26,13 +25,7 @@ export function Measured() {
                 <span className={styles.figure}>
                   <MeasuredCounter to={row.value} />
                 </span>{" "}
-                {row.tick ? (
-                  <SketchAnnotation kind="tick" tone="mint" className={styles.tickAt}>
-                    {row.label}
-                  </SketchAnnotation>
-                ) : (
-                  row.label
-                )}
+                {row.label}
               </span>
             </div>
           ))}

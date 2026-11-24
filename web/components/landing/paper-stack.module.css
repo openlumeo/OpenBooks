@@ -148,17 +148,6 @@
   color: var(--unmatched);
 }
 
-.tamper {
-  position: absolute;
-  left: -6px;
-  top: 50%;
-  width: calc(100% + 12px);
-  height: 26px;
-  margin-top: -13px;
-  opacity: 0.8;
-  pointer-events: none;
-}
-
 .desc {
   min-width: 0;
   overflow: hidden;

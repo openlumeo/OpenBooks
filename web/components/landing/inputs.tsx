@@ -7,7 +7,7 @@ function FileGlyph() {
   return (
     <svg aria-hidden="true" focusable="false" className={styles.glyph} viewBox="0 0 20 24" width="16" height="20">
       <path
-        d="M2.5 1.5h10.2l4.8 4.9v15.9c0 .4-.3.7-.7.7H2.8a.7.7 0 0 1-.7-.7V2.1c0-.3.3-.6.4-.6Z"
+        d="M2.5 1.5h10.2l4.8 4.9v16.1H2.5Z"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.25"
@@ -15,7 +15,7 @@ function FileGlyph() {
       />
       <path d="M12.6 1.8v4.6h4.6" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
       <path
-        d="M5 11.5c2.4-.5 4.8.4 7.6-.2M5 14.6c2.2.4 4.4-.4 6.8.1M5 17.7c1.6.2 3.2-.2 4.8.1"
+        d="M5 11.5h8M5 14.5h7M5 17.5h5"
         fill="none"
         stroke="currentColor"
         strokeWidth="1"

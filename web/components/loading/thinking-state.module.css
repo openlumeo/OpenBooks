@@ -17,11 +17,7 @@
   width: 4px;
   height: 4px;
   background: var(--text, currentColor);
-  border-radius: 1px;
-}
-
-.round {
-  border-radius: 9999px;
+  border-radius: 0;
 }
 
 .cellOn {
@@ -56,36 +52,6 @@
   color: var(--text-faint, #6b706a);
 }
 
-.mascot {
-  display: block;
-  overflow: visible;
-  flex-shrink: 0;
-  animation: bob 2.4s ease-in-out infinite;
-}
-
-.bar {
-  fill: currentColor;
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  animation: barWave 1.1s ease-in-out infinite;
-}
-
-.barAccent {
-  fill: var(--accent, #7fd8a6);
-}
-
-.eye {
-  fill: var(--bg, #0b0f08);
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-  animation: blink 4.2s infinite;
-}
-
-.pupil {
-  fill: var(--text, #e8ece6);
-  animation: look 5.6s ease-in-out infinite;
-}
-
 @keyframes pixelOn {
   0%,
   100% {
@@ -114,64 +80,10 @@
   }
 }
 
-@keyframes barWave {
-  0%,
-  100% {
-    transform: scaleY(0.72);
-  }
-  50% {
-    transform: scaleY(1);
-  }
-}
-
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-1.5px);
-  }
-}
-
-@keyframes blink {
-  0%,
-  92%,
-  100% {
-    transform: scaleY(1);
-  }
-  95% {
-    transform: scaleY(0.08);
-  }
-}
-
-@keyframes look {
-  0%,
-  18% {
-    transform: translateX(0);
-  }
-  26%,
-  48% {
-    transform: translateX(-1.1px);
-  }
-  58%,
-  80% {
-    transform: translateX(1.1px);
-  }
-  90%,
-  100% {
-    transform: translateX(0);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .cellOn,
   .label,
-  .verb,
-  .mascot,
-  .bar,
-  .eye,
-  .pupil {
+  .verb {
     animation: none;
   }
 

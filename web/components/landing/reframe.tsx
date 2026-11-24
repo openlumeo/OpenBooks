@@ -1,9 +1,7 @@
 import { Reveal } from "@/components/motion/reveal";
-import { SketchAnnotation } from "@/components/motion/sketch";
 import { ParallaxLayer } from "@/components/motion/parallax";
 import { PaperStack } from "./paper-stack";
 import { Section } from "./section";
-import { FileRoute } from "./file-route";
 import { ReconPanel } from "./reconciliation";
 import rec from "./reconciliation.module.css";
 import { RELEASED } from "./proof-data";
@@ -48,18 +46,12 @@ export function Reframe() {
         <div className={styles.column}>
           <p className={styles.statement}>
             Returns a proven document, or a refusal.{" "}
-            <SketchAnnotation kind="scribble" tone="mint">
-              Nothing in between.
-            </SketchAnnotation>
+            Nothing in between.
           </p>
           <div className={`lp-scroll ${styles.scroll}`} tabIndex={0} role="region" aria-label="Open Books, tied out">
             <div className={`${styles.inner} lp-paper`}>
               <ReconPanel
-                title={
-                  <SketchAnnotation kind="underline" tone="mint" className={styles.openBooks}>
-                    OPEN BOOKS
-                  </SketchAnnotation>
-                }
+                title="OPEN BOOKS"
               >
                 {FIGURES.map((row) => (
                   <div key={row.id} data-state="matched" className={rec.row} data-reveal-child>
@@ -77,8 +69,6 @@ export function Reframe() {
       <p className={styles.close}>
         A figure at 97% still sends you back to the other 3%. Open Books does not score a document. It checks it.
       </p>
-
-      <FileRoute />
 
       <div className={styles.interlude}>
         <ParallaxLayer depth={1} className={styles.backdropLayer} aria-hidden="true">

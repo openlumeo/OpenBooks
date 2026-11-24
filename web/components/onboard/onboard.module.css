@@ -208,25 +208,6 @@
   background: linear-gradient(150deg, var(--art-from), var(--art-to));
 }
 
-.artShape {
-  position: absolute;
-  top: -12%;
-  right: -14%;
-  width: 62%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%);
-  filter: blur(6px);
-}
-
-.artDots {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.3) 1px, transparent 1.4px);
-  background-size: 9px 9px;
-  pointer-events: none;
-}
-
 .artName {
   position: absolute;
   left: 20px;
@@ -312,23 +293,6 @@
   background: var(--surface-2);
   border: 1px solid var(--hairline);
   border-radius: 20px;
-}
-
-.promptArt {
-  display: grid;
-  place-items: center;
-  height: 120px;
-  background: linear-gradient(
-    135deg,
-    hsl(var(--hue) 70% 62%),
-    hsl(calc(var(--hue) + 40) 60% 38%)
-  );
-}
-
-.bars {
-  height: 56px;
-  width: auto;
-  fill: rgba(255, 255, 255, 0.9);
 }
 
 .promptBody {

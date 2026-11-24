@@ -30,7 +30,11 @@ export function DocArticle({ slug }: { slug: string[] }) {
 
   const Body = page.data.body;
   return (
-    <DocsPage toc={page.data.toc}>
+    <DocsPage
+      toc={page.data.toc}
+      tableOfContent={{ style: "block" }}
+      tableOfContentPopover={{ style: "block" }}
+    >
       {page.url === "/docs" ? <StructuredData data={{
         "@context": "https://schema.org",
         "@type": "WebSite",

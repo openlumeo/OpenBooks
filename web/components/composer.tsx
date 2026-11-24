@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
-import { ArrowUp, Paperclip, SlidersHorizontal, Square, X } from "lucide-react";
+import { ArrowUp, FileText, Paperclip, SlidersHorizontal, Square, X } from "lucide-react";
 import { fmtBytes, paramSummary } from "@/lib/format";
 import type { RunParams, Sample } from "@/lib/types";
 import type { Workspace } from "@/lib/use-workspace";
@@ -100,10 +100,7 @@ export function Composer(props: ComposerProps) {
               const summaryText = p.params ? paramSummary(p.params) : "";
               return (
                 <li key={p.id} className={`chip${over ? " chip--over" : ""}`}>
-                  <svg className="chip-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
-                    <path d="M4.2 1.6 C6.5 1.4 8 1.5 9.6 1.7 L12.8 5.1 C12.9 8 12.7 11 12.9 14.6 C10 14.8 7 14.5 4 14.6 C4.1 11 4 5 4.2 1.6 Z" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                    <path d="M9.6 1.7 C9.5 3.2 9.6 4.2 9.7 5.1 L12.8 5.1" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
-                  </svg>
+                  <FileText className="chip-icon" size={14} aria-hidden="true" />
                   <span className="chip-name">{p.file.name}</span>
                   <span className="chip-size">{fmtBytes(p.file.size)}{summaryText ? ` · ${summaryText}` : ""}</span>
                   <button type="button" className="icon-btn" aria-label={`Remove ${p.file.name}`} onClick={() => setPending((list) => list.filter((x) => x.id !== p.id))}>
