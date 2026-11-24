@@ -2,6 +2,7 @@
   base = "web"
   command = "python ../deploy/build-public-assets.py && pnpm run build"
   publish = ".next"
+  ignore = 'test -n "$CACHED_COMMIT_REF" && test "$CACHED_COMMIT_REF" != "$COMMIT_REF" && git diff --quiet "$CACHED_COMMIT_REF" "$COMMIT_REF" -- . ../harness ../packages/py/openbooks ../scripts/harness ../deploy/build-public-assets.py ../netlify.toml'
 
 [build.environment]
   PYTHON_VERSION = "3.13"
