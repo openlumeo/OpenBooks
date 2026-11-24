@@ -59,7 +59,8 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string }) {
   async function withGoogle() {
     setError(null);
     setBusy(true);
-    const { error } = await authClient.signIn.social({ provider: "google", callbackURL: target });
+    const callbackURL = new URL(target, window.location.origin).href;
+    const { error } = await authClient.signIn.social({ provider: "google", callbackURL });
     if (error) {
       setError("Google sign-in isn't available right now. Use your email instead.");
       setBusy(false);
