@@ -44,7 +44,14 @@ export function DataTab({ doc, onPick, pages, onPage }: DataTabProps) {
   );
 }
 
-function BatchLedger({ batch, rows, account, page, onPage, onPick }: {
+function BatchLedger({
+  batch,
+  rows,
+  account,
+  page,
+  onPage,
+  onPick,
+}: {
   batch: Batch;
   rows: Transaction[];
   account?: string | null;
@@ -61,7 +68,10 @@ function BatchLedger({ batch, rows, account, page, onPage, onPick }: {
     <section className="panel" aria-label={`${title} ${batch.id}`}>
       <div className="batch-title">
         <h3>{title}</h3>
-        <span className="mono-label">{batch.id} · {batch.currency}{account ? ` · acct ${account}` : ""} · {rows.length} {rows.length === 1 ? "row" : "rows"}</span>
+        <span className="mono-label">
+          {batch.id} · {batch.currency}
+          {account ? ` · acct ${account}` : ""} · {rows.length} {rows.length === 1 ? "row" : "rows"}
+        </span>
       </div>
       {summary.length > 0 && (
         <dl className="summary">
@@ -76,10 +86,28 @@ function BatchLedger({ batch, rows, account, page, onPage, onPick }: {
       )}
       {rows.length > PAGE_SIZE && (
         <div className="ledger-pagination" aria-label={`${batch.id} transaction pages`}>
-          <span className="mono-label" role="status">Rows {start + 1}–{end} of {rows.length}</span>
+          <span className="mono-label" role="status">
+            Rows {start + 1}–{end} of {rows.length}
+          </span>
           <div>
-            <button type="button" className="icon-btn icon-btn--boxed" aria-label="Previous transaction page" disabled={page === 0} onClick={() => onPage(page - 1)}><ChevronLeft size={16} /></button>
-            <button type="button" className="icon-btn icon-btn--boxed" aria-label="Next transaction page" disabled={end === rows.length} onClick={() => onPage(page + 1)}><ChevronRight size={16} /></button>
+            <button
+              type="button"
+              className="icon-btn icon-btn--boxed"
+              aria-label="Previous transaction page"
+              disabled={page === 0}
+              onClick={() => onPage(page - 1)}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              type="button"
+              className="icon-btn icon-btn--boxed"
+              aria-label="Next transaction page"
+              disabled={end === rows.length}
+              onClick={() => onPage(page + 1)}
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
         </div>
       )}
@@ -91,7 +119,9 @@ function BatchLedger({ batch, rows, account, page, onPage, onPick }: {
               <tr>
                 <th scope="col">Record ID</th>
                 {cols.map((c) => (
-                  <th key={c.key} scope="col" className={c.numeric ? "n" : undefined}>{c.label}</th>
+                  <th key={c.key} scope="col" className={c.numeric ? "n" : undefined}>
+                    {c.label}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -99,12 +129,19 @@ function BatchLedger({ batch, rows, account, page, onPage, onPick }: {
               {rows.slice(start, end).map((t) => (
                 <tr key={t.id}>
                   <th scope="row" className="ledger-record">
-                    <button type="button" className="copy-inline" onClick={() => onPick(t.id)} aria-label={`Show evidence for ${t.id}`}>
+                    <button
+                      type="button"
+                      className="copy-inline"
+                      onClick={() => onPick(t.id)}
+                      aria-label={`Show evidence for ${t.id}`}
+                    >
                       {t.id}
                     </button>
                   </th>
                   {cols.map((c) => (
-                    <td key={c.key} className={c.numeric ? "n" : c.key === "date" ? "d" : "t"}>{c.get(t)}</td>
+                    <td key={c.key} className={c.numeric ? "n" : c.key === "date" ? "d" : "t"}>
+                      {c.get(t)}
+                    </td>
                   ))}
                 </tr>
               ))}

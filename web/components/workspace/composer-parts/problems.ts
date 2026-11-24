@@ -1,6 +1,6 @@
-import { fmtBytes } from "../../lib/format";
-import type { RunParams } from "../../lib/types";
-import type { Workspace } from "../../lib/use-workspace";
+import { fmtBytes } from "@/lib/format";
+import type { RunParams } from "@/lib/types";
+import type { Workspace } from "@/lib/workspace/use-workspace";
 
 export const MAX_FILES = 20;
 const IMAGE_NAME = /\.(png|jpe?g)$/i;

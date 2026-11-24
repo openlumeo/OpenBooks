@@ -3,8 +3,8 @@
 import { ArrowRight, Download, Split, Square } from "lucide-react";
 import { LumeoMark } from "@/components/brand/lumeo-mark";
 import ThinkingState from "@/components/loading/thinking-state";
-import { RunCard } from "@/components/run-card/run-card";
-import { docText } from "@/components/run-card/json-tab";
+import { RunCard } from "./run-card/run-card";
+import { docText } from "./run-card/json-tab";
 import { downloadText, fmtBytes, fmtTime, jsonFileName, paramSummary } from "@/lib/format";
 import { groupAmount } from "@/lib/ledger";
 import { Markdown } from "@/lib/markdown";
@@ -14,7 +14,9 @@ function Who({ label, at }: { label: string; at: number }) {
   return (
     <span className="turn-agent-who">
       <LumeoMark size={18} />
-      <span className="mono-label">{label} · {fmtTime(at)}</span>
+      <span className="mono-label">
+        {label} · {fmtTime(at)}
+      </span>
     </span>
   );
 }
@@ -79,7 +81,10 @@ export function RunView({
         <div className="batch-review-head">
           <div>
             <h2 id={headingId}>Batch review</h2>
-            <p className="mono-label">{turn.files.length} {turn.files.length === 1 ? "file" : "files"}{waiting ? ` · ${waiting} awaiting results` : ""}</p>
+            <p className="mono-label">
+              {turn.files.length} {turn.files.length === 1 ? "file" : "files"}
+              {waiting ? ` · ${waiting} awaiting results` : ""}
+            </p>
             {turn.state === "running" && <ThinkingState className="batch-thinking" />}
           </div>
           {turn.state === "running" && (
@@ -91,7 +96,9 @@ export function RunView({
             <button
               type="button"
               className="btn btn-ghost btn-xs batch-export"
-              onClick={() => done.forEach((f, i) => setTimeout(() => downloadText(jsonFileName(f.name), docText(f.doc!)), i * 250))}
+              onClick={() =>
+                done.forEach((f, i) => setTimeout(() => downloadText(jsonFileName(f.name), docText(f.doc!)), i * 250))
+              }
               title="Saves one JSON per file"
             >
               <Download size={14} /> Export JSON ({done.length})
@@ -99,26 +106,54 @@ export function RunView({
           )}
         </div>
         <dl className="batch-metrics">
-          {([
-            { label: "Released", tone: "released", files: released, action: "Review checks" },
-            { label: "Refused", tone: "refused", files: refused, action: "Review refusal" },
-            { label: "Interrupted", tone: "interrupted", files: interrupted, action: "Recover file" },
-          ] as const).map(({ label, tone, files, action }) => (
+          {(
+            [
+              { label: "Released", tone: "released", files: released, action: "Review checks" },
+              { label: "Refused", tone: "refused", files: refused, action: "Review refusal" },
+              { label: "Interrupted", tone: "interrupted", files: interrupted, action: "Recover file" },
+            ] as const
+          ).map(({ label, tone, files, action }) => (
             <div className={`batch-metric batch-metric--${tone}`} key={label}>
               <dt>{label}</dt>
               <dd className="batch-metric-count num">{files.length}</dd>
-              {files[0] && <dd><a href={`#${fileId(files[0].index)}`}>{action}<ArrowRight size={12} aria-hidden="true" /></a></dd>}
+              {files[0] && (
+                <dd>
+                  <a href={`#${fileId(files[0].index)}`}>
+                    {action}
+                    <ArrowRight size={12} aria-hidden="true" />
+                  </a>
+                </dd>
+              )}
             </div>
           ))}
         </dl>
         <span className="sr-only" role="status">
-          {released.length} released, {refused.length} refused, {interrupted.length} interrupted, {waiting} awaiting results.
+          {released.length} released, {refused.length} refused, {interrupted.length} interrupted, {waiting} awaiting
+          results.
         </span>
       </div>
-      {turn.error && <p className="error-line"><span className="dot" />{turn.error}</p>}
-      {turn.linkError && <p className="error-line"><span className="dot" />{turn.linkError}</p>}
+      {turn.error && (
+        <p className="error-line">
+          <span className="dot" />
+          {turn.error}
+        </p>
+      )}
+      {turn.linkError && (
+        <p className="error-line">
+          <span className="dot" />
+          {turn.linkError}
+        </p>
+      )}
       {turn.files.map((f) => (
-        <RunCard key={f.index} id={fileId(f.index)} file={f} run={turn} recoveryDisabled={recoveryDisabled} onRerun={(i, p) => onRerun(turn, i, p)} onAttach={onAttach} />
+        <RunCard
+          key={f.index}
+          id={fileId(f.index)}
+          file={f}
+          run={turn}
+          recoveryDisabled={recoveryDisabled}
+          onRerun={(i, p) => onRerun(turn, i, p)}
+          onAttach={onAttach}
+        />
       ))}
     </section>
   );
@@ -146,16 +181,31 @@ export function AnswerView({ turn, onStop }: { turn: AnswerTurn; onStop: () => v
             ))}
           </ul>
         )}
-        <div className="answer-text" aria-live={turn.state === "streaming" ? "polite" : undefined} aria-busy={turn.state === "streaming"}>
-          {turn.text ? <Markdown text={turn.text} /> : turn.state === "streaming" ? (
+        <div
+          className="answer-text"
+          aria-live={turn.state === "streaming" ? "polite" : undefined}
+          aria-busy={turn.state === "streaming"}
+        >
+          {turn.text ? (
+            <Markdown text={turn.text} />
+          ) : turn.state === "streaming" ? (
             <>
               <span className="t-body-sm">Reading the documents…</span>
-              <span className="turn-skeleton" aria-hidden="true"><span /><span /><span /></span>
+              <span className="turn-skeleton" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
             </>
           ) : null}
           {turn.state === "streaming" && turn.text && <span className="caret" aria-hidden="true" />}
         </div>
-        {turn.error && <p className="error-line"><span className="dot" />{turn.error}</p>}
+        {turn.error && (
+          <p className="error-line">
+            <span className="dot" />
+            {turn.error}
+          </p>
+        )}
       </div>
     </section>
   );
@@ -172,13 +222,15 @@ export function LinksView({ turn }: { turn: LinksTurn }) {
     <section className="turn" aria-label="Links across files">
       <div className="turn-agent-head">
         <Who label="Open Books · links" at={turn.at} />
-        <span className="mono-label">{report.links.length} linked · {report.ambiguous.length} ambiguous · {report.unlinked_sources.length} unlinked</span>
+        <span className="mono-label">
+          {report.links.length} linked · {report.ambiguous.length} ambiguous · {report.unlinked_sources.length} unlinked
+        </span>
       </div>
       <div className="links">
         <div className="links-head">
           <span className="t-body-sm">
-            Payouts and remittances matched to the bank credit that received them. Amounts must be exactly equal and the date inside
-            the window. Ties are reported, never resolved by guessing.
+            Payouts and remittances matched to the bank credit that received them. Amounts must be exactly equal and the
+            date inside the window. Ties are reported, never resolved by guessing.
           </span>
         </div>
         {report.links.map((l) => {
@@ -196,12 +248,17 @@ export function LinksView({ turn }: { turn: LinksTurn }) {
                   );
                 })}
               </span>
-              <span className="link-arrow"><ArrowRight size={15} aria-hidden="true" /><span className="sr-only">paid into</span></span>
+              <span className="link-arrow">
+                <ArrowRight size={15} aria-hidden="true" />
+                <span className="sr-only">paid into</span>
+              </span>
               <span className="link-end">
                 <b>{c.file}</b>
                 {c.rec}
               </span>
-              <span className="num">{groupAmount(l.amount.amount, l.amount.currency)} {l.amount.currency}</span>
+              <span className="num">
+                {groupAmount(l.amount.amount, l.amount.currency)} {l.amount.currency}
+              </span>
             </div>
           );
         })}
@@ -213,17 +270,25 @@ export function LinksView({ turn }: { turn: LinksTurn }) {
                 <b>{a.source ? endLabel(a.source, names).file : `${a.sources?.length ?? 0} possible groups`}</b>
                 {a.source ? endLabel(a.source, names).rec : ""}
               </span>
-              <span className="link-arrow"><Split size={15} aria-hidden="true" /><span className="sr-only">could be either of</span></span>
+              <span className="link-arrow">
+                <Split size={15} aria-hidden="true" />
+                <span className="sr-only">could be either of</span>
+              </span>
               <span className="link-end">
                 <b>{c.file}</b>
                 {c.rec}
               </span>
-              <span className="tag tag--bad"><span className="dot" />Ambiguous</span>
+              <span className="tag tag--bad">
+                <span className="dot" />
+                Ambiguous
+              </span>
             </div>
           );
         })}
         {report.links.length === 0 && report.ambiguous.length === 0 && (
-          <div className="link-row"><span className="t-body-sm">No payout or remittance matched a bank credit exactly.</span></div>
+          <div className="link-row">
+            <span className="t-body-sm">No payout or remittance matched a bank credit exactly.</span>
+          </div>
         )}
       </div>
     </section>

@@ -1,5 +1,5 @@
-"""Bank statement parsers: bank CSV, MT940 and OFX. Moved verbatim from pipeline.py into openbooks.statements.
-"""
+"""Bank statement parsers: bank CSV, MT940 and OFX. Moved verbatim from pipeline.py into openbooks.statements."""
+
 from __future__ import annotations
 
 import re
@@ -8,12 +8,15 @@ from decimal import Decimal
 from xml.etree import ElementTree
 
 from openbooks.core.registry import bank_cols, signed_bank_cols
-from openbooks.core.builders import (D, body_rows as _body, cell_getter as _cell, currency_of as _currency, empty_data as _empty_data,
-                                     finish_batch as _finish, money_fields as _money_fields, settlement_batch as _settlement,
-                                     split_total as _split_total, stated_totals as _stated_totals, statement_doc)
+from openbooks.core.builders import (
+    body_rows as _body,
+    currency_of as _currency,
+    empty_data as _empty_data,
+    statement_doc,
+)
 from openbooks.core.errors import Refusal
 from openbooks.core.evidence import evidence
-from openbooks.core.normalise import date_order, fmt, money, to_date, to_dec
+from openbooks.core.normalise import date_order, money, to_date, to_dec
 from openbooks.core.params import Params
 
 
@@ -27,6 +30,7 @@ def parse_bank_csv(args, p: Params):
     order = date_order([r[idx["date"]] for _, r in body], p.date_order, default="dmy", where="date column")
     recs = []
     for n, row in body:
+
         def g(role: str) -> str:
             return row[idx[role]].strip() if role in idx else ""
 
@@ -34,12 +38,20 @@ def parse_bank_csv(args, p: Params):
         cre = to_dec(g("credit"), f"row {n} credit", blank_zero=True)
         if (deb and cre) or not (deb or cre) or deb < 0 or cre < 0:
             raise Refusal("PARSE_ERROR", f"row {n}: need exactly one positive debit or credit")
-        recs.append({
-            "row": n, "date": to_date(g("date"), f"row {n}", order), "dir": "credit" if cre else "debit",
-            "amt": cre or deb, "amt_raw": g("credit") if cre else g("debit"), "date_raw": g("date"),
-            "bal": to_dec(g("balance"), f"row {n} balance", dr_cr=True), "bal_raw": g("balance"),
-            "desc": g("desc"), "ref": g("ref") or None,
-        })
+        recs.append(
+            {
+                "row": n,
+                "date": to_date(g("date"), f"row {n}", order),
+                "dir": "credit" if cre else "debit",
+                "amt": cre or deb,
+                "amt_raw": g("credit") if cre else g("debit"),
+                "date_raw": g("date"),
+                "bal": to_dec(g("balance"), f"row {n} balance", dr_cr=True),
+                "bal_raw": g("balance"),
+                "desc": g("desc"),
+                "ref": g("ref") or None,
+            }
+        )
     return statement_doc(recs, cur, p.account, p.opening)
 
 
@@ -55,18 +67,27 @@ def parse_bank_csv_signed(args, p: Params):
     order = date_order([r[idx["date"]] for _, r in body], p.date_order, default="dmy", where="date column")
     recs = []
     for n, row in body:
+
         def g(role: str) -> str:
             return row[idx[role]].strip()
 
         amount = to_dec(g("amount"), f"row {n} amount")
         if amount == 0:
             raise Refusal("PARSE_ERROR", f"row {n}: zero amount")
-        recs.append({
-            "row": n, "date": to_date(g("date"), f"row {n}", order), "dir": "credit" if amount > 0 else "debit",
-            "amt": abs(amount), "amt_raw": g("amount"), "date_raw": g("date"),
-            "bal": to_dec(g("balance"), f"row {n} balance", dr_cr=True), "bal_raw": g("balance"),
-            "desc": g("desc"), "ref": None,
-        })
+        recs.append(
+            {
+                "row": n,
+                "date": to_date(g("date"), f"row {n}", order),
+                "dir": "credit" if amount > 0 else "debit",
+                "amt": abs(amount),
+                "amt_raw": g("amount"),
+                "date_raw": g("date"),
+                "bal": to_dec(g("balance"), f"row {n} balance", dr_cr=True),
+                "bal_raw": g("balance"),
+                "desc": g("desc"),
+                "ref": None,
+            }
+        )
     return statement_doc(recs, cur, p.account, p.opening)
 
 
@@ -137,9 +158,19 @@ def _mt_add_statement(data: dict, ev: dict, accts: dict, si: int, s: dict) -> No
     if not any(a["id"] == aid for a in data["accounts"]):
         data["accounts"].append({"id": aid, "number": s["acct"], "currency": ocur})
     bid = f"batch-{si}"
-    data["batches"].append({"id": bid, "kind": "statement", "account_id": aid, "currency": ocur,
-                            "period_start": od, "period_end": cd, "opening": money(ob, ocur),
-                            "closing": money(cb, ocur), "opening_derived": False})
+    data["batches"].append(
+        {
+            "id": bid,
+            "kind": "statement",
+            "account_id": aid,
+            "currency": ocur,
+            "period_start": od,
+            "period_end": cd,
+            "opening": money(ob, ocur),
+            "closing": money(cb, ocur),
+            "opening_derived": False,
+        }
+    )
     for f, raw in (("opening", oraw), ("closing", craw), ("period_start", oraw), ("period_end", craw)):
         evidence(ev, bid, f, None, raw)
     for k, t in enumerate(s["txns"], 1):
@@ -147,12 +178,18 @@ def _mt_add_statement(data: dict, ev: dict, accts: dict, si: int, s: dict) -> No
         tid = f"txn-{si}-{k:05d}"
         credit = m.group(3) in ("C", "RD")
         ref = m.group(7).split("//")[0].strip()
-        data["transactions"].append({
-            "id": tid, "batch_id": bid, "account_id": aid, "date": _mt_date(m.group(1), tid),
-            "direction": "credit" if credit else "debit",
-            "amount": money(Decimal(m.group(5).replace(",", ".")), ocur),
-            "description": t["info"], "reference": None if ref in ("", "NONREF") else ref,
-        })
+        data["transactions"].append(
+            {
+                "id": tid,
+                "batch_id": bid,
+                "account_id": aid,
+                "date": _mt_date(m.group(1), tid),
+                "direction": "credit" if credit else "debit",
+                "amount": money(Decimal(m.group(5).replace(",", ".")), ocur),
+                "description": t["info"],
+                "reference": None if ref in ("", "NONREF") else ref,
+            }
+        )
         evidence(ev, tid, "date", None, t["raw"])
         evidence(ev, tid, "amount", None, t["raw"])
 
@@ -202,20 +239,35 @@ def parse_ofx(text: str, p: Params):
             raise Refusal("PARSE_ERROR", f"{tid}: unreadable DTPOSTED {dt!r}")
         d = datetime.strptime(dt[:8], "%Y%m%d").date().isoformat()
         dates.append(d)
-        data["transactions"].append({
-            "id": tid, "batch_id": "batch-1", "account_id": "acct-1", "date": d,
-            "direction": "credit" if amt > 0 else "debit", "amount": money(abs(amt), cur),
-            "description": _ofx_tag(b, "NAME") or _ofx_tag(b, "MEMO") or "", "reference": fit,
-        })
+        data["transactions"].append(
+            {
+                "id": tid,
+                "batch_id": "batch-1",
+                "account_id": "acct-1",
+                "date": d,
+                "direction": "credit" if amt > 0 else "debit",
+                "amount": money(abs(amt), cur),
+                "description": _ofx_tag(b, "NAME") or _ofx_tag(b, "MEMO") or "",
+                "reference": fit,
+            }
+        )
         evidence(ev, tid, "date", None, dt)
         evidence(ev, tid, "amount", None, amt_raw)
     if not dates:
         raise Refusal("PARSE_ERROR", "no transactions")
-    data["batches"].append({
-        "id": "batch-1", "kind": "statement", "account_id": "acct-1", "currency": cur,
-        "period_start": min(dates), "period_end": max(dates), "opening": money(p.opening, cur),
-        "closing": money(to_dec(bal, "LEDGERBAL"), cur), "opening_derived": False,
-    })
+    data["batches"].append(
+        {
+            "id": "batch-1",
+            "kind": "statement",
+            "account_id": "acct-1",
+            "currency": cur,
+            "period_start": min(dates),
+            "period_end": max(dates),
+            "opening": money(p.opening, cur),
+            "closing": money(to_dec(bal, "LEDGERBAL"), cur),
+            "opening_derived": False,
+        }
+    )
     evidence(ev, "batch-1", "opening", None, "supplied by caller")
     evidence(ev, "batch-1", "closing", None, bal)
     evidence(ev, "batch-1", "period_start", None, min(dates))
@@ -297,11 +349,18 @@ def _camt_entry(entry, tid: str, bid: str, aid: str, currency: str, data: dict, 
     lines = [(node.text or "").strip() for node in _camt_path(detail[0], "RmtInf", "Ustrd")] if detail else []
     description = " ".join(part for part in lines if part) or _camt_text(entry, "AddtlNtryInf") or ""
     ref = _camt_text(entry, "AcctSvcrRef") or (_camt_text(detail[0], "Refs", "EndToEndId") if detail else None)
-    data["transactions"].append({
-        "id": tid, "batch_id": bid, "account_id": aid, "date": day,
-        "direction": "credit" if credit else "debit", "amount": money(amount, currency),
-        "description": description, "reference": None if ref in (None, "", "NOTPROVIDED") else ref,
-    })
+    data["transactions"].append(
+        {
+            "id": tid,
+            "batch_id": bid,
+            "account_id": aid,
+            "date": day,
+            "direction": "credit" if credit else "debit",
+            "amount": money(amount, currency),
+            "description": description,
+            "reference": None if ref in (None, "", "NOTPROVIDED") else ref,
+        }
+    )
     evidence(ev, tid, "date", None, raw_date)
     evidence(ev, tid, "amount", None, raw_amount)
 
@@ -311,20 +370,40 @@ def _camt_statement(statement, si: int, data: dict, ev: dict, accts: dict) -> No
     account = _camt_text(statement, "Acct", "Id", "IBAN") or _camt_text(statement, "Acct", "Id", "Othr", "Id")
     if not account:
         raise Refusal("PARSE_ERROR", f"{where}: missing account identifier")
-    (opening, open_day, open_cur, open_raw), (closing, close_day, close_cur, close_raw) = _camt_balances(statement, where)
+    (opening, open_day, open_cur, open_raw), (closing, close_day, close_cur, close_raw) = _camt_balances(
+        statement, where
+    )
     if open_cur != close_cur:
         raise Refusal("PARSE_ERROR", f"{where}: currency changes inside statement")
     aid = accts.setdefault(account, f"acct-{len(accts) + 1}")
     if not any(a["id"] == aid for a in data["accounts"]):
         data["accounts"].append({"id": aid, "number": account, "currency": open_cur})
     bid = f"batch-{si}"
-    data["batches"].append({"id": bid, "kind": "statement", "account_id": aid, "currency": open_cur,
-                            "period_start": open_day, "period_end": close_day, "opening": money(opening, open_cur),
-                            "closing": money(closing, close_cur), "opening_derived": False})
-    for field, raw in (("opening", open_raw), ("closing", close_raw), ("period_start", open_day), ("period_end", close_day)):
+    data["batches"].append(
+        {
+            "id": bid,
+            "kind": "statement",
+            "account_id": aid,
+            "currency": open_cur,
+            "period_start": open_day,
+            "period_end": close_day,
+            "opening": money(opening, open_cur),
+            "closing": money(closing, close_cur),
+            "opening_derived": False,
+        }
+    )
+    for field, raw in (
+        ("opening", open_raw),
+        ("closing", close_raw),
+        ("period_start", open_day),
+        ("period_end", close_day),
+    ):
         evidence(ev, bid, field, None, raw)
-    booked = [e for e in _camt_path(statement, "Ntry")
-              if (_camt_text(e, "Sts") or _camt_text(e, "Sts", "Cd") or "BOOK") == "BOOK"]
+    booked = [
+        e
+        for e in _camt_path(statement, "Ntry")
+        if (_camt_text(e, "Sts") or _camt_text(e, "Sts", "Cd") or "BOOK") == "BOOK"
+    ]
     for k, entry in enumerate(booked, 1):
         _camt_entry(entry, f"txn-{si}-{k:05d}", bid, aid, open_cur, data, ev)
 

@@ -2,15 +2,11 @@
 
 Open Books returns one proven JSON document per financial file, or a typed refusal that names the reason. It reads bank statements, payment-gateway exports, Indian tax documents and Excel workpapers, and releases a result only when the file's own arithmetic balances.
 
-**Turn financial files into one proven JSON document per file, or a typed refusal. Never a partial or guessed result.**
-
-Open Books reads bank statements (CSV, OFX, MT940, PDF, scans), payment-gateway settlements, Indian tax documents and Excel workpapers. It normalises them to a canonical schema and then **proves** the result with balance checks. If the numbers do not tie out, or the layout is unknown, it refuses with a typed error and writes nothing.
-
 [Developer documentation](https://openbooks.lumeo.co.in/) · [Interactive bank CSV quickstart](https://openbooks.lumeo.co.in/docs/quickstart) · [Workspace](https://openbooks.lumeo.co.in/app) · [MCP server](https://openbooks.lumeo.co.in/docs/mcp)
 
 ![Open Books pipeline](docs/pipeline.jpeg)
 
-> **Status: early (v0.1).** All training and test data is **synthetic**. No real statements were used or scored, so synthetic results do not prove real-world accuracy. See [Limitations](#limitations).
+> **Status: early release.** All training and test data is **synthetic**. No real statements were used or scored, so synthetic results do not prove real-world accuracy. See [Limitations](#limitations).
 
 ## Why
 
@@ -24,9 +20,9 @@ Accounting automation fails quietly: a misread digit, a swapped debit and credit
 
 ## Install
 
-Requires Python 3.11 or newer (and Node 20+ with pnpm for the JS packages and web app).
+The Python engine requires Python 3.11+. The npm package requires Node.js 20+. Use Node.js 22.12+ and pnpm 10 to develop the web app.
 
-**Just use it** (no checkout): one command installs all the JS packages and the Python engine behind them.
+**Just use it** (no checkout): install the npm CLI and its Python engine.
 
 ```bash
 npm i -g @lumeo_hq/openbooks      # or: npm i @lumeo_hq/openbooks   inside a project
@@ -197,7 +193,10 @@ packages/py/openbooks/        the one public Python package (pip install openboo
   src/openbooks/doctor/       `openbooks doctor`: dependency, provider, model-integrity and self-test checks (human or --json, exit codes 0/1/2/3)
   src/openbooks/pipeline.py   the 0.1 compatibility facade
 packages/py/openbooks-lab/    PRIVATE, never published: synthetic data, golden-set builders, calibration fitting, payout matching
-scripts/         training, calibration, promotion gate, evaluation, baselines
+server/          FastAPI engine service and deployment tests
+web/             Next.js workspace, landing pages and documentation
+harness/         agent integration kit and benchmark
+scripts/         training, evaluation and release tooling
 tests/           pytest suite (set OB_SLOW=1 for the slow tests)
 models/          shipped int8 heads (trained on default + sign/branch/skew synthetic layouts), calibration and manifest
 docs/            architecture, format catalog, dataset notes, evidence
@@ -216,6 +215,8 @@ docs/            architecture, format catalog, dataset notes, evidence
 | [docs/format_catalog.md](docs/format_catalog.md), [docs/DATASETS.md](docs/DATASETS.md) | Supported layouts and data sources |
 
 ## Develop
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and verification by component.
 
 ```bash
 pip install -e "packages/py/openbooks[scan]" -e packages/py/openbooks-lab -e server pytest hypothesis httpx
@@ -237,7 +238,7 @@ Training knobs include `--alpha`, `--device`, `OB_SEED`, `OB_LOSS` (`ce`, `ls`, 
 
 ## License
 
-No license has been chosen yet. Until one is added, all rights are reserved.
+The Python engine, JavaScript package, and designated model artifacts are licensed under Apache-2.0. See [LICENSE.md](LICENSE.md) for the terms governing this checkout and [the release guide](docs/OPEN_SOURCE.md) for the public source export.
 
 ## Links
 

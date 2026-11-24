@@ -88,14 +88,14 @@ def test_model_load_checks_calibration_and_checkpoint(tmp_path):
 
 def test_unavailable_model_keeps_health_and_other_routes_working(monkeypatch, client):
     from openbooks_server import catalog
-    from openbooks_server import app as app_module
+    from openbooks_server import execution
     from openbooks.statements.assets import ModelUnavailable
 
     def unavailable():
         raise ModelUnavailable("Test model is unavailable.")
 
     monkeypatch.setattr(catalog, "load_model", unavailable)
-    monkeypatch.setattr(app_module, "load_model", unavailable)
+    monkeypatch.setattr(execution, "load_model", unavailable)
     health = client.get("/v1/health").json()
     assert health["status"] == "ok"
     assert health["model_ready"] is health["model_weights_present"] is False

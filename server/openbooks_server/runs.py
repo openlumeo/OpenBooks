@@ -1,4 +1,4 @@
-"""One run: many uploaded files, each through openbooks.pipeline.process, reported as events.
+"""One run: many uploaded files, each through openbooks.core.process, reported as events.
 
 Events (name, payload), in order per file:
   file.started {index, name, size}
@@ -10,6 +10,7 @@ and finally
 Uploaded files only exist inside a per-run temp dir, removed when the run ends. Size limits are the
 engine's: an oversized file reaches process() and comes back as its own UNSUPPORTED_INPUT refusal.
 """
+
 from __future__ import annotations
 
 import re
@@ -23,15 +24,17 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import BinaryIO
 
-from openbooks.pipeline import MAX_BYTES, Params, process
+from openbooks.core import Params, process
+from openbooks.core.guard import MAX_BYTES
 
 MAX_FILES = 20
 MAX_NAME_CHARS = 180
 _CURRENCY = re.compile(r"^[A-Za-z]{3}$")
 _AMOUNT = re.compile(r"^-?\d+(\.\d+)?$")
 _UNSAFE = re.compile(r"[^\w.\- ()\[\]]+")
-_WINDOWS_DEVICES = frozenset({"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(1, 10)),
-                              *(f"LPT{i}" for i in range(1, 10))})
+_WINDOWS_DEVICES = frozenset(
+    {"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(1, 10)), *(f"LPT{i}" for i in range(1, 10))}
+)
 
 Emit = Callable[[str, dict], None]
 
@@ -124,8 +127,13 @@ class Run:
                 remaining -= len(chunk)
         self.files.append(Staged(name or path.name, path, path.stat().st_size))
 
-    def execute(self, params: Params, per_file: dict[int, Params], emit: Emit,
-                observe: Callable[[str | None, str, dict[str, float]], None] | None = None) -> None:
+    def execute(
+        self,
+        params: Params,
+        per_file: dict[int, Params],
+        emit: Emit,
+        observe: Callable[[str | None, str, dict[str, float]], None] | None = None,
+    ) -> None:
         """observe(engine method, file suffix, stage seconds) is called per file. Here `extract` is the detect stage (text layer or
         OCR) and `parse` runs detect to balance; `serialization` is the validate stage."""
         released = refused = 0
@@ -145,8 +153,11 @@ class Run:
                 if observe:
                     end = time.perf_counter()
                     d, b = marks.get("detect", end), marks.get("balance", end)
-                    observe(doc.get("file", {}).get("method"), f.path.suffix,
-                            {"extract": d - t0, "parse": b - d, "serialization": marks.get("validate", end) - b})
+                    observe(
+                        doc.get("file", {}).get("method"),
+                        f.path.suffix,
+                        {"extract": d - t0, "parse": b - d, "serialization": marks.get("validate", end) - b},
+                    )
                 if doc["status"] == "ok":
                     released += 1
                 else:

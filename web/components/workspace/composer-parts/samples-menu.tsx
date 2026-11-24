@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { FlaskConical } from "lucide-react";
-import type { Sample } from "../../lib/types";
+import type { Sample } from "@/lib/types";
 
 type SamplesMenuProps = {
   samples: Sample[];
@@ -87,7 +87,9 @@ export function SamplesMenu({ samples, disabled, onAddSample }: SamplesMenuProps
       </button>
       {open && (
         <div className="popover" id={menuId} role="menu" aria-label="Sample files" onKeyDown={onMenuKeyDown}>
-          <div className="popover-head mono-label" role="presentation">Synthetic golden set · {samples.length} files</div>
+          <div className="popover-head mono-label" role="presentation">
+            Synthetic golden set · {samples.length} files
+          </div>
           {samples.map((s, i) => (
             <button
               key={s.id}
@@ -108,7 +110,14 @@ export function SamplesMenu({ samples, disabled, onAddSample }: SamplesMenuProps
                 <span className="ob-sample-name">{s.label}</span>
                 <span className="ob-sample-file">{s.filename}</span>
               </span>
-              {s.expect_status === "ok" ? <span className="tag tag--ok">Releases</span> : <span className="tag tag--bad"><span className="dot" />{s.expect_code}</span>}
+              {s.expect_status === "ok" ? (
+                <span className="tag tag--ok">Releases</span>
+              ) : (
+                <span className="tag tag--bad">
+                  <span className="dot" />
+                  {s.expect_code}
+                </span>
+              )}
               <span />
             </button>
           ))}

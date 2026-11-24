@@ -24,9 +24,11 @@ jobs:
           fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
+        working-directory: web
+      - run: pnpm test
         working-directory: web
       - run: pnpm build
         working-directory: web

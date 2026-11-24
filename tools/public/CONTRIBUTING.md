@@ -1,15 +1,20 @@
-# Contributing
+# Contributing to Open Books
 
-Thanks for helping. The one rule that outranks the rest: **never weaken a financial check to make something pass.** A change that
-lets a tampered document through, guesses an ambiguous date, or turns a refusal into a release will not be merged.
+Use Python 3.11 or newer. For the JavaScript workspace, use Node.js 20 or newer and pnpm 10. Create and activate a virtual environment before installing the engine.
 
-## Sign-off
-Contributions are accepted under the repository licence, certified with the [Developer Certificate of Origin](https://developercertificate.org/):
-add `Signed-off-by: Your Name <you@example.com>` to each commit (`git commit -s`).
+    python -m pip install -e packages/py/openbooks pytest hypothesis
+    python -m openbooks doctor
+    python -m pytest packages/py/openbooks/tests tests/test_cli_machine.py tests/test_model_card.py
 
-## Before you open a pull request
-- Python: install the packages editable (see the README), then run `pytest packages/py/*/tests tests`.
-- JS: `cd packages/js && pnpm install && pnpm --filter @lumeo_hq/openbooks run check-generated && pnpm exec tsc -b && pnpm exec vitest run`.
-- Changing the output contract: edit the schema under `packages/py/openbooks/src/openbooks/core/schema/`, then run `pnpm sync-schema && pnpm generate`. CI fails if the generated TypeScript is stale.
-- A new layout needs: a parser, a gate that proves it from the document's own numbers, a tampered fixture that must be refused, and a statement of whether it has been checked against a real export (it is experimental until it has).
-- Never commit real client documents or real account numbers, including redacted ones you are not sure about.
+For the CLI, library or MCP server, run the following from the checkout root in the same environment.
+
+    pnpm --dir packages/js install --frozen-lockfile
+    pnpm --dir packages/js --filter @lumeo_hq/openbooks check-generated
+    pnpm --dir packages/js build
+    pnpm --dir packages/js test
+
+When changing the output contract, edit the JSON Schema under packages/py/openbooks/src/openbooks/core/schema. Run pnpm --dir packages/js sync-schema and pnpm --dir packages/js generate to update the JavaScript copies and types.
+
+A new layout needs a parser, a gate that proves the result using evidence printed in the document, and a tampered fixture that the gate refuses. Describe which layouts were tested on real exports. Use synthetic documents in tests and reports.
+
+Sign off each commit with git commit -s to certify the [Developer Certificate of Origin](https://developercertificate.org/). See the [security policy](SECURITY.md) for private reporting.

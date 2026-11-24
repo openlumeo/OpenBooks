@@ -1,6 +1,10 @@
-# Open Books npm packages (publishing mirror)
+# Open Books npm publishing mirror
 
-This repository builds and publishes the `@lumeo_hq/openbooks*` npm packages. Every release is published from GitHub Actions
-with npm provenance, so each package links to the exact commit and workflow run that built it.
+This repository builds and publishes the Apache-2.0 package @lumeo_hq/openbooks with npm provenance. The package provides a CLI, a typed JavaScript library and an MCP server.
 
-Documentation, the engine and the issue tracker live at https://openbooks.lumeo.co.in. Licence: Apache-2.0.
+Use Node.js 22 and pnpm 10 to build the mirror.
+
+    pnpm install --frozen-lockfile
+    pnpm build
+
+Find installation and support links in the [package README](cli/README.md).

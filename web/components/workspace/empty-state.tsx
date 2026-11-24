@@ -21,8 +21,9 @@ export function EmptyState({
       <div className="ob-empty-head">
         <h1 className="t-display t-h2">Proven JSON, or a typed refusal.</h1>
         <p className="t-lede">
-          Drop in bank statements, gateway settlements, tax documents or workpapers. Each file comes back as one openbooks.v1
-          document whose own numbers tie out, or a refusal that says exactly why. Then ask about what was released.
+          Drop in bank statements, gateway settlements, tax documents or workpapers. Each file comes back as one
+          openbooks.v1 document whose own numbers tie out, or a refusal that says exactly why. Then ask about what was
+          released.
         </p>
         <span className="ob-empty-maturity mono-label">
           <FlaskConical size={13} aria-hidden="true" /> Early release · tested on synthetic data only
@@ -32,7 +33,9 @@ export function EmptyState({
       <ol className="ob-pipeline" aria-label="What happens to each file">
         {STAGES.map((s, i) => (
           <li key={s.id} className="ob-pipeline-step">
-            <span className="mono-label">{i + 1} · {s.label}</span>
+            <span className="mono-label">
+              {i + 1} · {s.label}
+            </span>
             <p>{s.hint.split(". ")[0]!.replace(/\.$/, "")}.</p>
           </li>
         ))}
@@ -40,9 +43,12 @@ export function EmptyState({
 
       {featured.length > 0 && (
         <section className="ob-section" aria-labelledby="samples-title">
-          <h2 id="samples-title" className="ob-section-title">Try it on a sample</h2>
+          <h2 id="samples-title" className="ob-section-title">
+            Try it on a sample
+          </h2>
           <p className="t-body-sm">
-            Synthetic files from the engine&apos;s golden set. Some tie out; some were tampered with on purpose and must be refused.
+            Synthetic files from the engine&apos;s golden set. Some tie out; some were tampered with on purpose and must
+            be refused.
           </p>
           <div className="ob-samples">
             {featured.map((s) => (
@@ -54,7 +60,10 @@ export function EmptyState({
                 {s.expect_status === "ok" ? (
                   <span className="tag tag--ok">Releases</span>
                 ) : (
-                  <span className="tag tag--bad"><span className="dot" />Refuses · {s.expect_code}</span>
+                  <span className="tag tag--bad">
+                    <span className="dot" />
+                    Refuses · {s.expect_code}
+                  </span>
                 )}
                 <Plus size={16} className="ob-sample-add" aria-hidden="true" />
               </button>
@@ -65,7 +74,9 @@ export function EmptyState({
 
       {formats && (
         <section className="ob-section" aria-labelledby="reads-title">
-          <h2 id="reads-title" className="ob-section-title">What it reads</h2>
+          <h2 id="reads-title" className="ob-section-title">
+            What it reads
+          </h2>
           <table className="ob-spec">
             <tbody>
               {formats.groups.map((g) => (
@@ -80,7 +91,11 @@ export function EmptyState({
           <p className="t-body-sm">
             Up to 20 files per run, {Math.round(formats.max_bytes / (1024 * 1024))} MB each.
             {formats.unverified && formats.unverified.length > 0 && (
-              <> The {formats.unverified.map((u) => u.name).join(", ")} layouts follow public descriptions of those exports and have been tested on synthetic files only.</>
+              <>
+                {" "}
+                The {formats.unverified.map((u) => u.name).join(", ")} layouts follow public descriptions of those
+                exports and have been tested on synthetic files only.
+              </>
             )}
           </p>
         </section>

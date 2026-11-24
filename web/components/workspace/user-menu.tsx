@@ -21,7 +21,9 @@ export function UserMenu() {
 
   return (
     <div className="ob-user" role="group" aria-label="Account">
-      <span className="ob-user-name" title={user.email}>{user.name || user.email}</span>
+      <span className="ob-user-name" title={user.email}>
+        {user.name || user.email}
+      </span>
       <button type="button" className="copy-inline ob-user-out" onClick={signOut} disabled={busy}>
         <LogOut size={13} aria-hidden="true" />
         <span>{busy ? "Signing out…" : "Sign out"}</span>

@@ -7,8 +7,7 @@ released only if its numbers prove themselves (balances tie, totals match, and a
 document itself); otherwise it is refused with a typed code. Every released field keeps its evidence: page, bounding box, row,
 raw text and extraction method. Money is `Decimal` end to end and nothing is rounded silently.
 
-> **Status: pre-release. Nothing is published to PyPI or npm yet.** Every layout has been exercised on synthetic fixtures only,
-> not on real exports, and PayPal, Wise and all the tax layouts are experimental. Do not rely on it for real filings.
+> The test suite uses synthetic fixtures. PayPal, Wise and the tax layouts are experimental.
 
 ## Packages
 
@@ -42,7 +41,11 @@ if (r.kind === "released") console.log(r.document.data.transactions[0]?.amount?.
 else console.log(r.code, r.message); // a refusal is a value, not an exception
 ```
 
-Exit codes: `0` everything released, `1` something was refused, `2` usage error, `3` the engine could not run.
+The CLI exits with 0 when every file is released, 1 when a file is refused, 2 for usage errors, and 3 when the engine cannot run.
+
+## Contribute
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests and parser expectations. Report security issues through the private channel in [SECURITY.md](SECURITY.md).
 
 ## Licence
 
