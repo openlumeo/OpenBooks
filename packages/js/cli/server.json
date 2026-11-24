@@ -1,30 +1,24 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Sagexd08/openbooks-mcp",
   "description": "Verify bank statements, settlements and tax documents: proven JSON or a typed refusal.",
-  "status": "active",
   "repository": {
     "url": "https://github.com/Sagexd08/OpenBooks",
     "source": "github",
     "subfolder": "packages/js/cli"
   },
   "version": "0.2.4",
-  "website_url": "https://openbooks.lumeo.co.in/docs/mcp",
+  "websiteUrl": "https://openbooks.lumeo.co.in/docs/mcp",
   "packages": [
     {
-      "registry_type": "npm",
+      "registryType": "npm",
       "identifier": "@lumeo_hq/openbooks",
       "version": "0.2.4",
       "runtimeHint": "npx",
       "packageArguments": [
-        {
-          "type": "positional",
-          "value": "mcp"
-        }
+        { "type": "positional", "value": "mcp" }
       ],
-      "transport": {
-        "type": "stdio"
-      }
+      "transport": { "type": "stdio" }
     }
   ]
 }
