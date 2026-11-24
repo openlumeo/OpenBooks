@@ -41,7 +41,7 @@ TEXTRACT_TIMEOUT_SECONDS = 60
 TEXTRACT_MAX_ATTEMPTS = 3
 UNIT_TOLERANCE = 0.01
 HTTPS_PORT = 443
-AZURE_ANALYZE_PATH = "/documentintelligence/documentModels/prebuilt-read:analyze"
+AZURE_ANALYZE_PATH = "/documentintelligence/documentModels/{model}:analyze"
 AZURE_API_VERSION = "2024-11-30"
 AZURE_KEY_ENV = "AZURE_DOCINTEL_KEY"
 AZURE_ENDPOINT_ENV = "AZURE_DOCINTEL_ENDPOINT"
@@ -279,13 +279,17 @@ class AzureDocIntelEngine(_CloudEngine):
         super().__init__(config, (key,), backoff)
         self._key = key
         self._endpoint = _validated_endpoint(_required_env(config, environ, "endpoint", AZURE_ENDPOINT_ENV))
+        model = config.options.get("model", "prebuilt-read")
+        if model not in {"prebuilt-read", "prebuilt-layout"}:
+            raise ProviderError(f"{self.id} configured an unsupported Azure model")
+        self._analyze_url = f"{self._endpoint}{AZURE_ANALYZE_PATH.format(model=model)}?api-version={AZURE_API_VERSION}"
         self._transport = transport
 
     def _read(self, image: Any, scale: float, page_number: int, page_size: tuple[float, float]) -> list[Word]:
         body = json.dumps({"base64Source": _png_b64(image)}).encode()
         headers = {"Ocp-Apim-Subscription-Key": self._key, "Content-Type": "application/json"}
         submitted = _send(self._transport, HttpRequest(
-            "POST", f"{self._endpoint}{AZURE_ANALYZE_PATH}?api-version={AZURE_API_VERSION}", headers, body),
+            "POST", self._analyze_url, headers, body),
             self.id, self._backoff)
         location = submitted.headers.get("operation-location")
         if not location:

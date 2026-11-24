@@ -1,6 +1,7 @@
 """Word boxes read from a statement page, with the line grouping and date-span helpers that work on them."""
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
 
@@ -43,11 +44,26 @@ def _lines(words: list[Word]) -> list[list[Word]]:
     heights = sorted(w.h for w in words)
     tol = 0.5 * heights[len(heights) // 2]
     lines: list[list[Word]] = []
+    cy_sum = 0.0
+    cy_abs_sum = 0.0
     for w in sorted(words, key=lambda w: (w.cy, w.x0)):
-        if lines and abs(w.cy - sum(x.cy for x in lines[-1]) / len(lines[-1])) <= tol:
+        cy = w.cy
+        if lines:
+            mean = cy_sum / len(lines[-1])
+            distance = abs(cy - mean)
+            # Built-in sum may use compensated floating-point arithmetic. Recompute
+            # near the threshold so rounding cannot change line membership.
+            error = 4 * math.ulp(1.0) * cy_abs_sum + 4 * math.ulp(max(abs(cy), abs(mean), abs(tol), 1.0))
+            if not math.isfinite(distance) or not math.isfinite(error) or abs(distance - tol) <= error:
+                distance = abs(cy - sum(x.cy for x in lines[-1]) / len(lines[-1]))
+        if lines and distance <= tol:
             lines[-1].append(w)
+            cy_sum += cy
+            cy_abs_sum += abs(cy)
         else:
             lines.append([w])
+            cy_sum = cy
+            cy_abs_sum = abs(cy)
     return [sorted(ln, key=lambda w: w.x0) for ln in lines]
 
 

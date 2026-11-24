@@ -23,6 +23,17 @@ remote = true
 endpoint = "AZURE_DOCINTEL_ENDPOINT"
 key = "AZURE_DOCINTEL_KEY"
 
+[providers.azure-layout]
+engine = "azure_docintel"
+remote = true
+
+[providers.azure-layout.env]
+endpoint = "AZURE_DOCINTEL_ENDPOINT"
+key = "AZURE_DOCINTEL_KEY"
+
+[providers.azure-layout.options]
+model = "prebuilt-layout"
+
 [providers.google]
 engine = "google_docai"
 remote = true

@@ -318,11 +318,14 @@ class AzureTransport:
         return cloud.HttpResponse(200, {}, json.dumps(self.result).encode())
 
 
-def test_azure_canned_response_maps_pixel_polygons_to_point_boxes(no_png):
+@pytest.mark.parametrize("model", ["prebuilt-read", "prebuilt-layout"])
+def test_azure_canned_response_maps_pixel_polygons_to_point_boxes(no_png, model):
     transport = AzureTransport(AZURE_LOCATION, AZURE_RESULT)
-    words = cloud.AzureDocIntelEngine(AZURE_CFG, AZURE_ENV, transport).read_page(None, 2.0, 3, PAGE_SIZE)
+    config = ocr.ProviderConfig(AZURE_CFG.id, AZURE_CFG.engine, AZURE_CFG.env, {"model": model}, remote=True)
+    words = cloud.AzureDocIntelEngine(config, AZURE_ENV, transport).read_page(None, 2.0, 3, PAGE_SIZE)
     assert [(w.text, w.x0, w.y0, w.x1, w.y1, w.page, w.conf) for w in words] == [("Opening", 10.0, 20.0, 30.0, 30.0, 3, 0.98)]
     assert transport.requests[0].headers["Ocp-Apim-Subscription-Key"] == FAKE_KEY
+    assert f"/documentModels/{model}:analyze?" in transport.requests[0].url
 
 
 def test_azure_operation_location_on_another_host_is_rejected_before_polling(no_png):
