@@ -10,7 +10,7 @@
 
 > **Status (branch `feat/openbooks-core-package`, unreleased, nothing published):** all five Python packages exist
 > (`openbooks-core`, `-gateways`, `-tax`, `-statements`, `-doctor`) plus the `openbooks` meta package, and the npm workspace
-> `packages/js` (`@lumeo_hq/openbooks-core|statements|gateways|tax|doctor` and the `openbooks` CLI) wraps the Python engine. Closed code
+> `packages/js` (one npm package, `@lumeo_hq/openbooks`, with subpath modules and the `openbooks` and `openbooks-mcp` commands) wraps the Python engine. Closed code
 > (training, synthetic data, golden builders, matching) lives in the private `packages/py/openbooks-lab` and is never published.
 > `docs/research/OPENBOOKS_PACKAGING_RESEARCH.md` has the audit, decisions and plan, and supersedes parts of this document
 > (matching is not shipped in gateways; core owns the `openbooks` console script; PDF and OCR are extras; types come from the JSON

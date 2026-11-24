@@ -167,7 +167,7 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: pnpm install --frozen-lockfile
       - name: Generated types and schema copies are not stale
-        run: pnpm --filter @lumeo_hq/openbooks-core run check-generated
+        run: pnpm --filter @lumeo_hq/openbooks run check-generated
       - run: pnpm exec tsc -b
       - run: pnpm exec vitest run
         env:
@@ -186,7 +186,7 @@ jobs:
           d=$(mktemp -d); cd "$d"; npm init -y > /dev/null
           npm install "$GITHUB_WORKSPACE"/tarballs/*.tgz
           npx openbooks --help > /dev/null
-          node --input-type=module -e "await import('@lumeo_hq/openbooks-core'); console.log('imports ok')"
+          node --input-type=module -e "await import('@lumeo_hq/openbooks/core'); console.log('imports ok')"
 
   export-pdf-fixtures:
     # Manual. Builds the golden set with PyMuPDF (private lab code) and uploads it.

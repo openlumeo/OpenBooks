@@ -6,16 +6,25 @@
   "repository": {
     "url": "https://github.com/Sagexd08/OpenBooks",
     "source": "github",
-    "subfolder": "packages/js/mcp"
+    "subfolder": "packages/js/cli"
   },
-  "version": "0.2.3",
+  "version": "0.2.4",
   "website_url": "https://openbooks.lumeo.co.in/docs/mcp",
   "packages": [
     {
       "registry_type": "npm",
-      "identifier": "@lumeo_hq/openbooks-mcp",
-      "version": "0.2.3",
-      "transport": { "type": "stdio" }
+      "identifier": "@lumeo_hq/openbooks",
+      "version": "0.2.4",
+      "runtimeHint": "npx",
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ],
+      "transport": {
+        "type": "stdio"
+      }
     }
   ]
 }

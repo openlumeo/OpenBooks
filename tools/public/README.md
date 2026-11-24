@@ -22,8 +22,7 @@ One Python package, `openbooks` (`pip install openbooks`; add `[scan]` for OCR a
 | `openbooks.tax` | Form 26AS, AIS, FIRA, Form 1099-B, trial balance |
 | `openbooks.doctor` | `openbooks doctor`: installation, provider and model-integrity checks |
 
-npm: `@lumeo_hq/openbooks/core`, `@lumeo_hq/openbooks/statements`, `@lumeo_hq/openbooks/gateways`, `@lumeo_hq/openbooks/tax`, `@lumeo_hq/openbooks/doctor` and the `openbooks`
-CLI are typed wrappers that run the Python engine. They parse nothing themselves.
+npm: `@lumeo_hq/openbooks` (subpath modules `/core`, `/statements`, `/gateways`, `/tax`, `/doctor`, `/mcp`; commands `openbooks` and `openbooks-mcp`) is a typed wrapper that runs the Python engine. It parses nothing itself.
 
 A missing provider never causes a guess: a file that looks like a known layout whose provider is not registered is refused
 with a typed code.

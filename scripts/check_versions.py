@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 errors: list[str] = []
 
 engine = re.search(r'"(.*)"', (ROOT / "packages/py/openbooks/src/openbooks/_version.py").read_text()).group(1)
-js = {p.parent.name: json.loads(p.read_text(encoding="utf-8")) for p in (ROOT / "packages/js").glob("*/package.json")}
+js = {"cli": json.loads((ROOT / "packages/js/cli/package.json").read_text(encoding="utf-8"))}
 js_versions = {pkg["version"] for pkg in js.values()}
 if len(js_versions) != 1:
     errors.append("npm packages disagree: " + ", ".join(f"{n}={p['version']}" for n, p in sorted(js.items())))

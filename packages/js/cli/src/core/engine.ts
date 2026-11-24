@@ -274,7 +274,7 @@ function checkDocument<T>(doc: unknown, validate: (value: unknown) => asserts va
     validate(doc);
   } catch (cause) {
     throw new EngineError("bad_output", `${(cause as Error).message}. The installed engine and this package may be different versions.`,
-      "install matching versions of @lumeo_hq/openbooks-core and the Python package openbooks", { cause });
+      "install matching versions of @lumeo_hq/openbooks and the Python package openbooks", { cause });
   }
 }
 

@@ -33,16 +33,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: The tag matches the package version
         run: |
-          version=$(node -p "require('./core/package.json').version")
+          version=$(node -p "require('./cli/package.json').version")
           test "${GITHUB_REF_NAME}" = "v${version}"
-      - run: pnpm exec tsc -b
-      - name: Pack (workspace dependencies are resolved to real versions)
+      - run: pnpm --filter @lumeo_hq/openbooks build
+      - name: Pack
         run: |
           mkdir tarballs
-          for p in core statements gateways tax doctor cli; do (cd $p && pnpm pack --pack-destination ../tarballs); done
-      - name: Publish with provenance (dependencies first, the meta package last)
+          pnpm --filter @lumeo_hq/openbooks pack --pack-destination ../tarballs
+      - name: Publish with provenance
         run: |
-          version=$(node -p "require('./core/package.json').version")
-          for name in openbooks-core openbooks-statements openbooks-gateways openbooks-tax openbooks-doctor openbooks; do
-            npm publish "tarballs/lumeo_hq-${name}-${version}.tgz" --access public --provenance
-          done
+          version=$(node -p "require('./cli/package.json').version")
+          npm publish "tarballs/lumeo_hq-openbooks-${version}.tgz" --access public --provenance
