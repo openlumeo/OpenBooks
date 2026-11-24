@@ -1,0 +1,19 @@
+{
+  "category": "tamper",
+  "expect": {
+    "fields": {},
+    "forbidden_in_answer": [],
+    "outcome": "refused",
+    "refusal_code": "BALANCE_MISMATCH"
+  },
+  "files": [
+    "statement_40_rows_tampered.csv"
+  ],
+  "id": "tamper-long-40-rows",
+  "params": {
+    "currency": "INR",
+    "date_order": "dmy",
+    "opening": "5000.00"
+  },
+  "prompt": "Verify this 40-row statement and tell me the closing balance."
+}

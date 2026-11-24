@@ -1,0 +1,23 @@
+{
+  "fields": {},
+  "forbidden_in_answer": [],
+  "min_calls": 2,
+  "outcome": "mixed",
+  "per_file": {
+    "statement.csv": {
+      "fields": {
+        "closing_balance": "38708.21",
+        "currency": "INR",
+        "transaction_count": 8
+      },
+      "outcome": "released",
+      "refusal_code": null
+    },
+    "statement_tampered.csv": {
+      "fields": {},
+      "outcome": "refused",
+      "refusal_code": "BALANCE_MISMATCH"
+    }
+  },
+  "refusal_code": null
+}

@@ -1,0 +1,36 @@
+{
+  "category": "multi",
+  "expect": {
+    "fields": {},
+    "forbidden_in_answer": [],
+    "min_calls": 2,
+    "outcome": "mixed",
+    "per_file": {
+      "invoice_items.csv": {
+        "fields": {},
+        "outcome": "refused",
+        "refusal_code": "UNKNOWN_LAYOUT"
+      },
+      "statement.ofx": {
+        "fields": {
+          "closing_balance": "38708.21",
+          "currency": "INR",
+          "transaction_count": 8
+        },
+        "outcome": "released",
+        "refusal_code": null
+      }
+    },
+    "refusal_code": null
+  },
+  "files": [
+    "statement.ofx",
+    "invoice_items.csv"
+  ],
+  "id": "multi-mixed-ofx-and-invoice",
+  "params": {
+    "currency": "INR",
+    "opening": "1000.00"
+  },
+  "prompt": "Are these two files safe to import into my books? Tell me which ones are."
+}

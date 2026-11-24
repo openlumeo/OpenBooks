@@ -1,0 +1,19 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "closing_balance": "1150.50",
+      "currency": "EUR",
+      "transaction_count": 2
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "camt053_balanced.xml"
+  ],
+  "id": "release-camt053-sample",
+  "params": {},
+  "prompt": "Verify this bank statement and tell me the closing balance and the currency."
+}

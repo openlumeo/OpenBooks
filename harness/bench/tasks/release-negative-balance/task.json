@@ -1,0 +1,23 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "closing_balance": "-150.50",
+      "currency": "INR",
+      "transaction_count": 4
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "statement_overdraft.csv"
+  ],
+  "id": "release-negative-balance",
+  "params": {
+    "currency": "INR",
+    "date_order": "dmy",
+    "opening": "-250.00"
+  },
+  "prompt": "Verify this account statement and tell me the closing balance. The account is overdrawn."
+}

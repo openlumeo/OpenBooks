@@ -1,0 +1,21 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "closing_balance": "38708.21",
+      "currency": "INR",
+      "transaction_count": 8
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "statement.mt940"
+  ],
+  "id": "release-mt940",
+  "params": {
+    "currency": "INR"
+  },
+  "prompt": "Verify this MT940 statement and tell me the closing balance."
+}

@@ -1,0 +1,23 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "closing_balance": "4251.46",
+      "currency": "USD",
+      "transaction_count": 5
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "statement_usd.csv"
+  ],
+  "id": "release-usd-statement",
+  "params": {
+    "currency": "USD",
+    "date_order": "dmy",
+    "opening": "1000.00"
+  },
+  "prompt": "Verify this USD statement and tell me the closing balance."
+}

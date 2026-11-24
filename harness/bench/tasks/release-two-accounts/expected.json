@@ -1,0 +1,27 @@
+{
+  "fields": {},
+  "forbidden_in_answer": [],
+  "min_calls": 2,
+  "outcome": "released",
+  "per_file": {
+    "current_statement.csv": {
+      "fields": {
+        "closing_balance": "1450.00",
+        "currency": "INR",
+        "transaction_count": 2
+      },
+      "outcome": "released",
+      "refusal_code": null
+    },
+    "savings_statement.csv": {
+      "fields": {
+        "closing_balance": "38708.21",
+        "currency": "INR",
+        "transaction_count": 8
+      },
+      "outcome": "released",
+      "refusal_code": null
+    }
+  },
+  "refusal_code": null
+}

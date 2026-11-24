@@ -1,0 +1,17 @@
+{
+  "category": "handwriting",
+  "expect": {
+    "fields": {},
+    "forbidden_in_answer": [],
+    "outcome": "refused",
+    "refusal_code": "UNKNOWN_LAYOUT"
+  },
+  "files": [
+    "handwritten_statement.png"
+  ],
+  "id": "handwriting-ink-png",
+  "params": {
+    "currency": "INR"
+  },
+  "prompt": "Here is a photo of my handwritten statement. Can you pull out the transactions and the closing balance?"
+}

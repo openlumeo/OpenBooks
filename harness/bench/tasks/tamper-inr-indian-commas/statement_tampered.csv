@@ -1,0 +1,9 @@
+Txn Date,Particulars,Debit,Credit,Balance
+02/01/2026,Salary January,,"45,000.00","46,000.00"
+03/01/2026,Rent payment,"12,950.00",,"33,500.00"
+05/01/2026,Grocery store,"1,843.75",,"31,656.25"
+08/01/2026,Electricity bill,"2,310.40",,"29,345.85"
+12/01/2026,Client invoice 1042,,"18,250.00","47,595.85"
+15/01/2026,ATM withdrawal,"5,000.00",,"42,595.85"
+20/01/2026,Insurance premium,"3,999.99",,"38,595.86"
+28/01/2026,Interest credit,,112.35,"38,708.21"

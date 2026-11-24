@@ -1,0 +1,37 @@
+{
+  "category": "multi",
+  "expect": {
+    "fields": {},
+    "forbidden_in_answer": [],
+    "min_calls": 2,
+    "outcome": "mixed",
+    "per_file": {
+      "statement.csv": {
+        "fields": {
+          "closing_balance": "38708.21",
+          "currency": "INR",
+          "transaction_count": 8
+        },
+        "outcome": "released",
+        "refusal_code": null
+      },
+      "statement_tampered.csv": {
+        "fields": {},
+        "outcome": "refused",
+        "refusal_code": "BALANCE_MISMATCH"
+      }
+    },
+    "refusal_code": null
+  },
+  "files": [
+    "statement.csv",
+    "statement_tampered.csv"
+  ],
+  "id": "multi-mixed-csv-and-tampered",
+  "params": {
+    "currency": "INR",
+    "date_order": "dmy",
+    "opening": "1000.00"
+  },
+  "prompt": "I have two files. Verify both and tell me the closing balance of each one that checks out."
+}

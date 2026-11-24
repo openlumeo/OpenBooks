@@ -1,0 +1,5 @@
+deductor_name,tan,section,transaction_date,amount_paid_credited,tax_deducted,tds_deposited
+Acme Software Pvt Ltd,BLRA12345B,194J,15/03/2026,250000.00,25000.00,25000.00
+Northwind Traders Pvt Ltd,MUMN01234C,194C,22/03/2026,80000.00,800.00,800.00
+Contoso Consulting LLP,DELC98765D,194H,30/03/2026,12000.00,1200.00,1200.00
+Total,,,,342000.00,27000.00,27000.00

@@ -1,0 +1,10 @@
+{
+  "fields": {
+    "closing_balance": "1150.50",
+    "currency": "EUR",
+    "transaction_count": 2
+  },
+  "forbidden_in_answer": [],
+  "outcome": "released",
+  "refusal_code": null
+}

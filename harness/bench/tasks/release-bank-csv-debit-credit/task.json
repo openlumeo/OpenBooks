@@ -1,0 +1,23 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "closing_balance": "38708.21",
+      "currency": "INR",
+      "transaction_count": 8
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "statement.csv"
+  ],
+  "id": "release-bank-csv-debit-credit",
+  "params": {
+    "currency": "INR",
+    "date_order": "dmy",
+    "opening": "1000.00"
+  },
+  "prompt": "Verify this statement and tell me the closing balance."
+}

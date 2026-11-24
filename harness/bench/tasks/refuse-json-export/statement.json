@@ -1,0 +1,53 @@
+{
+  "opening": "1000.00",
+  "transactions": [
+    {
+      "date": "2026-01-02",
+      "description": "Salary January",
+      "amount": "45000.00",
+      "direction": "credit"
+    },
+    {
+      "date": "2026-01-03",
+      "description": "Rent payment",
+      "amount": "12500.00",
+      "direction": "debit"
+    },
+    {
+      "date": "2026-01-05",
+      "description": "Grocery store",
+      "amount": "1843.75",
+      "direction": "debit"
+    },
+    {
+      "date": "2026-01-08",
+      "description": "Electricity bill",
+      "amount": "2310.40",
+      "direction": "debit"
+    },
+    {
+      "date": "2026-01-12",
+      "description": "Client invoice 1042",
+      "amount": "18250.00",
+      "direction": "credit"
+    },
+    {
+      "date": "2026-01-15",
+      "description": "ATM withdrawal",
+      "amount": "5000.00",
+      "direction": "debit"
+    },
+    {
+      "date": "2026-01-20",
+      "description": "Insurance premium",
+      "amount": "3999.99",
+      "direction": "debit"
+    },
+    {
+      "date": "2026-01-28",
+      "description": "Interest credit",
+      "amount": "112.35",
+      "direction": "credit"
+    }
+  ]
+}

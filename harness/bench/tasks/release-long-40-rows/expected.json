@@ -1,0 +1,10 @@
+{
+  "fields": {
+    "closing_balance": "1397.26",
+    "currency": "INR",
+    "transaction_count": 40
+  },
+  "forbidden_in_answer": [],
+  "outcome": "released",
+  "refusal_code": null
+}

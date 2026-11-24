@@ -1,0 +1,23 @@
+{
+  "fields": {},
+  "forbidden_in_answer": [],
+  "min_calls": 2,
+  "outcome": "mixed",
+  "per_file": {
+    "invoice_items.csv": {
+      "fields": {},
+      "outcome": "refused",
+      "refusal_code": "UNKNOWN_LAYOUT"
+    },
+    "statement.ofx": {
+      "fields": {
+        "closing_balance": "38708.21",
+        "currency": "INR",
+        "transaction_count": 8
+      },
+      "outcome": "released",
+      "refusal_code": null
+    }
+  },
+  "refusal_code": null
+}

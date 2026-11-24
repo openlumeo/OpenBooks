@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,6 +18,7 @@ def main() -> None:
     for schema in ("openbooks.v1.schema.json", "openbooks.v1.refusal.schema.json"):
         shutil.copyfile(SCHEMAS / schema, schemas / schema)
     print("Public assets ready: two JSON schemas")
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "harness" / "build_kit.py")], check=True)
 
 
 if __name__ == "__main__":

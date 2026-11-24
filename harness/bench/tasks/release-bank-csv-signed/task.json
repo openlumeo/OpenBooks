@@ -1,0 +1,23 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "closing_balance": "38708.21",
+      "currency": "INR",
+      "transaction_count": 8
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "statement.csv"
+  ],
+  "id": "release-bank-csv-signed",
+  "params": {
+    "currency": "INR",
+    "date_order": "dmy",
+    "opening": "1000.00"
+  },
+  "prompt": "Check this bank export and tell me how many transactions it has and the closing balance."
+}

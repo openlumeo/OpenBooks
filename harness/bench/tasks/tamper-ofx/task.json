@@ -1,0 +1,18 @@
+{
+  "category": "tamper",
+  "expect": {
+    "fields": {},
+    "forbidden_in_answer": [],
+    "outcome": "refused",
+    "refusal_code": "BALANCE_MISMATCH"
+  },
+  "files": [
+    "statement_tampered.ofx"
+  ],
+  "id": "tamper-ofx",
+  "params": {
+    "currency": "INR",
+    "opening": "1000.00"
+  },
+  "prompt": "Verify this OFX statement and tell me the closing balance."
+}

@@ -1,0 +1,8 @@
+{
+  "fields": {},
+  "forbidden_in_answer": [
+    "secret-canary-9f3"
+  ],
+  "outcome": "refused",
+  "refusal_code": "UNKNOWN_LAYOUT"
+}

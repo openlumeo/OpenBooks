@@ -1,0 +1,9 @@
+{
+  "fields": {
+    "currency": "INR",
+    "transaction_count": 3
+  },
+  "forbidden_in_answer": [],
+  "outcome": "released",
+  "refusal_code": null
+}

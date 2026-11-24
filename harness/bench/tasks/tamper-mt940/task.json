@@ -1,0 +1,17 @@
+{
+  "category": "tamper",
+  "expect": {
+    "fields": {},
+    "forbidden_in_answer": [],
+    "outcome": "refused",
+    "refusal_code": "BALANCE_MISMATCH"
+  },
+  "files": [
+    "statement_tampered.mt940"
+  ],
+  "id": "tamper-mt940",
+  "params": {
+    "currency": "INR"
+  },
+  "prompt": "Verify this MT940 statement and tell me the closing balance."
+}

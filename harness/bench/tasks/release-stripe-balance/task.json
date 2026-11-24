@@ -1,0 +1,20 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "currency": "INR",
+      "transaction_count": 3
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "stripe_balance.csv"
+  ],
+  "id": "release-stripe-balance",
+  "params": {
+    "currency": "INR"
+  },
+  "prompt": "Verify this Stripe balance export and tell me how many transactions it contains and the currency."
+}

@@ -1,0 +1,21 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "currency": "INR",
+      "transaction_count": 3
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "tds_26as.csv"
+  ],
+  "id": "release-tds-26as",
+  "params": {
+    "currency": "INR",
+    "date_order": "dmy"
+  },
+  "prompt": "Verify this TDS 26AS export and tell me how many entries it lists and the currency."
+}

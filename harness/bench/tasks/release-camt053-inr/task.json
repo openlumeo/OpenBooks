@@ -1,0 +1,21 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "closing_balance": "38708.21",
+      "currency": "INR",
+      "transaction_count": 8
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "statement_camt053.xml"
+  ],
+  "id": "release-camt053-inr",
+  "params": {
+    "currency": "INR"
+  },
+  "prompt": "Verify this CAMT.053 statement and tell me the closing balance."
+}

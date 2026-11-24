@@ -1,0 +1,5 @@
+balance_transaction_id,created,currency,gross,fee,net,reporting_category,description
+txn_1001,2026-01-05,inr,5000.00,147.50,4852.50,charge,Order 1001
+txn_1002,2026-01-09,inr,1200.00,35.40,1164.60,charge,Order 1002
+txn_1003,2026-01-14,inr,-300.00,0.00,-300.00,refund,Refund for order 1002
+txn_1004,2026-01-31,inr,0.00,0.00,-5717.10,payout,Payout to bank

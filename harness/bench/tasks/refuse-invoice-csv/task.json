@@ -1,0 +1,17 @@
+{
+  "category": "refuse",
+  "expect": {
+    "fields": {},
+    "forbidden_in_answer": [],
+    "outcome": "refused",
+    "refusal_code": "UNKNOWN_LAYOUT"
+  },
+  "files": [
+    "invoice_items.csv"
+  ],
+  "id": "refuse-invoice-csv",
+  "params": {
+    "currency": "INR"
+  },
+  "prompt": "Import this file and tell me the total."
+}

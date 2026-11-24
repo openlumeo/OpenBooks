@@ -1,0 +1,23 @@
+{
+  "category": "release",
+  "expect": {
+    "fields": {
+      "closing_balance": "1397.26",
+      "currency": "INR",
+      "transaction_count": 40
+    },
+    "forbidden_in_answer": [],
+    "outcome": "released",
+    "refusal_code": null
+  },
+  "files": [
+    "statement_40_rows.csv"
+  ],
+  "id": "release-long-40-rows",
+  "params": {
+    "currency": "INR",
+    "date_order": "dmy",
+    "opening": "5000.00"
+  },
+  "prompt": "Verify this 40-row statement and tell me the closing balance and the number of transactions."
+}
