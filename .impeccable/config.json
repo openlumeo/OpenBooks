@@ -29,6 +29,24 @@
         ],
         "createdAt": "2026-11-22T10:19:38.119Z",
         "reason": "agent decided: same sanctioned exception as before, hook reports this file as app/styles/app.css. .assert-row 2px left edge is the Lumeo reconciliation-strip brand signature (DESIGN.md s4 .recon-row), semantic mint/rose, pre-existing; the flagged line 879 is a border-less divider pseudo-element"
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "createdAt": "2026-11-24T20:00:14.756Z",
+        "reason": "assistant: docs/DESIGN.md mandates Geist and Geist Mono for the Lumeo web surface; harness UI follows it"
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist mono",
+        "createdAt": "2026-11-24T20:00:15.547Z",
+        "reason": "assistant: docs/DESIGN.md mandates Geist and Geist Mono for the Lumeo web surface; harness UI follows it"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-24T20:19:53.515Z",
+        "reason": "assistant: docs/DESIGN.md mandates Inter for body text on the Lumeo web surface"
       }
     ]
   }

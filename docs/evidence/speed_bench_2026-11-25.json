@@ -1,0 +1,101 @@
+{
+  "schema": "speed-bench.v1",
+  "created_at": "2026-11-24T20:06:35+00:00",
+  "machine": {
+    "cpu_count": 12,
+    "python": "3.13.5",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "tesseract": "tesseract v5.4.0.20240606"
+  },
+  "settings": {
+    "documents": [
+      "India_Bank_Statement_Scanned_Type1/00013.pdf",
+      "India_Bank_Statement_Scanned_Type1/00039.pdf",
+      "India_Bank_Statement_Scanned_Type1/00083.pdf",
+      "India_Bank_Statement_Scanned_Type2/00002.pdf",
+      "India_Bank_Statement_Scanned_Type2/00067.pdf"
+    ],
+    "pages": 10,
+    "pages_per_doc": 2,
+    "limit": 5,
+    "seed": 7,
+    "dpi": [
+      200,
+      300
+    ],
+    "max_long_side_px": 3200,
+    "psm": "6",
+    "throughput_omp_thread_limit": 1
+  },
+  "stages": [
+    {
+      "name": "render_200dpi",
+      "count": 10,
+      "p50_ms": 128.079,
+      "p95_ms": 154.657,
+      "mean_ms": 132.494
+    },
+    {
+      "name": "png_encode_200dpi",
+      "count": 10,
+      "p50_ms": 710.283,
+      "p95_ms": 787.235,
+      "mean_ms": 717.316
+    },
+    {
+      "name": "render_300dpi",
+      "count": 10,
+      "p50_ms": 129.466,
+      "p95_ms": 139.728,
+      "mean_ms": 129.779
+    },
+    {
+      "name": "png_encode_300dpi",
+      "count": 10,
+      "p50_ms": 712.844,
+      "p95_ms": 1007.688,
+      "mean_ms": 731.058
+    },
+    {
+      "name": "prepare_for_ocr",
+      "count": 10,
+      "p50_ms": 664.898,
+      "p95_ms": 1048.954,
+      "mean_ms": 712.007
+    },
+    {
+      "name": "tesseract_omp_default",
+      "count": 10,
+      "p50_ms": 2060.749,
+      "p95_ms": 3360.769,
+      "mean_ms": 2232.435
+    },
+    {
+      "name": "tesseract_omp_1",
+      "count": 10,
+      "p50_ms": 2050.977,
+      "p95_ms": 3582.611,
+      "mean_ms": 2135.396
+    }
+  ],
+  "throughput": [
+    {
+      "workers": 1,
+      "pages": 10,
+      "wall_s": 20.768,
+      "pages_per_s": 0.482
+    },
+    {
+      "workers": 2,
+      "pages": 10,
+      "wall_s": 10.774,
+      "pages_per_s": 0.928
+    },
+    {
+      "workers": 4,
+      "pages": 10,
+      "wall_s": 7.325,
+      "pages_per_s": 1.365
+    }
+  ]
+}

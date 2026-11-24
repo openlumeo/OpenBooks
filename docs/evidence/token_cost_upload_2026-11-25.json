@@ -1,0 +1,171 @@
+{
+  "schema": "token-cost.v1",
+  "command": "node ../packages/js/cli/dist/mcp/cli.js",
+  "token_method": "tiktoken cl100k_base",
+  "tools": {
+    "name": "tools/list",
+    "raw_bytes": 2259,
+    "tokens": 514
+  },
+  "tool_names": [
+    "search",
+    "execute"
+  ],
+  "resources": {
+    "name": "resources/list",
+    "raw_bytes": 561,
+    "tokens": 122
+  },
+  "resource_uris": [
+    "openbooks://schema/released",
+    "openbooks://guide/refusals",
+    "openbooks://samples/statement.csv"
+  ],
+  "samples": [
+    {
+      "filename": "statement_balanced.csv",
+      "status": "ok",
+      "code": "",
+      "request": {
+        "name": "request statement_balanced.csv (standard)",
+        "raw_bytes": 339,
+        "tokens": 160
+      },
+      "response": {
+        "name": "response statement_balanced.csv (standard)",
+        "raw_bytes": 362,
+        "tokens": 126
+      },
+      "detail": "standard"
+    },
+    {
+      "filename": "statement_balanced.csv",
+      "status": "ok",
+      "code": "",
+      "request": {
+        "name": "request statement_balanced.csv (verdict)",
+        "raw_bytes": 358,
+        "tokens": 165
+      },
+      "response": {
+        "name": "response statement_balanced.csv (verdict)",
+        "raw_bytes": 80,
+        "tokens": 23
+      },
+      "detail": "verdict"
+    },
+    {
+      "filename": "statement_balanced.csv",
+      "status": "ok",
+      "code": "",
+      "request": {
+        "name": "request statement_balanced.csv (figures)",
+        "raw_bytes": 358,
+        "tokens": 164
+      },
+      "response": {
+        "name": "response statement_balanced.csv (figures)",
+        "raw_bytes": 284,
+        "tokens": 81
+      },
+      "detail": "figures"
+    },
+    {
+      "filename": "statement_tampered.csv",
+      "status": "refused",
+      "code": "BALANCE_MISMATCH",
+      "request": {
+        "name": "request statement_tampered.csv (standard)",
+        "raw_bytes": 339,
+        "tokens": 161
+      },
+      "response": {
+        "name": "response statement_tampered.csv (standard)",
+        "raw_bytes": 285,
+        "tokens": 85
+      },
+      "detail": "standard"
+    },
+    {
+      "filename": "statement_tampered.csv",
+      "status": "refused",
+      "code": "BALANCE_MISMATCH",
+      "request": {
+        "name": "request statement_tampered.csv (verdict)",
+        "raw_bytes": 358,
+        "tokens": 166
+      },
+      "response": {
+        "name": "response statement_tampered.csv (verdict)",
+        "raw_bytes": 105,
+        "tokens": 31
+      },
+      "detail": "verdict"
+    },
+    {
+      "filename": "statement_tampered.csv",
+      "status": "refused",
+      "code": "BALANCE_MISMATCH",
+      "request": {
+        "name": "request statement_tampered.csv (figures)",
+        "raw_bytes": 358,
+        "tokens": 165
+      },
+      "response": {
+        "name": "response statement_tampered.csv (figures)",
+        "raw_bytes": 105,
+        "tokens": 31
+      },
+      "detail": "figures"
+    },
+    {
+      "filename": "camt053_balanced.xml",
+      "status": "ok",
+      "code": "",
+      "request": {
+        "name": "request camt053_balanced.xml (standard)",
+        "raw_bytes": 1441,
+        "tokens": 998
+      },
+      "response": {
+        "name": "response camt053_balanced.xml (standard)",
+        "raw_bytes": 363,
+        "tokens": 121
+      },
+      "detail": "standard"
+    },
+    {
+      "filename": "camt053_balanced.xml",
+      "status": "ok",
+      "code": "",
+      "request": {
+        "name": "request camt053_balanced.xml (verdict)",
+        "raw_bytes": 1460,
+        "tokens": 1003
+      },
+      "response": {
+        "name": "response camt053_balanced.xml (verdict)",
+        "raw_bytes": 80,
+        "tokens": 23
+      },
+      "detail": "verdict"
+    },
+    {
+      "filename": "camt053_balanced.xml",
+      "status": "ok",
+      "code": "",
+      "request": {
+        "name": "request camt053_balanced.xml (figures)",
+        "raw_bytes": 1460,
+        "tokens": 1002
+      },
+      "response": {
+        "name": "response camt053_balanced.xml (figures)",
+        "raw_bytes": 285,
+        "tokens": 79
+      },
+      "detail": "figures"
+    }
+  ],
+  "input_mode": "upload"
+}
