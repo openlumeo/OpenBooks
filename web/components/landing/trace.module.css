@@ -36,14 +36,9 @@
 
 .txRow {
   min-height: 0;
-  padding: 0 0 0 16px;
+  padding: 0;
   border-bottom: 0;
-  position: relative;
 }
-
-.traceLine { position: absolute; left: 4px; top: 4px; bottom: 10px; width: 8px; pointer-events: none; }
-.traceLine svg { width: 100%; height: 100%; overflow: visible; stroke: var(--mint); stroke-width: 1.25px; opacity: 0.7; }
-.traceDot { position: absolute; left: 1px; bottom: -4px; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
 
 .fields {
   display: grid;
@@ -192,47 +187,3 @@
   min-width: 0;
 }
 
-.arrowAt > svg {
-  width: 5em;
-  height: 1em;
-  left: calc(100% + 0.25em);
-}
-
-.arrowAt > span:last-child {
-  top: 50%;
-  right: auto;
-  left: calc(100% + 5.5em);
-  transform: translateY(-50%);
-  white-space: nowrap;
-}
-
-.arrowAt > svg {
-  stroke: var(--accent);
-}
-
-.connector {
-  display: none;
-}
-
-.connectorMark {
-  width: 100%;
-  height: 100%;
-  stroke: var(--text-faint);
-}
-
-@media (min-width: 900px) {
-  .grid {
-    position: relative;
-  }
-
-  .connector {
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 40%;
-    width: 36px;
-    height: 28px;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-  }
-}

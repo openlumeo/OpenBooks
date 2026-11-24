@@ -15,8 +15,8 @@ describe("ThinkingState", () => {
     expect(html).toContain("0.0s");
   });
 
-  it("renders the mascot by default and a pixel grid for other variants", () => {
-    expect(render()).toContain("<svg");
+  it("renders a square pixel grid with no illustration", () => {
+    expect(render()).not.toContain("<svg");
     expect(render({ variant: "Orbit" })).not.toContain("<svg");
   });
 

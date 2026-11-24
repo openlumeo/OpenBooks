@@ -10,8 +10,8 @@ export function SectionSeam() {
     const svg = ref.current;
     if (!svg) return;
     gsap.matchMedia().add(DESKTOP_MOTION, () => {
-      gsap.from(svg.querySelectorAll('path'), {
-        drawSVG: '0%', ease: 'none', stagger: 0.15,
+      gsap.from(svg, {
+        scaleX: 0, transformOrigin: '0% 50%', ease: 'none',
         scrollTrigger: { trigger: svg, start: 'top 95%', end: 'top 60%', scrub: 0.5 },
       });
     });

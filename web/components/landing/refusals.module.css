@@ -166,13 +166,11 @@
   stroke: var(--text-faint);
   stroke-width: 1.4;
   stroke-linecap: round;
-  transform: rotate(-8deg);
-  transition: stroke var(--dur) var(--ease), transform var(--dur) var(--ease);
+  transition: stroke var(--dur) var(--ease);
 }
 
 tbody tr:hover .stamp {
   stroke: var(--accent);
-  transform: rotate(0deg);
 }
 
 .table tbody tr {

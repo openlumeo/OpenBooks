@@ -29,36 +29,12 @@
 }
 
 .frame {
-  position: relative;
   width: 100%;
   max-width: 1100px;
   margin-inline: auto;
 }
 
-.sketchEdge {
-  position: absolute;
-  inset: -8px;
-  width: calc(100% + 16px);
-  height: calc(100% + 16px);
-  overflow: visible;
-  pointer-events: none;
-  fill: none;
-  stroke: var(--hairline);
-  stroke-width: 1.25px;
-  transition: stroke 200ms ease-out;
-}
-
-.frame:hover .sketchEdge {
-  stroke: var(--text-faint);
-}
-
 .frame :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sketchEdge {
-    transition: none;
-  }
 }

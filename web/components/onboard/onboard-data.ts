@@ -33,7 +33,6 @@ export type TryPrompt = {
   id: string;
   title: string;
   icon: TryIcon;
-  hue: number;
   prompt: string;
 };
 
@@ -188,42 +187,36 @@ export const TRY_PROMPTS: readonly TryPrompt[] = [
     id: "verify-sample",
     title: "Verify a sample",
     icon: "shield",
-    hue: 150,
     prompt: "Use Open Books to verify the sample statement with opening balance 1000.00 and show me the proof.",
   },
   {
     id: "see-refusal",
     title: "See a refusal",
     icon: "x",
-    hue: 210,
     prompt: "Use Open Books to verify the sample statement without an opening balance and explain why it is refused.",
   },
   {
     id: "check-local-file",
     title: "Check a local file",
     icon: "folder",
-    hue: 265,
     prompt: "Use Open Books to verify statements/january.csv in my approved folder and list any failed checks.",
   },
   {
     id: "explain-refusal",
     title: "Explain a refusal",
     icon: "search",
-    hue: 25,
     prompt: "Explain the BALANCE_MISMATCH refusal from Open Books and what I should check.",
   },
   {
     id: "inspect-transactions",
     title: "Inspect transactions",
     icon: "list",
-    hue: 300,
     prompt: "Use Open Books to show the first 5 transactions of the last verified statement with their evidence.",
   },
   {
     id: "check-install",
     title: "Check my install",
     icon: "activity",
-    hue: 115,
     prompt: CHECK_PROMPT,
   },
 ];

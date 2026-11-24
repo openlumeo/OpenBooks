@@ -2,15 +2,12 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { SplitText } from 'gsap/SplitText';
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 import { Flip } from 'gsap/Flip';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 import { useGSAP } from '@gsap/react';
 
-gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, SplitText, MotionPathPlugin, MorphSVGPlugin, Flip, ScrambleTextPlugin, useGSAP);
+gsap.registerPlugin(ScrollTrigger, SplitText, Flip, ScrambleTextPlugin, useGSAP);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
 export const MOTION_OK = '(prefers-reduced-motion: no-preference)';
@@ -28,4 +25,4 @@ export function isMotionReady(): boolean {
   return motionReady;
 }
 
-export { gsap, ScrollTrigger, DrawSVGPlugin, SplitText, MotionPathPlugin, MorphSVGPlugin, Flip, ScrambleTextPlugin, useGSAP };
+export { gsap, ScrollTrigger, SplitText, Flip, ScrambleTextPlugin, useGSAP };

@@ -28,17 +28,6 @@
   max-width: 68ch;
 }
 
-.tickAt > svg {
-  left: calc(100% + 0.6em);
-  top: 0.05em;
-  width: 1.1em;
-  height: 1.1em;
-}
-
-.tickAt > svg {
-  stroke: var(--accent);
-}
-
 .row {
   transition: background-color var(--dur) var(--ease);
 }

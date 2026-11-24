@@ -24,8 +24,8 @@ export function BalanceLine() {
         <span data-term className={styles.total}>
           {RELEASED.closing}
           <svg aria-hidden="true" focusable="false" viewBox="0 0 100 8" preserveAspectRatio="none" className={styles.rule}>
-            <path data-rule d="M0 2 H100" />
-            <path data-rule d="M0 6 H100" />
+            <path d="M0 2 H100" />
+            <path d="M0 6 H100" />
           </svg>
         </span>{' '}
         <span className={styles.currency}>{RELEASED.currency}</span>
@@ -37,9 +37,7 @@ export function BalanceLine() {
 function buildBalance(root: HTMLElement): void {
   const terms = root.querySelectorAll('[data-term]');
   const ops = root.querySelectorAll('[data-op]');
-  const rules = root.querySelectorAll('[data-rule]');
   gsap.timeline({ scrollTrigger: { trigger: root, start: 'top 80%', once: true } })
     .from(terms, { clipPath: 'inset(0 100% 0 0)', duration: 0.5, ease: 'power2.out', stagger: 0.18, clearProps: 'clipPath' })
-    .from(ops, { opacity: 0, duration: 0.3, stagger: 0.18 }, 0.1)
-    .from(rules, { drawSVG: '0%', duration: 0.35, ease: 'power1.inOut', stagger: 0.12 }, '>-0.05');
+    .from(ops, { opacity: 0, duration: 0.3, stagger: 0.18 }, 0.1);
 }

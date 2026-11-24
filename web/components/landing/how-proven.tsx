@@ -1,6 +1,5 @@
 import { STAGES } from "@/lib/stages";
 import type { Stage } from "@/lib/types";
-import { Sketch } from "@/components/motion/sketch";
 import { ReconPanel, ReconRow } from "./reconciliation";
 import styles from "./how-proven.module.css";
 
@@ -31,7 +30,6 @@ export function ProvenChecks() {
   return (
     <div className={styles.checks}>
       <p className={styles.note}>{INDEPENDENT_NOTE}</p>
-      <Sketch kind="ledger-rule" tone="muted" className={styles.rule} />
       <ReconPanel title="Release checks">
         {CHECKS.map((check) => (
           <ReconRow key={check} cells={[check, labelOf("balance")]} />

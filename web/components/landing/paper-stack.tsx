@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import { RELEASED, TAMPERED, type LedgerLine } from "./proof-data";
-import { Sketch } from "@/components/motion/sketch";
 import { gsap, DESKTOP_MOTION, markMotionReady } from "@/components/motion/gsap-setup";
 import styles from "./paper-stack.module.css";
 
@@ -160,9 +159,6 @@ function Sheet({ spec, stamp }: { spec: SheetSpec; stamp: boolean }) {
             <span>{row.direction}</span>
             <span className={styles.num}>{row.amount}</span>
             <span className={styles.num}>{row.balance}</span>
-            {row.state === "unmatched" ? (
-              <Sketch kind="scribble" tone="rose" className={styles.tamper} />
-            ) : null}
           </li>
         ))}
       </ul>

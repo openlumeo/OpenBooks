@@ -33,29 +33,20 @@ const ORBIT = Array.from({ length: 9 }, (_, index) => {
 });
 
 const GRIDS = {
-  Drive: { delays: CHEVRON, duration: 650, round: false },
-  Dots: { delays: CHEVRON, duration: 650, round: true },
-  Orbit: { delays: ORBIT, duration: 950, round: false },
+  Drive: { delays: CHEVRON, duration: 650 },
+  Orbit: { delays: ORBIT, duration: 950 },
 } as const;
 
-const BAR_HEIGHTS = [12, 20, 28, 34, 34, 28, 20, 12];
-const BAR_WIDTH = 5;
-const BAR_GAP = 3;
-const MASCOT_HEIGHT = 36;
-const MASCOT_WIDTH = BAR_HEIGHTS.length * BAR_WIDTH + (BAR_HEIGHTS.length - 1) * BAR_GAP;
-const EYE_BARS = [3, 4];
-const ACCENT_BARS = [0, 7];
+export type ThinkingVariant = keyof typeof GRIDS;
 
-export type ThinkingVariant = "Mascot" | "Drive" | "Dots" | "Orbit";
-
-function PixelGrid({ variant }: { variant: Exclude<ThinkingVariant, "Mascot"> }) {
-  const { delays, duration, round } = GRIDS[variant];
+function PixelGrid({ variant }: { variant: ThinkingVariant }) {
+  const { delays, duration } = GRIDS[variant];
   return (
     <span aria-hidden="true" className={styles.grid}>
       {delays.map((delay, index) => (
         <span
           key={index}
-          className={`${styles.cell} ${round ? styles.round : ""} ${delay === null ? "" : styles.cellOn}`}
+          className={`${styles.cell} ${delay === null ? "" : styles.cellOn}`}
           style={
             delay === null
               ? { opacity: 0.07 }
@@ -64,42 +55,6 @@ function PixelGrid({ variant }: { variant: Exclude<ThinkingVariant, "Mascot"> })
         />
       ))}
     </span>
-  );
-}
-
-function Mascot() {
-  return (
-    <svg
-      aria-hidden="true"
-      className={styles.mascot}
-      width={MASCOT_WIDTH}
-      height={MASCOT_HEIGHT}
-      viewBox={`0 0 ${MASCOT_WIDTH} ${MASCOT_HEIGHT}`}
-    >
-      {BAR_HEIGHTS.map((height, index) => {
-        const x = index * (BAR_WIDTH + BAR_GAP);
-        const y = MASCOT_HEIGHT - height;
-        return (
-          <g key={index}>
-            <rect
-              className={`${styles.bar} ${ACCENT_BARS.includes(index) ? styles.barAccent : ""}`}
-              x={x}
-              y={y}
-              width={BAR_WIDTH}
-              height={height}
-              rx={BAR_WIDTH / 2}
-              style={{ animationDelay: `${index * 90}ms` }}
-            />
-            {EYE_BARS.includes(index) && (
-              <g>
-                <ellipse className={styles.eye} cx={x + BAR_WIDTH / 2} cy={y + 9} rx={2.1} ry={2.6} />
-                <circle className={styles.pupil} cx={x + BAR_WIDTH / 2} cy={y + 9.4} r={1} />
-              </g>
-            )}
-          </g>
-        );
-      })}
-    </svg>
   );
 }
 
@@ -131,7 +86,7 @@ function useRotatingVerb(verbs: readonly string[]): string {
 export default function ThinkingState({
   label,
   verbs = THINKING_VERBS,
-  variant = "Mascot",
+  variant = "Drive",
   showElapsed = true,
   className = "",
 }: {
@@ -147,7 +102,7 @@ export default function ThinkingState({
 
   return (
     <span role="status" className={`${styles.root} ${className}`}>
-      {variant === "Mascot" ? <Mascot /> : <PixelGrid variant={variant} />}
+      <PixelGrid variant={variant} />
       <span className="sr-only">{label ?? "Working"}</span>
       <span aria-hidden="true" className={styles.label}>
         <span key={shown} className={styles.verb}>

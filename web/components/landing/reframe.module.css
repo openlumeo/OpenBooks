@@ -120,11 +120,3 @@
 :root[data-theme="light"] .backdrop {
   opacity: 0.12;
 }
-
-.openBooks {
-  display: inline-block;
-}
-
-.openBooks > svg {
-  stroke: var(--accent);
-}

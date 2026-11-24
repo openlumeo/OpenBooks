@@ -1,10 +1,8 @@
 import { Reveal } from "@/components/motion/reveal";
-import { Sketch, SketchAnnotation } from "@/components/motion/sketch";
 import { ReconPanel, ReconRow } from "./reconciliation";
 import { Section } from "./section";
 import { TRACE_SAMPLE, type TraceEvidence } from "./trace-data";
 import { WipeReveal } from "@/components/motion/wipe-reveal";
-import { TraceLine } from "./trace-line";
 import styles from "./trace.module.css";
 
 const tx = TRACE_SAMPLE.transaction;
@@ -47,7 +45,6 @@ export function Trace() {
           <div className={styles.grid}>
             <section className={styles.txBlock} aria-label="Transaction as emitted">
               <ReconRow className={styles.txRow} state="matched">
-                <TraceLine />
                 <dl className={styles.fields}>
                   {TX_FIELDS.map((f) => {
                     const ev = evidenceFor(f.field);
@@ -55,17 +52,8 @@ export function Trace() {
                       <div key={f.field} className={styles.field}>
                         <dt className={styles.label}>{f.label}</dt>
                         <dd className={styles.value}>
-                          {f.field === "amount" ? (
-                            <SketchAnnotation kind="arrow" tone="mint" note="FOLLOW THE BOX" className={styles.arrowAt} start="top 75%" triggerSelector="figure">
-                              {f.value}
-                              {f.unit ? <span className={styles.unit}>{f.unit}</span> : null}
-                            </SketchAnnotation>
-                          ) : (
-                            <>
-                              {f.value}
-                              {f.unit ? <span className={styles.unit}>{f.unit}</span> : null}
-                            </>
-                          )}
+                          {f.value}
+                          {f.unit ? <span className={styles.unit}>{f.unit}</span> : null}
                           <span className={styles.status}>
                             {ev ? `page ${show(ev.page)} · row ${show(ev.row)}` : "no evidence entry"}
                           </span>
@@ -79,10 +67,6 @@ export function Trace() {
                 {TRACE_SAMPLE.sampleId} · {TRACE_SAMPLE.layoutVersion} · {TRACE_SAMPLE.method}
               </p>
             </section>
-
-            <div aria-hidden="true" className={styles.connector}>
-              <Sketch kind="arrow" tone="muted" start="top 85%" triggerSelector="figure" className={styles.connectorMark} />
-            </div>
 
             <div className={`lp-scroll lp-focusable ${styles.evBlock}`} role="region" aria-label="Evidence entries, scrollable" tabIndex={0}>
               <table className={styles.table}>

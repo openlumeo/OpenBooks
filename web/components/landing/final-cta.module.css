@@ -29,10 +29,6 @@
   text-wrap: balance;
 }
 
-.underline {
-  display: inline-block;
-}
-
 .lede {
   margin: 0;
   max-width: 62ch;
@@ -59,10 +55,6 @@
   .withLoop {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   }
-}
-
-.underline > svg {
-  stroke: var(--accent);
 }
 
 .action {
