@@ -114,12 +114,24 @@ export default async function BenchmarkPage() {
           <Leaderboard entries={entries} />
         </section>
 
+        <section className={styles.section} aria-labelledby="harness-heading">
+          <h2 id="harness-heading" className={styles.sectionTitle}>Local verification harness</h2>
+          <p>
+            <a href="/downloads/openbooks-harness.zip">Download the free harness kit</a> and follow its README to
+            install the bundled engine and Tesseract. From the extracted harness folder, run{" "}
+            <code className={styles.code}>python -m ui.server</code> to open the local verification UI.
+          </p>
+          <p className={styles.caveat}>
+            The local verifier can release supported documents when their figures reconcile. Optional cloud providers
+            require credentials and explicit approval to send page images.
+          </p>
+        </section>
+
         <section className={styles.section} aria-labelledby="how-heading">
           <h2 id="how-heading" className={styles.sectionTitle}>How it works</h2>
           <ol className={styles.steps}>
             <li>
-              Download the harness kit, <code className={styles.code}>openbooks-harness.zip</code>, and unzip it
-              into an empty folder.
+              Unzip the harness kit and open its <code className={styles.code}>harness</code> folder in a terminal.
             </li>
             <li>
               Run the benchmark with your own key:{" "}
