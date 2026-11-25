@@ -3,6 +3,7 @@ import path from "node:path";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
+import { AgentQuickStart } from "@/components/onboard/agent-onboarding";
 import { BalanceLine } from "./balance-line";
 import { LoopFrame, type LoopSource } from "./media-frame";
 import styles from "./final-cta.module.css";
@@ -54,6 +55,9 @@ export function FinalCta() {
             <Link href="/docs" className={`btn btn-secondary-landing ${styles.action}`}>
               Read the docs
             </Link>
+          </div>
+          <div data-reveal-child className={styles.agentBlock}>
+            <AgentQuickStart />
           </div>
         </Reveal>
 

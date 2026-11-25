@@ -1,6 +1,7 @@
 "use client";
 
 import { FlaskConical, Plus } from "lucide-react";
+import { AgentQuickStart } from "@/components/onboard/agent-onboarding";
 import { STAGES } from "@/lib/stages";
 import type { Formats, Sample } from "@/lib/types";
 
@@ -29,6 +30,13 @@ export function EmptyState({
           <FlaskConical size={13} aria-hidden="true" /> Early release · tested on synthetic data only
         </span>
       </div>
+
+      <section className="ob-section" aria-labelledby="agent-title">
+        <h2 id="agent-title" className="ob-section-title">
+          Connect your AI agent
+        </h2>
+        <AgentQuickStart workspaceHref="/get-started" />
+      </section>
 
       <ol className="ob-pipeline" aria-label="What happens to each file">
         {STAGES.map((s, i) => (

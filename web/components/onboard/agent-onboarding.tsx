@@ -107,12 +107,20 @@ function CodeRow({ text, label, announce }: { text: string; label: string; annou
 
 function Monogram({ agent }: { agent: AgentSetup }) {
   const style = { "--mono-from": agent.art.from, "--mono-to": agent.art.to } as CSSProperties;
+  if (agent.logo) {
+    return (
+      <span className={styles.logoChip} aria-hidden="true">
+        <img src={agent.logo} alt="" width={28} height={28} className={styles.logoImg} />
+      </span>
+    );
+  }
   return (
     <span className={styles.monogram} style={style} aria-hidden="true">
       {agent.monogram}
     </span>
   );
 }
+
 
 function AgentPicker({ selectedId, onSelect }: { selectedId: AgentId; onSelect: (id: AgentId) => void }) {
   const [open, setOpen] = useState(false);
@@ -217,10 +225,40 @@ function AgentPicker({ selectedId, onSelect }: { selectedId: AgentId; onSelect: 
   );
 }
 
+const DOT_FIELD = Array.from({ length: 25 }, (_, index) => index);
+
 function ArtPanel({ agent }: { agent: AgentSetup }) {
   const style = { "--art-from": agent.art.from, "--art-to": agent.art.to } as CSSProperties;
+  const isMascot = agent.id === "claude-code";
   return (
-    <div className={styles.art} style={style}>
+    <div className={styles.art} style={style} data-agent={agent.id}>
+      <span className={styles.artDots} aria-hidden="true" />
+      {isMascot ? (
+        <>
+          <span className={styles.artBlock} aria-hidden="true" />
+          <span className={styles.artEyeLeft} aria-hidden="true" />
+          <span className={styles.artEyeRight} aria-hidden="true" />
+        </>
+      ) : (
+        <>
+          {agent.id === "chatgpt" && (
+            <span className={styles.artDotField} aria-hidden="true">
+              {DOT_FIELD.map((index) => (
+                <span key={index} style={{ "--dot-i": index } as CSSProperties} />
+              ))}
+            </span>
+          )}
+          <span className={styles.artRing} aria-hidden="true" />
+          {agent.video && (
+            <video className={styles.artVideo} src={agent.video} autoPlay muted loop playsInline aria-hidden="true" />
+          )}
+          {agent.logo ? (
+            <img src={agent.logo} alt="" width={160} height={160} className={styles.artHero} />
+          ) : (
+            <span className={styles.artHeroMono}>{agent.monogram}</span>
+          )}
+        </>
+      )}
       <span className={styles.artName}>{agent.name}</span>
     </div>
   );
@@ -245,6 +283,11 @@ function PromptCard({ prompt, announce }: { prompt: TryPrompt; announce: Announc
   const Icon = TRY_ICONS[prompt.icon];
   return (
     <article className={styles.promptCard}>
+      <div className={styles.promptArt} data-tone={prompt.icon} aria-hidden="true">
+        <span className={styles.promptArtIcon}>
+          <Icon size={28} />
+        </span>
+      </div>
       <div className={styles.promptBody}>
         <div className={styles.promptHead}>
           <Icon size={16} aria-hidden="true" />
@@ -254,6 +297,39 @@ function PromptCard({ prompt, announce }: { prompt: TryPrompt; announce: Announc
         <p className={styles.promptText}>{prompt.prompt}</p>
       </div>
     </article>
+  );
+}
+
+const QUICK_AGENT_IDS: readonly AgentId[] = ["claude-code", "grok", "grok-bot", "openclaw", "hermes"];
+
+export function AgentQuickStart({ workspaceHref = "/app" }: { workspaceHref?: string }) {
+  const [announcement, setAnnouncement] = useState("");
+  const agents = QUICK_AGENT_IDS.map(agentById);
+
+  return (
+    <div className={styles.quick}>
+      <p role="status" aria-live="polite" className={styles.sr}>
+        {announcement}
+      </p>
+      <div className={styles.quickLogos} aria-label="Works with">
+        {agents.map((agent) => (
+          <span key={agent.id} className={styles.quickAgent}>
+            <Monogram agent={agent} />
+            {agent.name}
+          </span>
+        ))}
+      </div>
+      <p className={styles.quickLabel}>Paste this in your agent&apos;s chat</p>
+      <CodeRow text={AGENT_CHAT_PROMPT} label="chat setup line" announce={setAnnouncement} />
+      <div className={styles.quickActions}>
+        <a className={styles.quickPrimary} href={workspaceHref}>
+          Open workspace
+        </a>
+        <a className={styles.quickSecondary} href="/get-started">
+          All agents and setup steps
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -276,7 +352,7 @@ export function AgentOnboarding() {
               <h2 id="step-one" className={styles.stepTitle}>Set up your</h2>
             </div>
             <AgentPicker selectedId={agentId} onSelect={setAgentId} />
-            <ArtPanel agent={agent} />
+            <ArtPanel key={agent.id} agent={agent} />
           </div>
 
           <div className={styles.details}>

@@ -7,6 +7,12 @@ export type AgentId =
   | "goose"
   | "gemini-cli"
   | "cline"
+  | "chatgpt"
+  | "muse"
+  | "grok"
+  | "grok-bot"
+  | "hermes"
+  | "openclaw"
   | "other";
 
 export type ArtGradient = { from: string; to: string };
@@ -23,6 +29,8 @@ export type AgentSetup = {
   id: AgentId;
   name: string;
   monogram: string;
+  logo?: string;
+  video?: string;
   art: ArtGradient;
   cards: InstallCard[];
 };
@@ -74,7 +82,8 @@ export const AGENTS: readonly AgentSetup[] = [
     id: "claude-code",
     name: "Claude Code",
     monogram: "C",
-    art: { from: "#1f5f4a", to: "#7cc7a4" },
+    logo: "/brand/agents/claude-code.png",
+    art: { from: "#f1b394", to: "#d9785a" },
     cards: [
       { id: "add", label: "Add Open Books", code: CLAUDE_CODE_ADD },
       {
@@ -84,11 +93,27 @@ export const AGENTS: readonly AgentSetup[] = [
       },
     ],
   },
+  ...[
+    { id: "chatgpt", name: "ChatGPT", monogram: "C", logo: "/brand/agents/chatgpt.png", art: { from: "#d9ece4", to: "#10a37f" } },
+    { id: "muse", name: "Muse", monogram: "M", logo: "/brand/agents/muse.svg", video: "/brand/agents/muse-hatch.mp4", art: { from: "#d6e4ff", to: "#1d6bff" } },
+    { id: "grok", name: "Grok", monogram: "G", logo: "/brand/agents/grok.png", art: { from: "#dfe3e8", to: "#1c1f24" } },
+    { id: "grok-bot", name: "Grok Bot", monogram: "B", logo: "/brand/agents/grok-bot.png", art: { from: "#e2e2e2", to: "#16181b" } },
+    { id: "hermes", name: "Hermes Agent", monogram: "H", logo: "/brand/agents/hermes.png", art: { from: "#d4e4f6", to: "#3d6fb0" } },
+    { id: "openclaw", name: "OpenClaw", monogram: "O", logo: "/brand/agents/openclaw.png", art: { from: "#f7b9b0", to: "#d6433a" } },
+  ].map((agent) => ({
+    ...agent,
+    id: agent.id as AgentId,
+    cards: [
+      { id: "generic-json", label: "mcpServers JSON", code: MCP_SERVERS_JSON },
+      { id: "stdio", label: "Raw stdio command", code: `${STDIO_COMMAND} ${STDIO_ARGS.join(" ")}` },
+    ],
+  })),
   {
     id: "claude-desktop",
     name: "Claude Desktop",
     monogram: "D",
-    art: { from: "#7a3b2e", to: "#e3a27e" },
+    logo: "/brand/agents/claude-desktop.png",
+    art: { from: "#f1b394", to: "#d9785a" },
     cards: [
       {
         id: "config",
@@ -102,7 +127,8 @@ export const AGENTS: readonly AgentSetup[] = [
     id: "cursor",
     name: "Cursor",
     monogram: "U",
-    art: { from: "#2d3a6b", to: "#8fa6e8" },
+    logo: "/brand/agents/cursor.png",
+    art: { from: "#e6e6ea", to: "#2a2b30" },
     cards: [
       {
         id: "deeplink",
@@ -117,14 +143,15 @@ export const AGENTS: readonly AgentSetup[] = [
     id: "vscode",
     name: "VS Code",
     monogram: "V",
-    art: { from: "#1b4f7a", to: "#6fb6e6" },
+    art: { from: "#cfe6f7", to: "#1f7ac8" },
     cards: [{ id: "add-mcp", label: "Run in a terminal", code: VSCODE_ADD }],
   },
   {
     id: "codex",
     name: "Codex CLI",
     monogram: "X",
-    art: { from: "#3b3a2a", to: "#d7cf8a" },
+    logo: "/brand/agents/codex.png",
+    art: { from: "#e0dcff", to: "#5b4be0" },
     cards: [
       { id: "add", label: "Run in a terminal", code: CODEX_ADD },
       {
@@ -138,7 +165,8 @@ export const AGENTS: readonly AgentSetup[] = [
     id: "goose",
     name: "Goose",
     monogram: "G",
-    art: { from: "#4a2a6b", to: "#c3a2ef" },
+    logo: "/brand/agents/goose.png",
+    art: { from: "#eadcf8", to: "#7a4fc2" },
     cards: [
       {
         id: "deeplink",
@@ -152,21 +180,23 @@ export const AGENTS: readonly AgentSetup[] = [
     id: "gemini-cli",
     name: "Gemini CLI",
     monogram: "Γ",
-    art: { from: "#1d4d5c", to: "#8fd3e0" },
+    logo: "/brand/agents/gemini-cli.png",
+    art: { from: "#d3e4fb", to: "#4285f4" },
     cards: [{ id: "settings", label: "~/.gemini/settings.json", code: MCP_SERVERS_JSON }],
   },
   {
     id: "cline",
     name: "Cline",
     monogram: "L",
-    art: { from: "#5a4a1c", to: "#e9c46a" },
+    logo: "/brand/agents/cline.png",
+    art: { from: "#f4e8c6", to: "#c9962e" },
     cards: [{ id: "settings", label: "cline_mcp_settings.json", code: MCP_SERVERS_JSON }],
   },
   {
     id: "other",
     name: "Other MCP client",
     monogram: "O",
-    art: { from: "#2b3a33", to: "#9dc7b2" },
+    art: { from: "#dcebe3", to: "#3f8f6a" },
     cards: [
       { id: "generic-json", label: "mcpServers JSON", code: MCP_SERVERS_JSON },
       { id: "stdio", label: "Raw stdio command", code: `${STDIO_COMMAND} ${STDIO_ARGS.join(" ")}` },
