@@ -17,7 +17,7 @@ Setup is one command (npx -y -p @lumeo_hq/openbooks openbooks-mcp) and a stdio c
 
 It is pre-release (v0.2 engine). Tests use synthetic fixtures, not real bank exports, so I have no accuracy number and I am not claiming one. Feedback welcome, especially on the refusal shape and on which tool names are clear.
 
-Repo: https://github.com/Sagexd08/OpenBooks  Docs: https://openbooks.lumeo.co.in/docs/mcp
+Repo: https://github.com/Sagexd08/OpenBooks  Docs: https://openbooks.openlumeo.com/docs/mcp
 ```
 
 ## 2. r/LocalLLaMA
@@ -36,7 +36,7 @@ Scans need the [scan] extra (OCR, PyTorch). The optional typed-head model checks
 
 Honest limits: pre-release, synthetic test data only, no accuracy benchmark on real statements yet. Input limits 2 GB per file, 64 MB for text formats.
 
-Repo: https://github.com/Sagexd08/OpenBooks  Docs: https://openbooks.lumeo.co.in/docs
+Repo: https://github.com/Sagexd08/OpenBooks  Docs: https://openbooks.openlumeo.com/docs
 ```
 
 ## 3. Accountants (plain language, privacy first)
@@ -61,7 +61,7 @@ What it does not do yet:
 
 If you try it, I would like to know which bank layout was refused and the refusal code, with the personal details removed.
 
-Docs: https://openbooks.lumeo.co.in/docs  Source: https://github.com/Sagexd08/OpenBooks
+Docs: https://openbooks.openlumeo.com/docs  Source: https://github.com/Sagexd08/OpenBooks
 ```
 
 Note: the "No Tally or GST export yet" line is a claim about missing features. Confirm against the repo before posting, and delete it if a Tally or GST output exists. Research 05 (not read here) may contain more.

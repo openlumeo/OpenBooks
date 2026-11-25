@@ -298,7 +298,7 @@ Date: 2026-11-23. Method: 30 WebSearch queries (standard mode), results read fro
 
 ## Gap note
 
-Open Books and Lumeo did not appear in any of the 30 result sets. Search-result share is currently zero for branded and category queries, so the first step is indexation and a crawlable product page on the category terms above. The page `openbooks.lumeo.co.in` itself was not fetched in this run.
+Open Books and Lumeo did not appear in any of the 30 result sets. Search-result share is currently zero for branded and category queries, so the first step is indexation and a crawlable product page on the category terms above. The page `openbooks.openlumeo.com` itself was not fetched in this run.
 
 ## 20-page content plan
 

@@ -4,7 +4,7 @@ Read-only audit. Scope: `web/app` routes and every page in `web/content/docs` (2
 
 ## Global facts
 
-- Site URL `https://openbooks.lumeo.co.in` (`web/lib/site.ts:3`).
+- Site URL `https://openbooks.openlumeo.com` (`web/lib/site.ts:3`).
 - `pageMetadata()` sets canonical, OG and Twitter from `path` (`web/lib/site.ts:5-29`).
 - Root description is about 230 characters, over the 160 limit (`web/app/layout.tsx:14-15`). Pages without their own description inherit it.
 - `robots.ts` disallows `/api/` and `/auth/` for all bots, including AI crawlers (`web/app/robots.ts:4-5`).

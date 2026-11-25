@@ -1,6 +1,6 @@
 # Search engine indexing, ranking and automation: Open Books
 
-Scope: https://openbooks.lumeo.co.in (Next.js, India-centred, global developer audience).
+Scope: https://openbooks.openlumeo.com (Next.js, India-centred, global developer audience).
 Status: research snapshot dated 2026-11-23. Claims are sourced from WebSearch snippets unless marked. Where a primary page was not opened, the claim is flagged UNVERIFIED. Re-check primary pages before acting.
 
 Sizing: M (desk research, one document).
@@ -22,7 +22,7 @@ Implication: in India, Google is the target. Bing is the only second-tier engine
 
 ### Ownership and submission
 - Verify a Domain property in Search Console (DNS TXT) so http, https and subdomains are covered. URL-prefix properties are the fallback.
-- Submit sitemap.xml in Search Console and reference it in robots.txt (`Sitemap: https://openbooks.lumeo.co.in/sitemap.xml`).
+- Submit sitemap.xml in Search Console and reference it in robots.txt (`Sitemap: https://openbooks.openlumeo.com/sitemap.xml`).
 - Sitemap limits: 50MB uncompressed or 50,000 URLs per file; use a sitemap index beyond that. Source: https://developers.google.com/search/docs/crawling-indexing/sitemaps/large-sitemaps
 - lastmod must reflect real content change. Google warns against stamping every build with the current time. Source: https://developers.google.com/search/blog/2023/06/sitemaps-lastmod-ping
 - Sitemap ping endpoint is retired (announced 26 June 2023); HTTP pings return 404. Do not script pings to Google. Source: https://developers.google.com/search/blog/2023/06/sitemaps-lastmod-ping
@@ -62,7 +62,7 @@ Implication: in India, Google is the target. Bing is the only second-tier engine
 - Submit a full XML sitemap with accurate lastmod.
 
 ### IndexNow (API and ping)
-- Yes, an API exists. Generate a key (8 to 128 hex chars), host `https://openbooks.lumeo.co.in/<key>.txt` containing the key, then POST URL lists.
+- Yes, an API exists. Generate a key (8 to 128 hex chars), host `https://openbooks.openlumeo.com/<key>.txt` containing the key, then POST URL lists.
 - Endpoint: `https://api.indexnow.org/indexnow` (shared) or `https://www.bing.com/indexnow`. Up to 10,000 URLs per POST. Source: https://www.indexnow.org/documentation and https://indexnow.org/faq
 - Participating engines share submissions. Google does not participate. Source: https://indexnow.org/faq
 - Key verification: engine fetches the key file; Yandex returns 202 until verified, then 200. Source: https://yandex.com/support/webmaster/indexnow/reference.html

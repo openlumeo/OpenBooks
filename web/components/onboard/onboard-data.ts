@@ -46,7 +46,7 @@ export type TryPrompt = {
 
 export const SERVER_NAME = "openbooks";
 export const PACKAGE_NAME = "@lumeo_hq/openbooks";
-export const SITE_LLMS_URL = "https://openbooks.lumeo.co.in/llms.txt";
+export const SITE_LLMS_URL = "https://openbooks.openlumeo.com/llms.txt";
 export const KIT_HREF = "/downloads/openbooks-harness.zip";
 export const KIT_TEXT = "Includes MCP config for every client, a verify skill, sample statements and a self-check.";
 

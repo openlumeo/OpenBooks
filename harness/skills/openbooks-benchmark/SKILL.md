@@ -46,7 +46,7 @@ Never write "beats" any model, vendor or product. Never write "accurate" without
 
 ## Submit
 
-Point the user to `https://openbooks.lumeo.co.in/benchmark` and say the server re-scores the uploaded JSON. State that results are self-reported. Do not upload the bundle yourself unless the user asks.
+Point the user to `https://openbooks.openlumeo.com/benchmark` and say the server re-scores the uploaded JSON. State that results are self-reported. Do not upload the bundle yourself unless the user asks.
 
 ## Safety
 

@@ -82,8 +82,8 @@ describe("GET /llms.txt", () => {
     const text = await res.text();
     expect(res.headers.get("content-type")).toBe("text/plain; charset=utf-8");
     expect(text).toContain("# Open Books by Lumeo");
-    expect(text).toContain("[Getting started](https://openbooks.lumeo.co.in/llms/getting-started.md): Install and run");
-    expect(text).toContain("https://openbooks.lumeo.co.in/llms-full.txt");
+    expect(text).toContain("[Getting started](https://openbooks.openlumeo.com/llms/getting-started.md): Install and run");
+    expect(text).toContain("https://openbooks.openlumeo.com/llms-full.txt");
   });
 
   it("is marked noindex for search engines", () => {
@@ -111,8 +111,8 @@ describe("GET /llms/[...slug]", () => {
     const res = await mdGet(["getting-started.md"]);
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("text/markdown; charset=utf-8");
-    expect(res.headers.get("link")).toBe('<https://openbooks.lumeo.co.in/docs/getting-started>; rel="canonical"');
-    expect(await res.text()).toContain("Source: https://openbooks.lumeo.co.in/docs/getting-started");
+    expect(res.headers.get("link")).toBe('<https://openbooks.openlumeo.com/docs/getting-started>; rel="canonical"');
+    expect(await res.text()).toContain("Source: https://openbooks.openlumeo.com/docs/getting-started");
   });
 
   it("serves nested pages", async () => {

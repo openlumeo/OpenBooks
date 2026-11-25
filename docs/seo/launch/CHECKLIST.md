@@ -22,7 +22,7 @@ Source: docs/seo/research/04-dev-discovery-channels.md, section 4. Every item is
 
 ## Days 15-21: content
 
-- [ ] 10. Publish one dev.to article using devto-article-outline.md, canonical link to https://openbooks.lumeo.co.in/docs. Run every code block first.
+- [ ] 10. Publish one dev.to article using devto-article-outline.md, canonical link to https://openbooks.openlumeo.com/docs. Run every code block first.
 - [ ] 11. Answer 3-5 relevant Stack Overflow or Reddit questions honestly, disclosing affiliation. Read each forum's rules first (UNVERIFIED).
 
 ## Days 22-30: launch
@@ -37,7 +37,7 @@ Source: docs/seo/research/04-dev-discovery-channels.md, section 4. Every item is
 - [ ] npm weekly downloads for `@lumeo_hq/openbooks`
 - [ ] npm weekly downloads for `@lumeo_hq/openbooks`
 - [ ] Registry search hits for `io.github.Sagexd08/openbooks-mcp`
-- [ ] Referrals from GitHub, dev.to and HN to https://openbooks.lumeo.co.in/docs (analytics tool of the owner's choice)
+- [ ] Referrals from GitHub, dev.to and HN to https://openbooks.openlumeo.com/docs (analytics tool of the owner's choice)
 
 ## Blockers to clear before any post
 

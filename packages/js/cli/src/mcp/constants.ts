@@ -1,6 +1,6 @@
 export const SERVER_NAME = "openbooks";
 export const SERVER_TITLE = "Open Books";
-export const DOCS_URL = "https://openbooks.lumeo.co.in/docs/mcp";
+export const DOCS_URL = "https://openbooks.openlumeo.com/docs/mcp";
 export const MAX_STEPS = 8;
 export const MAX_VERIFY_MANY = 8;
 export const MAX_REF_BYTES = 4096;

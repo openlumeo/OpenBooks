@@ -64,7 +64,7 @@ const report = await runDoctor();
 | `@lumeo_hq/openbooks/doctor` | Environment and engine diagnostics |
 | `@lumeo_hq/openbooks/mcp` | MCP server components |
 
-For per-file options and streaming decisions, use the [Node.js SDK](https://openbooks.lumeo.co.in/docs/node).
+For per-file options and streaming decisions, use the [Node.js SDK](https://openbooks.openlumeo.com/docs/node).
 
 ## MCP server for AI agents
 
@@ -85,9 +85,9 @@ See [MCP.md](./MCP.md) for client setup (Claude Code, Codex, Claude Desktop, Cur
 
 ## Links
 
-- Developer docs: https://openbooks.lumeo.co.in/docs
-- MCP server guide: [MCP.md](./MCP.md) and https://openbooks.lumeo.co.in/docs/mcp
+- Developer docs: https://openbooks.openlumeo.com/docs
+- MCP server guide: [MCP.md](./MCP.md) and https://openbooks.openlumeo.com/docs/mcp
 - Source: https://github.com/Sagexd08/OpenBooks
-- [CLI command reference and troubleshooting](https://openbooks.lumeo.co.in/docs/cli)
+- [CLI command reference and troubleshooting](https://openbooks.openlumeo.com/docs/cli)
 
-Exit-code and refusal details: https://openbooks.lumeo.co.in/docs/refusals
+Exit-code and refusal details: https://openbooks.openlumeo.com/docs/refusals

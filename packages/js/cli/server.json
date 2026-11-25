@@ -8,7 +8,21 @@
     "subfolder": "packages/js/cli"
   },
   "version": "0.2.5",
-  "websiteUrl": "https://openbooks.lumeo.co.in/docs/mcp",
+  "websiteUrl": "https://openbooks.openlumeo.com/docs/mcp",
+  "icons": [
+    {
+      "src": "https://openbooks.openlumeo.com/brand/mark-white.png",
+      "mimeType": "image/png",
+      "sizes": ["370x392"],
+      "theme": "dark"
+    },
+    {
+      "src": "https://openbooks.openlumeo.com/brand/mark-black.png",
+      "mimeType": "image/png",
+      "sizes": ["185x196"],
+      "theme": "light"
+    }
+  ],
   "packages": [
     {
       "registryType": "npm",

@@ -5,7 +5,7 @@ What runs without a human, how to run it locally, and what stays manual.
 ## What it does
 
 - `scripts/seo/check.mjs` fetches `/sitemap.xml`, `/robots.txt`, `/llms.txt` and every sitemap URL. It asserts status 200, one canonical equal to the URL, title under 60 characters, description 120 to 160 characters, exactly one h1, og:image and twitter:image, valid JSON-LD with `@context` and `@type`, no noindex, a robots.txt Sitemap line, and that OAI-SearchBot, Claude-SearchBot and PerplexityBot are not blocked. Failures exit 1.
-- `scripts/seo/indexnow.mjs` reads sitemap URLs and POSTs them to `https://api.indexnow.org/IndexNow` for host `openbooks.lumeo.co.in`, in batches of 10,000 or fewer. It checks that the key file is served before posting.
+- `scripts/seo/indexnow.mjs` reads sitemap URLs and POSTs them to `https://api.indexnow.org/IndexNow` for host `openbooks.openlumeo.com`, in batches of 10,000 or fewer. It checks that the key file is served before posting.
 - `.github/workflows/seo.yml` runs on push to main, weekly, and on demand. It builds, starts the app on port 3000, and runs `check.mjs`. On push to main it runs `indexnow.mjs --changed-only` only when the `INDEXNOW_KEY` secret or a committed key file exists.
 
 Soft checks (title length, description length, og and twitter images) fail by default. Pass `--soft` to report them as warnings.

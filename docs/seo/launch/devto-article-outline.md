@@ -2,7 +2,7 @@
 
 Working title: Verifying bank statements with an MCP server: released only if the arithmetic balances
 
-Target: dev.to, with the canonical link to https://openbooks.lumeo.co.in/docs (tag and canonical rules UNVERIFIED in research 04; check dev.to before publishing). Length: about 900 to 1,200 words. Every code block is taken from the repo or from the commands in the CLI and Python READMEs.
+Target: dev.to, with the canonical link to https://openbooks.openlumeo.com/docs (tag and canonical rules UNVERIFIED in research 04; check dev.to before publishing). Length: about 900 to 1,200 words. Every code block is taken from the repo or from the commands in the CLI and Python READMEs.
 
 ## 1. Opening (about 80 words)
 
@@ -79,7 +79,7 @@ Source: the Limitations sections of the root README and the Python package READM
 
 ## 7. Where to go next (about 40 words)
 
-- Docs: https://openbooks.lumeo.co.in/docs
+- Docs: https://openbooks.openlumeo.com/docs
 - Source: https://github.com/Sagexd08/OpenBooks
 - Invite comments on refused files, with the bank and the refusal code, not the customer data.
 

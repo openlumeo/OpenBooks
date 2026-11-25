@@ -1,6 +1,6 @@
 # AEO / GEO research: how AI systems choose and cite sources (2025-2026)
 
-Scope: Open Books by Lumeo (openbooks.lumeo.co.in). Method: 8 web searches. Only search snippets were read; no page was fetched in full. Anything not confirmed in a snippet is marked UNVERIFIED. Vendor studies are labelled as such.
+Scope: Open Books by Lumeo (openbooks.openlumeo.com). Method: 8 web searches. Only search snippets were read; no page was fetched in full. Anything not confirmed in a snippet is marked UNVERIFIED. Vendor studies are labelled as such.
 
 Evidence grades: **A** = official vendor or platform documentation; **B** = independent study with stated method; **C** = vendor/blog claim or folklore.
 

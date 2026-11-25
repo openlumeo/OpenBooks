@@ -102,7 +102,7 @@ Day 8-14 (directories)
 9. Open awesome-mcp-servers PR: one line, alphabetical in its category, note Glama backlink in PR description.
 
 Day 15-21 (content)
-10. Publish one dev.to / Hashnode tutorial with canonical link to docs at https://openbooks.lumeo.co.in/docs.
+10. Publish one dev.to / Hashnode tutorial with canonical link to docs at https://openbooks.openlumeo.com/docs.
 11. Answer 3-5 relevant Stack Overflow / Reddit questions honestly, disclosing affiliation.
 
 Day 22-30 (launch)

@@ -2,9 +2,8 @@
 
 Open Books returns one proven JSON document per financial file, or a typed refusal that names the reason. It reads bank statements, payment-gateway exports, Indian tax documents and Excel workpapers, and releases a result only when the file's own arithmetic balances.
 
-[Developer documentation](https://openbooks.lumeo.co.in/) · [Interactive bank CSV quickstart](https://openbooks.lumeo.co.in/docs/quickstart) · [Workspace](https://openbooks.lumeo.co.in/app) · [MCP server](https://openbooks.lumeo.co.in/docs/mcp)
+[Developer documentation](https://openbooks.openlumeo.com/) · [Interactive bank CSV quickstart](https://openbooks.openlumeo.com/docs/quickstart) · [Workspace](https://openbooks.openlumeo.com/app) · [MCP server](https://openbooks.openlumeo.com/docs/mcp)
 
-![Open Books pipeline](docs/pipeline.jpeg)
 
 > **Status: early release.** All training and test data is **synthetic**. No real statements were used or scored, so synthetic results do not prove real-world accuracy. See [Limitations](#limitations).
 
@@ -242,7 +241,7 @@ The Python engine, JavaScript package, and designated model artifacts are licens
 
 ## Links
 
-- Developer docs: https://openbooks.lumeo.co.in/docs
-- MCP server for AI agents: https://openbooks.lumeo.co.in/docs/mcp (npm package `@lumeo_hq/openbooks`)
+- Developer docs: https://openbooks.openlumeo.com/docs
+- MCP server for AI agents: https://openbooks.openlumeo.com/docs/mcp (npm package `@lumeo_hq/openbooks`)
 - Python package: `openbooks` on PyPI; CLI: `@lumeo_hq/openbooks` on npm
 - Source: https://github.com/Sagexd08/OpenBooks

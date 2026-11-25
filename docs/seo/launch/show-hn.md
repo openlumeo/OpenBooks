@@ -35,7 +35,7 @@ Limits, stated plainly:
 - Input limits: 2 GB per file, 64 MB for text formats (CSV, OFX, QFX, STA, MT940, TXT).
 - PDF and image runs use a model on your machine by default; pass --no-model to skip it. Scans need OCR (the [scan] extra).
 
-Docs: https://openbooks.lumeo.co.in/docs. Source and issues: https://github.com/Sagexd08/OpenBooks/issues. I will answer questions here; if a layout is refused on your file, tell me the bank and I will look at the refusal code.
+Docs: https://openbooks.openlumeo.com/docs. Source and issues: https://github.com/Sagexd08/OpenBooks/issues. I will answer questions here; if a layout is refused on your file, tell me the bank and I will look at the refusal code.
 ```
 
 ## Before posting (owner)
