@@ -43,6 +43,7 @@ def main() -> int:
             metrics[name]["split_sha256"] = split_sha256(splits[name])
     args.out.parent.mkdir(parents=True, exist_ok=True)
     write_json(args.out, {"int8_shipped": metrics, "model": model.identity, "dataset_sha256": sha256(args.dataset),
+                          "runtime": {"torch": str(torch.__version__), "device": str(model.dev), "threads": args.threads},
                           "note": "Synthetic statements only. The saved calibration was applied without refitting."})
     print(f"Rescored model: {args.out}")
     return 0

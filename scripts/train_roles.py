@@ -24,6 +24,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn.functional as F
+from role_candidates import sha256, split_sha256, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -37,8 +38,6 @@ from openbooks.pipeline import Params  # noqa: E402
 from openbooks.statements.roles import AMOUNT, VTYPES, vtype_of  # noqa: E402
 from openbooks_lab.synth import (FAMILIES, NOISY_SCAN, ROLES, SKEW_MERCHANTS, label_words, merchant_rows, random_layout,  # noqa: E402
                              render, to_scan, with_failed_rows)
-
-from role_candidates import sha256, split_sha256, write_json
 
 RID, TID = {r: i for i, r in enumerate(ROLES)}, {t: i for i, t in enumerate(VTYPES)}
 ALPHA = 0.01
@@ -190,12 +189,26 @@ def train(train_items, dev, epochs: int, seed: int, *, batch_size: int = 16, amp
 
 
 def report(role_l, type_l, yr, yt, cal_r: Calibrator, cal_t: Calibrator) -> dict:
-    money = np.array([ROLES[y] in AMOUNT for y in yr])
+    amount_ids = [RID[role] for role in AMOUNT]
+    money = np.isin(yr, amount_ids)
     pr = cal_r.probs(role_l)
     sets = cal_r.sets(role_l)
-    single = np.array([len(s) == 1 for s in sets])
+    committed = np.array([s[0] if len(s) == 1 else -1 for s in sets], dtype=int)
+    single = committed >= 0
     covered = np.array([y in s for y, s in zip(yr, sets)])
-    singleton_ok = np.array([len(s) == 1 and s[0] == y for y, s in zip(yr, sets)])
+    wrong = single & (committed != yr)
+    predicted_amount = np.isin(committed, amount_ids)
+    by_role = {}
+    for role, role_id in RID.items():
+        actual = yr == role_id
+        predicted = committed == role_id
+        by_role[role] = {
+            "tokens": int(actual.sum()),
+            "covered": int((actual & covered).sum()),
+            "singletons_on_true_role": int((actual & single).sum()),
+            "predicted_singletons": int(predicted.sum()),
+            "correct_singletons": int((actual & predicted).sum()),
+        }
     pt = cal_t.probs(type_l)
     type_sets = cal_t.sets(type_l)
     if not money.any():
@@ -208,8 +221,13 @@ def report(role_l, type_l, yr, yt, cal_r: Calibrator, cal_t: Calibrator) -> dict
             "role_ece_after_temperature": round(ece(pr, yr), 4),
             "role_coverage": round(float(covered.mean()), 4), "role_singleton_rate": round(float(single.mean()), 4),
             "amount_singleton_rate": round(float(single[money].mean()), 4),
-            "amount_singleton_wrong": int((single[money] & ~singleton_ok[money]).sum()),
-            "amount_abstain_rate": round(float((~single[money]).mean()), 4)}
+            "amount_singleton_wrong": int((money & wrong).sum()),
+            "amount_abstain_rate": round(float((~single[money]).mean()), 4),
+            "amount_role_coverage": round(float(covered[money].mean()), 4),
+            "predicted_amount_singletons": int(predicted_amount.sum()),
+            "predicted_amount_singletons_wrong": int((predicted_amount & wrong).sum()),
+            "non_amount_predicted_as_amount": int((~money & predicted_amount).sum()),
+            "by_role": by_role}
 
 
 def family_arg() -> tuple[str, ...] | None:
