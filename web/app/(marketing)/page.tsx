@@ -3,6 +3,7 @@ import { pageMetadata, siteUrl } from "@/lib/site";
 import { StructuredData } from "@/components/structured-data";
 import { NavSentinel, LandingNav } from "@/components/landing/landing-nav";
 import { Hero } from "@/components/landing/hero";
+import { AgentStart } from "@/components/landing/agent-start";
 import { Reframe } from "@/components/landing/reframe";
 import { ScrollStory } from "@/components/landing/scroll-story";
 import { Refusals } from "@/components/landing/refusals";
@@ -30,6 +31,7 @@ export default function LandingPage() {
       <LandingNav />
       <main id="content">
         <Hero />
+        <AgentStart />
         <Reframe />
         <ScrollStory />
         <Refusals />

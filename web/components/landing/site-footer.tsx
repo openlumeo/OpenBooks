@@ -26,6 +26,16 @@ export function SiteFooter() {
           <p className={styles.statement}>
             Files are processed in memory and not stored on the server. Thread history stays in your browser.
           </p>
+          <a href="https://mcprush.com/to/openbooks-mcp?ref=badge" target="_blank" rel="noopener noreferrer">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://mcprush.com/badge/openbooks-mcp/card.svg"
+              alt="Openbooks MCP server"
+              width={320}
+              loading="lazy"
+              style={{ maxWidth: "100%", height: "auto" }}
+            />
+          </a>
         </div>
         <nav aria-label="Footer" className={styles.links}>
           <Link href="/docs" className={styles.link}>
