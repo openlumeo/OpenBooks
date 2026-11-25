@@ -19,6 +19,7 @@ import random
 import platform
 import tempfile
 import time
+from functools import partial
 from pathlib import Path
 
 import numpy as np
@@ -60,10 +61,9 @@ def items_of(pages, cells) -> list[dict]:
     return out
 
 
-def make_split(seed: int, n_text: int, n_ocr: int, shifted: bool = False, wide: bool = False,
-               family: str | None = None) -> list[dict]:
-    """family=None draws exactly what it always did (pinned by tests); a named family draws that synthetic family."""
-    rng, items = random.Random(seed), []
+def split_documents(seed: int, n_text: int, n_ocr: int, shifted: bool = False, wide: bool = False,
+                    family: str | None = None):
+    rng = random.Random(seed)
     for k in range(n_text + n_ocr):
         rich = shifted or rng.random() < 0.6
         lay = random_layout(rng, shifted, rich, wide=wide, family=family)
@@ -76,11 +76,43 @@ def make_split(seed: int, n_text: int, n_ocr: int, shifted: bool = False, wide: 
         pdf, cells = render(rows, "1000.00", lay, rng, closing=rows[-1][4])
         scan = k >= n_text
         scan_kw = NOISY_SCAN if family == "branch" else {}
-        pages, _ = read_words(to_scan(pdf, rng, **scan_kw) if scan else pdf, Params(ocr=True))
+        source = to_scan(pdf, rng, **scan_kw) if scan else pdf
+        yield seed + k, scan, source, cells
+
+
+def make_split(seed: int, n_text: int, n_ocr: int, shifted: bool = False, wide: bool = False,
+               family: str | None = None, *, capture=None) -> list[dict]:
+    """Generate ordered token windows from one synthetic statement split."""
+    items = []
+    for doc_seed, scan, source, cells in split_documents(seed, n_text, n_ocr, shifted, wide, family):
+        pages, method = read_words(source, Params(ocr=True))
+        if capture is not None:
+            capture(doc_seed, source, method, pages, cells)
         items += items_of(pages, cells)
+        k = doc_seed - seed
         if scan and (k - n_text) % 20 == 0:
             print(f"  seed {seed}: {k - n_text + 1}/{n_ocr} scans", flush=True)
     return items
+
+
+def base_recipe(n_text: int, n_ocr: int) -> dict:
+    scaled = max(1, n_text // 10)
+    ocr_scaled = ocr_scale(n_ocr, 10)
+    return {
+        "train": (0, n_text, n_ocr),
+        "calib": (10_000, scaled * 2, ocr_scaled * 5),
+        "test": (20_000, scaled * 2, ocr_scaled * 4),
+        "shifted": (30_000, scaled, ocr_scaled * 3),
+    }
+
+
+def make_base_splits(n_text: int, n_ocr: int, *, capture=None) -> dict:
+    """Generate the shared base recipe, optionally retaining a document before windowing."""
+    splits = {}
+    for name, (seed, n_pdf, n_scan) in base_recipe(n_text, n_ocr).items():
+        splits[name] = make_split(seed, n_pdf, n_scan, shifted=name == "shifted",
+                                  capture=partial(capture, name) if capture is not None else None)
+    return splits
 
 
 WIDE_AUG = os.environ.get("OB_WIDE") == "1"
@@ -298,10 +330,7 @@ def main() -> None:
         splits = pickle.loads(DATA.read_bytes())
     else:
         print("generating data", flush=True)
-        scale = lambda n: max(1, n // 10)  # noqa: E731
-        splits = {"train": make_split(0, n_tr, n_oc), "calib": make_split(10_000, scale(n_tr) * 2, ocr_scale(n_oc, 10) * 5),
-                  "test": make_split(20_000, scale(n_tr) * 2, ocr_scale(n_oc, 10) * 4),
-                  "shifted": make_split(30_000, scale(n_tr), ocr_scale(n_oc, 10) * 3, shifted=True)}
+        splits = make_base_splits(n_tr, n_oc)
         DATA.write_bytes(pickle.dumps(splits))
     WIDE = ROOT / "data" / f"roles_dataset_wide_{n_tr}_{n_oc}.pkl"
     if not WIDE_AUG:

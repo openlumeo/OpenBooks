@@ -295,6 +295,24 @@ def _stated(lines: list[list[Word]], label: str):
     return found
 
 
+def _balance_cards(lines: list[list[Word]], label: str):
+    """Find a currency-prefixed amount directly below a balance label above the table."""
+    header = find_header(lines)
+    if header is None:
+        return []
+    found = []
+    for line, below in zip(lines[:header[0]], lines[1:header[0]]):
+        amounts = [w for w in _merge_drcr(below) if w.orig and _CCY_PREFIX.fullmatch(w.orig)]
+        for first, second in zip(line, line[1:]):
+            if not re.fullmatch(label, f"{first.text} {second.text}".rstrip(":"), re.I):
+                continue
+            for amount in amounts:
+                if abs(amount.x0 - first.x0) <= first.h / 2 and 0 < amount.cy - first.cy <= 2.5 * first.h:
+                    found.append((to_dec(amount.text, f"stated {label}", dr_cr=True),
+                                  amount.orig, _loc([amount])))
+    return found
+
+
 def _currency(pages: list[list[Word]], p: Params) -> str:
     seen = {w.text.upper().strip(":.") for pg in pages for w in pg} & KNOWN_CCY
     if any(w.text in ("Rs", "Rs.", "₹") for pg in pages for w in pg):
@@ -326,13 +344,25 @@ def _join_descriptions(rows: list[dict]) -> None:
         r["desc"] = " ".join(t for _, _, t in parts)
 
 
-def _rows(all_lines, preds, prev=None, order: str = "dmy"):
-    """Walk every page; returns (recs, noops, assigned, model_used). prev = opening balance if known: the
-    header-less model path uses the running balance to resolve rows whose column sets are not a single role.
-    order = day/month order of numeric dates for the whole document."""
+def _statement_lines(lines, order):
+    for raw in lines:
+        line = _merge_drcr(raw)
+        text = _text(line)
+        if not (_OPEN_CLOSE.search(text) or re.search(r"\bpage \d+ of \d+\b", text, re.I)):
+            yield line, text, _dates(line, order), _money_tokens(line)
+
+
+def _rows(all_lines, preds, prev=None, order: str = "dmy", closing=None):
+    """Walk pages, using document-wide role resolution when no page has a table header."""
     recs, noops, assigned, hdr, model_used = [], [], [], None, False
-    for lines in all_lines:
-        found = find_header(lines)
+    headers = [find_header(lines) for lines in all_lines]
+    prepared, chain = None, None
+    if preds is not None and not any(headers):
+        prepared = [list(_statement_lines(lines, order)) for lines in all_lines]
+        tokens = [money for lines in prepared for _, _, dates, money in lines if dates and money]
+        if tokens:
+            chain = iter(preds.resolve_chain(tokens, prev, closing, lambda w: to_dec(w.text, "model", dr_cr=True)))
+    for index, (lines, found) in enumerate(zip(all_lines, headers)):
         if found:
             hdr = found[1]
         elif hdr is None and preds is None:
@@ -345,16 +375,13 @@ def _rows(all_lines, preds, prev=None, order: str = "dmy"):
             model_used = True
         lo, hi = _desc_window(cols)
         page_rows, frags = [], []
-        for ln in lines[found[0] + 1 if found else 0:]:
-            ln = _merge_drcr(ln)
-            text = _text(ln)
-            if _OPEN_CLOSE.search(text) or re.search(r"\bpage \d+ of \d+\b", text, re.I):
-                continue
-            dates, money = _dates(ln, order), _money_tokens(ln)
+        page_lines = prepared[index] if prepared is not None else _statement_lines(lines[found[0] + 1 if found else 0:], order)
+        for ln, text, dates, money in page_lines:
             if dates and money:
                 pick = min(dates, key=lambda d: abs(ln[d[0]].cx - cols["date"].cx)) if cols else dates[0]
                 if cols is None:
-                    fixed = preds.resolve(money, prev, lambda w: to_dec(w.text, "model", dr_cr=True))
+                    fixed = (next(chain) if chain is not None
+                             else preds.resolve(money, prev, lambda w: to_dec(w.text, "model", dr_cr=True)))
                     role_fn = fixed.__getitem__
                 rec, got = _row(ln, pick, mode, cols, role_fn, len(recs) + 1)
                 prev = rec["bal"]
@@ -381,10 +408,15 @@ def extract_statement(pages: list[list[Word]], p: Params, method: str, preds=Non
     """Returns (data, evidence, assigned, model_used). preds is consulted only when no header is found."""
     all_lines = [_lines(pg) for pg in pages]
     flat = [ln for lines in all_lines for ln in lines]
-    openings, closings = _stated(flat, r"opening\s+balance"), _stated(flat, r"closing\s+balance")
+    opening_label, closing_label = r"opening\s+balance", r"closing\s+balance"
+    openings = _stated(flat, opening_label) + [value for lines in all_lines for value in _balance_cards(lines, opening_label)]
+    closing_cards = [value for lines in all_lines for value in _balance_cards(lines, closing_label)]
+    closings = _stated(flat, closing_label) + closing_cards
+    if closing_cards and len({c[0] for c in closings}) > 1:
+        raise Refusal("PARSE_ERROR", "document states more than one closing balance")
     order = _date_order(all_lines, p)
     recs, noops, assigned, model_used = _rows(all_lines, preds, p.opening if p.opening is not None else (openings[0][0] if openings else None),
-                                              order)
+                                              order, closing=closings[-1][0] if closings else None)
     if not recs:
         raise Refusal("UNKNOWN_LAYOUT", "no statement table found")
     cur = _currency(pages, p)
