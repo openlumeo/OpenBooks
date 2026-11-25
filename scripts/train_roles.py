@@ -19,11 +19,13 @@ import random
 import platform
 import tempfile
 import time
+from functools import partial
 from pathlib import Path
 
 import numpy as np
 import torch
 import torch.nn.functional as F
+from role_candidates import sha256, split_sha256, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -37,8 +39,6 @@ from openbooks.pipeline import Params  # noqa: E402
 from openbooks.statements.roles import AMOUNT, VTYPES, vtype_of  # noqa: E402
 from openbooks_lab.synth import (FAMILIES, NOISY_SCAN, ROLES, SKEW_MERCHANTS, label_words, merchant_rows, random_layout,  # noqa: E402
                              render, to_scan, with_failed_rows)
-
-from role_candidates import sha256, split_sha256, write_json
 
 RID, TID = {r: i for i, r in enumerate(ROLES)}, {t: i for i, t in enumerate(VTYPES)}
 ALPHA = 0.01
@@ -61,10 +61,9 @@ def items_of(pages, cells) -> list[dict]:
     return out
 
 
-def make_split(seed: int, n_text: int, n_ocr: int, shifted: bool = False, wide: bool = False,
-               family: str | None = None) -> list[dict]:
-    """family=None draws exactly what it always did (pinned by tests); a named family draws that synthetic family."""
-    rng, items = random.Random(seed), []
+def split_documents(seed: int, n_text: int, n_ocr: int, shifted: bool = False, wide: bool = False,
+                    family: str | None = None):
+    rng = random.Random(seed)
     for k in range(n_text + n_ocr):
         rich = shifted or rng.random() < 0.6
         lay = random_layout(rng, shifted, rich, wide=wide, family=family)
@@ -77,11 +76,43 @@ def make_split(seed: int, n_text: int, n_ocr: int, shifted: bool = False, wide: 
         pdf, cells = render(rows, "1000.00", lay, rng, closing=rows[-1][4])
         scan = k >= n_text
         scan_kw = NOISY_SCAN if family == "branch" else {}
-        pages, _ = read_words(to_scan(pdf, rng, **scan_kw) if scan else pdf, Params(ocr=True))
+        source = to_scan(pdf, rng, **scan_kw) if scan else pdf
+        yield seed + k, scan, source, cells
+
+
+def make_split(seed: int, n_text: int, n_ocr: int, shifted: bool = False, wide: bool = False,
+               family: str | None = None, *, capture=None) -> list[dict]:
+    """Generate ordered token windows from one synthetic statement split."""
+    items = []
+    for doc_seed, scan, source, cells in split_documents(seed, n_text, n_ocr, shifted, wide, family):
+        pages, method = read_words(source, Params(ocr=True))
+        if capture is not None:
+            capture(doc_seed, source, method, pages, cells)
         items += items_of(pages, cells)
+        k = doc_seed - seed
         if scan and (k - n_text) % 20 == 0:
             print(f"  seed {seed}: {k - n_text + 1}/{n_ocr} scans", flush=True)
     return items
+
+
+def base_recipe(n_text: int, n_ocr: int) -> dict:
+    scaled = max(1, n_text // 10)
+    ocr_scaled = ocr_scale(n_ocr, 10)
+    return {
+        "train": (0, n_text, n_ocr),
+        "calib": (10_000, scaled * 2, ocr_scaled * 5),
+        "test": (20_000, scaled * 2, ocr_scaled * 4),
+        "shifted": (30_000, scaled, ocr_scaled * 3),
+    }
+
+
+def make_base_splits(n_text: int, n_ocr: int, *, capture=None) -> dict:
+    """Generate the shared base recipe, optionally retaining a document before windowing."""
+    splits = {}
+    for name, (seed, n_pdf, n_scan) in base_recipe(n_text, n_ocr).items():
+        splits[name] = make_split(seed, n_pdf, n_scan, shifted=name == "shifted",
+                                  capture=partial(capture, name) if capture is not None else None)
+    return splits
 
 
 WIDE_AUG = os.environ.get("OB_WIDE") == "1"
@@ -190,12 +221,26 @@ def train(train_items, dev, epochs: int, seed: int, *, batch_size: int = 16, amp
 
 
 def report(role_l, type_l, yr, yt, cal_r: Calibrator, cal_t: Calibrator) -> dict:
-    money = np.array([ROLES[y] in AMOUNT for y in yr])
+    amount_ids = [RID[role] for role in AMOUNT]
+    money = np.isin(yr, amount_ids)
     pr = cal_r.probs(role_l)
     sets = cal_r.sets(role_l)
-    single = np.array([len(s) == 1 for s in sets])
+    committed = np.array([s[0] if len(s) == 1 else -1 for s in sets], dtype=int)
+    single = committed >= 0
     covered = np.array([y in s for y, s in zip(yr, sets)])
-    singleton_ok = np.array([len(s) == 1 and s[0] == y for y, s in zip(yr, sets)])
+    wrong = single & (committed != yr)
+    predicted_amount = np.isin(committed, amount_ids)
+    by_role = {}
+    for role, role_id in RID.items():
+        actual = yr == role_id
+        predicted = committed == role_id
+        by_role[role] = {
+            "tokens": int(actual.sum()),
+            "covered": int((actual & covered).sum()),
+            "singletons_on_true_role": int((actual & single).sum()),
+            "predicted_singletons": int(predicted.sum()),
+            "correct_singletons": int((actual & predicted).sum()),
+        }
     pt = cal_t.probs(type_l)
     type_sets = cal_t.sets(type_l)
     if not money.any():
@@ -208,8 +253,13 @@ def report(role_l, type_l, yr, yt, cal_r: Calibrator, cal_t: Calibrator) -> dict
             "role_ece_after_temperature": round(ece(pr, yr), 4),
             "role_coverage": round(float(covered.mean()), 4), "role_singleton_rate": round(float(single.mean()), 4),
             "amount_singleton_rate": round(float(single[money].mean()), 4),
-            "amount_singleton_wrong": int((single[money] & ~singleton_ok[money]).sum()),
-            "amount_abstain_rate": round(float((~single[money]).mean()), 4)}
+            "amount_singleton_wrong": int((money & wrong).sum()),
+            "amount_abstain_rate": round(float((~single[money]).mean()), 4),
+            "amount_role_coverage": round(float(covered[money].mean()), 4),
+            "predicted_amount_singletons": int(predicted_amount.sum()),
+            "predicted_amount_singletons_wrong": int((predicted_amount & wrong).sum()),
+            "non_amount_predicted_as_amount": int((~money & predicted_amount).sum()),
+            "by_role": by_role}
 
 
 def family_arg() -> tuple[str, ...] | None:
@@ -280,10 +330,7 @@ def main() -> None:
         splits = pickle.loads(DATA.read_bytes())
     else:
         print("generating data", flush=True)
-        scale = lambda n: max(1, n // 10)  # noqa: E731
-        splits = {"train": make_split(0, n_tr, n_oc), "calib": make_split(10_000, scale(n_tr) * 2, ocr_scale(n_oc, 10) * 5),
-                  "test": make_split(20_000, scale(n_tr) * 2, ocr_scale(n_oc, 10) * 4),
-                  "shifted": make_split(30_000, scale(n_tr), ocr_scale(n_oc, 10) * 3, shifted=True)}
+        splits = make_base_splits(n_tr, n_oc)
         DATA.write_bytes(pickle.dumps(splits))
     WIDE = ROOT / "data" / f"roles_dataset_wide_{n_tr}_{n_oc}.pkl"
     if not WIDE_AUG:

@@ -9,6 +9,7 @@ import pytest
 openpyxl = pytest.importorskip("openpyxl")
 
 from openbooks.core import Params, process  # noqa: E402
+from openbooks.core.frontends.xlsx import MAX_UNCOMPRESSED_BYTES  # noqa: E402
 
 HEAD = ["Date", "Narration", "Withdrawal Amt.", "Deposit Amt.", "Closing Balance"]
 ROWS = [["01/01/2026", "Salary", None, 500.0, 1500.0], ["02/01/2026", "Rent", 200.5, None, 1299.5], ["03/01/2026", "Coffee", 4.5, None, 1295.0]]
@@ -192,7 +193,7 @@ def test_a_workbook_that_claims_to_expand_past_the_limit_is_refused_without_bein
         for name in src.namelist():
             out.writestr(name, src.read(name))
         with out.open("xl/worksheets/padding.xml", "w", force_zip64=True) as pad:
-            for _ in range(210):
+            for _ in range(MAX_UNCOMPRESSED_BYTES // (1024 * 1024) + 10):
                 pad.write(b"0" * (1024 * 1024))
     assert bomb.stat().st_size < 2 * 1024 * 1024
     doc = process(bomb, P)

@@ -8,7 +8,7 @@
 // Output: CSV on stdout (or --out), gate verdict on stderr; exit 1 when the promotion gate fails.
 // Gate: every fixture (the packaged synthetic PDFs and scans) matches its expected release/refusal, and p95 of single-page
 // requests stays under --max-p95-text-ms / --max-p95-scan-ms; error rate under --max-error-pct; optional --max-rss-mib.
-// ponytail: the engine's /metrics supplies stage p95s, RSS and VRAM; against the public site (no /metrics) those are blank.
+// shortcut: public-site runs leave stage p95s and RSS/VRAM blank without /metrics, rerun the same workload against the private engine if public p95 exceeds its configured limit or promotion requires a memory gate.
 import { readFile, writeFile } from "node:fs/promises";
 import { basename } from "node:path";
 import { parseArgs } from "node:util";

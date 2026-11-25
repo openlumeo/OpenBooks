@@ -12,7 +12,7 @@ Open Books turns financial files into **one proven JSON document per file**, or 
 | Proven or refused | A file is released only if every assertion passes and at least one assertion is independent evidence. Otherwise it is refused with a typed code. |
 | Money is `Decimal` end to end | Nothing is rounded silently; amounts are formatted with the currency exponent. |
 | Evidence for every field | Each field carries page, bbox, raw text and method (`parser`, `pdf_text`, `ocr`, optionally `+model`). |
-| Models can only add doubt | The optional typed heads cross-check a PDF/scan parse. They may add `LOW_CONFIDENCE` refusals. They can never cause a release; the balance gate always has the last word. |
+| Models propose roles | The optional typed heads cross-check known tables and propose roles for a PDF or scan without a header. Release requires independent arithmetic evidence and a schema-valid result. |
 
 ### Output document
 
@@ -86,11 +86,15 @@ flowchart LR
     O --> G
     G --> H{Header line found?}
     H -- yes --> RB[Rule-based column assignment]
-    H -- no --> M[Typed heads assign debit / credit / balance]
-    M --> S[Constraint resolution: keep readings that tie the running balance]
+    H -- no and model enabled --> M[RoleNet proposes calibrated debit / credit / balance sets]
+    H -- no and model disabled --> R[Typed refusal]
+    M --> S[Decimal search across rows and printed balance anchors]
+    S -- no unique chain --> R
     RB --> X[Optional --model cross-check: can only add LOW_CONFIDENCE]
-    S --> BG[Balance gate]
+    S -- unique chain --> BG[Balance gate]
     X --> BG
+    BG -- assertions fail --> R
+    BG -- assertions pass --> J[Schema-validated JSON with field evidence]
 ```
 
 Rows are rebuilt from column geometry and handed to the same statement builder and balance gate as CSV, so a misread number becomes a `BALANCE_MISMATCH`, not a wrong release.

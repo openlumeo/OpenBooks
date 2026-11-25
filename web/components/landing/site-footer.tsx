@@ -34,6 +34,9 @@ export function SiteFooter() {
           <Link href="/benchmark" className={styles.link}>
             Benchmark
           </Link>
+          <Link href="/blog" className={styles.link}>
+            Blog
+          </Link>
           <Link href="/app" className={styles.link}>
             Workspace
           </Link>

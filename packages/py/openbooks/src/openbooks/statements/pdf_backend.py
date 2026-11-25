@@ -4,7 +4,8 @@ PDFs and Pillow for images. Nothing here is AGPL.
 The rest of the engine sees only two things per page: its words as (text, x0, y0, x1, y1) in points with the origin at the
 top-left (y grows downward), and an RGB render for OCR. The word rules are the ones the engine was built and measured with:
 words break at whitespace and wherever one text object ends and the next begins (a table cell is its own text object), and text
-that is not horizontal (watermarks, rotated stamps) is ignored.
+that is not horizontal (watermarks, rotated stamps) is ignored. A page dominated by single-glyph objects
+gets a second pass that rejoins adjacent glyphs within PDFium's whitespace boundaries.
 """
 from __future__ import annotations
 
@@ -53,56 +54,65 @@ class PdfPage:
         raw = self._pdfium.raw
         tp = self._page.get_textpage()
         try:
-            n = tp.count_chars()
-            ptr = tp.raw
-            out: list[tuple[str, float, float, float, float]] = []
-            cur: list[str] = []
-            box: list[float] = []
-            obj = None
-
-            def flush() -> None:
-                if cur:
-                    out.append(("".join(cur), *box))
-                cur.clear()
-                box.clear()
-
-            high = 0
-            for i in range(n):
-                code = raw.FPDFText_GetUnicode(ptr, i)
-                if 0xDC00 <= code <= 0xDFFF and high:
-                    code, high = 0x10000 + ((high - 0xD800) << 10) + (code - 0xDC00), 0
-                    if cur:
-                        cur[-1] = chr(code)
-                        x0, y0, x1, y1 = _char_extent(tp, i, self._left, self._top)
-                        box[0], box[1] = min(box[0], x0), min(box[1], y0)
-                        box[2], box[3] = max(box[2], x1), max(box[3], y1)
-                    continue
-                high = 0
-                if 0xD800 <= code <= 0xDBFF:
-                    high = code
-                if 0xD800 <= code <= 0xDFFF:
-                    code = 0xFFFD
-                ch = chr(code) if code else " "
-                if ch.isspace() or code == 0:
-                    flush()
-                    continue
-                if not _upright(raw.FPDFText_GetCharAngle(ptr, i)):
-                    flush()
-                    continue
-                this_obj = ctypes.cast(raw.FPDFText_GetTextObject(ptr, i), ctypes.c_void_p).value
-                if cur and this_obj != obj:
-                    flush()
-                obj = this_obj
-                x0, y0, x1, y1 = _char_extent(tp, i, self._left, self._top)
-                if not cur:
-                    box.extend([x0, y0, x1, y1])
-                else:
-                    box[0], box[1], box[2], box[3] = min(box[0], x0), min(box[1], y0), max(box[2], x1), max(box[3], y1)
-                cur.append(ch)
-            flush()
-            return out
+            words = self._words(tp, raw)
+            if sum(len(word[0]) == 1 for word in words) * 2 > len(words):
+                return self._words(tp, raw, join_glyphs=True)
+            return words
         finally:
             tp.close()
+
+    def _words(self, tp, raw, *, join_glyphs: bool = False) -> list[tuple[str, float, float, float, float]]:
+        n = tp.count_chars()
+        ptr = tp.raw
+        out: list[tuple[str, float, float, float, float]] = []
+        cur: list[str] = []
+        box: list[float] = []
+        obj = None
+
+        def flush() -> None:
+            if cur:
+                out.append(("".join(cur), *box))
+            cur.clear()
+            box.clear()
+
+        high = 0
+        for i in range(n):
+            code = raw.FPDFText_GetUnicode(ptr, i)
+            if 0xDC00 <= code <= 0xDFFF and high:
+                code, high = 0x10000 + ((high - 0xD800) << 10) + (code - 0xDC00), 0
+                if cur:
+                    cur[-1] = chr(code)
+                    x0, y0, x1, y1 = _char_extent(tp, i, self._left, self._top)
+                    box[0], box[1] = min(box[0], x0), min(box[1], y0)
+                    box[2], box[3] = max(box[2], x1), max(box[3], y1)
+                continue
+            high = 0
+            if 0xD800 <= code <= 0xDBFF:
+                high = code
+            if 0xD800 <= code <= 0xDFFF:
+                code = 0xFFFD
+            ch = chr(code) if code else " "
+            if ch.isspace() or code == 0:
+                flush()
+                continue
+            if not _upright(raw.FPDFText_GetCharAngle(ptr, i)):
+                flush()
+                continue
+            this_obj = ctypes.cast(raw.FPDFText_GetTextObject(ptr, i), ctypes.c_void_p).value
+            x0, y0, x1, y1 = _char_extent(tp, i, self._left, self._top)
+            if cur and this_obj != obj:
+                height = y1 - y0
+                if not (join_glyphs and height > 0 and abs(y0 - box[1]) <= height * 0.1
+                        and -height * 0.2 <= x0 - box[2] <= height * 0.15):
+                    flush()
+            obj = this_obj
+            if not cur:
+                box.extend([x0, y0, x1, y1])
+            else:
+                box[0], box[1], box[2], box[3] = min(box[0], x0), min(box[1], y0), max(box[2], x1), max(box[3], y1)
+            cur.append(ch)
+        flush()
+        return out
 
     def render_rgb(self, scale: float):
         bitmap = self._page.render(scale=scale, rev_byteorder=True)

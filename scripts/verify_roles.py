@@ -44,7 +44,7 @@ def main() -> int:
     report = {"status": "pass" if not failures and passed(result) else "reject",
               "candidate_sha256": hashes, "model": model.identity, "metric_failures": failures,
               "baseline_sha256": baseline_hash,
-              "split_comparison": "contents and counts" if all(baseline[n].get("split_sha256") for n in ("test", "shifted")) else "counts only (legacy baseline)",
+              "split_comparison": "contents and counts",
               "file_gate_passed": passed(result), "file_evaluation": "file_evaluation.json"}
     write_json(folder / "verification.json", report)
     print(f"{report['status'].upper()}: {folder / 'verification.json'}")

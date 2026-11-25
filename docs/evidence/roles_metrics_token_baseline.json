@@ -1,0 +1,211 @@
+{
+  "int8_shipped": {
+    "calibration": {
+      "role_temperature": 2.019380728929039,
+      "alpha": 0.001,
+      "role_qhat": 0.9976497888565063
+    },
+    "calib": {
+      "tokens": 72677,
+      "role_accuracy": 0.9518,
+      "amount_tokens": 20081,
+      "amount_role_accuracy": 0.8966,
+      "type_accuracy": 0.9988,
+      "type_coverage": 0.9994,
+      "type_singleton_rate": 0.9968,
+      "role_ece_after_temperature": 0.0093,
+      "role_coverage": 0.9994,
+      "role_singleton_rate": 0.3885,
+      "amount_singleton_rate": 0.347,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.653,
+      "amount_role_coverage": 0.9998,
+      "predicted_amount_singletons": 6969,
+      "predicted_amount_singletons_wrong": 0,
+      "non_amount_predicted_as_amount": 0,
+      "by_role": {
+        "other": {
+          "tokens": 17323,
+          "covered": 17286,
+          "singletons_on_true_role": 5779,
+          "predicted_singletons": 5765,
+          "correct_singletons": 5765
+        },
+        "date": {
+          "tokens": 12255,
+          "covered": 12252,
+          "singletons_on_true_role": 6077,
+          "predicted_singletons": 6085,
+          "correct_singletons": 6076
+        },
+        "desc": {
+          "tokens": 23018,
+          "covered": 23017,
+          "singletons_on_true_role": 9408,
+          "predicted_singletons": 9414,
+          "correct_singletons": 9408
+        },
+        "debit": {
+          "tokens": 3949,
+          "covered": 3949,
+          "singletons_on_true_role": 72,
+          "predicted_singletons": 72,
+          "correct_singletons": 72
+        },
+        "credit": {
+          "tokens": 5351,
+          "covered": 5349,
+          "singletons_on_true_role": 108,
+          "predicted_singletons": 108,
+          "correct_singletons": 108
+        },
+        "balance": {
+          "tokens": 10781,
+          "covered": 10779,
+          "singletons_on_true_role": 6789,
+          "predicted_singletons": 6789,
+          "correct_singletons": 6789
+        }
+      }
+    },
+    "test": {
+      "tokens": 65099,
+      "role_accuracy": 0.9559,
+      "amount_tokens": 18195,
+      "amount_role_accuracy": 0.901,
+      "type_accuracy": 0.9989,
+      "type_coverage": 0.9995,
+      "type_singleton_rate": 0.9971,
+      "role_ece_after_temperature": 0.0098,
+      "role_coverage": 0.9997,
+      "role_singleton_rate": 0.4043,
+      "amount_singleton_rate": 0.3467,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.6533,
+      "amount_role_coverage": 0.9999,
+      "predicted_amount_singletons": 6309,
+      "predicted_amount_singletons_wrong": 0,
+      "non_amount_predicted_as_amount": 0,
+      "by_role": {
+        "other": {
+          "tokens": 15320,
+          "covered": 15305,
+          "singletons_on_true_role": 5545,
+          "predicted_singletons": 5537,
+          "correct_singletons": 5537
+        },
+        "date": {
+          "tokens": 10486,
+          "covered": 10485,
+          "singletons_on_true_role": 5340,
+          "predicted_singletons": 5344,
+          "correct_singletons": 5340
+        },
+        "desc": {
+          "tokens": 21098,
+          "covered": 21097,
+          "singletons_on_true_role": 9128,
+          "predicted_singletons": 9132,
+          "correct_singletons": 9128
+        },
+        "debit": {
+          "tokens": 3619,
+          "covered": 3619,
+          "singletons_on_true_role": 56,
+          "predicted_singletons": 56,
+          "correct_singletons": 56
+        },
+        "credit": {
+          "tokens": 4776,
+          "covered": 4775,
+          "singletons_on_true_role": 125,
+          "predicted_singletons": 125,
+          "correct_singletons": 125
+        },
+        "balance": {
+          "tokens": 9800,
+          "covered": 9800,
+          "singletons_on_true_role": 6128,
+          "predicted_singletons": 6128,
+          "correct_singletons": 6128
+        }
+      },
+      "split_sha256": "62c71b82cd9a0fb6b5022805ed30a3f1b4c0ac45c25bd05cd36a189a16ae75ac"
+    },
+    "shifted": {
+      "tokens": 44186,
+      "role_accuracy": 0.8275,
+      "amount_tokens": 11685,
+      "amount_role_accuracy": 0.7696,
+      "type_accuracy": 0.9947,
+      "type_coverage": 0.9981,
+      "type_singleton_rate": 0.9849,
+      "role_ece_after_temperature": 0.0752,
+      "role_coverage": 0.9879,
+      "role_singleton_rate": 0.2049,
+      "amount_singleton_rate": 0.2012,
+      "amount_singleton_wrong": 0,
+      "amount_abstain_rate": 0.7988,
+      "amount_role_coverage": 0.9998,
+      "predicted_amount_singletons": 2351,
+      "predicted_amount_singletons_wrong": 0,
+      "non_amount_predicted_as_amount": 0,
+      "by_role": {
+        "other": {
+          "tokens": 12205,
+          "covered": 11967,
+          "singletons_on_true_role": 2229,
+          "predicted_singletons": 2154,
+          "correct_singletons": 2135
+        },
+        "date": {
+          "tokens": 7848,
+          "covered": 7556,
+          "singletons_on_true_role": 1385,
+          "predicted_singletons": 1376,
+          "correct_singletons": 1350
+        },
+        "desc": {
+          "tokens": 12448,
+          "covered": 12447,
+          "singletons_on_true_role": 3087,
+          "predicted_singletons": 3171,
+          "correct_singletons": 3087
+        },
+        "debit": {
+          "tokens": 2333,
+          "covered": 2333,
+          "singletons_on_true_role": 0,
+          "predicted_singletons": 0,
+          "correct_singletons": 0
+        },
+        "credit": {
+          "tokens": 3066,
+          "covered": 3065,
+          "singletons_on_true_role": 0,
+          "predicted_singletons": 0,
+          "correct_singletons": 0
+        },
+        "balance": {
+          "tokens": 6286,
+          "covered": 6285,
+          "singletons_on_true_role": 2351,
+          "predicted_singletons": 2351,
+          "correct_singletons": 2351
+        }
+      },
+      "split_sha256": "040d04a785eb6b86496f1f3bffb66f2c858df8103a2f7a4460be2ce9f4b09018"
+    }
+  },
+  "model": {
+    "weights_sha256": "d101e39610b74fa3195399a9e4aed89dad2916c2ac874284b08a38b6a0d31056",
+    "calibration_sha256": "b8583501dfa4d4ed757f2cbf49a90c54d32c3e366374b9d2863c3328bd0732c7"
+  },
+  "dataset_sha256": "af693809a7b1fbac5f849739ea9469a9a98fda789d9847bc34634736321e8470",
+  "runtime": {
+    "torch": "2.14.1+cu126",
+    "device": "cuda",
+    "threads": 4
+  },
+  "note": "Synthetic statements only. The saved calibration was applied without refitting."
+}

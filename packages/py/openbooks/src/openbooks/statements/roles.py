@@ -1,12 +1,3 @@
-"""Typed heads for PDFs and scans: a calibrated column role and value type for every token, with abstention.
-
-Two jobs, both optional (--model):
- 1. cross-check: the rule-based extractor's column assignment must agree with the model's conformal sets, else
-    LOW_CONFIDENCE. This can only add refusals.
- 2. header-less fallback: when no header line is found the model assigns debit/credit/balance to amounts. A token
-    whose conformal set is not exactly one role abstains. The balance gate still has the last word.
-The weights ship in this distribution (data/roles_head.pt); without them the flag is refused, never ignored.
-"""
 from __future__ import annotations
 
 import hashlib
@@ -89,6 +80,42 @@ class Predictions:
             raise Refusal("LOW_CONFIDENCE", f"{page}the typed head is not sure which columns the amounts "
                                             f"are in ({len(keep)} readings tie the balance)")
         return dict(zip(tokens, keep[0]))
+
+    def resolve_chain(self, rows: list[list], opening, closing, value) -> list[dict]:
+        """Find the unique chain of model-supported readings, retaining at most two balances per row."""
+        frontier = {opening: (1, None, ())}
+        layers = []
+        for tokens in rows:
+            choices = [tuple(r for r in getattr(self.get(w), "role_set", ()) if r in AMOUNT) for w in tokens]
+            next_frontier = {}
+            if 1 <= len(tokens) <= 2:
+                values = [value(w) for w in tokens]
+                for roles in product(*choices):
+                    if roles.count("balance") != 1:
+                        continue
+                    balance = values[roles.index("balance")]
+                    change = sum((abs(v) if r == "credit" else -abs(v))
+                                 for r, v in zip(roles, values) if r != "balance")
+                    previous = None if None in frontier else balance - change
+                    if previous in frontier:
+                        count = frontier[previous][0] + next_frontier.get(balance, (0,))[0]
+                        # Multiple paths ending at the same balance remain ambiguous.
+                        next_frontier[balance] = (min(2, count), previous, roles)
+            if not next_frontier:
+                page = f"page {tokens[0].page}: " if tokens else ""
+                raise Refusal("LOW_CONFIDENCE", f"{page}no model-supported reading continues the balance chain")
+            layers.append(next_frontier)
+            frontier = next_frontier
+
+        ends = {b: path for b, path in frontier.items() if closing is None or b == closing}
+        if sum(path[0] for path in ends.values()) != 1:
+            raise Refusal("LOW_CONFIDENCE", "the model-supported readings do not prove a unique balance chain")
+        balance = next(iter(ends))
+        assignments = []
+        for tokens, layer in zip(reversed(rows), reversed(layers)):
+            _, balance, roles = layer[balance]
+            assignments.append(dict(zip(tokens, roles)))
+        return assignments[::-1]
 
 
 class RoleModel:
