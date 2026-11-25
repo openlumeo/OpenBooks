@@ -19,14 +19,23 @@ def load_schema(name: Literal["output", "refusal"] = "output") -> dict:
     return json.loads(resources.files("openbooks.core").joinpath("schema", _FILES[name]).read_text(encoding="utf-8"))
 
 
-def _money_schema() -> dict:
-    return load_schema("output")["$defs"]["money"]
+@lru_cache(maxsize=None)
+def _validator():
+    schema = load_schema("output")
+    cls = jsonschema.validators.validator_for(schema)
+    cls.check_schema(schema)
+    return cls(schema)
+
+
+def _check(instance) -> None:
+    error = jsonschema.exceptions.best_match(_validator().iter_errors(instance))
+    if error is not None:
+        raise error
 
 
 def _needs_evidence(rec: dict):
     for k, v in rec.items():
         if isinstance(v, dict) and set(v) == {"amount", "currency"}:
-            jsonschema.validate(v, _money_schema())
             yield k
         elif isinstance(v, str) and (k == "date" or k.startswith("period_")):
             yield k
@@ -34,7 +43,7 @@ def _needs_evidence(rec: dict):
 
 def validate_output(doc: dict) -> None:
     try:
-        jsonschema.validate(doc, load_schema("output"))
+        _check(doc)
         data = doc["data"]
         for key in ("accounts", "batches", "transactions"):
             for rec in data[key]:

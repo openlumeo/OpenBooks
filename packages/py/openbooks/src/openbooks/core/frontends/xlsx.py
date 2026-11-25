@@ -15,8 +15,8 @@ from ..errors import EngineFault, Refusal
 from ..params import Params
 from ..registry import Registry, default_registry, find_header
 
-MAX_SHEETS, MAX_ROWS = 20, 100_000
-MAX_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
+MAX_SHEETS, MAX_ROWS = 20, 2_000_000
+MAX_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
 
 
 def _to_str(v) -> str:
