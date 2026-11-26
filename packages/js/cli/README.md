@@ -1,4 +1,10 @@
+<p align="center">
+  <img src="https://openbooks.openlumeo.com/brand/mark-black.png" alt="Open Books" width="96" height="102">
+</p>
+
 # @lumeo_hq/openbooks
+
+[![Openbooks MCP server](https://mcprush.com/badge/openbooks-mcp/card.svg)](https://mcprush.com/to/openbooks-mcp?ref=badge)
 
 Open Books returns one proven JSON document per file, or a typed refusal, from the command line, from Node.js, or through an MCP server for AI agents. A file is released only if its own arithmetic balances.
 

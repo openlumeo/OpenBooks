@@ -1,5 +1,7 @@
 # Open Books
 
+[![Openbooks MCP server](https://mcprush.com/badge/openbooks-mcp/card.svg)](https://mcprush.com/to/openbooks-mcp?ref=badge)
+
 Open Books returns one proven JSON document per financial file, or a typed refusal that names the reason. It reads bank statements, payment-gateway exports, Indian tax documents and Excel workpapers, and releases a result only when the file's own arithmetic balances.
 
 [Developer documentation](https://openbooks.openlumeo.com/) · [Interactive bank CSV quickstart](https://openbooks.openlumeo.com/docs/quickstart) · [Workspace](https://openbooks.openlumeo.com/app) · [MCP server](https://openbooks.openlumeo.com/docs/mcp)
