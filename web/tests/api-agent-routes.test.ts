@@ -9,7 +9,7 @@ vi.mock("@/lib/server/agent-setup-db", () => ({ agentSetupDatabase: setupDb.agen
 import * as setupRoute from "@/app/api/agent/setup/route";
 import * as mcpRoute from "@/app/api/agent/mcp/route";
 
-const SITE = "https://openbooks.openlumeo.com";
+const SITE = "https://books.openlumeo.com";
 const TOKEN = "a".repeat(32);
 const MCP_HEADERS = { accept: "application/json, text/event-stream", "content-type": "application/json" };
 
@@ -77,8 +77,8 @@ describe("POST /api/agent/setup", () => {
 
   it.each([
     ["a cross-site origin", { origin: "https://evil.example" }],
-    ["a suffix-spoofed origin", { origin: "https://openbooks.openlumeo.com.evil.example" }],
-    ["a http downgrade of the site origin", { origin: "http://openbooks.openlumeo.com" }],
+    ["a suffix-spoofed origin", { origin: "https://books.openlumeo.com.evil.example" }],
+    ["a http downgrade of the site origin", { origin: "http://books.openlumeo.com" }],
     ["a missing origin", { origin: undefined }],
   ])("answers 403 invalid_origin for %s without touching the database", async (_label, override) => {
     const headers: Record<string, string | undefined> = { "content-type": "application/json", ...override };

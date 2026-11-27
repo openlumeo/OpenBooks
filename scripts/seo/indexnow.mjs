@@ -8,7 +8,7 @@ import { FETCH_TIMEOUT_MS, fetchText, parseSitemapEntries } from "./lib.mjs";
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const PUBLIC_DIR = path.join(REPO_ROOT, "web", "public");
 const ENDPOINT = "https://api.indexnow.org/IndexNow";
-const DEFAULT_HOST = "openbooks.openlumeo.com";
+const DEFAULT_HOST = "books.openlumeo.com";
 const MAX_URLS_PER_POST = 10000;
 const KEY_PATTERN = /^[a-f0-9]{8,128}$/i;
 const KEY_FILE_PATTERN = /^([a-f0-9]{8,128})\.txt$/i;

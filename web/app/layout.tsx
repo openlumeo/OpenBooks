@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     "openbooks-mcp",
     "Lumeo",
   ],
-  authors: [{ name: "Lumeo", url: "https://openbooks.openlumeo.com" }],
+  authors: [{ name: "Lumeo", url: "https://books.openlumeo.com" }],
   creator: "Lumeo",
   publisher: "Lumeo",
   category: "technology",

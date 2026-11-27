@@ -23,7 +23,7 @@ The public API uses a shared PostgreSQL rate limiter. Apply `web/migrations/001_
 
 ## Developer documentation and search
 
-The Open Books Netlify project serves the landing page at `https://openbooks.openlumeo.com/`, the Fumadocs docs under `/docs/` and the workspace at `/app`. Edit public pages in `web/content/docs/` and add entries to `meta.json` for sidebar navigation. HTML, the sitemap, `/llms.txt`, `/llms-full.txt` and per-page Markdown share the same content. Keep page descriptions specific and examples aligned with released package versions.
+The Open Books Netlify project serves the landing page at `https://books.openlumeo.com/`, the Fumadocs docs under `/docs/` and the workspace at `/app`. Edit public pages in `web/content/docs/` and add entries to `meta.json` for sidebar navigation. HTML, the sitemap, `/llms.txt`, `/llms-full.txt` and per-page Markdown share the same content. Keep page descriptions specific and examples aligned with released package versions.
 
 Run `pnpm test` from `web/` before pushing to the production branch. The Netlify build runs `deploy/build-public-assets.py` to publish the JSON schemas with the site. To prepare the same files locally, run `python deploy/build-public-assets.py` from the repository root, then run `pnpm build` from `web/`. The asset script needs Python 3.11 or newer.
 

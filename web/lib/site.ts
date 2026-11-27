@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const siteUrl = new URL("https://openbooks.openlumeo.com");
+export const siteUrl = new URL("https://books.openlumeo.com");
 
 export function pageMetadata({
   title, description, path,

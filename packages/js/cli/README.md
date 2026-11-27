@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://openbooks.openlumeo.com/brand/mark-black.png" alt="Open Books" width="96" height="102">
+  <img src="https://books.openlumeo.com/brand/mark-black.png" alt="Open Books" width="96" height="102">
 </p>
 
 # @lumeo_hq/openbooks
@@ -70,7 +70,7 @@ const report = await runDoctor();
 | `@lumeo_hq/openbooks/doctor` | Environment and engine diagnostics |
 | `@lumeo_hq/openbooks/mcp` | MCP server components |
 
-For per-file options and streaming decisions, use the [Node.js SDK](https://openbooks.openlumeo.com/docs/node).
+For per-file options and streaming decisions, use the [Node.js SDK](https://books.openlumeo.com/docs/node).
 
 ## MCP server for AI agents
 
@@ -91,9 +91,9 @@ See [MCP.md](./MCP.md) for client setup (Claude Code, Codex, Claude Desktop, Cur
 
 ## Links
 
-- Developer docs: https://openbooks.openlumeo.com/docs
-- MCP server guide: [MCP.md](./MCP.md) and https://openbooks.openlumeo.com/docs/mcp
+- Developer docs: https://books.openlumeo.com/docs
+- MCP server guide: [MCP.md](./MCP.md) and https://books.openlumeo.com/docs/mcp
 - Source: https://github.com/Sagexd08/OpenBooks
-- [CLI command reference and troubleshooting](https://openbooks.openlumeo.com/docs/cli)
+- [CLI command reference and troubleshooting](https://books.openlumeo.com/docs/cli)
 
-Exit-code and refusal details: https://openbooks.openlumeo.com/docs/refusals
+Exit-code and refusal details: https://books.openlumeo.com/docs/refusals

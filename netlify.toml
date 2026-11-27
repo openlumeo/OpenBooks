@@ -9,3 +9,15 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "https://openbooks.openlumeo.com/*"
+  to = "https://books.openlumeo.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://openbooks.openlumeo.com/*"
+  to = "https://books.openlumeo.com/:splat"
+  status = 301
+  force = true

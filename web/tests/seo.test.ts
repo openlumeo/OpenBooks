@@ -63,8 +63,8 @@ describe("root metadata", () => {
 describe("docs breadcrumb", () => {
   it("points the Developer docs crumb at /docs and the page crumb at its own URL", () => {
     const tree = JSON.stringify(DocArticle({ slug: ["cli"] }));
-    expect(tree).toContain('{"@type":"ListItem","position":1,"name":"Developer docs","item":"https://openbooks.openlumeo.com/docs"}');
-    expect(tree).toContain('{"@type":"ListItem","position":2,"name":"CLI commands and exit codes","item":"https://openbooks.openlumeo.com/docs/cli"}');
+    expect(tree).toContain('{"@type":"ListItem","position":1,"name":"Developer docs","item":"https://books.openlumeo.com/docs"}');
+    expect(tree).toContain('{"@type":"ListItem","position":2,"name":"CLI commands and exit codes","item":"https://books.openlumeo.com/docs/cli"}');
   });
 });
 
@@ -114,7 +114,7 @@ describe("published JS package metadata", () => {
       bugs?: { url?: string };
     };
     expect(pkg.keywords?.length ?? 0).toBeGreaterThan(0);
-    expect(pkg.homepage).toBe("https://openbooks.openlumeo.com");
+    expect(pkg.homepage).toBe("https://books.openlumeo.com");
     expect(pkg.bugs?.url).toBeTruthy();
   });
 });

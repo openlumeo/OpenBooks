@@ -19,7 +19,7 @@ scan = ["easyocr", "torch>=2.6", "pillow", "numpy"]  # OCR for scans and photos,
 
 [project.urls]
 Homepage = "https://github.com/Sagexd08/OpenBooks"
-Documentation = "https://openbooks.openlumeo.com/docs"
+Documentation = "https://books.openlumeo.com/docs"
 
 [project.scripts]
 openbooks = "openbooks.core.cli:main"
