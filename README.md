@@ -247,3 +247,4 @@ The Python engine, JavaScript package, and designated model artifacts are licens
 - MCP server for AI agents: https://books.openlumeo.com/docs/mcp (npm package `@lumeo_hq/openbooks`)
 - Python package: `openbooks` on PyPI; CLI: `@lumeo_hq/openbooks` on npm
 - Source: https://github.com/Sagexd08/OpenBooks
+   
