@@ -8,11 +8,11 @@ const JOB = /^[a-f0-9]{32}$/;
 const TTL_SECONDS = 1800;
 
 function signature(secret: string, job: string, expires: string): Buffer {
-  return createHmac("sha256", secret).update(`${job}.${expires}`).digest();
+  return createHmac("sha256", secret).update(`openbooks-upload-v1:${job}.${expires}`).digest();
 }
 
 export async function POST(req: Request) {
-  const secret = process.env.OPENBOOKS_UPLOAD_SECRET;
+  const secret = process.env.OPENBOOKS_UPLOAD_SECRET ?? process.env.OPENBOOKS_ENGINE_KEY;
   if (!secret) return jsonError(503, "upload_unavailable", "Large uploads are unavailable.", NO_STORE_HEADERS);
   if (req.headers.get("origin") !== SITE) return new Response(null, { status: 403, headers: NO_STORE_HEADERS });
   const job = req.headers.get("x-openbooks-job") ?? "";
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 }
 
 export function GET(req: Request) {
-  const secret = process.env.OPENBOOKS_UPLOAD_SECRET;
+  const secret = process.env.OPENBOOKS_UPLOAD_SECRET ?? process.env.OPENBOOKS_ENGINE_KEY;
   const job = req.headers.get("x-openbooks-job") ?? "";
   const [, expires, mac] = /^Bearer (\d{10})\.([a-f0-9]{64})$/.exec(req.headers.get("authorization") ?? "") ?? [];
   const now = Math.floor(Date.now() / 1000);

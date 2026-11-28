@@ -18,7 +18,6 @@ type JobPage = { events: JobEvent[]; cursor: number; done: boolean };
 const JOB_HEADER = "x-openbooks-job";
 const POLL_MS = 2000;
 const JOB_TIMEOUT_MS = 30 * 60 * 1000;
-const UPLOAD_ORIGIN = process.env.NEXT_PUBLIC_OPENBOOKS_UPLOAD_ORIGIN;
 const DIRECT_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 function jobHeaders(): Record<string, string> {
@@ -93,9 +92,11 @@ type RunEvent =
   | { type: "error"; message: string };
 
 async function uploadTarget(path: string, bytes: number, headers: Record<string, string>, signal?: AbortSignal) {
-  if (!UPLOAD_ORIGIN || bytes < DIRECT_UPLOAD_BYTES) return { url: path, headers };
+  if (typeof window === "undefined" || window.location.origin !== "https://books.openlumeo.com" || bytes < DIRECT_UPLOAD_BYTES) {
+    return { url: path, headers };
+  }
   const token = await fetch("/api/upload-token", { method: "POST", headers, signal }).then((res) => json<{ token: string }>(res));
-  return { url: `${UPLOAD_ORIGIN}${path}`, headers: { ...headers, authorization: `Bearer ${token.token}` } };
+  return { url: `https://uploads.books.openlumeo.com${path}`, headers: { ...headers, authorization: `Bearer ${token.token}` } };
 }
 
 export async function* runFiles(
