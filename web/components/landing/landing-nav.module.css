@@ -1,23 +1,22 @@
 .nav {
   position: fixed;
-  top: 12px;
+  top: 0;
   inset-inline: 0;
-  margin-inline: auto;
   z-index: 50;
-  width: min(100% - 2 * var(--gutter), 1120px);
-  padding-block: 14px;
-  padding-inline: 18px;
-  transition:
-    width 200ms var(--ease),
-    padding 200ms var(--ease),
-    top 200ms var(--ease);
+  height: 72px;
+  display: flex;
+  align-items: center;
+  transition: height 400ms var(--ease);
+  pointer-events: none;
 }
 
 .nav[data-scrolled="true"] {
-  top: 8px;
-  width: min(100% - 2 * var(--gutter), 720px);
-  padding-block: 8px;
-  padding-inline: 14px;
+  height: 56px;
+}
+
+.brand,
+.right {
+  pointer-events: auto;
 }
 
 .inner {
@@ -26,6 +25,16 @@
   justify-content: space-between;
   gap: 16px;
   min-width: 0;
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  box-sizing: border-box;
+  transition: max-width 400ms var(--ease);
+}
+
+.nav[data-scrolled="true"] .inner {
+  max-width: 100%;
 }
 
 .brand {
@@ -35,14 +44,44 @@
   min-width: 0;
 }
 
-.actions {
+.right {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 400px;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    max-width 400ms var(--ease),
+    opacity 240ms var(--ease),
+    transform 400ms var(--ease),
+    visibility 0ms linear 0ms;
+}
+
+.nav[data-scrolled="true"] .actions {
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(16px);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    max-width 400ms var(--ease),
+    opacity 200ms var(--ease),
+    transform 400ms var(--ease),
+    visibility 0ms linear 400ms;
+}
+
 .link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -92,27 +131,28 @@
   outline-offset: 3px;
 }
 
-@media (max-width: 560px) {
+/* Below 900px there is no room for side margins, so the bar scrolls away with
+   the page instead of floating over content. */
+@media (max-width: 899px) {
   .nav {
-    padding-inline: 12px;
+    position: absolute;
   }
+}
 
-  .nav[data-scrolled="true"] {
-    padding-inline: 10px;
-  }
-
+@media (max-width: 560px) {
   .brand :global(.ob-lockup-text) {
     display: none;
   }
 
   .link {
-    padding-inline: 8px;
+    display: none;
   }
 
   .cta {
     padding-inline: 16px;
   }
 
+  .right,
   .actions {
     gap: 4px;
   }
@@ -120,8 +160,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .nav,
+  .inner,
+  .actions,
+  .nav[data-scrolled="true"] .actions,
   .link,
   .link::after {
     transition-duration: 0ms;
+    transition-delay: 0ms;
   }
 }

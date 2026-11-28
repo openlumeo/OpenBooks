@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1200" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Geist Sans"; src: url("assets/fonts/Geist-Regular.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono-Regular.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono-Medium.woff2") format("woff2"); font-weight: 500; }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1200px; overflow: hidden; background: #0b0f08; }
+
+      /* THEME (build-time switch: build.mjs rewrites the class on #root) */
+      #root.theme-dark {
+        --ground: #0b0f08;
+        --win: #1e2820;
+        --win2: #26332a;
+        --text: #eef0f3;
+        --muted: rgba(238, 240, 243, 0.62);
+        --accent: #ade6c4;
+        --on-accent: #0b0f08;
+        --lav: #ad8fd5;
+        --hair: rgba(238, 240, 243, 0.14);
+        --menu: rgba(11, 15, 8, 0.72);
+        --icon-body: #2d3f31;
+        --icon-fold: #3d5342;
+        --win-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.7);
+        --label-bg: rgba(11, 15, 8, 0.55);
+      }
+      #root.theme-light {
+        --ground: #f7f9f6;
+        --win: #ffffff;
+        --win2: #eef2ed;
+        --text: #0b0f08;
+        --muted: #52605a;
+        --accent: #0e6a47;
+        --on-accent: #ffffff;
+        --lav: #6e4fa6;
+        --hair: rgba(11, 15, 8, 0.16);
+        --menu: rgba(247, 249, 246, 0.78);
+        --icon-body: #ffffff;
+        --icon-fold: #dfe6dd;
+        --win-shadow: 0 30px 60px -24px rgba(11, 15, 8, 0.3);
+        --label-bg: rgba(247, 249, 246, 0.6);
+      }
+
+      #root {
+        position: relative; width: 1920px; height: 1200px; overflow: hidden;
+        background: var(--ground); color: var(--text);
+        font-family: "Geist Sans", sans-serif; font-variant-numeric: tabular-nums;
+      }
+      .abs { position: absolute; }
+      .mono { font-family: "Geist Mono", monospace; text-transform: uppercase; letter-spacing: 0.14em; }
+
+      /* Wallpaper */
+      #wall { position: absolute; inset: 0; }
+      .theme-dark #wall {
+        background:
+          radial-gradient(60% 70% at 100% 100%, #352c41 0%, #231d29 46%, transparent 78%),
+          radial-gradient(50% 55% at 0% 0%, rgba(173, 230, 196, 0.09) 0%, transparent 70%),
+          #0b0f08;
+      }
+      .theme-light #wall {
+        background:
+          radial-gradient(70% 80% at 0% 0%, rgba(173, 230, 196, 0.45) 0%, transparent 70%),
+          radial-gradient(60% 70% at 100% 100%, rgba(173, 230, 196, 0.22) 0%, transparent 70%),
+          linear-gradient(160deg, #f7f9f6 0%, #eef2ed 100%);
+      }
+      #grain { position: absolute; inset: 0; background: url("assets/grain.png") repeat; pointer-events: none; }
+      .theme-dark #grain { opacity: 0.14; }
+      .theme-light #grain { opacity: 0.06; mix-blend-mode: multiply; }
+
+      /* Menu bar */
+      #menubar {
+        left: 0; top: 0; width: 1920px; height: 56px; background: var(--menu);
+        border-bottom: 1px solid var(--hair);
+        display: flex; align-items: center; padding: 0 28px; gap: 36px; font-size: 27px;
+      }
+      #glyph { width: 22px; height: 22px; border: 3px solid var(--text); }
+      #menubar .app { color: var(--text); }
+      #menubar .m { color: var(--muted); }
+      #clock { position: absolute; right: 28px; color: var(--muted); font-size: 26px; }
+
+      /* Desktop icon */
+      #file { z-index: 40; left: 55px; top: 170px; width: 150px; text-align: center; transform-origin: 50% 40%; }
+      #doc { position: relative; width: 104px; height: 132px; margin: 0 auto; background: var(--icon-body); border: 2px solid var(--hair); }
+      #doc::before { content: ""; position: absolute; right: -2px; top: -2px; width: 34px; height: 34px; background: var(--icon-fold); border-left: 2px solid var(--hair); border-bottom: 2px solid var(--hair); }
+      #doc .badge { position: absolute; left: 12px; bottom: 16px; font-family: "Geist Mono", monospace; font-size: 24px; letter-spacing: 0.1em; color: var(--accent); }
+      #doc .ln { position: absolute; left: 12px; height: 4px; background: var(--hair); }
+      #flabel { position: relative; display: inline-block; margin-top: 14px; padding: 4px 12px; font-size: 25px; line-height: 1.2; color: var(--text); background: var(--label-bg); }
+      
+      #fsel { position: absolute; inset: 0; background: var(--accent); opacity: 0; }
+      #flabel span { position: relative; }
+
+      /* Window */
+      #win {
+        left: 250px; top: 100px; width: 1620px; height: 1060px; background: var(--win);
+        border: 1px solid var(--hair); border-radius: 18px; box-shadow: var(--win-shadow); overflow: hidden;
+      }
+      #title { left: 0; top: 0; width: 100%; height: 72px; background: var(--win2); border-bottom: 1px solid var(--hair); }
+      .tl { position: absolute; top: 25px; width: 22px; height: 22px; border-radius: 50%; }
+      #title .name { position: absolute; left: 0; right: 0; top: 0; height: 72px; line-height: 72px; text-align: center; font-size: 28px; color: var(--muted); }
+      .lab { font-size: 22px; color: var(--muted); height: 30px; line-height: 30px; }
+
+      /* Left column */
+      #left { left: 30px; top: 112px; width: 600px; }
+      #dz { left: 0; top: 44px; width: 600px; height: 230px; border: 3px dashed var(--hair); }
+      #dzLit { left: 0; top: 44px; width: 600px; height: 230px; border: 3px dashed var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); opacity: 0; }
+      #dzSolid { left: 0; top: 44px; width: 600px; height: 230px; border: 2px solid var(--hair); background: var(--win2); opacity: 0; }
+      #dzText { left: 0; top: 44px; width: 600px; height: 230px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; font-size: 32px; color: var(--text); text-align: center; }
+      #dzText small { font-size: 22px; color: var(--muted); }
+      #frow { left: 0; top: 44px; width: 600px; height: 230px; padding: 0 36px; display: flex; flex-direction: column; justify-content: center; gap: 14px; opacity: 0; }
+      #frow .n { font-family: "Geist Mono", monospace; font-size: 36px; color: var(--text); text-transform: none; letter-spacing: 0; }
+      #frow .s { font-size: 26px; color: var(--muted); }
+      #frow .tag { display: flex; align-items: center; gap: 14px; font-size: 22px; color: var(--accent); }
+      #frow .tag i { width: 14px; height: 14px; background: var(--accent); display: block; }
+
+      #trail { left: 0; top: 370px; width: 600px; }
+      .st { position: absolute; left: 0; width: 600px; height: 120px; opacity: 0.32; }
+      .box { position: absolute; left: 0; top: 4px; width: 40px; height: 40px; border: 3px solid var(--hair); }
+      .box .fill { position: absolute; inset: -3px; background: var(--accent); opacity: 0; }
+      .box svg { position: absolute; left: 6px; top: 6px; width: 28px; height: 28px; opacity: 0; }
+      .st .nm { position: absolute; left: 66px; top: 6px; font-size: 26px; color: var(--text); line-height: 36px; }
+      .st .cap { position: absolute; left: 66px; top: 52px; font-size: 26px; color: var(--muted); white-space: nowrap; opacity: 0; }
+      .rail { position: absolute; left: 19px; width: 2px; height: 76px; top: 46px; background: var(--hair); }
+
+      /* Right column */
+      #right { left: 660px; top: 112px; width: 920px; }
+      .slot { position: absolute; left: 0; width: 920px; height: 88px; border-top: 1px solid var(--hair); }
+      .row { position: absolute; left: 0; top: 0; width: 920px; height: 88px; opacity: 0; }
+      .mk { position: absolute; left: 0; top: 14px; width: 2px; height: 60px; background: var(--hair); }
+      .mk2 { position: absolute; left: 0; top: 14px; width: 4px; height: 60px; background: var(--accent); opacity: 0; }
+      .row .c { position: absolute; top: 0; line-height: 88px; }
+      .c.d { left: 24px; font-family: "Geist Mono", monospace; font-size: 29px; color: var(--muted); }
+      .c.dir { left: 216px; font-size: 24px; color: var(--muted); }
+      .c.ds { left: 306px; font-size: 32px; color: var(--text); }
+      .c.am { right: 250px; font-family: "Geist Mono", monospace; font-size: 33px; color: var(--text); text-align: right; }
+      .c.bl { right: 0; font-family: "Geist Mono", monospace; font-size: 33px; color: var(--muted); text-align: right; }
+      #more { left: 0; top: 484px; width: 920px; height: 64px; line-height: 64px; border-top: 1px solid var(--hair); font-size: 22px; color: var(--muted); opacity: 0; }
+      #eqLab { left: 0; top: 590px; font-size: 22px; color: var(--muted); }
+      #eq { left: 0; top: 628px; white-space: nowrap; font-family: "Geist Mono", monospace; font-size: 36px; color: var(--text); letter-spacing: 0; }
+      #eq span { opacity: 0; display: inline-block; }
+      #eq .res { color: var(--accent); }
+      #eqRule { left: 0; top: 700px; width: 920px; height: 3px; background: var(--accent); transform-origin: 0 50%; }
+      #stamp {
+        left: 0; top: 760px; padding: 12px 30px; border: 4px solid var(--lav); color: var(--lav);
+        font-size: 40px; letter-spacing: 0.22em; opacity: 0; transform: rotate(2deg);
+      }
+      #chip {
+        right: 0; top: 770px; height: 72px; padding: 0 28px; display: flex; align-items: center; gap: 16px;
+        border: 2px solid var(--hair); background: var(--win2); font-size: 23px; color: var(--text); opacity: 0;
+      }
+      #chip em { font-style: normal; color: var(--accent); }
+
+      /* Cursor */
+      #cursor { left: 0; top: 0; width: 40px; height: 58px; z-index: 50; }
+    </style>
+  </head>
+  <body>
+    <div id="root" class="theme-dark" data-composition-id="main" data-start="0" data-duration="16" data-width="1920" data-height="1200">
+      <div id="wall" class="clip" data-start="0" data-duration="16" data-track-index="0"></div>
+      <div id="grain" class="clip" data-start="0" data-duration="16" data-track-index="1"></div>
+
+      <div id="menubar" class="abs clip" data-start="0" data-duration="16" data-track-index="2">
+        <div id="glyph"></div>
+        <span class="app">Open Books</span>
+        <span class="m">File</span><span class="m">Edit</span><span class="m">View</span><span class="m">Window</span>
+        <span id="clock" class="mono" style="letter-spacing: 0.04em; text-transform: none">Tue 9:41</span>
+      </div>
+
+      <div id="file" class="abs clip" data-start="0" data-duration="16" data-track-index="3">
+        <div id="doc">
+          <span class="ln" style="top: 52px; width: 70px"></span>
+          <span class="ln" style="top: 68px; width: 52px"></span>
+          <span class="ln" style="top: 84px; width: 62px"></span>
+          <span class="badge">CSV</span>
+        </div>
+        <div id="flabel"><i id="fsel"></i><span>statement.csv</span></div>
+      </div>
+
+      <div id="win" class="abs clip" data-start="0" data-duration="16" data-track-index="4">
+        <div id="title" class="abs">
+          <i class="tl" style="left: 26px; background: #ff5f57"></i>
+          <i class="tl" style="left: 64px; background: #febc2e"></i>
+          <i class="tl" style="left: 102px; background: #28c840"></i>
+          <div class="name">Open Books — Workspace</div>
+        </div>
+
+        <div id="left" class="abs">
+          <div class="lab mono abs" style="left: 0; top: 0">Input</div>
+          <div id="dz" class="abs"></div>
+          <div id="dzLit" class="abs"></div>
+          <div id="dzSolid" class="abs"></div>
+          <div id="dzText" class="abs"><span>Drop a statement to verify</span><small class="mono">CSV · PDF</small></div>
+          <div id="frow" class="abs">
+            <span class="n">statement.csv</span>
+            <span class="s">bank statement · 8 rows</span>
+            <span class="tag mono"><i></i>Received</span>
+          </div>
+
+          <div class="lab mono abs" style="left: 0; top: 320px">Engine</div>
+          <div id="trail" class="abs">
+            <div class="st" id="st0" style="top: 0">
+              <div class="box"><i class="fill"></i><svg viewBox="0 0 28 28"><path d="M4 15 L11 22 L24 6" fill="none" stroke="var(--on-accent)" stroke-width="4" stroke-linecap="square"/></svg></div>
+              <span class="nm mono">Detect</span><span class="cap">layout bank_csv.v1 detected</span><i class="rail"></i>
+            </div>
+            <div class="st" id="st1" style="top: 120px">
+              <div class="box"><i class="fill"></i><svg viewBox="0 0 28 28"><path d="M4 15 L11 22 L24 6" fill="none" stroke="var(--on-accent)" stroke-width="4" stroke-linecap="square"/></svg></div>
+              <span class="nm mono">Parse</span><span class="cap">8 rows read with page/row/raw text</span><i class="rail"></i>
+            </div>
+            <div class="st" id="st2" style="top: 240px">
+              <div class="box"><i class="fill"></i><svg viewBox="0 0 28 28"><path d="M4 15 L11 22 L24 6" fill="none" stroke="var(--on-accent)" stroke-width="4" stroke-linecap="square"/></svg></div>
+              <span class="nm mono">Normalise</span><span class="cap">dates, amounts, directions normalised</span><i class="rail"></i>
+            </div>
+            <div class="st" id="st3" style="top: 360px">
+              <div class="box"><i class="fill"></i><svg viewBox="0 0 28 28"><path d="M4 15 L11 22 L24 6" fill="none" stroke="var(--on-accent)" stroke-width="4" stroke-linecap="square"/></svg></div>
+              <span class="nm mono">Balance</span><span class="cap">opening + txns = closing</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="right" class="abs">
+          <div class="lab mono abs" style="left: 0; top: 0">Ledger</div>
+          <div id="slots" class="abs" style="left: 0; top: 44px; width: 920px">
+            <div class="slot" style="top: 0"><div class="row"><i class="mk"></i><i class="mk2"></i><span class="c d">2026-01-01</span><span class="c dir mono">CR</span><span class="c ds">TXN 0</span><span class="c am">1698.81</span><span class="c bl">2698.81</span></div></div>
+            <div class="slot" style="top: 88px"><div class="row"><i class="mk"></i><i class="mk2"></i><span class="c d">2026-01-02</span><span class="c dir mono">DR</span><span class="c ds">TXN 1</span><span class="c am">2071.01</span><span class="c bl">627.80</span></div></div>
+            <div class="slot" style="top: 176px"><div class="row"><i class="mk"></i><i class="mk2"></i><span class="c d">2026-01-03</span><span class="c dir mono">DR</span><span class="c ds">TXN 2</span><span class="c am">380.77</span><span class="c bl">247.03</span></div></div>
+            <div class="slot" style="top: 264px"><div class="row"><i class="mk"></i><i class="mk2"></i><span class="c d">2026-01-04</span><span class="c dir mono">CR</span><span class="c ds">TXN 3</span><span class="c am">494.51</span><span class="c bl">741.54</span></div></div>
+            <div class="slot" style="top: 352px"><div class="row"><i class="mk"></i><i class="mk2"></i><span class="c d">2026-01-05</span><span class="c dir mono">DR</span><span class="c ds">TXN 4</span><span class="c am">305.08</span><span class="c bl">436.46</span></div></div>
+          </div>
+          <div id="more" class="abs mono">+ 3 more rows</div>
+          <div id="eqLab" class="abs mono">Opening + credits − debits = closing</div>
+          <div id="eq" class="abs"><span>1000.00</span> <span>+ 6857.26</span> <span>− 2756.86</span> <span class="res">= 5100.40 INR</span></div>
+          <div id="eqRule" class="abs"></div>
+          <div id="stamp" class="abs mono">Released</div>
+          <div id="chip" class="abs mono"><span>↓ Download JSON</span><em>openbooks.v1</em></div>
+        </div>
+      </div>
+
+      <svg id="cursor" class="abs clip" data-start="0" data-duration="16" data-track-index="5" viewBox="0 0 40 58" width="40" height="58">
+        <path d="M2 2 L2 42 L12 33 L19 50 L26 47 L19 31 L32 31 Z" fill="#0b0f08" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const OUT = "power3.out", IO = "power2.inOut";
+
+      // Positions (px at 1920x1200). Cursor tip = element origin.
+      const START = { x: 130, y: 880 };
+      const ICON = { x: 130, y: 236 };
+      const DROP = { x: 580, y: 371 };
+      const PARK = { x: 760, y: 1110 };
+      const D = { x: DROP.x - ICON.x, y: DROP.y - ICON.y };
+
+      // Initial state (== final state of the loop)
+      gsap.set("#cursor", { x: START.x, y: START.y });
+      gsap.set("#frow", { opacity: 0 });
+      gsap.set("#stamp", { opacity: 0, rotation: 2 });
+
+      // 0.0-0.7 hold the empty desktop
+      // 0.7-2.0 cursor to the file
+      tl.to("#cursor", { x: ICON.x, duration: 1.3, ease: "power2.inOut" }, 0.7);
+      tl.to("#cursor", { y: ICON.y, duration: 1.3, ease: "power3.inOut" }, 0.7);
+      // 2.0-2.25 press: icon depresses, label selects
+      tl.to("#file", { scale: 0.94, duration: 0.15, ease: OUT }, 2.0);
+      tl.to("#fsel", { opacity: 1, duration: 0.15 }, 2.0);
+      tl.to("#flabel span", { color: "var(--on-accent)", duration: 0.15 }, 2.0);
+      tl.to("#cursor", { scale: 0.92, transformOrigin: "2px 2px", duration: 0.15 }, 2.0);
+      // 2.4-4.3 drag into the drop zone
+      tl.to(["#cursor", "#file"], { x: "+=" + D.x, duration: 1.9, ease: "power2.inOut" }, 2.4);
+      tl.to(["#cursor", "#file"], { y: "+=" + D.y, duration: 1.9, ease: "power3.inOut" }, 2.4);
+      tl.to("#file", { scale: 1.04, duration: 0.5, ease: OUT }, 2.4);
+      // zone lights mint on hover
+      tl.to("#dzLit", { opacity: 1, duration: 0.3 }, 3.6);
+      // 4.3 release: icon dissolves into the zone
+      tl.to("#file", { scale: 0.5, opacity: 0, duration: 0.3, ease: "power2.in" }, 4.3);
+      tl.to("#cursor", { scale: 1, duration: 0.15 }, 4.3);
+      tl.to("#dzLit", { scale: 1.015, transformOrigin: "50% 50%", duration: 0.15, yoyo: true, repeat: 1 }, 4.3);
+      // cursor slides off to the park position
+      tl.to("#cursor", { x: PARK.x, duration: 1.4, ease: IO }, 4.9);
+      tl.to("#cursor", { y: PARK.y, duration: 1.4, ease: "power3.inOut" }, 4.9);
+
+      // 4.6 file row lands in INPUT
+      tl.to("#dzText", { opacity: 0, duration: 0.2 }, 4.55);
+      tl.to("#dz", { opacity: 0, duration: 0.2 }, 4.55);
+      tl.to("#dzLit", { opacity: 0, duration: 0.3 }, 4.65);
+      tl.to("#dzSolid", { opacity: 1, duration: 0.3 }, 4.65);
+      tl.fromTo("#frow", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: OUT, immediateRender: false }, 4.75);
+
+      // 5.4-8.4 stage trail ticks one by one
+      const stageAt = [5.4, 6.3, 7.2, 8.1];
+      stageAt.forEach((t, i) => {
+        const s = "#st" + i;
+        tl.to(s, { opacity: 1, duration: 0.25 }, t);
+        tl.to(s + " .fill", { opacity: 1, duration: 0.2 }, t + 0.3);
+        tl.to(s + " svg", { opacity: 1, duration: 0.2 }, t + 0.3);
+        tl.fromTo(s + " .cap", { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.35, ease: OUT, immediateRender: false }, t + 0.35);
+      });
+
+      // 7.4-8.7 ledger rows land after NORMALISE
+      document.querySelectorAll(".row").forEach((r, i) => {
+        tl.fromTo(r, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: OUT, immediateRender: false }, 7.5 + i * 0.2);
+        // 8.6 markers tie, one by one, as BALANCE runs
+        tl.to(r.querySelector(".mk2"), { opacity: 1, duration: 0.2 }, 8.7 + i * 0.22);
+      });
+      tl.to("#more", { opacity: 1, duration: 0.4 }, 8.5);
+
+      // 10.0-11.2 equation resolves
+      document.querySelectorAll("#eq span").forEach((s, i) => {
+        tl.fromTo(s, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, ease: OUT, immediateRender: false }, 10.0 + i * 0.3);
+      });
+      tl.fromTo("#eqRule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: IO, immediateRender: true }, 11.0);
+
+      // 11.9 stamp lands at 2deg
+      tl.fromTo("#stamp", { opacity: 0, scale: 1.6, rotation: 2 }, { opacity: 1, scale: 1, rotation: 2, duration: 0.22, ease: "power4.in", immediateRender: false }, 11.9);
+      tl.to("#stamp", { y: 3, duration: 0.07, yoyo: true, repeat: 1 }, 12.12);
+      // 12.6 download chip
+      tl.fromTo("#chip", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: OUT, immediateRender: false }, 12.6);
+
+      // hold 13.0 -> 14.3, then reset to exact first frame by 15.8
+      const RS = 14.4;
+      tl.to(["#frow", "#more", "#eq span", "#stamp", "#chip", ".row", "#dzSolid"], { opacity: 0, duration: 0.5, ease: "power1.inOut" }, RS);
+      tl.to("#eqRule", { scaleX: 0, duration: 0.4 }, RS);
+      tl.to(".st", { opacity: 0.32, duration: 0.5 }, RS);
+      tl.to([".st .fill", ".st svg", ".st .cap", ".mk2"], { opacity: 0, duration: 0.5 }, RS);
+      tl.to("#dz", { opacity: 1, duration: 0.5 }, RS + 0.3);
+      tl.to("#dzText", { opacity: 1, duration: 0.5 }, RS + 0.3);
+      // desktop file returns, cursor returns to start
+      tl.set("#file", { x: 0, y: 0, scale: 1 }, RS + 0.4);
+      tl.set("#fsel", { opacity: 0 }, RS + 0.4);
+      tl.set("#flabel span", { color: "var(--text)" }, RS + 0.4);
+      tl.to("#file", { opacity: 1, duration: 0.5 }, RS + 0.5);
+      tl.to("#cursor", { x: START.x, duration: 1.1, ease: IO }, RS + 0.2);
+      tl.to("#cursor", { y: START.y, duration: 1.1, ease: "power3.inOut" }, RS + 0.2);
+      tl.set({}, {}, 16);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

@@ -1,22 +1,171 @@
 .checks {
   display: grid;
-  gap: 14px;
+  gap: 24px;
   min-width: 0;
-  max-width: 760px;
+  max-width: 980px;
+  padding-top: 28px;
+  border-top: 1px solid var(--hairline);
+}
+
+.lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.leadText {
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.sub {
+  margin: 8px 0 0;
+  max-width: 60ch;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.proofs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.proof {
+  display: flex;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px 16px;
+  border-top: 1px solid var(--hairline);
+}
+
+.proof:first-child {
+  border-top: 0;
+}
+
+.num {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.body {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.body > p {
+  margin: 0;
+}
+
+.name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.plain {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.example {
+  justify-self: start;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--hairline);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.applies {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.notes {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
 }
 
 .note {
   margin: 0;
+  max-width: 70ch;
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.55;
-  color: var(--text);
+  color: var(--text-muted);
 }
 
-.footnote {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--text-muted);
+@media (min-width: 760px) {
+  .proofs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .proof {
+    padding: 20px;
+  }
+
+  .proof:nth-child(2) {
+    border-top: 0;
+  }
+
+  .proof:nth-child(even) {
+    border-left: 1px solid var(--hairline);
+  }
+
+  .notes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
 }

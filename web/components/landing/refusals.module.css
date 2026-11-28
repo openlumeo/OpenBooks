@@ -1,193 +1,114 @@
+/* Tighter bottom edge so the handoff into Trace is not dead space; the
+   shared section top hairline (lp-ledger-rule) is left untouched. */
+section.sec {
+  padding-bottom: clamp(48px, 6vw, 84px);
+}
+
 .lede {
   margin: 0;
-  max-width: 62ch;
+  max-width: 60ch;
   font-family: var(--font-body);
-  font-size: clamp(17px, 1.6vw, 19px);
+  font-size: clamp(17px, 1.6vw, 20px);
   line-height: 1.55;
   color: var(--text-muted);
 }
 
-.scroll {
-  border: 1px solid var(--hairline);
-  background: color-mix(in srgb, var(--surface) 40%, transparent);
-  margin-top: clamp(32px, 4vw, 48px);
-}
-
-.scroll:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.table {
-  width: 100%;
-  min-width: 40rem;
-  border-collapse: collapse;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--text-muted);
-  text-align: left;
-}
-
-.table thead th {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--hairline);
+.lede code {
   font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  font-variant-numeric: tabular-nums;
-}
-
-.table td,
-.table th[scope="row"] {
-  padding: 14px 16px;
-  vertical-align: top;
-  border-bottom: 1px solid var(--hairline-soft);
-}
-
-.table tbody tr:last-child > * {
-  border-bottom: 0;
-}
-
-.code {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-align: left;
-  white-space: nowrap;
+  font-size: 0.88em;
   color: var(--text);
-  font-variant-numeric: tabular-nums;
 }
 
-.stage {
+/* static explainer: readable without hovering */
+.flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--hairline);
+}
+
+.flow > li {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 12px 14px 0;
+}
+
+.flowLabel {
   font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  white-space: nowrap;
   color: var(--text);
-  font-variant-numeric: tabular-nums;
 }
 
-.meaning {
-  min-width: 18rem;
-}
-
-.caption {
-  margin: 12px 0 0;
+.flowGloss {
   font-family: var(--font-body);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.4;
   color: var(--text-muted);
 }
 
-.proof {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(28px, 4vw, 56px);
-  align-items: start;
-  margin-top: clamp(40px, 6vw, 64px);
-  perspective: 1200px;
-  perspective-origin: 50% 40%;
+.flowStep .flowLabel::before,
+.flowOut .flowLabel::before {
+  content: "→ ";
+  color: var(--text-faint);
 }
 
-.fix {
-  margin: 0;
-  max-width: 40ch;
-  font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.55;
+.flowOut .flowLabel {
   color: var(--text);
 }
 
-.panelWrap {
-  display: grid;
-  gap: 10px;
-  min-width: 0;
+@media (max-width: 760px) {
+  .flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .flow > li {
+    border-bottom: 1px solid var(--hairline);
+  }
 }
 
-.panelTitle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.codes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 20px;
+  margin: 0;
 }
 
-.entry {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
+.codesLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
 }
 
-.entryCode {
+.codeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.codeList code {
   font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-
-.entryMessage {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text);
-  overflow-wrap: anywhere;
-}
-
-.panelCaption {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 13px;
-  line-height: 1.5;
   color: var(--text-muted);
 }
 
-@media (max-width: 900px) {
-  .proof {
-    grid-template-columns: minmax(0, 1fr);
-  }
+.codesLink {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hairline);
 }
 
-.codeCell {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.stamp {
-  flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  fill: none;
-  stroke: var(--text-faint);
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  transition: stroke var(--dur) var(--ease);
-}
-
-tbody tr:hover .stamp {
-  stroke: var(--accent);
-}
-
-.table tbody tr {
-  transition: background-color var(--dur) var(--ease);
-}
-
-.table tbody tr:hover {
-  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
-}
-
-.table tbody tr:focus-within {
-  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stamp,
-  .table tbody tr {
-    transition: none;
-  }
+.codesLink:hover,
+.codesLink:focus-visible {
+  text-decoration-color: currentColor;
 }

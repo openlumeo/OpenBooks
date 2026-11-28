@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SiteFooter } from "@/components/landing/site-footer";
 import { StructuredData } from "@/components/structured-data";
 import { loadLeaderboard } from "@/lib/benchmark/runtime";
 import type { LeaderboardEntry } from "@/lib/benchmark/store";
@@ -154,7 +153,6 @@ export default async function BenchmarkPage() {
           </p>
         </section>
       </main>
-      <SiteFooter />
       <StructuredData
         data={{
           "@context": "https://schema.org",

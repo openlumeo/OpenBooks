@@ -20,3 +20,7 @@ export const ASK_EXAMPLE = {
     description: "Sample deposit",
   },
 } as const;
+
+export const ASK_FOLLOW_UP = {
+  question: "How many credits?",
+} as const;
