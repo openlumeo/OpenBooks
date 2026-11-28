@@ -9,11 +9,10 @@ import { Sidebar } from "./sidebar";
 import { AnswerView, LinksView, RunView, UserAsk, UserRun } from "./turns";
 import { fetchSampleFile } from "@/lib/engine-client";
 import { uid } from "@/lib/format";
+import { MAX_FILE_BYTES } from "@/lib/guards";
 import { threadDocs } from "@/lib/workspace/history";
 import { useWorkspace, type Workspace as WorkspaceState } from "@/lib/workspace/use-workspace";
 import type { RunParams, Sample } from "@/lib/types";
-
-const DEFAULT_MAX = 2 * 1024 * 1024 * 1024;
 
 export function Workspace() {
   const ws = useWorkspace();
@@ -145,7 +144,7 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
   };
 
   const allowed = ws.engine.health?.allowed_extensions ?? ws.formats?.allowed_extensions ?? [];
-  const maxBytes = ws.engine.health?.max_bytes ?? DEFAULT_MAX;
+  const maxBytes = ws.engine.health?.max_bytes ?? ws.formats?.max_bytes ?? MAX_FILE_BYTES;
   const engineUp = ws.engine.status === "up";
 
   return (

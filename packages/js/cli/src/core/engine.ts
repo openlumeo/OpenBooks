@@ -24,6 +24,7 @@ export interface RunOptions extends DiscoverOptions, DocumentOptions {
   signal?: AbortSignal;
   maxOutputBytes?: number;
   maxDocumentBytes?: number;
+  maxInputBytes?: number;
   accept?: readonly string[];
 }
 
@@ -56,6 +57,8 @@ interface MachineLine { file: string; status: "ok" | "refused"; code: string | n
 export interface Input { path: string; sha: string }
 const DEFAULT_RUN_TIMEOUT_MS = 120_000;
 const DEFAULT_DOCUMENT_BYTES = 64 * 1024 * 1024;
+const DEFAULT_INPUT_BYTES = 2 * 1024 * 1024 * 1024;
+const MAX_LOCAL_INPUT_BYTES = 2 * DEFAULT_INPUT_BYTES;
 const MAX_ERROR_TAIL_LINES = 6;
 const MAX_ERROR_TAIL_CHARS = 2000;
 const DOCUMENT_OPTIONS = ["currency", "opening", "account", "allowDerivedOpening", "dateOrder", "ocr", "model"] as const;
@@ -87,7 +90,7 @@ function flags(o: RunOptions): string[] {
 
 async function sha256(path: string, signal?: AbortSignal): Promise<string> {
   const h = createHash("sha256");
-  for await (const chunk of createReadStream(path, { signal })) h.update(chunk as Buffer);
+  for await (const chunk of createReadStream(path, { signal, highWaterMark: 1024 * 1024 })) h.update(chunk as Buffer);
   return h.digest("hex");
 }
 
@@ -95,9 +98,11 @@ function lastLines(s: string): string {
   return s.trim().split(/\r?\n/).slice(-MAX_ERROR_TAIL_LINES).join("\n").slice(0, MAX_ERROR_TAIL_CHARS);
 }
 
-async function hashInput(path: string, signal?: AbortSignal): Promise<string> {
+async function hashInput(path: string, maxInput: number, signal?: AbortSignal): Promise<string> {
   try {
-    if (!(await stat(path)).isFile()) throw new Error("not a file");
+    const metadata = await stat(path);
+    if (!metadata.isFile()) throw new Error("not a file");
+    if (metadata.size > maxInput) throw new Error(`input exceeds ${maxInput} bytes`);
     return await sha256(path, signal);
   } catch (cause) {
     checkAborted(signal);
@@ -105,11 +110,11 @@ async function hashInput(path: string, signal?: AbortSignal): Promise<string> {
   }
 }
 
-async function readInputs(files: readonly string[], signal?: AbortSignal): Promise<Input[]> {
+async function readInputs(files: readonly string[], maxInput: number, signal?: AbortSignal): Promise<Input[]> {
   const inputs: Input[] = [];
   for (const file of files) {
     const path = resolve(file);
-    inputs.push({ path, sha: await hashInput(path, signal) });
+    inputs.push({ path, sha: await hashInput(path, maxInput, signal) });
   }
   return inputs;
 }
@@ -151,9 +156,16 @@ export async function runFiles(files: readonly string[], opts: RunOptions = {}):
   if (!Number.isSafeInteger(maxDocument) || maxDocument < 1) {
     throw new EngineError("input", "maxDocumentBytes must be a positive whole number of bytes");
   }
-  const batches = splitBatches(await readInputs(files, opts.signal));
+  const maxInput = opts.maxInputBytes ?? DEFAULT_INPUT_BYTES;
+  if (!Number.isSafeInteger(maxInput) || maxInput < 1 || maxInput > MAX_LOCAL_INPUT_BYTES) {
+    throw new EngineError("input", `maxInputBytes must be between 1 and ${MAX_LOCAL_INPUT_BYTES}`);
+  }
+  const batches = splitBatches(await readInputs(files, maxInput, opts.signal));
   checkAborted(opts.signal);
   const engine = await discoverForRun(opts);
+  if (maxInput > DEFAULT_INPUT_BYTES && engine.info.max_local_file_bytes === MAX_LOCAL_INPUT_BYTES) {
+    runFlags.push("--large-local");
+  }
   checkAborted(opts.signal);
   const deadline = performance.now() + timeoutMs;
   const results: RunResult[] = [];

@@ -3,7 +3,7 @@ name = "openbooks-server"
 version = "0.1.0"
 description = "HTTP service for the Open Books engine: one openbooks.v1 JSON per file, streamed as server-sent events."
 requires-python = ">=3.11"
-dependencies = ["openbooks~=0.2.0", "fastapi>=0.115", "uvicorn[standard]>=0.30", "python-multipart>=0.0.9"]
+dependencies = ["openbooks~=0.2.0", "anyio>=4", "fastapi>=0.115", "uvicorn[standard]>=0.30", "python-multipart>=0.0.20"]
 
 [project.optional-dependencies]
 test = ["pytest", "httpx"]

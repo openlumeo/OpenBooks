@@ -140,7 +140,7 @@ OPENBOOKS_MCP_TOKEN="<at least 32 ASCII characters>" npx -y -p @lumeo_hq/openboo
 | Parallel steps | 2 |
 | Inline upload (`process_upload`) | 1 MiB |
 | Response per call | 48 KiB |
-| Local file (`--root`) | 2 GiB |
+| Local file (`--root`, stdio with a Python engine reporting 4 GiB support) | 4 GiB |
 | Local text file (CSV, OFX, QFX, STA, MT940, TXT, XML) | 64 MB |
 | Concurrent runs | 2. A call made while both are busy returns `BUSY`; retry after a run finishes. |
 

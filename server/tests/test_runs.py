@@ -2,19 +2,15 @@
 import asyncio
 import io
 from decimal import Decimal
-from types import SimpleNamespace
 
 import pytest
 from openbooks.pipeline import Params
 
 from openbooks_server import runs
-from openbooks_server.execution import _run_params, _sse, _stage_uploads
+from starlette.requests import Request
+
+from openbooks_server.execution import _run_params, _sse, post_runs
 from openbooks_server.runs import Run, parse_params, safe_name
-
-
-class BrokenStream:
-    def read(self, _n: int = -1) -> bytes:
-        raise OSError("client went away")
 
 
 @pytest.mark.parametrize("name, expected", [
@@ -125,13 +121,42 @@ def test_run_cleanup_is_safe_to_call_twice():
     assert not run.root.exists()
 
 
-def test_failed_upload_removes_the_run_directory_and_reraises():
+def test_failed_upload_removes_the_run_directory_and_reraises(monkeypatch):
     run = Run()
-    upload = SimpleNamespace(filename="a.csv", file=BrokenStream())
+    monkeypatch.setattr("openbooks_server.execution.Run", lambda: run)
+    chunks = iter([b'--test\r\nContent-Disposition: form-data; name="files"; filename="a.csv"\r\n\r\nhello'])
 
+    async def receive():
+        chunk = next(chunks, None)
+        if chunk is None:
+            raise OSError("read failed")
+        return {"type": "http.request", "body": chunk, "more_body": True}
+
+    request = Request({"type": "http", "headers": [(b"content-type", b"multipart/form-data; boundary=test")]}, receive)
     with pytest.raises(OSError):
-        asyncio.run(_stage_uploads(run, [upload]))
+        asyncio.run(post_runs(request))
 
+    assert not run.root.exists()
+
+
+@pytest.mark.parametrize(("data", "end", "status"), [(b"12345", b"--\r\n", 413), (b"1234", b"", 400)])
+def test_invalid_uploads_clean_up_the_single_staged_copy(monkeypatch, data, end, status):
+    from fastapi import HTTPException
+
+    run = Run()
+    monkeypatch.setattr("openbooks_server.execution.Run", lambda: run)
+    monkeypatch.setattr("openbooks_server.uploads.MAX_BYTES", 4)
+    chunks = iter([b'--test\r\nContent-Disposition: form-data; name="files"; filename="a.pdf"\r\n\r\n',
+                   data, b"\r\n--test" + end])
+
+    async def receive():
+        chunk = next(chunks, b"")
+        return {"type": "http.request", "body": chunk, "more_body": bool(chunk)}
+
+    request = Request({"type": "http", "headers": [(b"content-type", b"multipart/form-data; boundary=test")]}, receive)
+    with pytest.raises(HTTPException) as failure:
+        asyncio.run(post_runs(request))
+    assert failure.value.status_code == status
     assert not run.root.exists()
 
 

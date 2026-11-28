@@ -280,10 +280,11 @@ class TesseractEngine:
         except ImportError as error:
             raise ProviderUnavailable("Pillow is required for tesseract; install 'openbooks[scan]'") from error
         buffer = BytesIO()
-        Image.fromarray(image).save(buffer, format="PNG", compress_level=1)
+        Image.fromarray(image).convert("L").save(buffer, format="PNG", compress_level=1)
         try:
             result = subprocess.run(
-                [self._command, "stdin", "stdout", "-l", self._lang, "--psm", self._psm, "tsv"],
+                [self._command, "stdin", "stdout", "-l", self._lang, "--psm", self._psm,
+                 "--dpi", str(round(scale * 72)), "tsv"],
                 input=buffer.getvalue(), capture_output=True, timeout=TESSERACT_TIMEOUT_SECONDS, check=False,
                 env={**os.environ, "OMP_THREAD_LIMIT": "1"},
             )

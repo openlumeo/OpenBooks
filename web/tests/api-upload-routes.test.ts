@@ -51,7 +51,7 @@ describe("POST /api/runs", () => {
   });
 
   it("answers 413 when the upload exceeds the 2 GB cap", async () => {
-    const res = await runsPost(upload("/api/runs", { contentLength: String(2 * 1024 * 1024 * 1024 + 1) }));
+    const res = await runsPost(upload("/api/runs", { contentLength: String(2 * 1024 * 1024 * 1024 + 1024 * 1024 + 1) }));
     expect(res.status).toBe(413);
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -89,7 +89,7 @@ describe("POST /api/roles", () => {
   });
 
   it("answers 413 above the 2 GB per-file cap", async () => {
-    const res = await rolesPost(upload("/api/roles", { contentLength: String(2 * 1024 * 1024 * 1024 + 1) }));
+    const res = await rolesPost(upload("/api/roles", { contentLength: String(2 * 1024 * 1024 * 1024 + 1024 * 1024 + 1) }));
     expect(res.status).toBe(413);
   });
 

@@ -15,6 +15,8 @@ node deploy/smoke.mjs "https://$OPENBOOKS_SITE_ADDRESS"
 
 The smoke test checks health, runs a packaged statement with explicit INR and day-first dates, and verifies its expected transaction fields and model provenance. Pass a path to a PNG or JPEG as the second argument to verify OCR and role inference too. Use a synthetic image when checking a newly deployed instance.
 
+The self-hosted upload route accepts up to 2 GiB of file data per run and allows 1 MiB for multipart framing and fields. The engine writes one temporary copy and removes it after processing. Give the engine temporary volume room for concurrent uploads. A single upload stops if the host approaches its free-space reserve. Text formats retain their 64 MiB parser limit. The Netlify Functions request limit applies to the hosted site, so large uploads require the streaming self-hosted route or another streaming ingress.
+
 For a local sandbox, use `OPENBOOKS_SITE_ADDRESS=:80`, `OPENBOOKS_HTTP_BIND=127.0.0.1:3080`, and `OPENBOOKS_HTTPS_BIND=127.0.0.1:3443`. Run with `docker compose -p openbooks-sandbox` and test `http://127.0.0.1:3080`.
 
 Q&A is optional. Set `OPENBOOKS_LLM_API_KEY`, `OPENBOOKS_LLM_MODEL`, and, if needed, `OPENBOOKS_LLM_BASE_URL` on the VPS. The upload, OCR, and model reading routes run without these values.
@@ -24,6 +26,8 @@ The public API uses a shared PostgreSQL rate limiter. Apply `web/migrations/001_
 ## Developer documentation and search
 
 The Open Books Netlify project serves the landing page at `https://books.openlumeo.com/`, the Fumadocs docs under `/docs/` and the workspace at `/app`. Edit public pages in `web/content/docs/` and add entries to `meta.json` for sidebar navigation. HTML, the sitemap, `/llms.txt`, `/llms-full.txt` and per-page Markdown share the same content. Keep page descriptions specific and examples aligned with released package versions.
+
+In the Neon Auth settings for the branch in the production `NEON_AUTH_BASE_URL`, add `https://books.openlumeo.com` as a trusted origin. Neon checks the request origin for email sign-in and the callback URL for Google sign-in.
 
 Run `pnpm test` from `web/` before pushing to the production branch. The Netlify build runs `deploy/build-public-assets.py` to publish the JSON schemas with the site. To prepare the same files locally, run `python deploy/build-public-assets.py` from the repository root, then run `pnpm build` from `web/`. The asset script needs Python 3.11 or newer.
 

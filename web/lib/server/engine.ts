@@ -56,6 +56,8 @@ export function relay(upstream: Response, extra: Record<string, string> = {}): R
 
 export async function proxyUpload(req: Request, path: `/v1/${string}`, extra: Record<string, string>): Promise<Response> {
   const headers = new Headers({ "content-type": req.headers.get("content-type") ?? "" });
+  const length = req.headers.get("content-length");
+  if (length !== null) headers.set("content-length", length);
   const job = req.headers.get(JOB_HEADER);
   if (job !== null) {
     if (!JOB_KEY.test(job)) return jsonError(400, "invalid_job_key", "Invalid upload job key.", NO_STORE_HEADERS);

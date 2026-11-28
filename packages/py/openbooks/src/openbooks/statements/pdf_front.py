@@ -24,6 +24,7 @@ from openbooks.statements.table_header import HEADER, _IND, _header_cols, _near,
 MAX_PAGES, MAX_WORDS_PER_PAGE = 60, 20_000
 OCR_DPI, OCR_MAX_PX = 200, 3200
 OCR_MIN_DATE_CONF = 0.50
+OCR_MIN_MONEY_CONF = 0.30
 TEXT_LAYER_MIN_WORDS = 5
 KNOWN_CCY = {"INR", "USD", "EUR", "GBP", "AED", "SGD", "AUD", "CAD", "JPY"}
 _OPEN_CLOSE = re.compile(r"opening balance|closing balance", re.I)
@@ -90,11 +91,14 @@ def _join_split_amounts(ws: list[Word]) -> list[Word]:
     Adjacent digit/comma pieces ending in exactly two digits are rejoined. A wrong join can only add a refusal:
     the balance gate still has to prove every amount."""
     lines: list[list[Word]] = []
+    line_y = 0.0
     for w in sorted(ws, key=lambda w: w.cy):
-        if lines and abs(w.cy - sum(x.cy for x in lines[-1]) / len(lines[-1])) < 0.6 * w.h:
+        if lines and abs(w.cy - line_y / len(lines[-1])) < 0.6 * w.h:
             lines[-1].append(w)
+            line_y += w.cy
         else:
             lines.append([w])
+            line_y = w.cy
     out: list[Word] = []
     for ln in lines:
         ln.sort(key=lambda w: w.x0)
@@ -254,11 +258,12 @@ def _desc_window(cols):
     return (max(left, default=cols["desc"].x0 - 80) - 2, min(right, default=1e9) - 3)
 
 
-def _row(line, pick, mode, cols, role_fn, no):
+def _row(line, pick, mode, cols, role_fn, no, *, money=None):
     """pick = the chosen (first word, count, iso, raw) date. Returns (rec, assigned); rec['noop'] marks a no-movement row."""
     start, n_words, iso, raw = pick
     date_ws = line[start:start + n_words]
-    money = _money_tokens(line)
+    if money is None:
+        money = _money_tokens(line)
     page = line[0].page
     roles = ("debit", "credit", "balance") if mode == "split" else ("amount", "balance")
     by_role: dict[str, list[Word]] = {}
@@ -384,7 +389,7 @@ def _rows(all_lines, preds, prev=None, order: str | None = None, closing=None):
                     fixed = (next(chain) if chain is not None
                              else preds.resolve(money, prev, lambda w: to_dec(w.text, "model", dr_cr=True)))
                     role_fn = fixed.__getitem__
-                rec, got = _row(ln, pick, mode, cols, role_fn, len(recs) + 1)
+                rec, got = _row(ln, pick, mode, cols, role_fn, len(recs) + 1, money=money)
                 prev = rec["bal"]
                 rec["frags"] = []
                 page_rows.append(rec)
@@ -435,9 +440,13 @@ def extract_statement(pages: list[list[Word]], p: Params, method: str, preds=Non
     else:
         raise Refusal("PARSE_ERROR", f"statement has no stated opening balance; supply --opening to check the arithmetic ({OPENING_NOT_EVIDENCE})")
     if method == "ocr":
-        low = [r["row"] for r in recs if (r["loc"]["date"][2] or 1.0) < OCR_MIN_DATE_CONF]
+        low = [r["row"] for r in recs if (conf := r["loc"]["date"][2]) is not None and conf < OCR_MIN_DATE_CONF]
         if low:
             raise Refusal("LOW_CONFIDENCE", f"OCR confidence below {OCR_MIN_DATE_CONF} on dates in rows {low[:10]}")
+        for rec in (*recs, *noops):
+            for field in ("amount", "balance"):
+                if field in rec["loc"] and (conf := rec["loc"][field][2]) is not None and conf < OCR_MIN_MONEY_CONF:
+                    raise Refusal("LOW_CONFIDENCE", f"page {rec['page']}: OCR confidence below {OCR_MIN_MONEY_CONF} on {field}")
     full_method = method + ("+model" if model_used else "")
     data, ev = statement_doc(recs, cur, p.account, opening, method=full_method,
                              opening_loc=(doc_open[2], doc_open[1]) if doc_open else None,

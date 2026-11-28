@@ -17,7 +17,7 @@ from pathlib import Path
 
 from . import __version__
 from .errors import EngineFault
-from .evidence import sha256_file
+from .guard import MAX_BYTES, MAX_LOCAL_BYTES
 from .grade import run_eval
 from .output import write_atomic
 from .params import Params
@@ -75,6 +75,7 @@ def _missing_files(files: list[str]) -> list[str]:
 def engine_info() -> dict:
     reg = default_registry()
     return {"name": "openbooks", "version": __version__, "schema_version": SCHEMA_VERSION, "layout_api": LAYOUT_API_VERSION,
+            "max_local_file_bytes": MAX_LOCAL_BYTES,
             "python": sys.version.split()[0], "layouts": sorted(reg.installed_layouts()),
             "known_layouts": [{"id": s.id, "distribution": s.distribution} for s in [*KNOWN_LAYOUTS, *KNOWN_SNIFFERS]],
             "frontends": sorted(n for n in ("document",) if _has_frontend(reg, n)), "linker": reg.linker() is not None}
@@ -96,9 +97,9 @@ def _run(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     p = _params(ap, a)
     rc = EXIT_OK
     for f in a.files:
-        sha = sha256_file(Path(f))
+        doc = process(f, p, strict=True, max_bytes=MAX_LOCAL_BYTES if a.large_local else MAX_BYTES)
+        sha = doc["file"]["sha256"] if doc["status"] == "ok" else doc["error"]["file_sha256"]
         target = out / f"{sha}.json"
-        doc = process(f, p, strict=True)
         write_atomic(target, dumps(doc))
         err = doc.get("error", {})
         if a.machine:
@@ -139,6 +140,7 @@ def _build_parser() -> tuple[argparse.ArgumentParser, dict]:
     r.add_argument("files", nargs="+")
     r.add_argument("--out", default="out")
     r.add_argument("--machine", action="store_true", help="print one JSON object per line on stdout (for wrappers)")
+    r.add_argument("--large-local", action="store_true", help="allow up to 4 GiB for local file input")
     _add_params(r)
     e = sub.add_parser("eval", help="run the golden set")
     e.add_argument("root")

@@ -1,7 +1,8 @@
 import { jsonError } from "@/lib/http";
 
-export const MAX_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024;
 export const MAX_FILE_BYTES = 2 * 1024 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = MAX_FILE_BYTES + 1024 * 1024;
+export const MAX_TEXT_FILE_BYTES = 64 * 1024 * 1024;
 export const MAX_JSON_BYTES = 4 * 1024 * 1024;
 
 const BYTES_PER_MB = 1024 * 1024;

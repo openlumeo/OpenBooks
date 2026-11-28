@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .evidence import sha256_file
 from .gates import coverage, require_balance, run_gate
-from .guard import DOC_EXT, check_input, decode, read_text_input
+from .guard import DOC_EXT, MAX_BYTES, check_input, decode, read_text_input
 from .errors import EngineFault, Refusal
 from .frontends.xlsx import parse_xlsx
 from .params import Params
@@ -40,7 +40,7 @@ def _extract(path: Path, p: Params, reg: Registry, stage: Callable[[str], None])
 
 
 def process(path: str | Path, params: Params | None = None, on_stage: Callable[[str], None] | None = None,
-            *, registry: Registry | None = None, strict: bool = False) -> dict:
+            *, registry: Registry | None = None, strict: bool = False, max_bytes: int = MAX_BYTES) -> dict:
     """on_stage, if given, is called with each name in STAGES once that stage has succeeded.
     Parsers normalise as they read, so "parse" and "normalise" are reported together.
     registry is for tests (a view with some providers removed); normally the installed providers are used.
@@ -51,7 +51,7 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
     sha = sha256_file(path)
     try:
         reg = registry or default_registry()
-        check_input(path)
+        check_input(path, max_bytes=max_bytes)
         ext = path.suffix.lower()
         data, ev, fmt_name, layout, method = _extract(path, p, reg, stage)
         stage("parse")
