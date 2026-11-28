@@ -1,0 +1,37 @@
+uploads.books.openlumeo.com {
+	@upload path /api/runs /api/roles
+	handle @upload {
+		header {
+			Access-Control-Allow-Origin https://books.openlumeo.com
+			Access-Control-Expose-Headers Retry-After
+			Cache-Control no-store
+		}
+		@preflight method OPTIONS
+		handle @preflight {
+			header Access-Control-Allow-Methods "GET, POST, OPTIONS"
+			header Access-Control-Allow-Headers "Authorization, Content-Type, X-OpenBooks-Job"
+			respond 204
+		}
+		@operations method GET POST
+		handle @operations {
+			route {
+				forward_auth https://books.openlumeo.com {
+					uri /api/upload-token
+					header_up Host books.openlumeo.com
+				}
+				request_body {
+					max_size 2148532224
+				}
+				uri strip_prefix /api
+				rewrite * /v1{path}
+				reverse_proxy 127.0.0.1:8766 {
+					header_up -Authorization
+					header_up X-OpenBooks-Key {$OPENBOOKS_ENGINE_KEY}
+				}
+			}
+		}
+		respond 405
+	}
+	respond /healthz 200
+	respond 404
+}

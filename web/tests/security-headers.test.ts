@@ -45,7 +45,8 @@ describe("security headers", () => {
     for (const d of ["default-src 'self'", "object-src 'none'", "base-uri 'self'", "frame-ancestors 'none'", "form-action 'self'", "connect-src 'self'"]) {
       expect(CSP).toContain(d);
     }
-    expect(CSP).not.toMatch(/\*|https?:/);
+    expect(CSP.match(/https?:\/\/[^;\s]+/g)).toEqual(["https://uploads.books.openlumeo.com"]);
+    expect(CSP).not.toContain("*");
   });
 });
 
