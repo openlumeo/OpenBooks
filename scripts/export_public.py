@@ -84,6 +84,7 @@ TEXT_SUFFIXES = {
 }
 BINARY_ALLOWED = {"models/roles_head.pt"}
 EMPTY_MARKERS = {"py.typed"}
+SHARED_FIXTURES = "packages/py/openbooks/tests/fixtures/shared/"
 
 
 def matches(rel: str, patterns: list[str]) -> bool:
@@ -129,7 +130,8 @@ def scan_tree(files: dict[str, bytes]) -> list[str]:
     hits = []
     for rel, data in sorted(files.items()):
         suffix = Path(rel).suffix.lower()
-        if suffix in TEXT_SUFFIXES or Path(rel).name in {".gitignore"}:
+        fixture_text = rel.startswith(SHARED_FIXTURES) and suffix in {".csv", ".sta"}
+        if suffix in TEXT_SUFFIXES or Path(rel).name in {".gitignore"} or fixture_text:
             try:
                 hits += scan_text(rel, data.decode("utf-8"))
             except UnicodeDecodeError:
