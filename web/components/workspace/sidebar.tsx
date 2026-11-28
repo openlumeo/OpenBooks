@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, FlaskConical, Plus, Trash2 } from "lucide-react";
+import { BookOpen, Plus, Trash2 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/brand-lockup";
 import { ThemeToggle } from "@/components/brand/theme-toggle";
 import { UserMenu } from "./user-menu";
@@ -143,10 +143,6 @@ export function Sidebar({
           </span>
           <ThemeToggle />
         </div>
-        <a className="ob-maturity" href="/docs/model">
-          <FlaskConical size={13} aria-hidden="true" />
-          <span>Early release · tested on synthetic data only</span>
-        </a>
       </div>
     </aside>
   );
