@@ -18,6 +18,8 @@ type JobPage = { events: JobEvent[]; cursor: number; done: boolean };
 const JOB_HEADER = "x-openbooks-job";
 const POLL_MS = 2000;
 const JOB_TIMEOUT_MS = 30 * 60 * 1000;
+const UPLOAD_ORIGIN = process.env.NEXT_PUBLIC_OPENBOOKS_UPLOAD_ORIGIN;
+const DIRECT_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 function jobHeaders(): Record<string, string> {
   const key = Array.from(crypto.getRandomValues(new Uint8Array(16)), (n) => n.toString(16).padStart(2, "0")).join("");
@@ -90,6 +92,12 @@ type RunEvent =
   | { type: "finished"; released: number; refused: number }
   | { type: "error"; message: string };
 
+async function uploadTarget(path: string, bytes: number, headers: Record<string, string>, signal?: AbortSignal) {
+  if (!UPLOAD_ORIGIN || bytes < DIRECT_UPLOAD_BYTES) return { url: path, headers };
+  const token = await fetch("/api/upload-token", { method: "POST", headers, signal }).then((res) => json<{ token: string }>(res));
+  return { url: `${UPLOAD_ORIGIN}${path}`, headers: { ...headers, authorization: `Bearer ${token.token}` } };
+}
+
 export async function* runFiles(
   files: File[],
   params: RunParams,
@@ -100,14 +108,14 @@ export async function* runFiles(
   for (const f of files) fd.append("files", f, f.name);
   fd.append("params", JSON.stringify(params));
   if (Object.keys(perFile).length) fd.append("file_params", JSON.stringify(perFile));
-  const headers = jobHeaders();
-  const res = await fetch("/api/runs", { method: "POST", body: fd, headers, signal });
+  const { url, headers } = await uploadTarget("/api/runs", files.reduce((total, file) => total + file.size, 0), jobHeaders(), signal);
+  const res = await fetch(url, { method: "POST", body: fd, headers, signal });
   if (!res.ok || !res.body) {
     const body = await res.json().catch(() => ({}));
     const msg = (body as { detail?: unknown; message?: string }).message ?? (body as { detail?: unknown }).detail;
     throw new ApiError(typeof msg === "string" ? msg : `The engine returned HTTP ${res.status}`, res.status);
   }
-  const events = res.status === 202 ? pollJob("/api/runs", headers, signal) : (async function* () {
+  const events = res.status === 202 ? pollJob(url, headers, signal) : (async function* () {
     for await (const event of parseSSE(res.body!)) yield { event: event.event, data: JSON.parse(event.data) };
   })();
   if (res.status === 202) await res.body.cancel().catch(() => undefined);
@@ -129,11 +137,11 @@ export async function predictRoles(file: File, params: RunParams = {}, signal?: 
   const fd = new FormData();
   fd.append("file", file, file.name);
   fd.append("params", JSON.stringify(params));
-  const headers = jobHeaders();
-  const res = await fetch("/api/roles", { method: "POST", body: fd, headers, signal });
+  const { url, headers } = await uploadTarget("/api/roles", file.size, jobHeaders(), signal);
+  const res = await fetch(url, { method: "POST", body: fd, headers, signal });
   if (res.status !== 202) return json<RolesDoc>(res);
   await res.body?.cancel().catch(() => undefined);
-  for await (const event of pollJob("/api/roles", headers, signal)) {
+  for await (const event of pollJob(url, headers, signal)) {
     if (event.event === "roles") return event.data as RolesDoc;
     if (event.event === "error") throw jobError(event.data);
   }
