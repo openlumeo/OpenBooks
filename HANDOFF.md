@@ -31,3 +31,12 @@
 - Historical EasyOCR probes did not reproduce the legacy scan fingerprints. The [versioned OCR rebuild](out/roles/replay-cache-ocr-v2/verification.json) regenerated all 330 scans, saved evidence for 404 replacement OCR windows, and verified all 2,600 windows including the 2,196 exact original text-layer windows. Keep the original corpus and its verdict with their original fingerprints.
 - The [v2 token gate](out/roles/replay-cache-ocr-v2/token-verdict.txt) rejected `gpu-wide-families-12e` after both bundles were rescored on identical splits. Shifted coverage was 96.36%, and the candidate had two wrong amount commitments on the ordinary test.
 - The [v2 proof replay](out/roles/replay-cache-ocr-v2/proof-score.json) passed the token criteria with the shipped model, yielding 854 correct shifted debits and 1,179 credits, 98.82% shifted coverage, and zero wrong amounts. It yielded 967 correct commitments across the ordinary and shifted OCR splits. This was an offline proof evaluation. Production weights and role serving remain as shipped.
+
+## Large-file pipeline and production sign-in
+
+- A synthetic statement PDF released at the exact size boundaries through local Next.js and the engine (2 GiB, 13.23 s through job polling), the npm CLI (2 GiB, 7.08 s), and stdio MCP (4 GiB, 9.92 s). Sparse fixtures used 128 KiB each on disk. The web engine used one temporary upload copy.
+- Tesseract 5.4.0 recovered `500.00`, `200.50`, and `4.50` from a synthetic scan. A one-cent balance change returned `BALANCE_MISMATCH`. Text parsers retain the 64 MiB limit. The capacity test covers PDF bytes with a small transaction count.
+- Netlify Functions have a smaller request limit. The 2 GiB web path requires streaming ingress, such as the repository's self-hosted Next.js and Caddy deployment.
+- On 2026-11-28, production Neon Auth returned `INVALID_ORIGIN` for email and `INVALID_CALLBACKURL` for Google. Review Trusted Domains on the production branch for `https://books.openlumeo.com`.
+- After the domain update, the production Google endpoint returned an OAuth redirect and the email endpoint rejected a deliberately invalid address as `INVALID_EMAIL`.
+- The workspace now checks both the per-file text limit and combined run limit before upload and displays sizes at or above 1 GiB in GiB.

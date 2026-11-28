@@ -113,10 +113,7 @@ class Run:
         self.cancelled = threading.Event()
 
     def stage(self, name: str, stream: BinaryIO) -> None:
-        i = len(self.files)
-        d = self.root / str(i)
-        d.mkdir()
-        path = d / safe_name(name, i)
+        path = self.upload_path(name)
         with open(path, "wb") as out:
             remaining = MAX_BYTES + 1
             while remaining:
@@ -126,6 +123,12 @@ class Run:
                 out.write(chunk)
                 remaining -= len(chunk)
         self.files.append(Staged(name or path.name, path, path.stat().st_size))
+
+    def upload_path(self, name: str) -> Path:
+        index = len(self.files)
+        folder = self.root / str(index)
+        folder.mkdir()
+        return folder / safe_name(name, index)
 
     def execute(
         self,

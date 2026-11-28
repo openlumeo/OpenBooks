@@ -2,8 +2,11 @@
 
 import { FlaskConical, Plus } from "lucide-react";
 import { AgentQuickStart } from "@/components/onboard/agent-onboarding";
+import { fmtBytes } from "@/lib/format";
+import { MAX_TEXT_FILE_BYTES } from "@/lib/guards";
 import { STAGES } from "@/lib/stages";
 import type { Formats, Sample } from "@/lib/types";
+import { MAX_FILES } from "./composer-parts/problems";
 
 export function EmptyState({
   formats,
@@ -97,7 +100,7 @@ export function EmptyState({
             </tbody>
           </table>
           <p className="t-body-sm">
-            Up to 20 files per run, {Math.round(formats.max_bytes / (1024 * 1024))} MB each.
+            Up to {MAX_FILES} files and {fmtBytes(formats.max_bytes)} total per run. Text files are limited to {fmtBytes(Math.min(MAX_TEXT_FILE_BYTES, formats.max_bytes))} each.
             {formats.unverified && formats.unverified.length > 0 && (
               <>
                 {" "}

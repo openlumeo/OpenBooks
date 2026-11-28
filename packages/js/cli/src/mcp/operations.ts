@@ -391,7 +391,7 @@ export class Operations {
   }
 
   private async processPath(path: string, args: ProcessingArguments, documents: Documents, step: string): Promise<Doc> {
-    const result = await runFile(path, { ...this.engine, ...documentOptions(args), maxDocumentBytes: MAX_DOCUMENT_BYTES });
+    const result = await runFile(path, { ...this.engine, ...documentOptions(args), maxInputBytes: MAX_DOCUMENT_BYTES });
     const summary = summarise(result, documents, step);
     if (args.detail === undefined || args.detail === "standard") return summary;
     const engine = await this.engineInfo();

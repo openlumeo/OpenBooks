@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CANONICAL = ROOT / "packages" / "py" / "openbooks" / "src" / "openbooks" / "core" / "schema"
 REGISTRY_SOURCE = ROOT / "packages" / "py" / "openbooks" / "src" / "openbooks" / "core" / "refusal_codes.py"
 JS_REGISTRY = ROOT / "packages" / "js" / "cli" / "src" / "core" / "generated" / "refusal-codes.ts"
-REFUSAL_DOC = ROOT / "docs" / "research" / "openbooks" / "refusal_codes.md"
+REFUSAL_DOC = ROOT / "docs" / "refusal-codes.md"
 WEB_TARGET = ROOT / "web" / "public" / "schema"
 TARGETS = (ROOT / "packages" / "js" / "cli" / "schema", WEB_TARGET)
 PATTERN = "openbooks.v*.json"
@@ -52,7 +52,7 @@ def generated_texts() -> dict[Path, str]:
 def generated_divergences() -> list[str]:
     report = []
     for path, text in generated_texts().items():
-        if not path.is_file() or path.read_bytes() != text.encode("utf-8"):
+        if not path.is_file() or path.read_text(encoding="utf-8") != text:
             report.append(f"stale {relative(path)}")
     return report
 

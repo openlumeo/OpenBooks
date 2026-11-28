@@ -1,4 +1,4 @@
-import { MAX_FILE_BYTES, rejectNonMultipart, rejectOversize } from "@/lib/guards";
+import { MAX_UPLOAD_BYTES, rejectNonMultipart, rejectOversize } from "@/lib/guards";
 import { NO_STORE_HEADERS } from "@/lib/http";
 import { proxyJobStatus, proxyUpload } from "@/lib/server/engine";
 import { limitOr429 } from "@/lib/server/limiter";
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   if (limited) return limited;
   const notMultipart = rejectNonMultipart(req.headers.get("content-type") ?? "");
   if (notMultipart) return notMultipart;
-  const tooBig = rejectOversize(req, MAX_FILE_BYTES);
+  const tooBig = rejectOversize(req, MAX_UPLOAD_BYTES);
   if (tooBig) return tooBig;
   return proxyUpload(req, "/v1/roles", NO_STORE_HEADERS);
 }

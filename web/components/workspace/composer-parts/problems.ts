@@ -1,9 +1,11 @@
 import { fmtBytes } from "@/lib/format";
+import { MAX_TEXT_FILE_BYTES } from "@/lib/guards";
 import type { RunParams } from "@/lib/types";
 import type { Workspace } from "@/lib/workspace/use-workspace";
 
 export const MAX_FILES = 20;
 const IMAGE_NAME = /\.(png|jpe?g)$/i;
+const TEXT_EXTENSIONS = new Set([".csv", ".ofx", ".qfx", ".sta", ".mt940", ".txt", ".xml"]);
 
 export type Pending = { id: string; file: File; params?: RunParams; sample?: string };
 
@@ -15,17 +17,26 @@ export function isImageName(name: string): boolean {
   return IMAGE_NAME.test(name);
 }
 
+function fileLimit(file: File, maxBytes: number): number {
+  return TEXT_EXTENSIONS.has(fileExtension(file.name)) ? Math.min(MAX_TEXT_FILE_BYTES, maxBytes) : maxBytes;
+}
+
 export function isOverLimit(pending: Pending, allowed: string[], maxBytes: number): boolean {
   const unsupported = allowed.length > 0 && !allowed.includes(fileExtension(pending.file.name));
-  return pending.file.size > maxBytes || unsupported;
+  return pending.file.size > fileLimit(pending.file, maxBytes) || unsupported;
 }
 
 export function problemsFor(pending: Pending[], allowed: string[], maxBytes: number): string | null {
   if (pending.length > MAX_FILES) return `At most ${MAX_FILES} files per run. Remove ${pending.length - MAX_FILES}.`;
   const unsupported = pending.find((p) => allowed.length > 0 && !allowed.includes(fileExtension(p.file.name)));
   if (unsupported) return `${unsupported.file.name} is not a supported type. Accepted: ${allowed.join(" ")}.`;
-  const oversized = pending.find((p) => p.file.size > maxBytes);
-  if (oversized) return `${oversized.file.name} is over the ${fmtBytes(maxBytes)} limit.`;
+  let total = 0;
+  for (const { file } of pending) {
+    const limit = fileLimit(file, maxBytes);
+    if (file.size > limit) return `${file.name} is over the ${fmtBytes(limit)} limit.`;
+    total += file.size;
+  }
+  if (total > maxBytes) return `The combined upload exceeds ${fmtBytes(maxBytes)}. Split the files into separate runs.`;
   return null;
 }
 

@@ -9,10 +9,9 @@ import threading
 import time
 from typing import Any
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from openbooks.core.errors import EngineFault, Refusal
-from openbooks.core.guard import MAX_BYTES
 from openbooks.core.params import Params
 from openbooks.core.schema import SCHEMA_VERSION, validate_output
 from openbooks.statements.assets import ModelUnavailable
@@ -24,6 +23,7 @@ from .jobs import Job, Jobs, job_key
 from .metrics import input_kind, observe_stages, registry
 from .responses import reject_response
 from .runs import MAX_FILES, Run, parse_params
+from .uploads import stage_multipart
 
 router = APIRouter()
 jobs = Jobs()
@@ -69,27 +69,16 @@ def _run_params(file_count: int, params: str | None, file_params: str | None) ->
     return base, per_file
 
 
-async def _stage_uploads(run: Run, files: list[UploadFile]) -> None:
-    """Copy uploads into the run's temp dir; on any failure the dir is removed before re-raising."""
-    try:
-        for f in files:
-            await asyncio.to_thread(run.stage, f.filename or "", f.file)
-    except Exception:
-        run.cleanup()
-        raise
-
-
 @router.post("/v1/runs")
-async def post_runs(
-    request: Request,
-    files: list[UploadFile] = File(...),
-    params: str | None = Form(None),
-    file_params: str | None = Form(None),
-):
-    base, per_file = _run_params(len(files), params, file_params)
+async def post_runs(request: Request):
     key = job_key(request)
     run = Run()
-    await _stage_uploads(run, files)
+    try:
+        form = await stage_multipart(request, run)
+        base, per_file = _run_params(len(run.files), form.get(b"params"), form.get(b"file_params"))
+    except BaseException:
+        run.cleanup()
+        raise
     if key:
 
         async def work(job: Job) -> None:
@@ -220,21 +209,21 @@ async def _count_ocr_pages(run: Run) -> int:
 
 
 @router.post("/v1/roles")
-async def post_roles(request: Request, file: UploadFile = File(...), params: str | None = Form(None)) -> JSONResponse:
+async def post_roles(request: Request) -> Response:
     """The typed heads' own reading of one PDF or scan: per word role, value type, conformal sets, abstained.
     Inputs use `file` and the same parsing `params` as /v1/runs. Layout roles require a passing balance check."""
-    try:
-        p = parse_params(_json_field(params, "params"))
-    except ValueError as e:
-        raise HTTPException(422, str(e)) from None
     key = job_key(request)
     run = Run()
     detached = False
     try:
-        await asyncio.to_thread(run.stage, file.filename or "", file.file)
+        form = await stage_multipart(request, run, roles=True)
+        if not run.files:
+            raise HTTPException(422, "attach a file")
+        try:
+            p = parse_params(_json_field(form.get(b"params"), "params"))
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from None
         staged = run.files[0]
-        if staged.size > MAX_BYTES:
-            raise HTTPException(413, f"file is {staged.size} bytes; the limit is {MAX_BYTES}")
         if staged.path.suffix.lower() not in {".pdf", ".png", ".jpg", ".jpeg"}:
             raise Refusal("UNSUPPORTED_INPUT", "The typed heads read PDFs and scans only.")
         if key:

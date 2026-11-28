@@ -148,6 +148,22 @@ describe("file classification", () => {
 });
 
 describe("problemsFor", () => {
+  it("checks exact file and aggregate byte limits before upload", () => {
+    const sized = (name: string, size: number): Pending => {
+      const pending = pendingFile(name, 0);
+      Object.defineProperty(pending.file, "size", { value: size });
+      return pending;
+    };
+    const max = 2 * 1024 * MB;
+    const pdf = sized("large.pdf", max);
+    const over = sized("ledger.CSV", 64 * MB + 1);
+    expect(problemsFor([pdf], ALLOWED, max)).toBeNull();
+    expect(problemsFor([pdf, sized("extra.pdf", 1)], ALLOWED, max)).toMatch(/combined upload exceeds 2 GiB/);
+    expect(problemsFor([sized("ledger.csv", 64 * MB)], ALLOWED, max)).toBeNull();
+    expect(problemsFor([over], ALLOWED, max)).toMatch(/ledger.CSV is over the 64.0 MB limit/);
+    expect(isOverLimit(over, ALLOWED, max)).toBe(true);
+  });
+
   it("returns null for an acceptable batch, including an empty one", () => {
     expect(problemsFor([pendingFile("a.csv")], ALLOWED, MB)).toBeNull();
     expect(problemsFor([], ALLOWED, MB)).toBeNull();

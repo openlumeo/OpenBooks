@@ -16,6 +16,7 @@ export interface EngineInfo {
   known_layouts: { id: string; distribution: string }[];
   frontends: string[];
   linker: boolean;
+  max_local_file_bytes?: number;
 }
 
 export interface Engine {
