@@ -15,9 +15,11 @@ uploads.books.openlumeo.com {
 		@operations method GET POST
 		handle @operations {
 			route {
+				request_header -X-OpenBooks-Retain-Owner
 				forward_auth https://books.openlumeo.com {
 					uri /api/upload-token
 					header_up Host books.openlumeo.com
+					copy_headers X-OpenBooks-Retain-Owner
 				}
 				request_body {
 					max_size 2148532224

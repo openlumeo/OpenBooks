@@ -91,11 +91,14 @@ type RunEvent =
   | { type: "finished"; released: number; refused: number }
   | { type: "error"; message: string };
 
-async function uploadTarget(path: string, bytes: number, headers: Record<string, string>, signal?: AbortSignal) {
-  if (typeof window === "undefined" || window.location.origin !== "https://books.openlumeo.com" || bytes < DIRECT_UPLOAD_BYTES) {
+async function uploadTarget(path: string, bytes: number, headers: Record<string, string>, signal?: AbortSignal, retain = false) {
+  const production = typeof window !== "undefined" && window.location.origin === "https://books.openlumeo.com";
+  if (retain && !production) throw new Error("Saving originals is available only on the live workspace.");
+  if (!production || (!retain && bytes < DIRECT_UPLOAD_BYTES)) {
     return { url: path, headers };
   }
-  const token = await fetch("/api/upload-token", { method: "POST", headers, signal }).then((res) => json<{ token: string }>(res));
+  const tokenHeaders = retain ? { ...headers, "x-openbooks-retain": "1" } : headers;
+  const token = await fetch("/api/upload-token", { method: "POST", headers: tokenHeaders, signal }).then((res) => json<{ token: string }>(res));
   return { url: `https://uploads.books.openlumeo.com${path}`, headers: { ...headers, authorization: `Bearer ${token.token}` } };
 }
 
@@ -104,12 +107,13 @@ export async function* runFiles(
   params: RunParams,
   perFile: Record<number, RunParams>,
   signal?: AbortSignal,
+  retain = false,
 ): AsyncGenerator<RunEvent> {
   const fd = new FormData();
   for (const f of files) fd.append("files", f, f.name);
   fd.append("params", JSON.stringify(params));
   if (Object.keys(perFile).length) fd.append("file_params", JSON.stringify(perFile));
-  const { url, headers } = await uploadTarget("/api/runs", files.reduce((total, file) => total + file.size, 0), jobHeaders(), signal);
+  const { url, headers } = await uploadTarget("/api/runs", files.reduce((total, file) => total + file.size, 0), jobHeaders(), signal, retain);
   const res = await fetch(url, { method: "POST", body: fd, headers, signal });
   if (!res.ok || !res.body) {
     const body = await res.json().catch(() => ({}));

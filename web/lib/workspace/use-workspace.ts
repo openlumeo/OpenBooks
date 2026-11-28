@@ -145,7 +145,7 @@ export function useWorkspace() {
   );
 
   const sendRun = useCallback(
-    async (files: File[], params: RunParams, perFile: Record<number, RunParams>, note?: string, label?: string) => {
+    async (files: File[], params: RunParams, perFile: Record<number, RunParams>, note?: string, label?: string, retain = false) => {
       if (!files.length) return false;
       return operate("run", async (signal) => {
         const question = note?.trim();
@@ -182,7 +182,7 @@ export function useWorkspace() {
             (t) => ({ ...t, files: t.files.map((f) => (f.index === i ? fn(f) : f)) }),
             now,
           );
-        let error = await streamRun(files, params, perFile, signal, setFile);
+        let error = await streamRun(files, params, perFile, signal, setFile, retain);
 
         let hasReleased = false;
         updateTurn<RunTurn>(
@@ -330,9 +330,10 @@ async function streamRun(
   perFile: Record<number, RunParams>,
   signal: AbortSignal,
   setFile: SetFile,
+  retain: boolean,
 ): Promise<string | undefined> {
   try {
-    for await (const ev of runFiles(files, params, perFile, signal)) {
+    for await (const ev of runFiles(files, params, perFile, signal, retain)) {
       if (ev.type === "started") setFile(ev.index, (f) => (f.doc ? f : { ...f, state: "running" }));
       else if (ev.type === "stage")
         setFile(ev.index, (f) => (f.stages.includes(ev.stage) ? f : { ...f, stages: [...f.stages, ev.stage] }));
