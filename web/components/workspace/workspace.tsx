@@ -213,12 +213,7 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
             </div>
           )}
           {turns.length === 0 ? (
-            <EmptyState
-              formats={ws.formats}
-              samples={ws.samples}
-              onSample={addSample}
-              engineUp={engineUp && !inputLocked}
-            />
+            <EmptyState formats={ws.formats} />
           ) : (
             <div className="ob-conversation" aria-label={ws.active?.title}>
               {turns.map((t) => {

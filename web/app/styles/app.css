@@ -251,9 +251,15 @@
     color: var(--text);
   }
 
-  .ob-empty { padding-block: clamp(32px, 7vh, 72px) 24px; display: flex; flex-direction: column; gap: 36px; }
-  .ob-empty-head { display: flex; flex-direction: column; gap: 16px; max-width: 62ch; }
-  .ob-empty-maturity { display: inline-flex; align-items: center; gap: 8px; }
+  .ob-column:has(> .ob-empty) { min-height: 100%; display: grid; }
+  .ob-empty { display: grid; place-items: center; padding-block: 32px; text-align: center; }
+  .ob-empty-head { display: grid; justify-items: center; gap: 14px; max-width: 52ch; }
+  .ob-empty-icon { color: var(--accent, currentColor); opacity: .75; }
+  .ob-empty-head > p { margin: 0; opacity: .75; }
+  .ob-empty-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 18px; font-size: .875rem; }
+  .ob-empty-formats { font-size: .8125rem; opacity: .8; }
+  .ob-empty-formats summary { cursor: pointer; }
+  .ob-empty-formats p { margin: 8px 0 0; }
   @keyframes obRise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
   .ob-pipeline {
