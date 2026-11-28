@@ -17,6 +17,12 @@ The smoke test checks health, runs a packaged statement with explicit INR and da
 
 The self-hosted upload route accepts up to 2 GiB of file data per run and allows 1 MiB for multipart framing and fields. The engine writes one temporary copy and removes it after processing. Give the engine temporary volume room for concurrent uploads. A single upload stops if the host approaches its free-space reserve. Text formats retain their 64 MiB parser limit. The Netlify Functions request limit applies to the hosted site, so large uploads require the streaming self-hosted route or another streaming ingress.
 
+### Optional original retention
+
+Keep retention flags off until the deletion worker is running. Apply `web/migrations/004_retained_originals.sql` and provision a private Neon Object Storage bucket. On the upload engine, install the server's `retention` extra and configure `OPENBOOKS_RETENTION_DATABASE_URL`, `OPENBOOKS_STORAGE_ENDPOINT`, `OPENBOOKS_STORAGE_BUCKET`, and the scoped S3 credentials. The database role needs insert, select, and update access to `retained_originals`. Keep these credentials on the VPS.
+
+Install and enable `openbooks-originals-expiry.timer` and its matching service. Verify the service can delete an expired synthetic object and record `deleted_at`, including a retry after a failed delete. Reload `Caddyfile.upload` so only the authenticated authorization response can supply an owner. Then set `OPENBOOKS_RETENTION_ENABLED=1` on the upload engine and the web server, and `NEXT_PUBLIC_OPENBOOKS_RETENTION_ENABLED=1` for the web build. Check both an opted-in synthetic upload and an ordinary upload before release. Neon stores S3 lifecycle configurations without enforcing the rules, so the timer enforces the 30-day expiry.
+
 For a local sandbox, use `OPENBOOKS_SITE_ADDRESS=:80`, `OPENBOOKS_HTTP_BIND=127.0.0.1:3080`, and `OPENBOOKS_HTTPS_BIND=127.0.0.1:3443`. Run with `docker compose -p openbooks-sandbox` and test `http://127.0.0.1:3080`.
 
 Q&A is optional. Set `OPENBOOKS_LLM_API_KEY`, `OPENBOOKS_LLM_MODEL`, and, if needed, `OPENBOOKS_LLM_BASE_URL` on the VPS. The upload, OCR, and model reading routes run without these values.

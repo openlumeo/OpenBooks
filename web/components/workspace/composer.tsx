@@ -21,7 +21,7 @@ type ComposerProps = {
   samples: Sample[];
   onAddSample: (s: Sample) => void;
   onAddFiles: (files: File[]) => void;
-  onSend: (text: string) => void;
+  onSend: (text: string, retain: boolean) => void;
   onStop: () => void;
   operation: Workspace["operation"];
   locked: boolean;
@@ -41,6 +41,10 @@ export function Composer(props: ComposerProps) {
   const [text, setText] = useState("");
   const [showParams, setShowParams] = useState(false);
   const [paramError, setParamError] = useState<string | null>(null);
+  const [retentionSelection, setRetentionSelection] = useState<string | null>(null);
+  const selection = pending.map(({ id }) => id).join(",");
+  const retain = selection === retentionSelection;
+  const retentionAvailable = process.env.NEXT_PUBLIC_OPENBOOKS_RETENTION_ENABLED === "1";
   const fileInput = props.attachInput;
   const area = useRef<HTMLTextAreaElement>(null);
   const ids = useId();
@@ -62,7 +66,8 @@ export function Composer(props: ComposerProps) {
 
   const send = () => {
     if (!canSend) return;
-    props.onSend(text);
+    props.onSend(text, hasFiles && retentionAvailable && retain);
+    setRetentionSelection(null);
     setText("");
     setShowParams(false);
   };
@@ -126,6 +131,12 @@ export function Composer(props: ComposerProps) {
               );
             })}
           </ul>
+        )}
+        {hasFiles && retentionAvailable && (
+          <label className="composer-retain t-body-sm">
+            <input type="checkbox" checked={retain} disabled={locked} onChange={(event) => setRetentionSelection(event.target.checked ? selection : null)} />
+            Keep these originals privately for 30 days
+          </label>
         )}
         <label htmlFor={`${ids}-input`} className="sr-only">
           Message

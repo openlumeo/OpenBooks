@@ -1,0 +1,8 @@
+[Unit]
+Description=Delete expired Open Books originals from Neon Object Storage
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker exec openbooks-upload-engine python -m openbooks_server.retention

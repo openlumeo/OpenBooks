@@ -125,7 +125,7 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
     if (el && stick.current) el.scrollTop = el.scrollHeight;
   }, [fingerprint]);
 
-  const send = (text: string) => {
+  const send = (text: string, retain: boolean) => {
     if (inputLocked) return;
     sampleRequests.current.forEach((request) => request.abort());
     if (pending.length) {
@@ -136,7 +136,7 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
       });
       setPendingState([]);
       stick.current = true;
-      ws.sendRun(files, params, perFile, text);
+      ws.sendRun(files, params, perFile, text, undefined, retain);
     } else if (text.trim()) {
       stick.current = true;
       ws.sendAsk(text);
@@ -146,6 +146,7 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
   const allowed = ws.engine.health?.allowed_extensions ?? ws.formats?.allowed_extensions ?? [];
   const maxBytes = ws.engine.health?.max_bytes ?? ws.formats?.max_bytes ?? MAX_FILE_BYTES;
   const engineUp = ws.engine.status === "up";
+  const featuredSample = ws.samples.find((sample) => sample.featured && sample.expect_status === "ok");
 
   return (
     <main
@@ -213,7 +214,8 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
             </div>
           )}
           {turns.length === 0 ? (
-            <EmptyState formats={ws.formats} onAttach={() => attachInput.current?.click()} disabled={inputLocked} />
+            <EmptyState formats={ws.formats} onAttach={() => attachInput.current?.click()} disabled={inputLocked}
+              onSample={engineUp && featuredSample ? () => void addSample(featuredSample) : undefined} />
           ) : (
             <div className="ob-conversation" aria-label={ws.active?.title}>
               {turns.map((t) => {

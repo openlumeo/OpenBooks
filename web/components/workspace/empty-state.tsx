@@ -1,15 +1,16 @@
 "use client";
 
-import { FileCheck2, Paperclip } from "lucide-react";
+import { ArrowUpRight, FileCheck2, FlaskConical, Paperclip } from "lucide-react";
 import { fmtBytes } from "@/lib/format";
 import { MAX_TEXT_FILE_BYTES } from "@/lib/guards";
 import type { Formats } from "@/lib/types";
 import { MAX_FILES } from "./composer-parts/problems";
 
-export function EmptyState({ formats, onAttach, disabled }: {
+export function EmptyState({ formats, onAttach, disabled, onSample }: {
   formats: Formats | null;
   onAttach: () => void;
   disabled: boolean;
+  onSample?: () => void;
 }) {
   return (
     <div className="ob-empty">
@@ -21,7 +22,10 @@ export function EmptyState({ formats, onAttach, disabled }: {
           <Paperclip size={15} aria-hidden="true" /> Attach files
         </button>
         <div className="ob-empty-links">
-          <a href="/get-started">Connect an AI agent</a>
+          {onSample && <button type="button" className="tool-btn" onClick={onSample} disabled={disabled}>
+            <FlaskConical size={14} aria-hidden="true" /> Try a sample
+          </button>}
+          <a href="/get-started">Connect an AI agent <ArrowUpRight size={13} aria-hidden="true" /></a>
           <a href="/docs">Documentation</a>
         </div>
         {formats && (

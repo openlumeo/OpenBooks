@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
+import re
 import threading
 import time
 from typing import Any
@@ -72,6 +74,10 @@ def _run_params(file_count: int, params: str | None, file_params: str | None) ->
 @router.post("/v1/runs")
 async def post_runs(request: Request):
     key = job_key(request)
+    owner = request.headers.get("x-openbooks-retain-owner")
+    if owner is not None and (not key or not re.fullmatch(r"[a-f0-9]{64}", owner)
+                              or os.getenv("OPENBOOKS_RETENTION_ENABLED") != "1"):
+        raise HTTPException(503, "saving originals is unavailable")
     run = Run()
     try:
         form = await stage_multipart(request, run)
@@ -88,6 +94,16 @@ async def post_runs(request: Request):
                 if early is not None:
                     job.push("error", json.loads(early.body))
                     return
+                if owner is not None:
+                    from .retention import store_original
+
+                    try:
+                        for staged in run.files:
+                            await asyncio.to_thread(store_original, staged.path, staged.name, staged.size, owner)
+                    except Exception:
+                        log.exception("Could not retain an opted-in original")
+                        job.push("error", {"message": "Could not save all requested originals. The run stopped."})
+                        return
                 loop = asyncio.get_running_loop()
 
                 async def push(event: str, data: dict) -> None:
