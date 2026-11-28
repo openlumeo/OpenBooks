@@ -213,7 +213,7 @@ function WorkspaceMain({ ws, drawer, openDrawer }: { ws: WorkspaceState; drawer:
             </div>
           )}
           {turns.length === 0 ? (
-            <EmptyState formats={ws.formats} />
+            <EmptyState formats={ws.formats} onAttach={() => attachInput.current?.click()} disabled={inputLocked} />
           ) : (
             <div className="ob-conversation" aria-label={ws.active?.title}>
               {turns.map((t) => {
