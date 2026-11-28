@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import styles from "./section.module.css";
 import { LineReveal } from "@/components/motion/line-reveal";
-import { SectionSeam } from "@/components/landing/section-seam";
 
 export type SectionProps = {
   id?: string;
@@ -15,7 +14,6 @@ export function Section({ id, heading, children, className }: SectionProps) {
   return (
     <section id={id} aria-labelledby={headingId} className={[styles.section, "lp-ledger-rule", className].filter(Boolean).join(" ")}>
       <div className={styles.container}>
-        <SectionSeam />
         <LineReveal as="h2" id={headingId} className={`t-display t-h2 ${styles.heading}`}>
           {heading}
         </LineReveal>

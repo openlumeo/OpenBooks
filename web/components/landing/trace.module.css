@@ -4,6 +4,7 @@
 }
 
 .figure {
+  --wash: color-mix(in srgb, var(--accent) 14%, var(--surface));
   margin: 0;
   min-width: 0;
 }
@@ -34,15 +35,9 @@
   padding: 16px;
 }
 
-.txRow {
-  min-height: 0;
-  padding: 0;
-  border-bottom: 0;
-}
-
 .fields {
   display: grid;
-  gap: 14px;
+  gap: 0;
   margin: 0;
   flex: 1 1 auto;
   min-width: 0;
@@ -52,13 +47,31 @@
   display: grid;
   gap: 4px;
   min-width: 0;
-  padding-bottom: 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--hairline-soft);
+  transition: background-color 0.25s var(--ease), outline-color 0.25s var(--ease);
+  outline: 1px solid transparent;
+  outline-offset: -1px;
 }
 
 .field:last-child {
   border-bottom: 0;
-  padding-bottom: 0;
+}
+
+.field[data-state="active"] {
+  background: var(--wash);
+  outline-color: var(--accent);
+  border-bottom-color: transparent;
+}
+
+.field[data-state="active"][data-none] {
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  outline-color: var(--hairline);
+}
+
+.field[data-state="active"] .label,
+.field[data-state="linked"] .status {
+  color: var(--accent);
 }
 
 .label {
@@ -96,7 +109,7 @@
 
 .meta {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 14px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -119,7 +132,7 @@
 
 .table {
   width: 100%;
-  min-width: 620px;
+  min-width: 720px;
   table-layout: fixed;
   border-collapse: collapse;
   font-family: var(--font-mono);
@@ -142,7 +155,7 @@
 
 .table th,
 .table td {
-  padding: 10px 12px;
+  padding: 10px 8px;
   border-top: 1px solid var(--hairline-soft);
   text-align: left;
   vertical-align: top;
@@ -167,14 +180,19 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1400px) {
   .grid {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-columns: minmax(280px, 1fr) minmax(0, 722px);
   }
 
   .txBlock {
     align-content: start;
-    padding: 20px;
+    padding: 20px 36px 20px 20px;
+  }
+
+  .table th,
+  .table td {
+    padding-inline: 6px;
   }
 
   .evBlock {
@@ -187,3 +205,221 @@
   min-width: 0;
 }
 
+
+.sec {
+  padding-top: clamp(40px, 5vw, 72px);
+}
+
+/* ---- stepped evidence trace ---- */
+
+.stepbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.stepText {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.replay {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.replay:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.replay:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.crop {
+  display: none;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.cropHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.cropSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  border: 1px solid var(--hairline-soft);
+  font-family: var(--font-mono);
+}
+
+.cropSvg text {
+  font-variant-numeric: tabular-nums;
+}
+
+.cropFaint {
+  fill: var(--text-faint);
+}
+
+.bbox {
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  transition:
+    x 0.35s var(--ease),
+    y 0.35s var(--ease),
+    width 0.35s var(--ease),
+    height 0.35s var(--ease),
+    opacity 0.25s var(--ease);
+}
+
+.grid {
+  position: relative;
+}
+
+.table tbody tr {
+  transition: background-color 0.25s var(--ease);
+}
+
+.table th:first-child {
+  width: 29%;
+}
+
+.table th:nth-child(2) {
+  width: 8%;
+}
+
+.table th:nth-child(3) {
+  width: 23%;
+}
+
+.table th:nth-child(4) {
+  width: 7%;
+}
+
+.table thead th:first-child {
+  padding-left: 24px;
+}
+
+.bboxCell {
+  white-space: nowrap;
+  font-size: 11px;
+  overflow-wrap: normal;
+}
+
+.table .key {
+  position: relative;
+  overflow-wrap: normal;
+  word-break: normal;
+  padding-left: 24px;
+}
+
+.table .key::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 14px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--text-faint);
+  transition: background-color 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+
+.table tbody tr[data-state="linked"] .key::before,
+.table tbody tr[data-state="active"] .key::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.table tbody tr[data-state="active"] > * {
+  background: var(--wash);
+  box-shadow:
+    inset 0 1px 0 var(--accent),
+    inset 0 -1px 0 var(--accent);
+}
+
+.linkSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.linkPath {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .linkPath {
+    animation: trace-draw 0.45s var(--ease) both;
+  }
+}
+
+@keyframes trace-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (min-width: 700px) {
+  .crop {
+    display: block;
+  }
+}
+
+@media (max-width: 1399px) {
+  .linkSvg {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field,
+  .bbox,
+  .table tbody tr,
+  .table .key::before {
+    transition: none;
+  }
+}

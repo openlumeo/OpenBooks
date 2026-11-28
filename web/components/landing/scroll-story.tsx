@@ -6,7 +6,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { ScrambleLabel } from "@/components/motion/scramble-label";
 import { Section } from "./section";
 import { DeviceFrame } from "./device-frame";
-import { JOB, ProvenChecks, TRAIL, labelOf } from "./how-proven";
+import { JOB, QUESTION, ProvenChecks, TRAIL, labelOf } from "./how-proven";
 import { RELEASED } from "./proof-data";
 import type { Stage } from "@/lib/types";
 import styles from "./scroll-story.module.css";
@@ -169,7 +169,11 @@ export function ScrollStory() {
           <ol className={styles.list} aria-label="Pipeline stages">
             {TRAIL.map((id, i) => (
               <li key={id} className={styles.step} data-step={i}>
-                <span className={styles.stepLabel}><ScrambleLabel text={labelOf(id)} /></span>
+                <span className={styles.stepLabel}>
+                  <span className={styles.stepNo}>{String(i + 1).padStart(2, "0")}</span>
+                  <ScrambleLabel text={labelOf(id)} />
+                </span>
+                <p className={styles.question}>{QUESTION[id as Exclude<Stage, "validate">]}</p>
                 <p className={styles.job}>{JOB[id as Exclude<Stage, "validate">]}</p>
               </li>
             ))}

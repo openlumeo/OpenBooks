@@ -1,19 +1,17 @@
 'use client';
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap, useGSAP, DESKTOP_MOTION, markMotionReady } from "@/components/motion/gsap-setup";
-import { usePointerTilt } from "@/components/motion/use-pointer-tilt";
 import { useHeroDepth } from "./hero-depth";
-import { HeroMonolith } from "./hero-monolith";
-import { AlterSwitch } from "./alter-switch";
+import { DeviceFrame } from "./device-frame";
 import styles from "./hero-stage.module.css";
 
 const PIN_DISTANCE = "+=120%";
 const TILT_DEG = 18;
+const START_SCALE = 0.92;
 const LEAD_CLEARANCE_PX = 48;
-
-const REFUSED_NOTICE = "Refused. BALANCE_MISMATCH, running balance does not tie.";
-const RELEASED_NOTICE = "Released. Opening plus transactions equals closing.";
+// Timeline progress at which the laptop counts as settled and the screen video may start.
+const SETTLED_AT = 0.62;
 
 function offsetWithin(el: HTMLElement, ancestor: HTMLElement): number {
   let y = 0;
@@ -25,12 +23,108 @@ function offsetWithin(el: HTMLElement, ancestor: HTMLElement): number {
   return y;
 }
 
+const VIDEO_DESCRIPTION =
+  "Screen recording of Open Books on a laptop: a statement.csv file is dragged into the workspace, the engine ticks detect, parse, normalise and balance, ledger rows tie to the equation 1000.00 + 6857.26 - 2756.86 = 5100.40 INR, and the result is stamped RELEASED with a Download JSON option.";
+
+const POSTER_AT = 12.9;
+
+function useActiveTheme(): "light" | "dark" {
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  useEffect(() => {
+    const root = document.documentElement;
+    const read = () => setTheme(root.getAttribute("data-theme") === "light" ? "light" : "dark");
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => mo.disconnect();
+  }, []);
+  return theme;
+}
+
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const read = () => setReduced(mq.matches);
+    read();
+    mq.addEventListener("change", read);
+    return () => mq.removeEventListener("change", read);
+  }, []);
+  return reduced;
+}
+
+function HeroVideo({ play }: { play: boolean }) {
+  const theme = useActiveTheme();
+  const reduced = usePrefersReducedMotion();
+  const dark = useRef<HTMLVideoElement>(null);
+  const light = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const active = theme === "light" ? light.current : dark.current;
+    const idle = theme === "light" ? dark.current : light.current;
+    idle?.pause();
+    if (!active) return;
+    if (reduced) {
+      // Reduced motion: hold the RELEASED frame (same moment as the poster), never autoplay.
+      active.pause();
+      const hold = () => {
+        active.currentTime = POSTER_AT;
+      };
+      if (active.readyState >= 1) hold();
+      else active.addEventListener("loadedmetadata", hold, { once: true });
+      return () => active.removeEventListener("loadedmetadata", hold);
+    }
+    if (!play) {
+      active.pause();
+      return;
+    }
+    active.play().catch(() => undefined);
+  }, [theme, play, reduced]);
+
+  const sources = (name: "dark" | "light") => (
+    <>
+      <source src={`/motion/hero-workspace-${name}.webm`} type="video/webm" />
+      <source src={`/motion/hero-workspace-${name}.mp4`} type="video/mp4" />
+    </>
+  );
+
+  return (
+    <>
+      <video
+        ref={dark}
+        className={`${styles.video} ${styles.videoDark}`}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+        tabIndex={-1}
+        poster="/motion/hero-workspace-dark-poster.jpg"
+      >
+        {sources("dark")}
+      </video>
+      <video
+        ref={light}
+        className={`${styles.video} ${styles.videoLight}`}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+        tabIndex={-1}
+        poster="/motion/hero-workspace-light-poster.jpg"
+      >
+        {sources("light")}
+      </video>
+      <p className={styles.sr}>{VIDEO_DESCRIPTION}</p>
+    </>
+  );
+}
+
 export function HeroStage() {
-  const [altered, setAltered] = useState(false);
-  const [notice, setNotice] = useState("");
+  // On desktop the video waits until the laptop has risen; everywhere else it starts when in view.
+  const [playGate, setPlayGate] = useState(true);
   const scope = useRef<HTMLDivElement>(null);
-  const tiltRef = useRef<HTMLDivElement>(null);
-  usePointerTilt(tiltRef, { max: 3 });
   useHeroDepth(scope);
 
   useGSAP(
@@ -40,28 +134,26 @@ export function HeroStage() {
       if (!root) return;
       const hero = root.closest<HTMLElement>("section") ?? root;
 
-      gsap.matchMedia().add(DESKTOP_MOTION,() => {
+      gsap.matchMedia().add(DESKTOP_MOTION, () => {
         const lead = hero.querySelector<HTMLElement>("[data-hero-lead]");
-        const instrument = root.querySelector<HTMLElement>('[data-hero-plane="instrument"]');
-        const dock = root.querySelector<HTMLElement>("[data-hero-dock]");
+        const laptop = root.querySelector<HTMLElement>('[data-hero-plane="instrument"]');
         const back = root.querySelector<HTMLElement>('[data-hero-plane="back"]');
-        const slot = root.querySelector<HTMLElement>("[data-hero-stamp]")?.parentElement ?? null;
-        const bars = gsap.utils.toArray<HTMLElement>(root.querySelectorAll("[data-hero-tie]"));
-        if (!lead || !instrument || !dock) return;
+        if (!lead || !laptop) return;
+
+        setPlayGate(false);
 
         const measure = () => {
           const vh = hero.clientHeight;
-          const height = instrument.offsetHeight;
-          const restTop = offsetWithin(instrument, hero);
+          const height = laptop.offsetHeight;
+          const restTop = offsetWithin(laptop, hero);
           return {
             ty: (vh - height) / 2 - restTop,
             ly: -(lead.offsetTop + lead.offsetHeight + LEAD_CLEARANCE_PX),
           };
         };
 
-        gsap.set([instrument, dock], { rotationX: TILT_DEG, transformOrigin: "50% 100%" });
-        if (back) gsap.set(back, { z: -200, rotationX: TILT_DEG, transformOrigin: "50% 100%" });
-        bars.forEach((bar) => gsap.set(bar, { transformOrigin: "50% 0%" }));
+        gsap.set(laptop, { rotationX: TILT_DEG, scale: START_SCALE, transformOrigin: "50% 100%" });
+        if (back) gsap.set(back, { y: 0 });
 
         const tl = gsap.timeline({
           defaults: { ease: "none" },
@@ -73,31 +165,23 @@ export function HeroStage() {
             anticipatePin: 1,
             invalidateOnRefresh: true,
             scrub: 0.6,
+            onUpdate: (self) => {
+              if (self.progress >= SETTLED_AT) setPlayGate(true);
+            },
           },
         });
 
-        tl.to([instrument, dock], { rotationX: 0, y: () => measure().ty, duration: 0.7 }, 0);
+        tl.to(laptop, { rotationX: 0, scale: 1, y: () => measure().ty, duration: 0.7 }, 0);
         if (back) tl.to(back, { y: () => 0.4 * measure().ty, duration: 1 }, 0);
         tl.to(lead, { y: () => measure().ly, duration: 0.5 }, 0);
-        bars.forEach((bar, i) => {
-          const s = 0.3 + i * 0.11;
-          tl.to(bar, { scaleY: 0, duration: 0.05 }, s);
-          tl.to(bar, { scaleY: 1, duration: 0.05 }, s + 0.05);
-        });
-        if (slot) {
-          tl.to(slot, { scale: 0.94, duration: 0.04 }, 0.9);
-          tl.to(slot, { scale: 1, duration: 0.06 }, 0.94);
-          tl.set(slot, { clearProps: "transform" }, 1);
-        }
+        // Hold the settled laptop for the rest of the pin.
+        tl.to({}, { duration: 0.3 }, 0.7);
+
+        return () => setPlayGate(true);
       });
     },
     { scope },
   );
-
-  const handleChange = (next: boolean) => {
-    setAltered(next);
-    setNotice(next ? REFUSED_NOTICE : RELEASED_NOTICE);
-  };
 
   return (
     <div ref={scope} className={styles.stage}>
@@ -106,19 +190,14 @@ export function HeroStage() {
       <div aria-hidden="true" className={styles.grain} />
 
       <div className={styles.rise}>
-        <div ref={tiltRef} className={styles.tilt}>
-          <div className={styles.perspective}>
-            <HeroMonolith state={altered ? "refused" : "released"} />
-            <div data-hero-dock className={styles.dockLayer}>
-              <AlterSwitch className={styles.dock} checked={altered} onChange={handleChange} />
-            </div>
+        <div className={styles.perspective}>
+          <div data-hero-plane="instrument" className={styles.laptop} role="group" aria-label="Open Books workspace">
+            <DeviceFrame>
+              <HeroVideo play={playGate} />
+            </DeviceFrame>
           </div>
         </div>
       </div>
-
-      <p aria-live="polite" className={styles.visuallyHidden}>
-        {notice}
-      </p>
     </div>
   );
 }

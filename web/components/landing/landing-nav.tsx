@@ -24,23 +24,42 @@ export function LandingNav() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const prev = root.style.scrollPaddingTop;
+    root.style.scrollPaddingTop = "72px";
+    return () => {
+      root.style.scrollPaddingTop = prev;
+    };
+  }, []);
+
   return (
     <nav
       aria-label="Primary"
       data-scrolled={scrolled ? "true" : "false"}
-      className={`lp-glass lp-glass--blur ${styles.nav}`}
+      className={styles.nav}
     >
       <div className={styles.inner}>
         <Link href="/" className={styles.brand} aria-label="Open Books by Lumeo, home">
-          <BrandLockup markSize={scrolled ? 22 : 28} />
+          <BrandLockup markSize={26} />
         </Link>
-        <div className={styles.actions}>
-          <Link href="/docs" className={styles.link}>
-            Docs
-          </Link>
-          <Link href="/app" className={`btn btn-primary-landing ${styles.cta}`}>
-            Open workspace
-          </Link>
+        <div className={styles.right}>
+          <div
+            className={styles.actions}
+            aria-hidden={scrolled ? true : undefined}
+            inert={scrolled}
+          >
+            <Link href="/docs" className={styles.link} tabIndex={scrolled ? -1 : undefined}>
+              Docs
+            </Link>
+            <Link
+              href="/app"
+              className={`btn btn-primary-landing ${styles.cta}`}
+              tabIndex={scrolled ? -1 : undefined}
+            >
+              Open workspace
+            </Link>
+          </div>
           <ThemeToggle className={styles.toggle} />
         </div>
       </div>

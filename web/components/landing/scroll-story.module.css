@@ -39,11 +39,24 @@
   font-variant-numeric: tabular-nums;
 }
 
-.job {
-  margin: 10px 0 0;
+.stepNo {
+  margin-right: 12px;
+  color: var(--text-faint);
+}
+
+.question {
+  margin: 8px 0 0;
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.job {
+  margin: 6px 0 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
   color: var(--text-muted);
 }
 
@@ -255,5 +268,5 @@
 
 .checks {
   margin-top: clamp(40px, 6vw, 64px);
-  max-width: 760px;
+  max-width: 980px;
 }

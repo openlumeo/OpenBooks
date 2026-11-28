@@ -1,17 +1,9 @@
 .stage {
   --rest-top: clamp(520px, 66svh, 720px);
   position: relative;
-  margin-top: 40px;
+  margin-top: 48px;
+  padding-bottom: 72px;
   pointer-events: none;
-}
-
-@media (min-width: 900px) {
-  .stage {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    margin-top: 0;
-  }
 }
 
 .atmos {
@@ -53,9 +45,45 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
-@media (min-width: 900px) {
-  .bloom {
+.rise {
+  position: relative;
+  z-index: 1;
+  width: min(1000px, 92vw);
+  margin: 0 auto;
+}
+
+.perspective {
+  position: relative;
+  perspective: 1400px;
+}
+
+.laptop {
+  position: relative;
+  pointer-events: auto;
+  will-change: auto;
+}
+
+/* Desktop with motion: the stage fills the pinned hero and the laptop rests low, tilted back. */
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  :global(html.lp-js) .stage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    margin-top: 0;
+    padding-bottom: 0;
+  }
+
+  :global(html.lp-js) .bloom {
     top: calc(var(--rest-top) - 330px);
+  }
+
+  :global(html.lp-js) .rise {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--rest-top);
+    width: min(1000px, 88vw, calc(100vw - 340px), calc((100svh - 124px) * 1.6));
+    animation: rise 1.7s var(--ease) 0.2s both;
   }
 }
 
@@ -65,76 +93,54 @@
   }
 }
 
-.rise {
-  position: relative;
-  z-index: 1;
-  width: min(960px, 88vw);
-  margin: 0 auto;
-}
-
-@media (min-width: 900px) {
-  .rise {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: var(--rest-top);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .rise {
-    animation: rise 1.7s var(--ease) 0.2s both;
-  }
-}
-
-.perspective {
-  position: relative;
-  perspective: 1400px;
-}
-
-.tilt {
-  position: relative;
-  pointer-events: auto;
-  transform-style: preserve-3d;
-}
-
-.dockLayer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transform: rotateX(18deg);
-  transform-origin: 50% 100%;
-}
-
-.dockLayer .dock {
-  position: absolute;
-  top: 0;
-  left: clamp(20px, 3vw, 44px);
-  transform: translateY(calc(-100% - 10px));
-  pointer-events: auto;
-}
-
-:global(html:not(.lp-js)) .dockLayer {
-  display: none;
-}
-
-.visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 @keyframes rise {
   from {
     transform: translate3d(0, 140px, 0);
   }
   to {
     transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Screen video: fills the 16:10 laptop screen exactly. */
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: var(--bg);
+}
+
+.videoLight {
+  display: none;
+}
+
+:global(:root[data-theme="light"]) .videoDark {
+  display: none;
+}
+
+:global(:root[data-theme="light"]) .videoLight {
+  display: block;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* DeviceFrame switches its screen to 4:5 on small phones; the screen video is authored 16:10, so keep the
+   screen 16:10 here instead of cropping it (device-frame.* stays untouched). */
+@media (max-width: 640px) {
+  .laptop [class*="screen"] {
+    aspect-ratio: 16 / 10;
   }
 }

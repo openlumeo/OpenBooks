@@ -142,10 +142,6 @@ input, textarea, [contenteditable="true"] {
 
 .lp-ledger-rule {
   border-top: 1px solid var(--hairline);
-  background-image: linear-gradient(to right, var(--hairline-soft) 1px, transparent 1px);
-  background-size: 12px 5px;
-  background-repeat: repeat-x;
-  background-position: left top;
 }
 
 .lp-sheet {
@@ -159,4 +155,13 @@ input, textarea, [contenteditable="true"] {
 .lp-focusable:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+/* Once the nav spreads on scroll, the logo sits at the far left and the theme
+   toggle at the far right with no backdrop. Keep landing content inside side
+   margins wide enough that nothing scrolls underneath them. */
+@media (min-width: 900px) {
+  :root:has(.lp-page) {
+    --content-max: min(1120px, calc(100vw - 340px));
+  }
 }
