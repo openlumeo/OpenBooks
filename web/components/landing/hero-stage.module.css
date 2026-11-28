@@ -1,5 +1,5 @@
 .stage {
-  --rest-top: clamp(520px, 66svh, 720px);
+  --rest-top: clamp(400px, 44svh, 560px);
   position: relative;
   margin-top: 48px;
   padding-bottom: 72px;

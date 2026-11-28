@@ -1,17 +1,6 @@
-import Link from "next/link";
-import type { RefusalCode } from "@/lib/types";
 import { Section } from "./section";
 import { UseCaseGrid } from "./usecase-grid";
 import styles from "./refusals.module.css";
-
-const CODES: RefusalCode[] = [
-  "UNSUPPORTED_INPUT",
-  "UNKNOWN_LAYOUT",
-  "PARSE_ERROR",
-  "LOW_CONFIDENCE",
-  "BALANCE_MISMATCH",
-  "OUTPUT_INVALID",
-];
 
 const FLOW: { label: string; gloss: string }[] = [
   { label: "Detect", gloss: "Which layout is this?" },
@@ -22,7 +11,7 @@ const FLOW: { label: string; gloss: string }[] = [
 
 export function Refusals() {
   return (
-    <Section id="use-cases" className={styles.sec} heading="What developers build on it.">
+    <Section id="use-cases" className={styles.sec} heading="How you can use Open Books.">
       <p className={styles.lede}>
         You send a financial file. You get back one verified <code>openbooks.v1</code> JSON, or a typed refusal that
         says why. Never a guess.
@@ -46,18 +35,6 @@ export function Refusals() {
       </ol>
 
       <UseCaseGrid />
-
-      <p className={styles.codes}>
-        <span className={styles.codesLabel}>Six refusal codes</span>
-        <span className={styles.codeList}>
-          {CODES.map((c) => (
-            <code key={c}>{c}</code>
-          ))}
-        </span>
-        <Link href="/docs/refusals" className={styles.codesLink}>
-          What each one means
-        </Link>
-      </p>
     </Section>
   );
 }
