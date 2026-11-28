@@ -8,10 +8,11 @@ from openbooks.core.builders import cell_getter as _cell
 from openbooks.core.builders import currency_of as _currency
 from openbooks.core.builders import empty_data as _empty_data
 from openbooks.core.builders import settlement_batch as _settlement
-from openbooks.core.builders import statement_doc
+from openbooks.core.builders import record_date_order, statement_doc
 from openbooks.core.errors import Refusal
+from openbooks.core.gates import OPENING_NOT_EVIDENCE
 from openbooks.core.evidence import evidence
-from openbooks.core.normalise import date_order, money, to_date, to_dec
+from openbooks.core.normalise import money, resolve_date_order, to_date, to_dec
 from openbooks.core.params import Params
 
 
@@ -23,6 +24,7 @@ def parse_stripe(args, p: Params):
     def col(r, name):
         return r[hs.index(name)].strip() if name in hs else ""
 
+    order, provenance = resolve_date_order([col(r, "created") for _, r in body], p.date_order, where="Stripe created column")
     data, ev, txns, payouts = _empty_data(), {}, [], []
     for n, row in body:
         cat = col(row, "reporting_category")
@@ -30,7 +32,7 @@ def parse_stripe(args, p: Params):
             payouts.append((n, row))
             continue
         tid = f"txn-{len(txns) + 1:05d}"
-        t = {"id": tid, "batch_id": "batch-1", "date": to_date(col(row, "created"), f"row {n}"),
+        t = {"id": tid, "batch_id": "batch-1", "date": to_date(col(row, "created"), f"row {n}", order),
              "kind": cat or "other", "reference": col(row, "balance_transaction_id") or None}
         for f in ("gross", "fee", "net"):
             t[f] = money(to_dec(col(row, f), f"row {n} {f}", blank_zero=(f == "fee")), cur)
@@ -44,6 +46,7 @@ def parse_stripe(args, p: Params):
         n, row = payouts[0]
         payout, payout_raw = -to_dec(col(row, "net"), f"row {n} payout net"), col(row, "net")
     _settlement(data, ev, cur, txns, payout, payout_raw)
+    record_date_order(ev, order, provenance)
     return data, ev
 
 
@@ -56,6 +59,7 @@ def parse_razorpay(args, p: Params):
         return r[hs.index(name)].strip() if name in hs else ""
 
     created = "created_at" if "created_at" in hs else "settled_at"
+    order, provenance = resolve_date_order([col(r, created) for _, r in body], p.date_order, where="Razorpay created column")
     data, ev, txns, payouts = _empty_data(), {}, [], []
     for n, row in body:
         deb = to_dec(col(row, "debit"), f"row {n} debit", blank_zero=True)
@@ -65,7 +69,7 @@ def parse_razorpay(args, p: Params):
             continue
         tid = f"txn-{len(txns) + 1:05d}"
         amt = to_dec(col(row, "amount"), f"row {n} amount")
-        t = {"id": tid, "batch_id": "batch-1", "date": to_date(col(row, created), f"row {n}"),
+        t = {"id": tid, "batch_id": "batch-1", "date": to_date(col(row, created), f"row {n}", order),
              "kind": col(row, "type") or "other", "reference": col(row, "entity_id") or None,
              "gross": money(amt if cre else -amt, cur),
              "fee": money(to_dec(col(row, "fee"), f"row {n} fee", blank_zero=True), cur),
@@ -78,6 +82,7 @@ def parse_razorpay(args, p: Params):
         raise Refusal("PARSE_ERROR", "need at least one transaction and at most one settlement row")
     payout = payouts[0][1] if payouts else None
     _settlement(data, ev, cur, txns, payout, f"row {payouts[0][0]} debit" if payouts else "")
+    record_date_order(ev, order, provenance)
     return data, ev
 
 
@@ -103,7 +108,7 @@ def parse_paypal(args, p: Params):
     if not keep:
         raise Refusal("PARSE_ERROR", "no rows that moved the balance")
     cur = _currency(hs, [r for _, r in keep], p)
-    order = date_order([get(r, "date") for _, r in keep], p.date_order, where="PayPal date column")
+    order, provenance = resolve_date_order([get(r, "date") for _, r in keep], p.date_order, where="PayPal date column")
     data, ev, txns = _empty_data(), {}, []
     for n, row in keep:
         tid = f"txn-{len(txns) + 1:05d}"
@@ -117,6 +122,7 @@ def parse_paypal(args, p: Params):
             evidence(ev, tid, field, n, get(row, field))
         txns.append(t)
     _settlement(data, ev, cur, txns, None, None)
+    record_date_order(ev, order, provenance)
     return data, ev
 
 
@@ -125,8 +131,8 @@ def parse_wise(args, p: Params):
     body, get = _body(rows, hi, hs), _cell(hs)
     cur = _currency(hs, [r for _, r in body], p)
     if p.opening is None and not p.allow_derived_opening:
-        raise Refusal("PARSE_ERROR", "statement has no stated opening balance; supply --opening")
-    order = date_order([get(r, "date") for _, r in body], p.date_order, default="dmy", where="Wise date column")
+        raise Refusal("PARSE_ERROR", f"statement has no stated opening balance; supply --opening to check the arithmetic ({OPENING_NOT_EVIDENCE})")
+    order, provenance = resolve_date_order([get(r, "date") for _, r in body], p.date_order, where="Wise date column")
     recs = []
     for n, row in body:
         amount = to_dec(get(row, "amount"), f"row {n} amount")
@@ -136,4 +142,4 @@ def parse_wise(args, p: Params):
                      "amt": abs(amount), "amt_raw": get(row, "amount"), "date_raw": get(row, "date"),
                      "bal": to_dec(get(row, "running_balance"), f"row {n} running balance"), "bal_raw": get(row, "running_balance"),
                      "desc": get(row, "description"), "ref": get(row, "transferwise_id") or None})
-    return statement_doc(recs, cur, p.account, p.opening)
+    return statement_doc(recs, cur, p.account, p.opening, date_order=(order, provenance))

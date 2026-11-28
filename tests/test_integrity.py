@@ -43,16 +43,16 @@ def test_calibration_without_a_weights_hash_is_refused(tmp_path):
 
 def test_a_model_release_records_the_model_that_checked_it(tmp_path):
     build(tmp_path, 7, 0, False)
-    doc = process(tmp_path / "ok_pdf_text" / "in.pdf", Params(currency="INR", model=True))
+    doc = process(tmp_path / "ok_pdf_text" / "in.pdf", Params(currency="INR", model=True, date_order="dmy"))
     assert doc["status"] == "ok"
     assert doc["file"]["model"] == RoleModel.load().identity
-    plain = process(tmp_path / "ok_pdf_text" / "in.pdf", Params(currency="INR"))
+    plain = process(tmp_path / "ok_pdf_text" / "in.pdf", Params(currency="INR", date_order="dmy"))
     assert "model" not in plain["file"]
 
 
 def test_schema_rejects_a_malformed_model_field(tmp_path):
     build(tmp_path, 7, 0, False)
-    doc = process(tmp_path / "ok_pdf_text" / "in.pdf", Params(currency="INR", model=True))
+    doc = process(tmp_path / "ok_pdf_text" / "in.pdf", Params(currency="INR", model=True, date_order="dmy"))
     doc["file"]["model"] = {"weights_sha256": "abc", "calibration_sha256": "def"}
     with pytest.raises(Exception):
         validate_output(doc)

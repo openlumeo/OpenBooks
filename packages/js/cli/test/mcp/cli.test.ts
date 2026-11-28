@@ -96,7 +96,7 @@ describe("stdio end to end", () => {
 
   beforeAll(() => {
     folder = realpathSync(mkdtempSync(join(tmpdir(), "ob-mcp-e2e-")));
-    writeFileSync(join(folder, "statement.csv"), "Date,Description,Debit,Credit,Balance\n02/01/2026,Sample payment,100.00,,900.00\n03/01/2026,Sample deposit,,50.00,950.00\n");
+    writeFileSync(join(folder, "statement.sta"), readFileSync(new URL("../../../../py/openbooks/tests/fixtures/shared/mt940_balanced.sta", import.meta.url), "utf8"));
   });
 
   afterAll(() => {
@@ -133,14 +133,14 @@ describe("stdio end to end", () => {
   it.skipIf(!engineAvailable)("verifies a local file with the real engine", async () => {
     const client = await connect(["--root", folder]);
     try {
-      const options = { currency: "INR", date_order: "dmy", opening: "1000.00" };
+      const options = { currency: "INR", date_order: "dmy" };
       const result = await client.callTool({
         name: "execute",
         arguments: {
           steps: [
             { id: "d", operation: "doctor" },
-            { id: "f", operation: "process_file", arguments: { path: "statement.csv", ...options } },
-            { id: "m", operation: "verify_many", arguments: { files: ["statement.csv", "../x.csv"], ...options } },
+            { id: "f", operation: "process_file", arguments: { path: "statement.sta", ...options } },
+            { id: "m", operation: "verify_many", arguments: { files: ["statement.sta", "../x.sta"], ...options } },
           ],
           stop_on_error: false,
         },

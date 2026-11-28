@@ -8,12 +8,13 @@ import pytest
 
 openpyxl = pytest.importorskip("openpyxl")
 
-from openbooks.core import Params, process  # noqa: E402
+from openbooks.core import Params, default_registry, process  # noqa: E402
 from openbooks.core.frontends.xlsx import MAX_UNCOMPRESSED_BYTES  # noqa: E402
+from openbooks.core.process import _extract  # noqa: E402
 
 HEAD = ["Date", "Narration", "Withdrawal Amt.", "Deposit Amt.", "Closing Balance"]
 ROWS = [["01/01/2026", "Salary", None, 500.0, 1500.0], ["02/01/2026", "Rent", 200.5, None, 1299.5], ["03/01/2026", "Coffee", 4.5, None, 1295.0]]
-P = Params(currency="INR", opening=Decimal("1000.00"))
+P = Params(currency="INR", opening=Decimal("1000.00"), date_order="dmy")
 
 
 def workbook(tmp_path, rows=ROWS, head=HEAD, name="s.xlsx", sheets=None):
@@ -35,25 +36,38 @@ def amounts(doc):
     return [(t["date"], t["direction"], t["amount"]["amount"]) for t in doc["data"]["transactions"]]
 
 
+def read(path, params=P):
+    data, _, fmt, *_ = _extract(path, params, default_registry(), lambda _name: None)
+    return {"data": data, "file": {"detected_format": fmt}}
+
+
+def assert_caller_opening_refused(doc):
+    assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH", doc.get("error")
+
+
 EXPECTED = [("2026-01-01", "credit", "500.00"), ("2026-01-02", "debit", "200.50"), ("2026-01-03", "debit", "4.50")]
 
 
-def test_a_statement_workbook_releases_the_same_data_as_its_csv(tmp_path):
-    doc = process(workbook(tmp_path), P)
-    assert doc["status"] == "ok" and doc["file"]["detected_format"] == "xlsx" and amounts(doc) == EXPECTED, doc.get("error")
+def test_a_statement_workbook_reads_the_same_data_as_its_csv(tmp_path):
+    f = workbook(tmp_path)
+    assert_caller_opening_refused(process(f, P))
+    doc = read(f)
+    assert doc["file"]["detected_format"] == "xlsx" and amounts(doc) == EXPECTED
 
 
-def test_dates_stored_as_real_dates_work(tmp_path):
+def test_dates_stored_as_real_dates_read(tmp_path):
     rows = [[datetime.datetime(2026, 1, 1), "Salary", None, 500.0, 1500.0], [datetime.date(2026, 1, 2), "Rent", 200.5, None, 1299.5],
             [datetime.datetime(2026, 1, 3, 0, 0, 0), "Coffee", 4.5, None, 1295.0]]
-    doc = process(workbook(tmp_path, rows), P)
-    assert doc["status"] == "ok" and amounts(doc) == EXPECTED, doc.get("error")
+    f = workbook(tmp_path, rows)
+    assert_caller_opening_refused(process(f, P))
+    assert amounts(read(f)) == EXPECTED
 
 
-def test_numbers_stored_as_text_work(tmp_path):
+def test_numbers_stored_as_text_read(tmp_path):
     rows = [[a, b, None if c is None else f"{c:.2f}", None if d is None else f"{d:.2f}", f"{e:.2f}"] for a, b, c, d, e in ROWS]
-    doc = process(workbook(tmp_path, rows), P)
-    assert doc["status"] == "ok" and amounts(doc) == EXPECTED, doc.get("error")
+    f = workbook(tmp_path, rows)
+    assert_caller_opening_refused(process(f, P))
+    assert amounts(read(f)) == EXPECTED
 
 
 def test_a_stored_value_with_float_noise_is_refused_never_rounded(tmp_path):
@@ -114,8 +128,8 @@ def test_two_sheets_that_both_look_like_statements_are_refused_not_merged(tmp_pa
 
 def test_a_notes_sheet_beside_the_statement_is_ignored(tmp_path):
     f = workbook(tmp_path, sheets={"Notes": [["Prepared by", "A B"], ["Remarks", "none"]]})
-    doc = process(f, P)
-    assert doc["status"] == "ok" and amounts(doc) == EXPECTED
+    assert_caller_opening_refused(process(f, P))
+    assert amounts(read(f)) == EXPECTED
 
 
 def test_a_workbook_with_no_statement_sheet_is_unknown_layout(tmp_path):
@@ -166,8 +180,9 @@ def test_thousands_of_rows_in_a_workbook_release(tmp_path):
     for i in range(5000):
         bal = round(bal + 1.25, 2)
         rows.append([f"{1 + i % 28:02d}/01/2026", f"row {i}", None, 1.25, bal])
-    doc = process(workbook(tmp_path, rows), P)
-    assert doc["status"] == "ok" and len(doc["data"]["transactions"]) == 5000, doc.get("error")
+    f = workbook(tmp_path, rows)
+    assert_caller_opening_refused(process(f, P))
+    assert len(read(f)["data"]["transactions"]) == 5000
 
 
 @pytest.mark.parametrize("payload", [b"", b"PK\x03\x04", b"PK\x03\x04" + b"\x00" * 100, b"not a zip", bytes(range(256)) * 8])
@@ -219,6 +234,32 @@ def test_workbook_source_handles_close_after_release_or_refusal(tmp_path, monkey
         return open_workbook(source, **kwargs)
 
     monkeypatch.setattr(openpyxl, "load_workbook", track_source)
-    assert process(f, P)["status"] == ("refused" if has_formula else "ok")
+    assert process(f, P)["status"] == "refused"
     assert sources and all(source.closed for source in sources)
     f.unlink()
+
+
+def test_an_array_formula_in_a_data_row_is_refused_like_an_ordinary_formula(tmp_path):
+    from openpyxl.worksheet.formula import ArrayFormula
+
+    f = workbook(tmp_path)
+    wb = openpyxl.load_workbook(f)
+    wb.active["F3"] = ArrayFormula("F3", "=E2-C3+D3")
+    wb.save(f)
+    doc = process(f, P)
+    assert doc["status"] == "refused" and doc["error"]["code"] == "PARSE_ERROR"
+
+
+def test_a_duplicate_statement_sheet_past_the_sheet_cap_is_refused_not_ignored(tmp_path):
+    filler = {f"Notes {i}": [["x"]] for i in range(20)}
+    f = workbook(tmp_path, sheets={**filler, "Copy": [HEAD, *ROWS]})
+    doc = process(f, P)
+    assert doc["status"] == "refused" and doc["error"]["code"] == "UNSUPPORTED_INPUT"
+
+
+def test_a_workbook_over_the_total_cell_budget_is_refused(tmp_path, monkeypatch):
+    from openbooks.core.frontends import xlsx
+
+    monkeypatch.setattr(xlsx, "MAX_TOTAL_CELLS", 10)
+    doc = process(workbook(tmp_path), P)
+    assert doc["status"] == "refused" and doc["error"]["code"] == "UNSUPPORTED_INPUT" and "cells" in doc["error"]["message"]

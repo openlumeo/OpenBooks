@@ -19,6 +19,9 @@ const venv = join(repo, ".venv", process.platform === "win32" ? "Scripts/python.
 const python = process.env.OPENBOOKS_PYTHON ?? (existsSync(venv) ? venv : undefined);
 const fake = join(repo, "packages/js/cli/test/core/fake-engine.mjs");
 
+const sharedDir = join(repo, "packages/py/openbooks/tests/fixtures/shared");
+const MT940 = readFileSync(join(sharedDir, "mt940_balanced.sta"), "utf8");
+const MT940_TAMPERED = readFileSync(join(sharedDir, "mt940_tampered_closing.sta"), "utf8");
 const BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2026,Pay,,5.00,1005.00\n";
 const STRIPE = "balance_transaction_id,created,currency,gross,fee,net\nt1,2026-01-15 10:00:00,usd,100.00,3.20,96.80\n";
 const work = mkdtempSync(join(tmpdir(), "ob-cli-test-"));
@@ -35,21 +38,27 @@ afterEach(() => {
 });
 
 describe.skipIf(!python)("openbooks CLI with the real engine", () => {
-  const base = ["--currency", "INR", "--opening", "1000", "--python", python ?? ""];
+  const base = ["--currency", "INR", "--date-order", "dmy", "--python", python ?? ""];
 
   it("exits 0 when everything is released", async () => {
     const c = capture();
-    expect(await main(["run", file("a.csv", BANK), ...base], c.io)).toBe(EXIT.ok);
-    expect(c.out()).toContain("a.csv: released bank_csv.v1");
+    expect(await main(["run", file("a.sta", MT940), ...base], c.io)).toBe(EXIT.ok);
+    expect(c.out()).toContain("a.sta: released mt940.v1");
+  });
+
+  it("refuses a caller-opened CSV as BALANCE_MISMATCH with exit 1", async () => {
+    const c = capture();
+    expect(await main(["run", file("caller.csv", BANK), ...base, "--opening", "1000"], c.io)).toBe(EXIT.refused);
+    expect(c.out()).toContain("caller.csv: refused BALANCE_MISMATCH");
   });
 
   it("runs files without the run subcommand, also for a family", async () => {
     const c = capture();
-    expect(await main([file("d.csv", BANK), ...base], c.io)).toBe(EXIT.ok);
-    expect(c.out()).toContain("d.csv: released bank_csv.v1");
+    expect(await main([file("d.sta", MT940), ...base], c.io)).toBe(EXIT.ok);
+    expect(c.out()).toContain("d.sta: released mt940.v1");
     const f = capture();
-    expect(await main(["gateways", file("e.csv", BANK), ...base], f.io)).toBe(EXIT.refused);
-    expect(f.out()).toContain("refused");
+    expect(await main(["gateways", file("e.sta", MT940), ...base], f.io)).toBe(EXIT.refused);
+    expect(f.out()).toContain("e.sta: refused UNKNOWN_LAYOUT");
   });
 
   it("still dispatches real subcommands ahead of the default", async () => {
@@ -60,31 +69,38 @@ describe.skipIf(!python)("openbooks CLI with the real engine", () => {
 
   it("exits 1 when something is refused, and still prints the rest", async () => {
     const c = capture();
-    const code = await main(["run", file("b.csv", BANK), file("c.csv", BANK.replace("1005.00", "1005.01")), ...base], c.io);
+    const code = await main(["run", file("b.sta", MT940), file("c.sta", MT940_TAMPERED), ...base], c.io);
     expect(code).toBe(EXIT.refused);
-    expect(c.out()).toContain("b.csv: released");
-    expect(c.out()).toContain("c.csv: refused BALANCE_MISMATCH");
+    expect(c.out()).toContain("b.sta: released");
+    expect(c.out()).toContain("c.sta: refused BALANCE_MISMATCH");
+  });
+
+  it("refuses an ambiguous day/month file as AMBIGUOUS_DATE when no date order is declared", async () => {
+    const c = capture();
+    const code = await main(["run", file("amb.csv", BANK), "--currency", "INR", "--opening", "1000", "--python", python ?? ""], c.io);
+    expect(code).toBe(EXIT.refused);
+    expect(c.out()).toContain("amb.csv: refused AMBIGUOUS_DATE");
   });
 
   it("restricts a family command to its own layouts", async () => {
     const c = capture();
-    const code = await main(["gateways", "run", file("d.csv", BANK), file("e.csv", STRIPE), ...base], c.io);
+    const code = await main(["gateways", "run", file("d.sta", MT940), file("e.csv", STRIPE), ...base], c.io);
     expect(code).toBe(EXIT.refused);
-    expect(c.out()).toContain("d.csv: refused UNKNOWN_LAYOUT");
+    expect(c.out()).toContain("d.sta: refused UNKNOWN_LAYOUT");
     expect(c.out()).toContain("e.csv: released stripe_balance.v1");
   });
 
   it("prints machine-readable JSON with --json", async () => {
     const c = capture();
-    await main(["run", file("f.csv", BANK), ...base, "--json"], c.io);
+    await main(["run", file("f.sta", MT940), ...base, "--json"], c.io);
     const j = JSON.parse(c.out());
-    expect(j[0]).toMatchObject({ file: "f.csv", status: "released" });
+    expect(j[0]).toMatchObject({ file: "f.sta", status: "released" });
     expect(j[0].document.schema_version).toBe("openbooks.v1");
   });
 
   it("writes each document as <sha256>.json with --out", async () => {
     const dir = join(work, "out");
-    await main(["run", file("g.csv", BANK), ...base, "--out", dir], capture().io);
+    await main(["run", file("g.sta", MT940), ...base, "--out", dir], capture().io);
     const names = readdirSync(dir);
     expect(names).toHaveLength(1);
     expect(names[0]).toMatch(/^[0-9a-f]{64}\.json$/);
@@ -99,7 +115,7 @@ describe.skipIf(!python)("openbooks CLI with the real engine", () => {
 
   it("exits 2 for usage errors", async () => {
     expect(await main(["run"], capture().io)).toBe(EXIT.usage);
-    expect(await main(["run", file("h.csv", BANK), "--date-order", "ymd", ...base], capture().io)).toBe(EXIT.usage);
+    expect(await main(["run", file("h.csv", BANK), ...base, "--date-order", "ymd"], capture().io)).toBe(EXIT.usage);
     expect(await main(["run", file("i.csv", BANK), "--timeout", "soon", ...base], capture().io)).toBe(EXIT.usage);
     expect(await main([], capture().io)).toBe(EXIT.usage);
   });

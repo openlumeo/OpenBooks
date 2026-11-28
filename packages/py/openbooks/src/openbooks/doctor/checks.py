@@ -188,11 +188,11 @@ STRIPE = "balance_transaction_id,created,currency,gross,fee,net\nt1,2026-01-15 1
 TDS = ("Deductor Name,TAN,Section,Transaction Date,Amount Paid/Credited,Tax Deducted,TDS Deposited\n"
        "Acme Ltd,MUMA12345B,194C,15/04/2025,100000.00,2000.00,2000.00\nTotal,,,,100000.00,2000.00,2000.00\n")
 MT940 = ":20:S1\n:25:123\n:60F:C260101INR1000,00\n:61:2601050105C500,00NTRFNONREF//B1\n:86:Salary\n:62F:C260105INR1500,00\n"
+BANK_CALLER_OPENING = {"currency": "INR", "opening": Decimal("1000.00"), "date_order": "dmy"}
 SELF_TEST = [
-    ("bank_csv.v1", "csv", BANK, BANK.replace("1299.50", "1299.51"), {"currency": "INR", "opening": Decimal("1000.00")}),
     ("mt940.v1", "sta", MT940, MT940.replace("1500,00", "1500,01"), {}),
     ("stripe_balance.v1", "csv", STRIPE, STRIPE.replace("96.80", "96.81"), {}),
-    ("tds_26as.v1", "csv", TDS, TDS.replace("2000.00,2000.00\nTotal", "2000.00,2000.00\nTotal").replace("Total,,,,100000.00,2000.00,2000.00", "Total,,,,100000.00,2000.01,2000.00"), {}),
+    ("tds_26as.v1", "csv", TDS, TDS.replace("2000.00,2000.00\nTotal", "2000.00,2000.00\nTotal").replace("Total,,,,100000.00,2000.00,2000.00", "Total,,,,100000.00,2000.01,2000.00"), {"currency": "INR", "date_order": "dmy"}),
 ]
 
 
@@ -223,6 +223,25 @@ def check_self_test(reg) -> list[Check]:
     return out or [Check("selftest", SKIP, "no layout with a built-in self-test is installed")]
 
 
+def check_caller_opening_refusal(reg) -> list[Check]:
+    from openbooks.core import Params, process
+
+    name = "selftest.bank_csv.refusal"
+    if reg is None:
+        return [Check(name, SKIP, "the registry did not load")]
+    if "bank_csv.v1" not in reg.installed_layouts():
+        return [Check(name, SKIP, "bank_csv.v1 is not installed")]
+    with tempfile.TemporaryDirectory(prefix="openbooks-doctor-") as tmp:
+        f = Path(tmp) / "bank_csv-caller-opening.csv"
+        f.write_text(BANK, encoding="utf-8")
+        doc = process(f, Params(**BANK_CALLER_OPENING), registry=reg)
+    code = (doc.get("error") or {}).get("code")
+    if doc["status"] == "refused" and code == "BALANCE_MISMATCH":
+        return [Check(name, PASS, "caller-opened CSV refused with BALANCE_MISMATCH")]
+    return [Check(name, FAIL, f"caller-opened CSV was {code or doc['status']}, expected BALANCE_MISMATCH",
+                  "this installation does not satisfy the proven-or-refused guarantee; reinstall and report it")]
+
+
 def check_environment() -> list[Check]:
     out = []
     try:
@@ -244,5 +263,5 @@ def run_checks(*, deep: bool = False, registry=None) -> list[Check]:
     checks.append(check_retired())
     reg_checks, reg = check_registry(registry)
     checks += reg_checks
-    checks += [check_pdf(), *check_scan(deep), *check_model(deep), *check_self_test(reg), *check_environment()]
+    checks += [check_pdf(), *check_scan(deep), *check_model(deep), *check_self_test(reg), *check_caller_opening_refusal(reg), *check_environment()]
     return checks

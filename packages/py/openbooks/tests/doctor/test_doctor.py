@@ -19,8 +19,9 @@ def by_id(cs):
 def test_a_healthy_registry_passes_and_the_self_test_covers_every_installed_family():
     cs = by_id(C.run_checks(registry=default_registry()))
     assert cs["registry.load"].status == C.PASS and cs["registry.coverage"].status == C.PASS
-    for layout in ("bank_csv.v1", "mt940.v1", "stripe_balance.v1", "tds_26as.v1"):
+    for layout in ("mt940.v1", "stripe_balance.v1", "tds_26as.v1"):
         assert cs[f"selftest.{layout}"].status == C.PASS, cs[f"selftest.{layout}"]
+    assert cs["selftest.bank_csv.refusal"].status == C.PASS, cs["selftest.bank_csv.refusal"]
 
 
 def test_a_provider_that_cannot_load_is_a_failure_with_a_fix():

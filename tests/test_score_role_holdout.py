@@ -59,6 +59,7 @@ def test_grouped_summary_and_paired_release_gate():
     )
 
 
+@pytest.mark.xfail(reason="model-assisted reads are not independent evidence under the strict release rule", strict=True)
 def test_frozen_holdout_cli_uses_real_release_path_and_distinct_bundles(tmp_path):
     pytest.importorskip("torch")
     pytest.importorskip("fitz")

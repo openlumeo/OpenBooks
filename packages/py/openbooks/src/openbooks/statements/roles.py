@@ -99,7 +99,6 @@ class Predictions:
                     previous = None if None in frontier else balance - change
                     if previous in frontier:
                         count = frontier[previous][0] + next_frontier.get(balance, (0,))[0]
-                        # Multiple paths ending at the same balance remain ambiguous.
                         next_frontier[balance] = (min(2, count), previous, roles)
             if not next_frontier:
                 page = f"page {tokens[0].page}: " if tokens else ""

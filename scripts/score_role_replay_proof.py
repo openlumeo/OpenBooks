@@ -39,7 +39,6 @@ def score_bundle(cache: Path, directory: Path, fingerprints: dict) -> dict:
             type_labels = np.asarray([tr.TID[vtype_of(word.text)] for word in words])
             arrays[split].append((role, types, labels, type_labels))
 
-            # Pass only observed words, boxes, and probabilities to the proof search.
             _, proved = document_features(pages, model.role_cal.probs(role))
             allowed = model.role_cal.sets(role)
             commitments = {i: direction for i, direction in proved.items() if direction in allowed[i]}

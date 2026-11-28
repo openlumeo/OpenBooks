@@ -102,7 +102,7 @@ def build_pdfs(root, rng: random.Random, scans: bool) -> None:
         _write(root, f"ok_pdf_layout_{k}", "in.pdf", pdf(rows, lay), ok, params=P)
     _write(root, "ok_pdf_multipage", "in.pdf", pdf(_pdf_rows(random.Random(9), 70), closing=None), ok, params=P)
     _write(root, "ok_pdf_no_printed_closing", "in.pdf", pdf(rows, closing=None), ok, params=P)
-    _write(root, "ok_pdf_opening_supplied", "in.pdf", pdf(rows, opening=None, closing=None), ok, params={"currency": "INR", "opening": str(OPEN)})
+    _write(root, "bad_pdf_caller_opening_only", "in.pdf", pdf(rows, opening=None, closing=None), refused, "BALANCE_MISMATCH", params={"currency": "INR", "opening": str(OPEN)})
     bal = [r[:] for r in rows]
     bal[4][4] = _bump(bal[4][4])
     _write(root, "bad_pdf_balance_cent", "in.pdf", pdf(bal), refused, mism, P)
@@ -161,24 +161,24 @@ def build_pdfs(root, rng: random.Random, scans: bool) -> None:
 
 
 def build_docs(root, rng: random.Random, scans: bool = False) -> None:
-    from .golden import BANK_PARAMS, _write, bank_rows
+    from .golden import BANK_PARAMS, OPEN, _write, bank_rows
 
     build_pdfs(root, rng, scans)
 
     ok, refused = "ok", "refused"
     mismatch = "BALANCE_MISMATCH"
-    _write(root, "ok_tds", "in.csv", _csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL), ok)
-    _write(root, "bad_tds_total_cent", "in.csv", _csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL.replace("7500.05,7500.05", "7500.06,7500.05")), refused, mismatch)
-    _write(root, "bad_tds_row_cent", "in.csv", _csv(TDS_HEAD, [TDS_ROWS[0].replace("2000.00,2000.00", "2000.01,2000.00")] + TDS_ROWS[1:], TDS_TOTAL), refused, mismatch)
-    _write(root, "bad_tds_no_total", "in.csv", _csv(TDS_HEAD, TDS_ROWS), refused, mismatch)
-    _write(root, "bad_tds_bad_date", "in.csv", _csv(TDS_HEAD, [TDS_ROWS[0].replace("15/04/2025", "31/02/2025")] + TDS_ROWS[1:], TDS_TOTAL), refused, "PARSE_ERROR")
-    _write(root, "ok_ais", "in.csv", _csv(AIS_HEAD, AIS_ROWS, AIS_TOTAL), ok)
-    _write(root, "bad_ais_total_cent", "in.csv", _csv(AIS_HEAD, AIS_ROWS, AIS_TOTAL.replace("1216345.67", "1216345.68")), refused, mismatch)
+    _write(root, "ok_tds", "in.csv", _csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL), ok, params={"currency": "INR"})
+    _write(root, "bad_tds_total_cent", "in.csv", _csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL.replace("7500.05,7500.05", "7500.06,7500.05")), refused, mismatch, params={"currency": "INR"})
+    _write(root, "bad_tds_row_cent", "in.csv", _csv(TDS_HEAD, [TDS_ROWS[0].replace("2000.00,2000.00", "2000.01,2000.00")] + TDS_ROWS[1:], TDS_TOTAL), refused, mismatch, params={"currency": "INR"})
+    _write(root, "bad_tds_no_total", "in.csv", _csv(TDS_HEAD, TDS_ROWS), refused, mismatch, params={"currency": "INR"})
+    _write(root, "bad_tds_bad_date", "in.csv", _csv(TDS_HEAD, [TDS_ROWS[0].replace("15/04/2025", "31/02/2025")] + TDS_ROWS[1:], TDS_TOTAL), refused, "PARSE_ERROR", params={"currency": "INR"})
+    _write(root, "ok_ais", "in.csv", _csv(AIS_HEAD, AIS_ROWS, AIS_TOTAL), ok, params={"currency": "INR"})
+    _write(root, "bad_ais_total_cent", "in.csv", _csv(AIS_HEAD, AIS_ROWS, AIS_TOTAL.replace("1216345.67", "1216345.68")), refused, mismatch, params={"currency": "INR"})
     fr, ft = _fira_rows()
-    _write(root, "ok_fira", "in.csv", _csv(FIRA_HEAD, fr, ft), ok)
-    _write(root, "bad_fira_fx_mismatch", "in.csv", _csv(FIRA_HEAD, [fr[0].replace("83215.00,15.00,83200.00", "83220.00,15.00,83205.00")] + fr[1:], ft), refused, mismatch)
-    _write(root, "bad_fira_cent_vs_total", "in.csv", _csv(FIRA_HEAD, [fr[0].replace("83215.00,15.00,83200.00", "83215.01,15.00,83200.01")] + fr[1:], ft), refused, mismatch)
-    _write(root, "bad_fira_net_charges", "in.csv", _csv(FIRA_HEAD, [fr[0].replace("83200.00", "83200.01")] + fr[1:], ft), refused, mismatch)
+    _write(root, "ok_fira", "in.csv", _csv(FIRA_HEAD, fr, ft), ok, params={"currency": "INR"})
+    _write(root, "bad_fira_fx_mismatch", "in.csv", _csv(FIRA_HEAD, [fr[0].replace("83215.00,15.00,83200.00", "83220.00,15.00,83205.00")] + fr[1:], ft), refused, mismatch, params={"currency": "INR"})
+    _write(root, "bad_fira_cent_vs_total", "in.csv", _csv(FIRA_HEAD, [fr[0].replace("83215.00,15.00,83200.00", "83215.01,15.00,83200.01")] + fr[1:], ft), refused, mismatch, params={"currency": "INR"})
+    _write(root, "bad_fira_net_charges", "in.csv", _csv(FIRA_HEAD, [fr[0].replace("83200.00", "83200.01")] + fr[1:], ft), refused, mismatch, params={"currency": "INR"})
     tb = [",".join(r) for r in TB_ROWS]
     _write(root, "ok_tb_csv", "in.csv", _csv(TB_HEAD, tb), ok, params={"currency": "INR"})
     bad_tb = tb[:-1] + ["Revenue,,1000.26"]
@@ -190,7 +190,7 @@ def build_docs(root, rng: random.Random, scans: bool = False) -> None:
     _write(root, "bad_tb_xlsx_formula", "in.xlsx", _xlsx(grid + [["Total", "=SUM(B4:B8)", "=SUM(C4:C8)"]]), refused, "PARSE_ERROR", {"currency": "INR"})
     _write(root, "bad_xlsx_garbage", "in.xlsx", b"not a workbook", refused, "UNSUPPORTED_INPUT")
     rows = bank_rows(rng, 6)
-    bank_grid = [["Date", "Narration", "Debit", "Credit", "Balance"]] + [[r[0], r[1], _num(r[2]), _num(r[3]), _num(r[4])] for r in rows]
+    bank_grid = [["Date", "Narration", "Debit", "Credit", "Balance"], ["", "Opening Balance", "", "", _num(OPEN)]] + [[r[0], r[1], _num(r[2]), _num(r[3]), _num(r[4])] for r in rows]
     _write(root, "ok_bank_xlsx", "in.xlsx", _xlsx(bank_grid), ok, params=BANK_PARAMS)
     bank_bad = [r[:] for r in bank_grid]
     bank_bad[3][4] = round(bank_bad[3][4] + 0.01, 2)

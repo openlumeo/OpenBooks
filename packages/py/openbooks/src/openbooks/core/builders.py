@@ -8,8 +8,10 @@ from decimal import Decimal
 
 from .errors import Refusal
 from .evidence import evidence
+from .iso4217 import exponent_of
 from .normalise import money, to_dec
 from .params import Params
+from .provenance import Provenance
 
 
 def empty_data() -> dict:
@@ -21,12 +23,15 @@ def currency_of(hs: list[str], body: list[list[str]], p: Params) -> str:
     if "currency" in hs:
         i = hs.index("currency")
         vals = {r[i].strip().upper() for r in body if len(r) > i and r[i].strip()}
-        if len(vals) == 1:
-            return vals.pop()
-        raise Refusal("PARSE_ERROR", f"expected one currency, found {sorted(vals)}")
-    if p.currency:
-        return p.currency.upper()
-    raise Refusal("PARSE_ERROR", "currency not in file; supply --currency")
+        if len(vals) != 1:
+            raise Refusal("PARSE_ERROR", f"expected one currency, found {sorted(vals)}")
+        cur = vals.pop()
+    elif p.currency:
+        cur = p.currency.upper()
+    else:
+        raise Refusal("PARSE_ERROR", "currency not in file; supply --currency")
+    exponent_of(cur)
+    return cur
 
 
 def body_rows(rows, hi, hs):
@@ -42,7 +47,12 @@ def body_rows(rows, hi, hs):
     return out
 
 
-def statement_doc(recs, cur, account, opening, *, method="parser", opening_loc=None, stated_closing=None, noops=()):
+def record_date_order(ev, order: str, provenance: str) -> None:
+    evidence(ev, "batch-1", "date_order", None, order, provenance=provenance)
+
+
+def statement_doc(recs, cur, account, opening, *, method="parser", opening_loc=None, stated_closing=None, noops=(),
+                  date_order=None):
     """Shared by CSV, PDF and scan paths. Each rec may carry loc={field: (page, bbox, conf)}.
     opening=None means derived from the first row (not independent). stated_closing=(Decimal, raw, loc)."""
     if recs[0]["date"] > recs[-1]["date"]:
@@ -51,23 +61,36 @@ def statement_doc(recs, cur, account, opening, *, method="parser", opening_loc=N
     derived = opening is None
     if derived:
         opening = recs[0]["bal"] - (recs[0]["amt"] if recs[0]["dir"] == "credit" else -recs[0]["amt"])
+    if derived:
+        opening_prov = Provenance.DETERMINISTICALLY_DERIVED
+    elif opening_loc is None:
+        opening_prov = Provenance.CALLER_SUPPLIED
+    elif "+model" in method:
+        opening_prov = Provenance.MODEL_PREDICTED
+    else:
+        opening_prov = Provenance.SOURCE_OBSERVED
     data, ev = empty_data(), {}
+    if date_order is not None:
+        record_date_order(ev, *date_order)
 
-    def put(rid, field, raw, row=None, loc=None):
+    def put(rid, field, raw, row=None, loc=None, provenance=None):
         page, bbox, conf = loc or (None, None, None)
-        evidence(ev, rid, field, row, raw, page=page, bbox=bbox, method=method if loc else "parser", conf=conf)
+        evidence(ev, rid, field, row, raw, page=page, bbox=bbox, method=method if loc else "parser", conf=conf,
+                 provenance=provenance)
 
     data["accounts"].append({"id": "acct-1", "number": account, "currency": cur})
     batch = {"id": "batch-1", "kind": "statement", "account_id": "acct-1", "currency": cur,
              "period_start": recs[0]["date"], "period_end": recs[-1]["date"],
-             "opening": money(opening, cur), "closing": money(recs[-1]["bal"], cur), "opening_derived": derived}
+             "opening": money(opening, cur), "closing": money(recs[-1]["bal"], cur), "opening_derived": derived,
+             "opening_provenance": opening_prov.value}
     if method != "parser":
         batch["source_method"] = method
     if stated_closing:
         batch["stated_closing"] = money(stated_closing[0], cur)
     data["batches"].append(batch)
     put("batch-1", "opening", "derived from first row balance" if derived else (
-        "supplied by caller" if opening_loc is None else opening_loc[1]), loc=None if opening_loc is None else opening_loc[0])
+        "supplied by caller" if opening_loc is None else opening_loc[1]), loc=None if opening_loc is None else opening_loc[0],
+        provenance=opening_prov.value)
     first, last = recs[0], recs[-1]
     put("batch-1", "closing", last["bal_raw"], last["row"], last.get("loc", {}).get("balance"))
     put("batch-1", "period_start", first["date_raw"], first["row"], first.get("loc", {}).get("date"))

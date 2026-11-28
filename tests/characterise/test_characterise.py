@@ -28,9 +28,10 @@ def test_baseline_is_not_trivially_small():
 
 
 def test_harness_detects_a_behaviour_change(monkeypatch):
-    from openbooks import pipeline
+    from openbooks.core import normalise
 
-    monkeypatch.setitem(pipeline.EXPONENT, "INR", 0)
+    real = normalise.exponent_of
+    monkeypatch.setattr(normalise, "exponent_of", lambda code, **kw: 0 if code == "INR" else real(code, **kw))
     assert char.diff(_baseline("main"), char.collect("main"))
 
 

@@ -15,19 +15,55 @@ from openbooks.core.builders import (
     statement_doc,
 )
 from openbooks.core.errors import Refusal
+from openbooks.core.gates import OPENING_NOT_EVIDENCE
 from openbooks.core.evidence import evidence
 from openbooks.core.normalise import date_order, money, to_date, to_dec
 from openbooks.core.params import Params
+from openbooks.core.provenance import Provenance
+
+
+def _with_date_order(doc_and_ev: tuple, order: str, p: Params) -> tuple:
+    data, ev = doc_and_ev
+    evidence(ev, "batch-1", "date_order", None, order, provenance="CALLER_SUPPLIED" if p.date_order else "FILE_EVIDENCE")
+    return data, ev
+
+
+_OPENING_ROW = re.compile(r"opening balance|balance brought forward|balance b/?f|opening bal", re.IGNORECASE)
+
+
+def _printed_opening(n: int, row: list[str], idx: dict[str, int]) -> Decimal | None:
+    """The balance of a printed opening row: described as an opening balance, with no amount, and with a balance."""
+    if "balance" not in idx or "desc" not in idx or not _OPENING_ROW.search(row[idx["desc"]]):
+        return None
+    if any(row[idx[role]].strip() for role in ("debit", "credit", "amount") if role in idx):
+        return None
+    raw = row[idx["balance"]].strip()
+    return to_dec(raw, f"row {n} balance", dr_cr=True) if raw else None
+
+
+def _opening_for(body: list, idx: dict[str, int], p: Params) -> tuple[list, Decimal | None, tuple | None]:
+    """The opening balance. A printed opening row (the first body row) is source evidence and is not a transaction. A
+    caller --opening is checked against it, and is never evidence by itself."""
+    first_n, first = body[0]
+    printed = _printed_opening(first_n, first, idx)
+    if printed is None:
+        if p.opening is None and not p.allow_derived_opening:
+            raise Refusal("PARSE_ERROR", f"statement has no stated opening balance; supply --opening to check the arithmetic ({OPENING_NOT_EVIDENCE})")
+        return body, p.opening, None
+    if p.opening is not None and p.opening != printed:
+        raise Refusal("PARSE_ERROR", f"supplied opening balance differs from the one printed on row {first_n}")
+    rest = body[1:]
+    if not rest:
+        raise Refusal("PARSE_ERROR", "no transactions after the opening balance")
+    return rest, printed, (None, f"printed opening balance on row {first_n}")
 
 
 def parse_bank_csv(args, p: Params):
     rows, hi, hs = args
     idx = bank_cols(hs)
-    body = _body(rows, hi, hs)
+    body, opening, opening_loc = _opening_for(_body(rows, hi, hs), idx, p)
     cur = _currency(hs, [r for _, r in body], p)
-    if p.opening is None and not p.allow_derived_opening:
-        raise Refusal("PARSE_ERROR", "statement has no stated opening balance; supply --opening")
-    order = date_order([r[idx["date"]] for _, r in body], p.date_order, default="dmy", where="date column")
+    order = date_order([r[idx["date"]] for _, r in body], p.date_order, where="date column")
     recs = []
     for n, row in body:
 
@@ -52,7 +88,7 @@ def parse_bank_csv(args, p: Params):
                 "ref": g("ref") or None,
             }
         )
-    return statement_doc(recs, cur, p.account, p.opening)
+    return _with_date_order(statement_doc(recs, cur, p.account, opening, opening_loc=opening_loc), order, p)
 
 
 def parse_bank_csv_signed(args, p: Params):
@@ -60,11 +96,9 @@ def parse_bank_csv_signed(args, p: Params):
     idx = signed_bank_cols(hs)
     if idx is None:
         raise Refusal("UNKNOWN_LAYOUT", "ambiguous amount columns: need exactly one signed amount column")
-    body = _body(rows, hi, hs)
+    body, opening, opening_loc = _opening_for(_body(rows, hi, hs), idx, p)
     cur = _currency(hs, [r for _, r in body], p)
-    if p.opening is None and not p.allow_derived_opening:
-        raise Refusal("PARSE_ERROR", "statement has no stated opening balance; supply --opening")
-    order = date_order([r[idx["date"]] for _, r in body], p.date_order, default="dmy", where="date column")
+    order = date_order([r[idx["date"]] for _, r in body], p.date_order, where="date column")
     recs = []
     for n, row in body:
 
@@ -88,7 +122,7 @@ def parse_bank_csv_signed(args, p: Params):
                 "ref": None,
             }
         )
-    return statement_doc(recs, cur, p.account, p.opening)
+    return _with_date_order(statement_doc(recs, cur, p.account, opening, opening_loc=opening_loc), order, p)
 
 
 _TAG = re.compile(r"^:(\d{2}[A-Z]?):(.*)$")
@@ -169,6 +203,7 @@ def _mt_add_statement(data: dict, ev: dict, accts: dict, si: int, s: dict) -> No
             "opening": money(ob, ocur),
             "closing": money(cb, ocur),
             "opening_derived": False,
+            "opening_provenance": Provenance.SOURCE_OBSERVED.value,
         }
     )
     for f, raw in (("opening", oraw), ("closing", craw), ("period_start", oraw), ("period_end", craw)):
@@ -213,7 +248,7 @@ def parse_ofx(text: str, p: Params):
     if not chunks:
         raise Refusal("PARSE_ERROR", "no statement response in OFX")
     if p.opening is None:
-        raise Refusal("PARSE_ERROR", "OFX carries no opening balance; supply --opening")
+        raise Refusal("PARSE_ERROR", f"OFX carries no opening balance; supply --opening to check the arithmetic ({OPENING_NOT_EVIDENCE})")
     if len(chunks) > 1:
         raise Refusal("PARSE_ERROR", "multi-statement OFX with one --opening is ambiguous")
     c = chunks[0]
@@ -266,9 +301,10 @@ def parse_ofx(text: str, p: Params):
             "opening": money(p.opening, cur),
             "closing": money(to_dec(bal, "LEDGERBAL"), cur),
             "opening_derived": False,
+            "opening_provenance": Provenance.CALLER_SUPPLIED.value,
         }
     )
-    evidence(ev, "batch-1", "opening", None, "supplied by caller")
+    evidence(ev, "batch-1", "opening", None, "supplied by caller", provenance=Provenance.CALLER_SUPPLIED.value)
     evidence(ev, "batch-1", "closing", None, bal)
     evidence(ev, "batch-1", "period_start", None, min(dates))
     evidence(ev, "batch-1", "period_end", None, max(dates))
@@ -390,6 +426,7 @@ def _camt_statement(statement, si: int, data: dict, ev: dict, accts: dict) -> No
             "opening": money(opening, open_cur),
             "closing": money(closing, close_cur),
             "opening_derived": False,
+            "opening_provenance": Provenance.SOURCE_OBSERVED.value,
         }
     )
     for field, raw in (

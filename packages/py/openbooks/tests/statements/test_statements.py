@@ -10,6 +10,7 @@ import pytest
 
 from openbooks.core import Params, default_registry, process
 from openbooks.core.errors import EngineFault
+from openbooks.core.process import _extract
 
 STATEMENTS = ("openbooks.statements",)
 BANK = """Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance
@@ -51,15 +52,18 @@ def run(tmp_path):
     def _run(text, ext="csv", **params):
         f = tmp_path / f"in.{ext}"
         f.write_text(text, encoding="utf-8")
-        return process(f, Params(**params))
+        return process(f, Params(**{"date_order": "dmy", **params}))
     return _run
 
 
-def test_bank_csv_releases_and_records_the_provenance_of_every_amount(run):
+def test_bank_csv_reads_every_amount_with_provenance_and_refuses_a_caller_opening(run, tmp_path):
     doc = run(BANK, currency="INR", opening=OPENING)
-    assert doc["status"] == "ok" and doc["file"]["layout_version"] == "bank_csv.v1", doc.get("error")
-    t = doc["data"]["transactions"][1]
-    assert t["amount"] == {"amount": "200.50", "currency": "INR"} and doc["evidence"][f"{t['id']}.amount"]["raw_text"] == "200.50"
+    assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH", doc.get("error")
+    f = tmp_path / "parse.csv"
+    f.write_text(BANK, encoding="utf-8")
+    data, ev, *_ = _extract(f, Params(currency="INR", opening=OPENING, date_order="dmy"), default_registry(), lambda _name: None)
+    t = data["transactions"][1]
+    assert t["amount"] == {"amount": "200.50", "currency": "INR"} and ev[f"{t['id']}.amount"]["raw_text"] == "200.50"
 
 
 @pytest.mark.parametrize("old,new", [("1500.00", "1500.01"), ("200.50", "200.51"), ("1295.00", "1295.10")])
@@ -68,10 +72,14 @@ def test_bank_csv_tampering_is_refused(run, old, new):
     assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH"
 
 
-def test_a_statement_without_an_opening_balance_is_not_guessed(run):
+def test_a_statement_without_an_opening_balance_is_not_guessed(run, tmp_path):
     assert run(BANK, currency="INR")["error"]["code"] == "PARSE_ERROR"
     derived = run(BANK, currency="INR", allow_derived_opening=True)
-    assert derived["status"] == "ok" and derived["data"]["batches"][0]["opening_derived"] is True
+    assert derived["status"] == "refused" and derived["error"]["code"] == "BALANCE_MISMATCH"
+    f = tmp_path / "parse.csv"
+    f.write_text(BANK, encoding="utf-8")
+    data, *_ = _extract(f, Params(currency="INR", date_order="dmy", allow_derived_opening=True), default_registry(), lambda _name: None)
+    assert data["batches"][0]["opening_derived"] is True
 
 
 def test_mt940_releases_and_a_tampered_closing_balance_is_refused(run):
@@ -81,7 +89,7 @@ def test_mt940_releases_and_a_tampered_closing_balance_is_refused(run):
 
 
 def test_ofx_needs_the_opening_and_refuses_a_wrong_one(run):
-    assert run(OFX, "ofx", opening=OPENING)["status"] == "ok"
+    assert run(OFX, "ofx", opening=OPENING)["error"]["code"] == "BALANCE_MISMATCH"
     assert run(OFX, "ofx")["error"]["code"] == "PARSE_ERROR"
     assert run(OFX, "ofx", opening=Decimal("1000.01"))["error"]["code"] == "BALANCE_MISMATCH"
 
@@ -123,7 +131,7 @@ def test_processing_a_csv_needs_neither_a_pdf_library_nor_torch(tmp_path):
     f = tmp_path / "in.csv"
     f.write_text(BANK, encoding="utf-8")
     code = ("import sys\nfrom decimal import Decimal\nfrom openbooks.core import process, Params\n"
-            f"assert process({str(f)!r}, Params(currency='INR', opening=Decimal('1000')))['status'] == 'ok'\n"
+            f"assert process({str(f)!r}, Params(currency='INR', opening=Decimal('1000'), date_order='dmy'))['error']['code'] == 'BALANCE_MISMATCH'\n"
             "print(sorted(m for m in ('torch', 'pypdfium2', 'easyocr', 'scipy', 'openbooks.gateways', 'openbooks.tax') if m in sys.modules))\n")
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.strip().splitlines()[-1]
     assert out == "[]", out

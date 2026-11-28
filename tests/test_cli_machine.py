@@ -9,7 +9,7 @@ import pytest
 from openbooks.core import cli
 from openbooks.core.output import write_atomic
 
-BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2026,Pay,,5.00,1005.00\n"
+BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n,Opening Balance,,,1000.00\n01/01/2026,Pay,,5.00,1005.00\n"
 
 
 def run_cli(*args):
@@ -23,7 +23,7 @@ def bank(tmp_path, text=BANK, name="in.csv"):
 
 
 def test_a_released_file_exits_0_and_machine_output_is_json_lines(tmp_path):
-    r = run_cli("run", bank(tmp_path), "--out", str(tmp_path / "o"), "--currency", "INR", "--opening", "1000.00", "--machine")
+    r = run_cli("run", bank(tmp_path), "--out", str(tmp_path / "o"), "--currency", "INR", "--date-order", "dmy", "--opening", "1000.00", "--machine")
     assert r.returncode == 0, r.stderr
     lines = [json.loads(x) for x in r.stdout.splitlines()]
     assert lines[0]["status"] == "ok" and lines[0]["code"] is None and os.path.exists(lines[0]["output"])
@@ -32,10 +32,10 @@ def test_a_released_file_exits_0_and_machine_output_is_json_lines(tmp_path):
 
 
 def test_a_refused_file_exits_1_with_a_typed_code(tmp_path):
-    r = run_cli("run", bank(tmp_path), "--out", str(tmp_path / "o"), "--currency", "INR", "--opening", "1000.01", "--machine")
+    r = run_cli("run", bank(tmp_path), "--out", str(tmp_path / "o"), "--currency", "INR", "--date-order", "dmy", "--opening", "1000.01", "--machine")
     assert r.returncode == 1
     first = json.loads(r.stdout.splitlines()[0])
-    assert first["status"] == "refused" and first["code"] == "BALANCE_MISMATCH"
+    assert first["status"] == "refused" and first["code"] == "PARSE_ERROR"
     assert json.load(open(first["output"], encoding="utf-8"))["status"] == "refused"
 
 
@@ -82,6 +82,6 @@ def test_output_is_written_whole_or_not_at_all(tmp_path, monkeypatch):
 
 
 def test_default_output_format_is_unchanged(tmp_path, capsys):
-    rc = cli.main(["run", bank(tmp_path), "--out", str(tmp_path / "o"), "--currency", "INR", "--opening", "1000.00"])
+    rc = cli.main(["run", bank(tmp_path), "--out", str(tmp_path / "o"), "--currency", "INR", "--date-order", "dmy", "--opening", "1000.00"])
     out = capsys.readouterr().out
     assert rc == 0 and out.startswith("in.csv: ok  -> ") and out.endswith(".json\n")

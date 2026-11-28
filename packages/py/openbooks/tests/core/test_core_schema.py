@@ -39,7 +39,7 @@ def doc(**tx):
             "evidence": {f"{r}.{f}": {"page": None, "bbox": None, "row": 2, "raw_text": "x", "method": "parser"}
                          for r, f in [("batch-1", "opening"), ("batch-1", "closing"), ("batch-1", "period_start"), ("batch-1", "period_end"),
                                       ("txn-00001", "date"), ("txn-00001", "amount"), ("txn-00001", "balance_after")]},
-            "assertions": [{"id": "A1", "rule": "r", "expected": "e", "computed": "e", "passed": True, "independent": True}]}
+            "verification": "independent", "assertions": [{"id": "A1", "rule": "r", "expected": "e", "computed": "e", "passed": True, "independent": True}]}
 
 
 def test_the_record_definitions_accept_a_well_formed_document():

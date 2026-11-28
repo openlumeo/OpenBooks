@@ -431,7 +431,6 @@ def test_tampered_figure_from_fake_ocr_ends_in_balance_mismatch_not_release(tmp_
     tampered_words = [replace(w, text="200.51") if w.text == "200.50" else w for w in genuine_words]
     assert tampered_words != genuine_words
 
-    # The fake provider returns predefined words and does not inspect the raster.
     monkeypatch.setattr(PdfPage, "render_rgb", lambda self, scale: None)
     served: dict[str, list[Word]] = {"words": genuine_words}
     add_engine("fake_ocr", lambda page: served["words"] if page == 1 else [])
@@ -442,9 +441,9 @@ def test_tampered_figure_from_fake_ocr_ends_in_balance_mismatch_not_release(tmp_
     scan = tmp_path / "scan.pdf"
     scan.write_bytes(pdf_bytes([b""]))
 
-    control = process(scan, Params(currency="INR"))
+    control = process(scan, Params(currency="INR", date_order="dmy"))
     assert control["status"] == "ok", control.get("error")
 
     served["words"] = tampered_words
-    refused = process(scan, Params(currency="INR"))
+    refused = process(scan, Params(currency="INR", date_order="dmy"))
     assert refused["status"] == "refused" and refused["error"]["code"] == "BALANCE_MISMATCH"

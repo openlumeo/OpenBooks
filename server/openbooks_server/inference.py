@@ -165,7 +165,7 @@ def predict_batched(model: RoleModel, pages, timings: dict | None = None) -> Pre
 def _layout_roles(pages, params: Params, method: str) -> tuple[dict, str | None]:
     try:
         data, _, assigned, _ = extract_statement(pages, params, method)
-        require_balance(run_gate(data))
+        require_balance(data, run_gate(data))
     except Refusal as refusal:
         return {}, refusal.code
     return dict(assigned), None

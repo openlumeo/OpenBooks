@@ -213,6 +213,35 @@
         },
         "title": "Assertion"
       }
+    },
+    "coverage": {
+      "description": "Transaction coverage over statement batches. Optional; present on released documents.",
+      "type": "object",
+      "required": [
+        "transactions",
+        "covered_transactions",
+        "independent_covered",
+        "conditional_transactions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "transactions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "covered_transactions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "independent_covered": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "conditional_transactions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
     }
   },
   "$defs": {

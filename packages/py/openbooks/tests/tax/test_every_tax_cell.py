@@ -49,4 +49,4 @@ def test_a_cent_moved_in_any_cell_is_refused(tmp_path, text, layout, params):
 def test_a_changed_ais_modified_value_is_refused(tmp_path):
     f = tmp_path / "ais.csv"
     f.write_text(make_csv(AIS_HEAD, AIS_ROWS, AIS_TOTAL).replace("12345.67,12345.67", "12345.67,99999.99"), encoding="utf-8")
-    assert process(f, Params())["status"] == "refused"
+    assert process(f, Params(currency="INR"))["status"] == "refused"

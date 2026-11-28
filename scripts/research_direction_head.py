@@ -46,7 +46,7 @@ def document_features(pages, probabilities):
         closing = {record[0] for record in pdf._stated(flat, r"closing\s+balance")}
         if len(opening) != 1 or len(closing) != 1:
             return {}, {}
-        order = pdf._date_order(all_lines, Params())
+        order, _ = pdf._date_order(all_lines, Params())
         for lines in all_lines:
             header = pdf.find_header(lines)
             for _, text, dates, money in pdf._statement_lines(lines[header[0] + 1:] if header else lines, order):
@@ -79,8 +79,6 @@ def document_features(pages, probabilities):
                 ]
         previous = set(vals)
 
-    # Deliberately allow every monetary role. Uniqueness must come from the printed
-    # chain and both balance anchors, independently of the learned head's ranking.
     wide = Pred("balance", DIRECTIONS, "money", ("money",))
     proposals = Predictions({word: wide for row in rows for word in row})
     try:
@@ -206,7 +204,6 @@ def main():
         weights = args.out / "direction_head.pt"
         torch.save({"state": head.state_dict(), "temperature": temperature,
                     "minimum_probability": MIN_PROBABILITY, "role_labels": DIRECTIONS}, weights)
-        # Generate evaluation documents only after weights and the decision rule are fixed.
         documents = {name: corpus(name, model, origin) for name in ("test", "shifted", "tampered")}
 
     audit = {}

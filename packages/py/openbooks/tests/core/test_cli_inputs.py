@@ -10,8 +10,10 @@ from openbooks.core.cli import main
 needs_a_provider = pytest.mark.skipif(importlib.util.find_spec("openbooks.statements") is None,
                                       reason="releasing a bank statement needs openbooks.statements registered")
 needs_xlsx = pytest.mark.skipif(importlib.util.find_spec("openpyxl") is None, reason="needs openpyxl")
-GOOD = "Date,Description,Debit,Credit,Balance\n02/01/2026,Pay,100.00,,900.00\n03/01/2026,Dep,,50.00,950.00\n"
-RUN = ["--currency", "INR", "--opening", "1000.00"]
+GOOD = (":20:STMT001\n:25:12345678/9876543\n:28C:1/1\n:60F:C260101INR1000,00\n"
+        ":61:2601020102D100,00NTRFNONREF//B1\n:86:Pay\n:61:2601030103C50,00NTRFNONREF//B2\n:86:Dep\n:62F:C260103INR950,00\n")
+CALLER_OPENED_CSV = "Date,Description,Debit,Credit,Balance\n02/01/2026,Pay,100.00,,900.00\n03/01/2026,Dep,,50.00,950.00\n"
+RUN = ["--currency", "INR", "--opening", "1000.00", "--date-order", "dmy"]
 
 
 @pytest.fixture
@@ -88,7 +90,7 @@ def test_a_currency_must_be_a_three_letter_code(good, bad, capsys):
 @pytest.mark.parametrize("given", ["inr", "Inr", " INR "])
 def test_a_currency_is_normalised_to_upper_case(good, given, tmp_path, capsys):
     out = tmp_path / "o"
-    rc, _, _ = code(["run", str(good), "--currency", given, "--opening", "1000.00", "--out", str(out)], capsys)
+    rc, _, _ = code(["run", str(good), "--currency", given, "--opening", "1000.00", "--date-order", "dmy", "--out", str(out)], capsys)
     (path,) = out.glob("*.json")
     doc = json.loads(path.read_text(encoding="utf-8"))
     assert rc == 0 and doc["data"]["transactions"][0]["amount"]["currency"] == "INR"
@@ -125,7 +127,7 @@ def test_report_exit_code_follows_the_documented_contract(good, tmp_path, capsys
     folder.mkdir()
     (folder / "a.csv").write_text(GOOD, encoding="utf-8")
     assert code(["report", str(folder), "--out", str(tmp_path / "r1"), *RUN], capsys)[0] == 0
-    (folder / "b.csv").write_text(GOOD.replace("900.00", "901.00"), encoding="utf-8")
+    (folder / "b.csv").write_text(GOOD.replace("950,00", "951,00"), encoding="utf-8")
     assert code(["report", str(folder), "--out", str(tmp_path / "r2"), *RUN], capsys)[0] == 1
     report = json.loads((tmp_path / "r2" / "report.json").read_text(encoding="utf-8"))
     assert report["released"] == 1 and report["refused"] == {"BALANCE_MISMATCH": 1}
@@ -221,7 +223,7 @@ def test_hostile_files_are_refused_with_a_typed_code_and_never_crash(tmp_path, n
     line = json.loads(out.splitlines()[0])
     assert rc in (0, 1) and "Traceback" not in err
     if line["status"] == "refused":
-        assert line["code"] in {"UNKNOWN_LAYOUT", "PARSE_ERROR", "UNSUPPORTED_INPUT", "BALANCE_MISMATCH", "OUTPUT_INVALID"}
+        assert line["code"] in {"UNKNOWN_LAYOUT", "PARSE_ERROR", "UNSUPPORTED_INPUT", "BALANCE_MISMATCH", "OUTPUT_INVALID", "AMBIGUOUS_DATE"}
         assert not line.get("internal"), f"{name}: an internal error means the engine crashed on this file"
     else:
         doc = json.loads(open(line["output"], encoding="utf-8").read())
@@ -278,7 +280,7 @@ def test_the_output_folder_holds_only_finished_json_files(good, tmp_path, capsys
 
 def test_the_output_name_is_the_hash_of_the_input_and_differs_per_content(good, tmp_path, capsys):
     other = tmp_path / "other.csv"
-    other.write_text(GOOD.replace("100.00", "100.01"), encoding="utf-8")
+    other.write_text(GOOD.replace("D100,00", "D100,01"), encoding="utf-8")
     out = tmp_path / "o"
     code(["run", str(good), str(other), *RUN, "--out", str(out)], capsys)
     assert len(list(out.glob("*.json"))) == 2
@@ -287,7 +289,7 @@ def test_the_output_name_is_the_hash_of_the_input_and_differs_per_content(good, 
 @needs_a_provider
 def test_a_refusal_and_a_release_in_one_batch_exit_1_but_both_are_written(good, tmp_path, capsys):
     bad = tmp_path / "bad.csv"
-    bad.write_text(GOOD.replace("900.00", "901.00"), encoding="utf-8")
+    bad.write_text(GOOD.replace("950,00", "951,00"), encoding="utf-8")
     rc, out, _ = code(["run", str(good), str(bad), *RUN, "--out", str(tmp_path / "o"), "--machine"], capsys)
     lines = [json.loads(x) for x in out.splitlines() if '"engine"' not in x]
     assert rc == 1 and [x["status"] for x in lines] == ["ok", "refused"]
@@ -312,13 +314,29 @@ def test_engine_info_lists_every_known_layout_and_the_contract(capsys):
 
 def test_a_workbook_without_openpyxl_is_an_engine_problem_with_an_install_hint(tmp_path, monkeypatch, capsys):
     import sys
+    import zipfile
 
     monkeypatch.setitem(sys.modules, "openpyxl", None)
     f = tmp_path / "book.xlsx"
-    import zipfile
-
+    spreadsheet = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    document_rels = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+    package_rels = "http://schemas.openxmlformats.org/package/2006/relationships"
+    # Include the parts validated by preflight before it opens the workbook.
     with zipfile.ZipFile(f, "w") as z:
-        z.writestr("xl/workbook.xml", "<workbook/>")
+        z.writestr("xl/workbook.xml",
+                   f'<workbook xmlns="{spreadsheet}" xmlns:r="{document_rels}">'
+                   '<sheets><sheet name="Data" sheetId="1" r:id="rId1"/></sheets></workbook>')
+        z.writestr("xl/_rels/workbook.xml.rels",
+                   f'<Relationships xmlns="{package_rels}"><Relationship Id="rId1" '
+                   f'Type="{document_rels}/worksheet" Target="worksheets/sheet1.xml"/></Relationships>')
+        z.writestr("xl/worksheets/sheet1.xml", f'<worksheet xmlns="{spreadsheet}"><sheetData/></worksheet>')
     rc, _, err = code(["run", str(f), "--out", str(tmp_path / "o")], capsys)
     assert rc == 3 and "pip install openpyxl" in err and "Traceback" not in err
     assert "EngineFault: EngineFault" not in err
+
+
+def test_a_caller_opened_csv_exits_1_with_a_balance_refusal(tmp_path, capsys):
+    f = tmp_path / "caller.csv"
+    f.write_text(CALLER_OPENED_CSV, encoding="utf-8")
+    rc, stdout, _ = code(["run", str(f), *RUN, "--machine"], capsys)
+    assert rc == 1 and "BALANCE_MISMATCH" in stdout

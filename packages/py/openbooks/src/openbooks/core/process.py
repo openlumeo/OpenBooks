@@ -6,7 +6,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from .evidence import sha256_file
-from .gates import require_balance, run_gate
+from .gates import coverage, require_balance, run_gate
 from .guard import DOC_EXT, check_input, decode, read_text_input
 from .errors import EngineFault, Refusal
 from .frontends.xlsx import parse_xlsx
@@ -57,7 +57,7 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
         stage("parse")
         stage("normalise")
         assertions = run_gate(data, reg.gates({b["kind"] for b in data["batches"]}))
-        require_balance(assertions)
+        verification = require_balance(data, assertions)
         stage("balance")
         model_id = None
         if p.model and ext in DOC_EXT:
@@ -65,7 +65,8 @@ def process(path: str | Path, params: Params | None = None, on_stage: Callable[[
         doc = {"schema_version": SCHEMA_VERSION, "status": "ok",
                "file": {"sha256": sha, "name": path.name, "detected_format": fmt_name,
                         "layout_version": layout, "method": method, **({"model": model_id} if model_id else {})},
-               "data": data, "evidence": ev, "assertions": assertions}
+               "data": data, "evidence": ev, "assertions": assertions,
+               "verification": verification, "coverage": coverage(data)}
         validate_output(doc)
         stage("validate")
         return doc

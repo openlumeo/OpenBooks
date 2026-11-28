@@ -20,8 +20,6 @@ NOT_RELEASED = {
     **{("stripe", 4, c): "payout row: only its net is used, as the claim the other rows are proven against" for c in ("gross", "fee")},
     **{("razorpay", 3, c): "settlement row: only its debit is used, as the claim" for c in ("credit", "amount", "fee", "tax")},
     **{("paypal", 2, c): "pending authorisation: excluded from the balance and from the output" for c in ("Gross", "Fee", "Net")},
-    **{("wise", r, "Total fees"): "informational column, not emitted" for r in (1, 2, 3)},
-    ("wise", 3, "Amount"): "first row: the opening balance is derived from it (allow_derived_opening), so it moves with it",
 }
 
 

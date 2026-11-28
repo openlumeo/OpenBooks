@@ -13,7 +13,8 @@ from pathlib import Path
 
 from openbooks.core.builders import statement_doc
 from openbooks.core.errors import EngineFault, Refusal
-from openbooks.core.normalise import date_order, to_date, to_dec
+from openbooks.core.gates import OPENING_NOT_EVIDENCE
+from openbooks.core.normalise import resolve_date_order, to_date, to_dec
 from openbooks.core.params import Params
 from openbooks.statements.ocr_providers import OcrRun, OcrSession, PageInput, ProviderSettings, load_settings, select_engine
 from openbooks.statements.pdf_words import _EU, _MONEY, Word, _date_spans, _lines
@@ -210,17 +211,17 @@ def _merge_drcr(line: list[Word]) -> list[Word]:
 
 
 
-def _dates(line: list[Word], order: str = "dmy") -> list[tuple[int, int, str, str]]:
+def _dates(line: list[Word], order: str) -> list[tuple[int, int, str, str]]:
     """Every date in a line as (first word, word count, ISO date, raw text), numeric dates read in `order`.
     Impossible dates (31/02, or 15/01 read month-first) raise PARSE_ERROR."""
     return [(i, n, to_date(raw, f"page {line[0].page}", order), raw) for i, n, raw in _date_spans(line)]
 
 
-def _date_order(all_lines, p: Params) -> str:
-    """One day/month order for the whole document, by the bank CSV rule: --date-order wins, a field above 12 proves it,
-    otherwise day-first (Indian layouts)."""
+def _date_order(all_lines, p: Params) -> tuple[str, str]:
+    """One day/month order for the whole document, with its provenance: --date-order is CALLER_SUPPLIED, a field above 12
+    proves it (FILE_EVIDENCE), and numeric dates with no proof refuse as AMBIGUOUS_DATE."""
     raws = [raw for lines in all_lines for ln in lines for _, _, raw in _date_spans(ln)]
-    return date_order(raws, p.date_order, default="dmy", where="statement dates")
+    return resolve_date_order(raws, p.date_order, where="statement dates")
 
 
 def _money_tokens(line: list[Word]) -> list[Word]:
@@ -352,7 +353,7 @@ def _statement_lines(lines, order):
             yield line, text, _dates(line, order), _money_tokens(line)
 
 
-def _rows(all_lines, preds, prev=None, order: str = "dmy", closing=None):
+def _rows(all_lines, preds, prev=None, order: str | None = None, closing=None):
     """Walk pages, using document-wide role resolution when no page has a table header."""
     recs, noops, assigned, hdr, model_used = [], [], [], None, False
     headers = [find_header(lines) for lines in all_lines]
@@ -414,7 +415,7 @@ def extract_statement(pages: list[list[Word]], p: Params, method: str, preds=Non
     closings = _stated(flat, closing_label) + closing_cards
     if closing_cards and len({c[0] for c in closings}) > 1:
         raise Refusal("PARSE_ERROR", "document states more than one closing balance")
-    order = _date_order(all_lines, p)
+    order, date_provenance = _date_order(all_lines, p)
     recs, noops, assigned, model_used = _rows(all_lines, preds, p.opening if p.opening is not None else (openings[0][0] if openings else None),
                                               order, closing=closings[-1][0] if closings else None)
     if not recs:
@@ -432,7 +433,7 @@ def extract_statement(pages: list[list[Word]], p: Params, method: str, preds=Non
     elif p.allow_derived_opening:
         opening = None
     else:
-        raise Refusal("PARSE_ERROR", "statement has no stated opening balance; supply --opening")
+        raise Refusal("PARSE_ERROR", f"statement has no stated opening balance; supply --opening to check the arithmetic ({OPENING_NOT_EVIDENCE})")
     if method == "ocr":
         low = [r["row"] for r in recs if (r["loc"]["date"][2] or 1.0) < OCR_MIN_DATE_CONF]
         if low:
@@ -440,7 +441,8 @@ def extract_statement(pages: list[list[Word]], p: Params, method: str, preds=Non
     full_method = method + ("+model" if model_used else "")
     data, ev = statement_doc(recs, cur, p.account, opening, method=full_method,
                              opening_loc=(doc_open[2], doc_open[1]) if doc_open else None,
-                             stated_closing=closings[-1] if closings else None, noops=noops)
+                             stated_closing=closings[-1] if closings else None, noops=noops,
+                             date_order=(order, date_provenance))
     return data, ev, assigned, full_method
 
 

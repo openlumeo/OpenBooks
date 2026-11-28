@@ -16,7 +16,7 @@ from openbooks.core.evidence import evidence, sha256_file
 from openbooks.core.gates import run_gate as _run_gate
 from openbooks.core.grade import run_eval
 from openbooks.core.guard import ALLOWED_EXT, DOC_EXT, MAX_BYTES, TEXT_EXT, decode, guard
-from openbooks.core.normalise import EXPONENT, YEAR_RANGE, date_order, fmt, money, norm, to_date, to_dec
+from openbooks.core.normalise import YEAR_RANGE, date_order, fmt, money, norm, to_date, to_dec
 from openbooks.core.params import Params
 from openbooks.core.process import STAGES, dumps, process
 from openbooks.core.registry import (

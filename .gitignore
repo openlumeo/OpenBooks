@@ -68,3 +68,15 @@ harness/eval/report.json
 
 # Generated harness benchmark output
 harness/bench-out/
+
+/cache/
+/runs/
+
+docs/research/**/*.jsonl
+docs/research/**/*.interrupted
+
+/S_pf.txt
+/logs_err.txt
+
+docs/CONTEXT.md
+docs/research/

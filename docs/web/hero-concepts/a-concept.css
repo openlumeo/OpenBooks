@@ -1,5 +1,3 @@
-/* Concept A, "The Twin". Standalone mock. Tokens come from vendor/theme-tokens.css. */
-
 @font-face {
   font-family: "GeistVar";
   src: url("vendor/fonts/Geist-Variable.woff2") format("woff2");
@@ -46,8 +44,6 @@ img { display: block; }
   width: 1px; height: 1px; margin: -1px; padding: 0;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-
-/* ---------- atmosphere ---------- */
 .atmos {
   position: fixed;
   inset: 0;
@@ -59,8 +55,6 @@ img { display: block; }
   opacity: 0.9;
 }
 :root[data-theme="light"] .atmos { display: none; }
-
-/* fine grain, the Lumeo token at 16% so large dark fields never band */
 .grain {
   position: fixed;
   inset: -50%;
@@ -71,8 +65,6 @@ img { display: block; }
   mix-blend-mode: overlay;
 }
 :root[data-theme="light"] .grain { opacity: 0.05; }
-
-/* ---------- nav: the existing floating glass pill, 74px, 12px from top ---------- */
 .nav {
   position: fixed;
   top: 12px;
@@ -128,8 +120,6 @@ img { display: block; }
   background: transparent; border: 1px solid var(--rule); border-radius: 0; cursor: pointer; color: var(--text-muted);
 }
 .theme:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
-
-/* ---------- buttons ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 44px; padding: 13px 22px; border: 0; border-radius: 0;
@@ -152,8 +142,6 @@ img { display: block; }
   transition: color var(--dur) var(--ease);
 }
 .text-link:hover { color: var(--text); text-decoration: underline; }
-
-/* ---------- hero layout ---------- */
 .hero {
   position: relative;
   z-index: 1;
@@ -175,8 +163,6 @@ img { display: block; }
   gap: clamp(40px, 5vw, 80px);
   align-items: center;
 }
-
-/* Headline: Geist 400, -0.04em. Sized below the Lumeo H1 scale on purpose so it holds two lines beside the instrument. */
 .hero-h1 {
   margin: 0;
   font-family: var(--font-geist-sans);
@@ -197,8 +183,6 @@ img { display: block; }
 }
 
 .ctas { margin-top: 36px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
-
-/* ---------- the instrument ---------- */
 .stage { position: relative; min-width: 0; }
 
 .tilt {
@@ -207,8 +191,6 @@ img { display: block; }
   transition: transform 900ms var(--ease);
   will-change: transform;
 }
-
-/* a soft mint bloom sits behind the instrument, low opacity, never a ring */
 .bloom {
   position: absolute;
   inset: -18% -30% -16% -30%;
@@ -244,8 +226,6 @@ img { display: block; }
   font-family: var(--font-mono); font-size: 11px; line-height: 1; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--text-muted);
 }
-
-/* the single stage rail: slim, one line, drawn once */
 .rail {
   list-style: none; margin: 0; height: 40px;
   padding: 0 20px;
@@ -272,8 +252,6 @@ img { display: block; }
 .instrument[data-state="refused"] .rail [data-stage="balance"] { color: var(--unmatched); }
 .instrument[data-state="refused"] .rail [data-stage="balance"] .node { background: var(--unmatched); }
 .instrument[data-state="refused"] .rail .fail { opacity: 1; }
-
-/* ledger */
 .ledger { list-style: none; margin: 0; padding: 0; }
 .row {
   position: relative;
@@ -303,8 +281,6 @@ img { display: block; }
 .row--label .bal { color: var(--text); }
 
 .instrument[data-state="refused"] .row[data-flag="break"] .bar { background: var(--unmatched); }
-
-/* digit reels: the TXN 4 balance rolls mechanically, only the changed digit moves */
 .figure { display: inline-flex; align-items: flex-start; }
 .dot { display: inline-block; }
 .reel-wrap { display: inline-block; height: 1em; line-height: 1em; overflow: hidden; vertical-align: top; }
@@ -324,8 +300,6 @@ img { display: block; }
 .reel[data-d="7"] { transform: translateY(-7em); }
 .reel-last { transform: translateY(-6em); }
 .instrument[data-state="refused"] .reel-last { transform: translateY(-7em); }
-
-/* stamps: the lavender RELEASED lands once; the rose verdict replaces it */
 .verdict {
   position: absolute;
   top: -17px;
@@ -352,8 +326,6 @@ img { display: block; }
 .stamp--refused { color: var(--unmatched); opacity: 0; transform: translate(0, 14px) rotate(-4deg); }
 .instrument[data-state="refused"] .stamp--released { opacity: 0; transform: translate(-8px, -20px) rotate(-8deg); }
 .instrument[data-state="refused"] .stamp--refused { opacity: 1; transform: rotate(-2deg); }
-
-/* footer: equation line, two states in one grid cell so the height never jumps */
 .foot {
   display: grid;
   padding: 22px 20px 22px;
@@ -383,8 +355,6 @@ img { display: block; }
   color: var(--unmatched);
 }
 .neq { color: var(--unmatched); }
-
-/* the one control */
 .control { margin-top: 26px; display: flex; align-items: center; min-height: 44px; }
 .switch {
   display: inline-flex; align-items: center; gap: 14px;
@@ -408,8 +378,6 @@ img { display: block; }
 .switch[aria-checked="true"] .track { border-color: var(--unmatched); }
 .switch[aria-checked="true"] .knob { transform: translateX(20px); background: var(--unmatched); }
 .no-js .switch { display: none; }
-
-/* pointer parallax is a wrapper transform, so the entrance can own the instrument itself */
 @media (max-width: 900px) {
   .grid { grid-template-columns: minmax(0, 1fr); gap: 56px; }
   .hero { align-items: flex-start; padding-top: 120px; padding-bottom: 72px; }

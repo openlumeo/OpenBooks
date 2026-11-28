@@ -51,8 +51,8 @@ def test_link_end_to_end_razorpay_payout_to_bank_credit(tmp_path):
 
     rz, bank = tmp_path / "rz.csv", tmp_path / "bank.csv"
     rz.write_text("\n".join([RZP_HEAD] + RZP_OK) + "\n")
-    bank.write_text("Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance\n08/01/2026,RAZORPAY SETL,,77.64,1077.64\n")
-    docs = [process(rz), process(bank, Params("INR", Decimal("1000.00")))]
+    bank.write_text("Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance\n,Opening Balance,,,1000.00\n08/01/2026,RAZORPAY SETL,,77.64,1077.64\n")
+    docs = [process(rz), process(bank, Params("INR", Decimal("1000.00"), date_order="dmy"))]
     assert [d["status"] for d in docs] == ["ok", "ok"]
     res = link(docs)
     assert len(res["links"]) == 1 and res["links"][0]["amount"]["amount"] == "77.64" and not res["unlinked_credits"]
@@ -119,11 +119,11 @@ def test_pdf_fuzz_one_cent_tamper_is_never_accepted(tmp_path):
         lay.has_header = True
         rows = _pdf_rows(random.Random(k), rng.randint(5, 45))
         path.write_bytes(render(rows, "1000.00", lay, rng, closing=rows[-1][4])[0])
-        accepted_clean += process(path, Params(currency="INR"))["status"] == "ok"
+        accepted_clean += process(path, Params(currency="INR", date_order="dmy"))["status"] == "ok"
         t = [r[:] for r in rows]
         i, col = rng.randrange(len(t)), rng.choice([2, 3, 4])
         col = 5 - col if col in (2, 3) and not t[i][col] else col
         t[i][col] = f"{Decimal(t[i][col]) + Decimal('0.01'):.2f}"
         path.write_bytes(render(t, "1000.00", lay, rng, closing=rows[-1][4])[0])
-        assert process(path, Params(currency="INR"))["status"] == "refused", f"false accept on layout {k}"
+        assert process(path, Params(currency="INR", date_order="dmy"))["status"] == "refused", f"false accept on layout {k}"
     assert accepted_clean >= 50

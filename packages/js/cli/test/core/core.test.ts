@@ -25,6 +25,9 @@ describe("proof output and mixed jobs", () => {
   });
 });
 
+const sharedDir = join(repo, "packages/py/openbooks/tests/fixtures/shared");
+const MT940 = readFileSync(join(sharedDir, "mt940_balanced.sta"), "utf8");
+const MT940_TAMPERED = readFileSync(join(sharedDir, "mt940_tampered_closing.sta"), "utf8");
 const BANK = "Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2026,Pay,,5.00,1005.00\n";
 const STRIPE = "balance_transaction_id,created,currency,gross,fee,net\nt1,2026-01-15 10:00:00,usd,100.00,3.20,96.80\n";
 const work = mkdtempSync(join(tmpdir(), "ob-js-test-"));
@@ -39,26 +42,32 @@ afterEach(() => {
 });
 
 describe.skipIf(!realPython)("with the real engine", () => {
-  const opts = { python: realPython!, currency: "INR", opening: "1000.00" };
+  const opts = { python: realPython!, currency: "INR", dateOrder: "dmy" as const, opening: "1000.00" };
+  const mt = { python: realPython!, currency: "INR", dateOrder: "dmy" as const };
 
   it("keeps per-file document options and preserves ordered decisions", async () => {
-    const input = file("mixed-job.csv", BANK);
     const outcomes = [];
     for await (const result of runJobs([
-      { file: input, options: { opening: "900.00" } },
-      { file: input, options: { opening: "1000.00" } },
-    ], opts)) outcomes.push(result.kind);
-    expect(outcomes).toEqual(["refused", "released"]);
+      { file: file("mixed-caller.csv", BANK), options: { opening: "1000.00" } },
+      { file: file("mixed-job.sta", MT940), options: {} },
+    ], mt)) outcomes.push(result.kind === "refused" ? result.code : result.kind);
+    expect(outcomes).toEqual(["BALANCE_MISMATCH", "released"]);
   });
 
   it("returns a released document with typed, validated content", async () => {
-    const r = await runFile(file("a.csv", BANK), opts);
+    const r = await runFile(file("a.sta", MT940), mt);
     expect(r.kind).toBe("released");
     if (!isReleased(r)) return;
     const t = r.document.data.transactions[0];
-    expect(t.amount?.amount).toBe("5.00");
-    expect(r.document.file.layout_version).toBe("bank_csv.v1");
+    expect(t.amount?.amount).toBe("500.00");
+    expect(r.document.file.layout_version).toBe("mt940.v1");
     expect(r.document.assertions.some((a) => a.independent)).toBe(true);
+  });
+
+  it("refuses a caller-opened CSV with BALANCE_MISMATCH instead of releasing it", async () => {
+    const r = await runFile(file("caller.csv", BANK), opts);
+    expect(r.kind).toBe("refused");
+    if (r.kind === "refused") expect(r.code).toBe("BALANCE_MISMATCH");
   });
 
   it("returns a refusal as a value, not an exception", async () => {
@@ -72,8 +81,8 @@ describe.skipIf(!realPython)("with the real engine", () => {
   });
 
   it("runs several files in one call and keeps their order", async () => {
-    const rs = await runFiles([file("c1.csv", BANK), file("c2.csv", STRIPE), file("c3.csv", "a,b\n1,2\n")], opts);
-    expect(rs.map((r) => (r.kind === "released" ? r.document.file.layout_version : r.code))).toEqual(["bank_csv.v1", "stripe_balance.v1", "UNKNOWN_LAYOUT"]);
+    const rs = await runFiles([file("c1.sta", MT940), file("c2.csv", STRIPE), file("c3.csv", "a,b\n1,2\n")], mt);
+    expect(rs.map((r) => (r.kind === "released" ? r.document.file.layout_version : r.code))).toEqual(["mt940.v1", "stripe_balance.v1", "UNKNOWN_LAYOUT"]);
   });
 
   it("withholds a document that proves out under a layout the caller did not accept", async () => {
@@ -83,7 +92,7 @@ describe.skipIf(!realPython)("with the real engine", () => {
   });
 
   it("handles a path with spaces and non-ASCII characters", async () => {
-    const r = await runFile(file("statement é 1.csv", BANK), opts);
+    const r = await runFile(file("statement é 1.sta", MT940), mt);
     expect(r.kind).toBe("released");
   });
 
@@ -129,13 +138,13 @@ describe.skipIf(!realPython)("with the real engine", () => {
   });
 
   it("accepts a lower-case currency code and reads the same statement", async () => {
-    const r = await runFile(file("lc.csv", BANK), { ...opts, currency: "inr" });
+    const r = await runFile(file("lc.sta", MT940), { ...mt, currency: "inr" });
     expect(r.kind).toBe("released");
     if (isReleased(r)) expect(r.document.data.transactions[0].amount?.currency).toBe("INR");
   });
 
   it("keeps the order and the outcome of every file when a bad one is in the middle", async () => {
-    const rs = await runFiles([file("m1.csv", BANK), file("m2.csv", "\u0000junk"), file("m3.csv", BANK.replace("1005.00", "1005.01")), file("m4.csv", BANK)], opts);
+    const rs = await runFiles([file("m1.sta", MT940), file("m2.csv", "\u0000junk"), file("m3.sta", MT940_TAMPERED), file("m4.sta", MT940)], mt);
     expect(rs.map((r) => (r.kind === "released" ? "ok" : r.code))).toEqual(["ok", "UNSUPPORTED_INPUT", "BALANCE_MISMATCH", "ok"]);
   });
 
@@ -147,8 +156,8 @@ describe.skipIf(!realPython)("with the real engine", () => {
   });
 
   it("copes with many files at once", async () => {
-    const paths = Array.from({ length: 12 }, (_, i) => file(`bulk${i}.csv`, i % 4 === 3 ? BANK.replace("1005.00", "1005.01") : BANK));
-    const rs = await runFiles(paths, opts);
+    const paths = Array.from({ length: 12 }, (_, i) => file(`bulk${i}.sta`, i % 4 === 3 ? MT940_TAMPERED : MT940));
+    const rs = await runFiles(paths, mt);
     expect(rs.filter((r) => r.kind === "released")).toHaveLength(9);
     expect(rs.filter((r) => r.kind === "refused")).toHaveLength(3);
   });

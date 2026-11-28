@@ -1,19 +1,7 @@
-// Offered-rate benchmark for the inference engine. Open loop: requests start on schedule whether or not earlier ones
-// finished, so rejections and queueing show up as such instead of slowing the offered rate.
-//
-//   node deploy/loadtest.mjs --engine http://10.30.0.2:8765 --mode sustained --rps 1,2,4 --duration 60 > bench.csv
-//   node deploy/loadtest.mjs --engine http://127.0.0.1:8765 --mode burst --burst-requests 1000 --burst-window 5
-//
-// Modes: warmup (sequential, --warmup-requests, rows emitted), sustained (each --rps for --duration s), burst.
-// Output: CSV on stdout (or --out), gate verdict on stderr; exit 1 when the promotion gate fails.
-// Gate: every fixture (the packaged synthetic PDFs and scans) matches its expected release/refusal, and p95 of single-page
-// requests stays under --max-p95-text-ms / --max-p95-scan-ms; error rate under --max-error-pct; optional --max-rss-mib.
-// shortcut: public-site runs leave stage p95s and RSS/VRAM blank without /metrics, rerun the same workload against the private engine if public p95 exceeds its configured limit or promotion requires a memory gate.
 import { readFile, writeFile } from "node:fs/promises";
 import { basename } from "node:path";
 import { parseArgs } from "node:util";
 
-// The engine rejects callers without its shared key when OPENBOOKS_ENGINE_KEY is set on the server.
 const KEY_HEADER = process.env.OPENBOOKS_ENGINE_KEY ? { "x-openbooks-key": process.env.OPENBOOKS_ENGINE_KEY } : {};
 
 const COLUMNS = "run_id,input_kind,page_bucket,offered_rps,completed_rps,in_flight,p50_ms,p95_ms,p99_ms,queue_p95_ms,ocr_p95_ms,model_p95_ms,peak_rss_mib,peak_vram_mib,rejected_pct,error_pct".split(",");
@@ -43,7 +31,6 @@ const num = (k) => Number(o[k]);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const PARAMS = JSON.stringify({ currency: "INR", date_order: "dmy", model: true });
 
-// ---- fixtures ----
 const bucket = (pages) => (pages <= 1 ? "1" : pages <= 5 ? "2-5" : "6+");
 const pageCount = (buf, name) => (/\.pdf$/i.test(name) ? Math.max(1, (buf.toString("latin1").match(/\/Type\s*\/Page\b/g) ?? []).length) : 1);
 const kindOf = (name) => (/\.pdf$/i.test(name) ? "pdf_text" : "ocr");

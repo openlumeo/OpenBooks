@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "id": "mt940_balanced",
+      "file": "mt940_balanced.sta",
+      "params": {},
+      "status": "ok",
+      "code": null,
+      "layout_version": "mt940.v1",
+      "assertion_independent": [true],
+      "coverage": {"transactions": 1, "covered_transactions": 1, "independent_covered": 1, "conditional_transactions": 0}
+    },
+    {
+      "id": "mt940_tampered_closing",
+      "file": "mt940_tampered_closing.sta",
+      "params": {},
+      "status": "refused",
+      "code": "BALANCE_MISMATCH"
+    },
+    {
+      "id": "bank_caller_opening",
+      "file": "bank_caller_opening.csv",
+      "params": {"currency": "INR", "opening": "1000.00", "date_order": "dmy"},
+      "status": "refused",
+      "code": "BALANCE_MISMATCH"
+    }
+  ]
+}

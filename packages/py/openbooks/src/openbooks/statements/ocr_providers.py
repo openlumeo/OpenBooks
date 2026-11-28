@@ -21,7 +21,6 @@ from openbooks.statements.pdf_words import Word
 
 MAX_WORDS_PER_PAGE = 20_000
 TESSERACT_TIMEOUT_SECONDS = 60
-# Render common statement sizes below the page pixel cap at a consistent sampling scale.
 TESSERACT_DPI = 240
 EASYOCR_DPI = 200
 PROVIDER_ENV = "OPENBOOKS_OCR_PROVIDER"
@@ -281,7 +280,6 @@ class TesseractEngine:
         except ImportError as error:
             raise ProviderUnavailable("Pillow is required for tesseract; install 'openbooks[scan]'") from error
         buffer = BytesIO()
-        # This PNG only crosses a local pipe. Favor faster lossless encoding.
         Image.fromarray(image).save(buffer, format="PNG", compress_level=1)
         try:
             result = subprocess.run(

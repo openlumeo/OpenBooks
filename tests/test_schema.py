@@ -13,6 +13,7 @@ DOC = {
              "batches": [{"id": "batch-1", "kind": "statement", "currency": "INR"}],
              "transactions": [{"id": "txn-00001", "batch_id": "batch-1"}]},
     "evidence": {"txn-00001.x": {"page": 1, "bbox": [0, 0, 1, 1], "row": 1, "raw_text": "1", "method": "pdf_text"}},
+    "verification": "independent",
     "assertions": [{"id": "A1", "rule": "r", "expected": "1", "computed": "1", "passed": True, "independent": True}],
 }
 

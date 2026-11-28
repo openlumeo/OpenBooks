@@ -89,8 +89,6 @@ def verify(directory: Path, against: Path | None = None, *, replay: bool = False
             stats[name]["windows"] = stop
             stats[name]["documents"] += 1
             if replay and name in ("test", "shifted"):
-                # The proof path depends only on the printed words and their boxes.
-                # Neutral role probabilities are used for the unused learned features.
                 neutral = np.zeros((sum(map(len, pages)), len(tr.ROLES)))
                 _, proved = document_features(pages, neutral)
                 stats[name]["proof_documents"] += bool(proved)

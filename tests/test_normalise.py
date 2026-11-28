@@ -36,18 +36,18 @@ def test_dr_cr_suffix_sets_the_sign_only_when_asked():
     ("2026-01-05 14:30:00", "2026-01-05"), ("29/02/2028", "2028-02-29"),
 ])
 def test_dates_read_to_iso(raw, want):
-    assert to_date(raw, "x") == want
+    assert to_date(raw, "x", "dmy") == want
 
 
 @pytest.mark.parametrize("raw", ["05/13/2026", "31/02/2026", "29/02/2027", "05/01/0026", "202601055", "2026105", "tomorrow", ""])
 def test_impossible_or_implausible_dates_refuse(raw):
     with pytest.raises(Refusal):
-        to_date(raw, "x")
+        to_date(raw, "x", "dmy")
 
 
 def test_two_digit_years_are_this_century():
-    assert to_date("01/01/69", "x") == "2069-01-01"
-    assert to_date("31-12-99", "x") == "2099-12-31"
+    assert to_date("01/01/69", "x", "dmy") == "2069-01-01"
+    assert to_date("31-12-99", "x", "dmy") == "2099-12-31"
 
 
 @pytest.mark.parametrize("amount,cur,want", [

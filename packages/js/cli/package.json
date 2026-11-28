@@ -81,9 +81,9 @@
     "postinstall": "node scripts/postinstall.mjs",
     "test": "vitest run",
     "gen:workspace": "node scripts/gen-workspace.mjs",
-    "sync-schema": "node scripts/sync-schema.mjs",
+    "sync-schema": "python ../../../scripts/sync_schemas.py",
     "generate": "node scripts/generate-types.mjs",
-    "check-generated": "node scripts/sync-schema.mjs --check && node scripts/generate-types.mjs --check"
+    "check-generated": "python ../../../scripts/sync_schemas.py --check && node scripts/generate-types.mjs --check"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",

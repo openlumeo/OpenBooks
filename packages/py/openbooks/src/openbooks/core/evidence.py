@@ -5,10 +5,13 @@ from pathlib import Path
 
 
 def evidence(ev: dict, rid: str, field: str, row: int | None, raw: str, *, page: int | None = None,
-             bbox: list[float] | None = None, method: str = "parser", conf: float | None = None) -> None:
+             bbox: list[float] | None = None, method: str = "parser", conf: float | None = None,
+             provenance: str | None = None) -> None:
     ev[f"{rid}.{field}"] = {"page": page, "bbox": bbox, "row": row, "raw_text": raw, "method": method}
     if conf is not None:
         ev[f"{rid}.{field}"]["confidence"] = round(conf, 4)
+    if provenance is not None:
+        ev[f"{rid}.{field}"]["provenance"] = provenance
 
 
 def sha256_file(path: Path) -> str:

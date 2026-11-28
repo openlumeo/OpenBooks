@@ -122,7 +122,7 @@ PAYPAL_AMBIGUOUS = (
 def test_date_order_reaches_the_engine(client):
     f = ("paypal.csv", PAYPAL_AMBIGUOUS.encode())
     refused = [d["doc"] for e, d in events(run(client, [f])) if e == "file.done"][0]
-    assert refused["error"]["code"] == "PARSE_ERROR" and "supply --date-order" in refused["error"]["message"]
+    assert refused["error"]["code"] == "AMBIGUOUS_DATE" and "--date-order" in refused["error"]["message"]
     for order, first in (("mdy", "2026-01-05"), ("dmy", "2026-05-01")):
         doc = [d["doc"] for e, d in events(run(client, [f], {"date_order": order})) if e == "file.done"][0]
         assert doc["status"] == "ok" and doc["data"]["transactions"][0]["date"] == first
@@ -133,14 +133,14 @@ def test_date_order_reaches_the_engine(client):
 def test_samples_list_featured_first(client):
     s = client.get("/v1/samples").json()["samples"]
     assert s[0]["id"] == "ok_bank_csv" and s[0]["featured"] and s[0]["filename"] == "ok_bank_csv.csv"
-    assert s[0]["params"] == {"opening": "1000.00", "currency": "INR"}
+    assert s[0]["params"] == {"date_order": "dmy", "opening": "1000.00", "currency": "INR"}
     assert not any(k.startswith("_") for k in s[0])
     assert client.get("/v1/samples/nope").status_code == 404
 
 
 def test_released_file_streams_every_stage_in_order(client):
     name, body = sample(client, "ok_bank_csv")
-    r = run(client, [(name, body)], {"opening": "1000.00", "currency": "INR"})
+    r = run(client, [(name, body)], {"opening": "1000.00", "currency": "INR", "date_order": "dmy"})
     assert r.status_code == 200 and r.headers["content-type"].startswith("text/event-stream")
     ev = events(r)
     assert [e for e, _ in ev] == ["file.started"] + ["file.stage"] * 5 + ["file.done", "run.done"]
@@ -155,7 +155,7 @@ def test_tampered_file_is_refused_and_per_file_params_apply(client):
     ok = sample(client, "ok_bank_csv")
     bad = sample(client, "bad_bank_balance_break")
     no_open = sample(client, "bad_bank_no_opening")
-    r = run(client, [ok, bad, no_open], {"opening": "1000.00", "currency": "INR"}, {"2": {"opening": ""}})
+    r = run(client, [ok, bad, no_open], {"opening": "1000.00", "currency": "INR", "date_order": "dmy"}, {"2": {"opening": ""}})
     done = {d["index"]: d["doc"] for e, d in events(r) if e == "file.done"}
     assert done[0]["status"] == "ok"
     assert done[1]["error"]["code"] == "BALANCE_MISMATCH"
@@ -186,7 +186,7 @@ def test_too_many_files(client):
 
 def test_hostile_filename_stays_inside_the_run_dir(client):
     name, body = sample(client, "ok_bank_csv")
-    r = run(client, [("../../evil.csv", body)], {"opening": "1000.00", "currency": "INR"})
+    r = run(client, [("../../evil.csv", body)], {"opening": "1000.00", "currency": "INR", "date_order": "dmy"})
     doc = [d for e, d in events(r) if e == "file.done"][0]["doc"]
     assert doc["status"] == "ok" and doc["file"]["name"] == "evil.csv"
 
@@ -194,7 +194,7 @@ def test_hostile_filename_stays_inside_the_run_dir(client):
 def test_temp_files_are_removed(client):
     before = {p.name for p in Path(tempfile.gettempdir()).glob("openbooks-run-*")}
     name, body = sample(client, "ok_bank_csv")
-    run(client, [(name, body)], {"opening": "1000.00", "currency": "INR"})
+    run(client, [(name, body)], {"opening": "1000.00", "currency": "INR", "date_order": "dmy"})
     after = {p.name for p in Path(tempfile.gettempdir()).glob("openbooks-run-*")}
     assert after <= before
 
@@ -203,8 +203,8 @@ def test_link_settlement_payout_to_bank_credit(client):
     if not client.get("/v1/health").json()["link_available"]:
         pytest.skip("no reconciliation provider installed")
     rzp = sample(client, "ok_razorpay")
-    bank = ("bank.csv", (BANK + "08/01/2026,RAZORPAY SETTLEMENT setl_1,,77.64,1077.64\n").encode())
-    r = run(client, [rzp, bank], {"opening": "1000.00", "currency": "INR"})
+    bank = ("bank.csv", (BANK + ",Opening Balance,,,1000.00\n08/01/2026,RAZORPAY SETTLEMENT setl_1,,77.64,1077.64\n").encode())
+    r = run(client, [rzp, bank], {"opening": "1000.00", "currency": "INR", "date_order": "dmy"})
     docs = [d["doc"] for e, d in events(r) if e == "file.done"]
     assert [d["status"] for d in docs] == ["ok", "ok"], docs
     links = client.post("/v1/link", json={"docs": docs}).json()

@@ -22,6 +22,7 @@ import {
   REFUSAL_CODES,
   RESOURCE_URIS,
   SAMPLE_STATEMENT,
+  SELF_TEST_STATEMENT,
   STEP_ENVELOPE_BYTES,
   TOOL_NAMES,
 } from "./constants.js";
@@ -338,8 +339,8 @@ export class Operations {
 
   private async selfTest(): Promise<Doc> {
     try {
-      const outcome = await withTempFile(Buffer.from(SAMPLE_STATEMENT), "statement.csv", (path) =>
-        runFile(path, { ...this.engine, currency: "INR", dateOrder: "dmy", opening: "1000.00" }));
+      const outcome = await withTempFile(Buffer.from(SELF_TEST_STATEMENT), "statement.sta", (path) =>
+        runFile(path, { ...this.engine, currency: "INR", dateOrder: "dmy" }));
       return { status: outcome.kind === "released" ? "ok" : "refused", released: outcome.kind === "released" };
     } catch (error) {
       return { status: "failed", released: false, reason: error instanceof Error ? error.name : "Error" };

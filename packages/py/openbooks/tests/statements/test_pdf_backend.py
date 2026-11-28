@@ -8,13 +8,14 @@ import pytest
 
 pytest.importorskip("pypdfium2")
 
-from openbooks.core import Params, process  # noqa: E402
+from openbooks.core import Params, default_registry, process  # noqa: E402
 from openbooks.core.errors import Refusal  # noqa: E402
+from openbooks.core.process import _extract  # noqa: E402
 from openbooks.statements.pdf_backend import open_document  # noqa: E402
 from openbooks.statements.pdf_front import Word  # noqa: E402
 from pdfmaker import ROWS, pdf_bytes, statement_page, statement_pdf, text  # noqa: E402
 
-INR = Params(currency="INR")
+INR = Params(currency="INR", date_order="dmy")
 
 
 @pytest.mark.parametrize(("last_balance", "expected"), [("84.75", "ok"), ("84.76", "refused")])
@@ -32,14 +33,15 @@ def test_scanned_amount_decimal_comma_keeps_original_evidence_and_balance_checks
     monkeypatch.setattr("openbooks.statements.pdf_front._ocr_page", lambda *_: words)
     image = tmp_path / "synthetic.jpeg"
     Image.new("RGB", (600, 200), "white").save(image)
-    doc = process(image, Params(currency="INR", date_order="dmy", allow_derived_opening=True))
-    assert doc["status"] == expected
+    params = Params(currency="INR", date_order="dmy", allow_derived_opening=True)
+    doc = process(image, params)
+    assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH"
     if expected == "refused":
-        assert doc["error"]["code"] == "BALANCE_MISMATCH"
         return
-    txn = doc["data"]["transactions"][-1]
+    data, ev, *_ = _extract(image, params, default_registry(), lambda _name: None)
+    txn = data["transactions"][-1]
     assert txn["amount"]["amount"] == "4.25"
-    assert doc["evidence"][f"{txn['id']}.amount"]["raw_text"] == "4,25"
+    assert ev[f"{txn['id']}.amount"]["raw_text"] == "4,25"
 
 
 def words_of(pdf: bytes, tmp_path, page=0):
@@ -144,7 +146,7 @@ def test_a_statement_that_continues_over_several_pages_is_one_document(tmp_path)
     rows = [(f"{d:02d}/01/2026", f"Item {d}", "10.00", "", f"{1000 - 10 * d}.00") for d in range(1, 31)]
     pages = [statement_page(rows[:10]), statement_page(rows[10:20], opening=None, title="Statement (continued)"),
              statement_page(rows[20:], opening=None, title="Statement (continued)")]
-    doc = run(pdf_bytes(pages), tmp_path, Params(currency="INR", opening=None))
+    doc = run(pdf_bytes(pages), tmp_path, Params(currency="INR", opening=None, date_order="dmy"))
     assert doc["status"] == "ok", doc.get("error")
     assert len(doc["data"]["transactions"]) == 30
     pages_seen = {doc["evidence"][f"{t['id']}.amount"]["page"] for t in doc["data"]["transactions"]}
@@ -158,7 +160,7 @@ def test_the_same_statement_gives_the_same_result_every_time(tmp_path):
 
 
 def test_a_statement_that_does_not_state_its_currency_is_refused_not_guessed(tmp_path):
-    doc = run(statement_pdf(title="Statement of Account"), tmp_path, Params())
+    doc = run(statement_pdf(title="Statement of Account"), tmp_path, Params(date_order="dmy"))
     assert doc["status"] == "refused" and doc["error"]["code"] == "PARSE_ERROR"
 
 
@@ -195,7 +197,7 @@ def test_a_truncated_pdf_never_releases_something_different_from_the_whole(tmp_p
     expected = run(whole, tmp_path)
     assert expected["status"] == "ok"
     for cut in range(0, len(whole), max(1, len(whole) // 40)):
-        doc = run(whole[:cut], tmp_path, Params(currency="INR", ocr=False))
+        doc = run(whole[:cut], tmp_path, Params(currency="INR", date_order="dmy", ocr=False))
         assert not doc["error"].get("internal") if doc["status"] == "refused" else doc["data"]["transactions"] == expected["data"]["transactions"], cut
 
 

@@ -25,7 +25,7 @@ def test_rerun_with_new_flags_is_not_served_from_an_old_output(pdf, tmp_path):
     out = tmp_path / "out"
     assert main(["run", str(pdf), "--out", str(out)]) == 1
     assert _only_json(out)["status"] == "refused"
-    assert main(["run", str(pdf), "--currency", "INR", "--out", str(out)]) == 0
+    assert main(["run", str(pdf), "--currency", "INR", "--date-order", "dmy", "--out", str(out)]) == 0
     assert _only_json(out)["status"] == "ok"
 
 
@@ -35,7 +35,7 @@ def test_report_accepts_the_same_flags_as_run(pdf, tmp_path):
     (folder / "a.pdf").write_bytes(pdf.read_bytes())
     assert main(["report", str(folder), "--out", str(tmp_path / "r1")]) == 1
     assert json.loads((tmp_path / "r1" / "report.json").read_text())["released"] == 0
-    assert main(["report", str(folder), "--currency", "INR", "--out", str(tmp_path / "r2")]) == 0
+    assert main(["report", str(folder), "--currency", "INR", "--date-order", "dmy", "--out", str(tmp_path / "r2")]) == 0
     assert json.loads((tmp_path / "r2" / "report.json").read_text())["released"] == 1
 
 

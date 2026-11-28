@@ -2,7 +2,8 @@ from decimal import Decimal
 
 import pytest
 
-from openbooks.core import Params, process
+from openbooks.core import Params, default_registry, process
+from openbooks.core.process import _extract
 
 HEADER = "Date,Description,Amount,Balance\n"
 BODY = (
@@ -23,18 +24,29 @@ def run(tmp_path):
     def _run(text, **params):
         f = tmp_path / "in.csv"
         f.write_text(text, encoding="utf-8")
-        return process(f, Params(**{"currency": "INR", **params}))
+        return process(f, Params(**{"currency": "INR", "date_order": "dmy", **params}))
     return _run
 
 
-def test_balanced_file_releases_with_signed_directions_and_ground_truth_balances(run):
+@pytest.fixture
+def parse(tmp_path):
+    def _parse(text, **params):
+        f = tmp_path / "parse.csv"
+        f.write_text(text, encoding="utf-8")
+        data, *_ = _extract(f, Params(**{"currency": "INR", "date_order": "dmy", **params}), default_registry(), lambda _name: None)
+        return data
+    return _parse
+
+
+def test_balanced_file_reads_with_signed_directions_and_refuses_a_caller_opening(run, parse):
     doc = run(SAMPLE, opening=Decimal("1000.00"))
-    assert doc["status"] == "ok" and doc["file"]["layout_version"] == "bank_csv_signed.v1", doc.get("error")
-    txns = doc["data"]["transactions"]
+    assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH", doc.get("error")
+    data = parse(SAMPLE, opening=Decimal("1000.00"))
+    txns = data["transactions"]
     assert len(txns) == 8
     assert [(t["direction"], t["amount"]["amount"]) for t in txns[:3]] == [
         ("credit", "45000.00"), ("debit", "12500.00"), ("debit", "1843.75")]
-    batch = doc["data"]["batches"][0]
+    batch = data["batches"][0]
     assert batch["opening"]["amount"] == "1000.00" and batch["closing"]["amount"] == "38708.21"
 
 
@@ -43,11 +55,12 @@ def test_tampered_amount_is_refused_by_the_balance_gate(run):
     assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH"
 
 
-def test_thousands_separators_and_parenthesised_negatives_release(run):
+def test_thousands_separators_and_parenthesised_negatives_read_and_refuse_a_caller_opening(run, parse):
     text = HEADER + '01/01/2026,Pay,"1,000.00","2,000.00"\n02/01/2026,Fee,(250.50),"1,749.50"\n'
     doc = run(text, opening=Decimal("1000.00"))
-    assert doc["status"] == "ok", doc.get("error")
-    assert [(t["direction"], t["amount"]["amount"]) for t in doc["data"]["transactions"]] == [("credit", "1000.00"), ("debit", "250.50")]
+    assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH", doc.get("error")
+    data = parse(text, opening=Decimal("1000.00"))
+    assert [(t["direction"], t["amount"]["amount"]) for t in data["transactions"]] == [("credit", "1000.00"), ("debit", "250.50")]
 
 
 def test_parenthesised_negative_that_does_not_balance_is_refused(run):

@@ -43,13 +43,18 @@ def run(tmp_path):
 
 @pytest.mark.parametrize("text,layout,params", [
     (STRIPE, "stripe_balance.v1", {}), (RAZORPAY, "razorpay_settlement.v1", {}), (PAYPAL, "paypal_activity.v1", {}),
-    (WISE, "wise_statement.v1", {"allow_derived_opening": True}),
 ])
 def test_each_layout_releases_with_evidence_and_an_independent_assertion(run, text, layout, params):
     doc = run(text, **params)
     assert doc["status"] == "ok" and doc["file"]["layout_version"] == layout, doc.get("error")
     assert any(a["independent"] for a in doc["assertions"]) and all(a["passed"] for a in doc["assertions"])
     assert doc["evidence"]
+
+
+def test_wise_without_a_printed_opening_is_refused_as_an_evidence_gap(run):
+    doc = run(WISE, allow_derived_opening=True)
+    assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH"
+    assert "no independent balance evidence" in doc["error"]["message"]
 
 
 @pytest.mark.parametrize("old,new", [("96.80", "96.81"), ("100.00", "100.01"), ("125.05", "125.06")])

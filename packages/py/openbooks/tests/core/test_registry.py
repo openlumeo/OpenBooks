@@ -152,8 +152,8 @@ def test_processing_a_csv_with_the_installed_providers_imports_no_heavy_module(t
     f.write_text("Date,Narration,Withdrawal Amt,Deposit Amt,Closing Balance\n01/01/2026,x,,5.00,1005.00\n", encoding="utf-8")
     code = ("from decimal import Decimal\n"
             "from openbooks.core import process, Params\n"
-            f"doc = process({str(f)!r}, Params(currency='INR', opening=Decimal('1000')))\n"
-            "assert doc['status'] == 'ok', doc\n")
+            f"doc = process({str(f)!r}, Params(currency='INR', opening=Decimal('1000'), date_order='dmy'))\n"
+            "assert doc['error']['code'] == 'BALANCE_MISMATCH', doc\n")
     assert _heavy_modules_loaded_after(code) == []
 
 

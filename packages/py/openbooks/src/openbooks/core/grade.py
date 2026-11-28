@@ -17,7 +17,8 @@ def run_eval(root: Path) -> int:
         src = next(f for f in d.iterdir() if f.name != "expected.json")
         pr = exp.get("params", {})
         doc = process(src, Params(pr.get("currency"), Decimal(pr["opening"]) if "opening" in pr else None,
-                                  pr.get("account"), pr.get("allow_derived_opening", False)))
+                                  pr.get("account"), pr.get("allow_derived_opening", False),
+                                  date_order=pr.get("date_order")))
         got = (doc["status"], doc.get("error", {}).get("code"))
         want = (exp["status"], exp.get("code"))
         codes = exp.get("code") if isinstance(exp.get("code"), list) else None

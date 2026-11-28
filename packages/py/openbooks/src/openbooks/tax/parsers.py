@@ -8,7 +8,7 @@ from decimal import Decimal
 
 from openbooks.core.builders import body_rows as _body
 from openbooks.core.builders import cell_getter as _cell
-from openbooks.core.builders import currency_of as _currency
+from openbooks.core.builders import currency_of as _core_currency
 from openbooks.core.builders import empty_data as _empty_data
 from openbooks.core.builders import finish_batch as _finish
 from openbooks.core.builders import money_fields as _money_fields
@@ -23,13 +23,27 @@ _CCY = re.compile(r"[A-Z]{3}")
 FX_TOLERANCE = Decimal("0.01")
 
 
+def _currency(hs: list[str], rows: list[list[str]], p: Params) -> str:
+    cur = _core_currency(hs, rows, p)
+    if p.currency and "currency" in hs and p.currency.upper() != cur:
+        raise Refusal("PARSE_ERROR", f"file currency {cur} contradicts --currency {p.currency.upper()}")
+    return cur
+
+
+def _date_order(ev: dict, dates: list[str], p: Params, where: str) -> str:
+    order = date_order(dates, p.date_order, where=where)
+    evidence(ev, "batch-1", "date_order", None, order, provenance="CALLER_SUPPLIED" if p.date_order else "FILE_EVIDENCE")
+    return order
+
+
 def parse_tds(args, p: Params):
     rows, hi, hs = args
     items, total = _split_total(_body(rows, hi, hs))
-    cur, get, data, ev, txns = (p.currency or "INR").upper(), _cell(hs), _empty_data(), {}, []
+    cur, get, data, ev, txns = _currency(hs, [r for _, r in items], p), _cell(hs), _empty_data(), {}, []
+    order = _date_order(ev, [get(r, "transaction_date") for _, r in items], p, "transaction date column")
     for n, row in items:
         tid = f"txn-{len(txns) + 1:05d}"
-        t = {"id": tid, "batch_id": "batch-1", "date": to_date(get(row, "transaction_date"), f"row {n}"),
+        t = {"id": tid, "batch_id": "batch-1", "date": to_date(get(row, "transaction_date"), f"row {n}", order),
              "kind": "tds", "deductor": get(row, "deductor_name"), "tan": get(row, "tan"), "section": get(row, "section")}
         evidence(ev, tid, "date", n, get(row, "transaction_date"))
         _money_fields(t, ev, tid, row, n, cur, get, (("amount", "amount_paid_credited"), ("tax_deducted", "tax_deducted"),
@@ -43,13 +57,14 @@ def parse_tds(args, p: Params):
 def parse_ais(args, p: Params):
     rows, hi, hs = args
     items, total = _split_total(_body(rows, hi, hs))
-    cur, get, data, ev, txns = (p.currency or "INR").upper(), _cell(hs), _empty_data(), {}, []
+    cur, get, data, ev, txns = _currency(hs, [r for _, r in items], p), _cell(hs), _empty_data(), {}, []
+    order = _date_order(ev, [get(r, "date") for _, r in items] if "date" in hs else [], p, "AIS date column")
     for n, row in items:
         tid = f"txn-{len(txns) + 1:05d}"
         t = {"id": tid, "batch_id": "batch-1", "kind": "ais", "category": get(row, "information_category"),
              "description": get(row, "information_description"), "source": get(row, "source")}
         if "date" in hs and get(row, "date"):
-            t["date"] = to_date(get(row, "date"), f"row {n}")
+            t["date"] = to_date(get(row, "date"), f"row {n}", order)
             evidence(ev, tid, "date", n, get(row, "date"))
         _money_fields(t, ev, tid, row, n, cur, get, (("reported_value", "reported_value"),))
         if "modified_value" in hs and get(row, "modified_value"):
@@ -63,16 +78,20 @@ def parse_fira(args, p: Params):
     rows, hi, hs = args
     items, total = _split_total(_body(rows, hi, hs))
     get, data, ev, txns = _cell(hs), _empty_data(), {}, []
+    order = _date_order(ev, [get(r, "date") for _, r in items], p, "FIRA date column")
+    evidence(ev, "batch-1", "currency", None, "INR", provenance="FILE_HEADER")
     for n, row in items:
         tid = f"txn-{len(txns) + 1:05d}"
         fcy = get(row, "currency").upper()
         if not _CCY.fullmatch(fcy):
             raise Refusal("PARSE_ERROR", f"row {n}: bad currency {fcy!r}")
+        if fcy == "INR":
+            raise Refusal("PARSE_ERROR", f"row {n}: foreign currency is INR; a FIRA remittance must name a foreign currency")
         rate_raw = get(row, "exchange_rate")
         rate = to_dec(rate_raw, f"row {n} exchange_rate")
         if rate <= 0:
             raise Refusal("PARSE_ERROR", f"row {n}: exchange rate must be positive")
-        t = {"id": tid, "batch_id": "batch-1", "date": to_date(get(row, "date"), f"row {n}"), "kind": "fira",
+        t = {"id": tid, "batch_id": "batch-1", "date": to_date(get(row, "date"), f"row {n}", order), "kind": "fira",
              "reference": get(row, "fira_no") or None, "remitter": get(row, "remitter") or None,
              "exchange_rate": format(rate, "f")}
         evidence(ev, tid, "date", n, get(row, "date"))
@@ -106,11 +125,11 @@ def parse_1099b(args, p: Params):
     rows, hi, hs = args
     items, total = _split_total(_body(rows, hi, hs))
     get, data, ev, txns = _cell(hs), _empty_data(), {}, []
-    cur = (p.currency or "USD").upper()
+    cur = _currency(hs, [r for _, r in items], p)
     adj_col = next((c for c in ("wash_sale_loss_disallowed", "adjustment", "adjustments") if c in hs), None)
     various = lambda s: s.strip().upper() in {"VARIOUS", ""}  # noqa: E731
     dates = [get(r, "date_sold") for _, r in items] + [get(r, "date_acquired") for _, r in items if not various(get(r, "date_acquired"))]
-    order = date_order(dates, p.date_order, where="1099-B date columns")
+    order = _date_order(ev, dates, p, "1099-B date columns")
     for n, row in items:
         tid = f"txn-{len(txns) + 1:05d}"
         t = {"id": tid, "batch_id": "batch-1", "kind": "1099b", "description": get(row, "description"),

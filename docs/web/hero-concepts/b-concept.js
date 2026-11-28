@@ -1,5 +1,3 @@
-/* Concept B, "The Monolith". Theme toggle, plus one scroll-scrubbed timeline (GSAP ScrollTrigger).
-   With no JS, or with reduced motion, the static CSS is the finished composition. */
 (function () {
   var root = document.documentElement;
   var KEY = 'b-theme';
@@ -36,7 +34,6 @@
   var ties = Array.prototype.slice.call(document.querySelectorAll('.lrow .tie'));
   var tl = null;
 
-  // Rest pose must equal the CSS rest pose.
   gsap.set(front, { rotationX: 18, transformOrigin: '50% 100%' });
   gsap.set(back, { z: -200, rotationX: 18, transformOrigin: '50% 100%' });
 
@@ -47,7 +44,6 @@
       tl = null;
     }
 
-    // Reset to the rest pose before measuring, so a rebuild never starts from a scrubbed state.
     gsap.set(front, { clearProps: 'transform' });
     gsap.set(back, { clearProps: 'transform' });
     gsap.set(lead, { clearProps: 'transform' });
@@ -58,12 +54,11 @@
 
     var vh = hero.clientHeight;
     var H = front.offsetHeight;
-    var restTop = rise.offsetTop;                    // layout position, ignores the entrance transform
-    var targetTop = Math.round((vh - H) / 2);        // monument centred when flat
-    var ty = targetTop - restTop;                    // negative: rises to centre
-    var ly = -(lead.offsetTop + lead.offsetHeight + 48); // lead leaves the top of the viewport
+    var restTop = rise.offsetTop;
+    var targetTop = Math.round((vh - H) / 2);
+    var ty = targetTop - restTop;
+    var ly = -(lead.offsetTop + lead.offsetHeight + 48);
 
-    // All tweens default to ease none: this is a straight scrub.
     tl = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {
@@ -76,19 +71,14 @@
       }
     });
 
-    // 1. Monument tilts flat and rises to centre.
     tl.to(front, { rotationX: 0, y: ty, duration: 0.7 }, 0);
-    // 2. Back plane of ledger lines moves slower: shallow parallax.
     tl.to(back, { y: ty * 0.4, duration: 1 }, 0);
-    // 3. Headline, lede and CTAs clear the way.
     tl.to(lead, { y: ly, duration: 0.5 }, 0);
-    // 4. Ties verify one by one: each bar retracts and re-draws in turn; the end state is all tied.
     ties.forEach(function (bar, i) {
       var s = 0.3 + i * 0.11;
       tl.to(bar, { scaleY: 0, duration: 0.05 }, s);
       tl.to(bar, { scaleY: 1, duration: 0.05 }, s + 0.05);
     });
-    // 5. End of hero scroll: the RELEASED stamp lands (a single press).
     tl.to(stampIn, { scale: 0.94, duration: 0.04 }, 0.9);
     tl.to(stampIn, { scale: 1, duration: 0.06 }, 0.94);
 

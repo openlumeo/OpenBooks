@@ -51,8 +51,6 @@ def _lines(words: list[Word]) -> list[list[Word]]:
         if lines:
             mean = cy_sum / len(lines[-1])
             distance = abs(cy - mean)
-            # Built-in sum may use compensated floating-point arithmetic. Recompute
-            # near the threshold so rounding cannot change line membership.
             error = 4 * math.ulp(1.0) * cy_abs_sum + 4 * math.ulp(max(abs(cy), abs(mean), abs(tol), 1.0))
             if not math.isfinite(distance) or not math.isfinite(error) or abs(distance - tol) <= error:
                 distance = abs(cy - sum(x.cy for x in lines[-1]) / len(lines[-1]))

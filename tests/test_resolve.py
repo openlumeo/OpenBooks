@@ -119,16 +119,11 @@ def test_headerless_statement_uses_later_rows_to_verify_an_ambiguous_read(tmp_pa
 
     identity = {"weights_sha256": "0" * 64, "calibration_sha256": "1" * 64}
     monkeypatch.setattr(RoleModel, "load", lambda: SimpleNamespace(identity=identity, predict=predict))
-    result = process(pdf, Params(ocr=False, model=True), strict=True)
+    result = process(pdf, Params(ocr=False, model=True, date_order="dmy"), strict=True)
     if second_balance == "70.01":
         assert result["status"] == "refused", result
         assert result["error"]["code"] == "LOW_CONFIDENCE"
     else:
-        assert result["status"] == "ok", result
-        assert result["file"]["model"] == identity
-        assert result["file"]["method"] == "pdf_text+model"
-        assert [(row["direction"], row["amount"]["amount"]) for row in result["data"]["transactions"]] == [
-            ("debit", "20.00"), ("debit", "10.00"),
-        ]
-        assert all(check["passed"] for check in result["assertions"])
-        assert any(check["independent"] for check in result["assertions"])
+        assert result["status"] == "refused", result
+        assert result["error"]["code"] == "BALANCE_MISMATCH"
+        assert "independent evidence" in result["error"]["message"]

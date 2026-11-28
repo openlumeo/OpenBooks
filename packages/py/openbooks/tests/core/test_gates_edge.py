@@ -5,6 +5,8 @@ from openbooks.core.errors import Refusal
 from openbooks.core.gates import run_gate
 from openbooks.core.gates import require_balance as _require_balance
 
+EMPTY = {"batches": [], "transactions": []}
+
 
 def _m(amount: str, cur: str = "INR") -> dict:
     """Money value as the parsers emit it: {"amount": str, "currency": str}."""
@@ -13,7 +15,7 @@ def _m(amount: str, cur: str = "INR") -> dict:
 
 def _statement(bid="b1", account="acc", opening="0", closing="0", derived=False, **extra):
     return {"id": bid, "kind": "statement", "account_id": account, "currency": "INR",
-            "opening": _m(opening), "closing": _m(closing), "opening_derived": derived, **extra}
+            "opening": _m(opening), "closing": _m(closing), "opening_derived": derived, "opening_provenance": "SOURCE_OBSERVED" if not derived else "DETERMINISTICALLY_DERIVED", **extra}
 
 
 def _txn(tid, bid, direction, amount, balance_after=None):
@@ -104,23 +106,23 @@ def test_settlement_batch_with_zero_rows_is_gated_not_crashed():
 
 
 def test_require_balance_accepts_passing_independent_evidence():
-    _require_balance([{"rule": "r", "expected": "1", "computed": "1", "passed": True, "independent": True}])
+    _require_balance(EMPTY, [{"rule": "r", "expected": "1", "computed": "1", "passed": True, "independent": True}])
 
 
 def test_require_balance_refuses_when_no_assertion_is_independent():
     with pytest.raises(Refusal, match="no independent balance evidence") as exc:
-        _require_balance([{"rule": "r", "expected": "1", "computed": "1", "passed": True, "independent": False}])
+        _require_balance(EMPTY, [{"rule": "r", "expected": "1", "computed": "1", "passed": True, "independent": False}])
     assert exc.value.code == "BALANCE_MISMATCH"
 
 
 def test_require_balance_refuses_on_empty_assertion_list():
     with pytest.raises(Refusal, match="no independent balance evidence"):
-        _require_balance([])
+        _require_balance(EMPTY, [])
 
 
 def test_require_balance_lists_every_failed_rule():
     failed = [{"rule": f"r{i}", "expected": "1", "computed": "2", "passed": False, "independent": True}
               for i in range(3)]
     with pytest.raises(Refusal) as exc:
-        _require_balance(failed)
+        _require_balance(EMPTY, failed)
     assert exc.value.message.count("expected 1, got 2") == 3

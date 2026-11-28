@@ -31,7 +31,7 @@ def fira():
     rows, tot_inr, tot_net = [], Decimal(0), Decimal(0)
     for k, (fx, rate) in enumerate([("1000.00", "83.2150"), ("2500.50", "82.9000"), ("150.25", "83.1000")], 1):
         inr = (Decimal(fx) * Decimal(rate)).quantize(Decimal("0.01"), ROUND_HALF_UP)
-        rows.append(f"FIRA{k:03d},{k:02d}/05/2025,Remitter {k},USD,{fx},{rate},{inr},15.00,{inr - 15}")
+        rows.append(f"FIRA{k:03d},{k + 12:02d}/05/2025,Remitter {k},USD,{fx},{rate},{inr},15.00,{inr - 15}")
         tot_inr += inr
         tot_net += inr - 15
     return rows, f"Total,,,,,,{tot_inr},,{tot_net}"
@@ -52,9 +52,10 @@ def run(tmp_path):
 
 def cases():
     fr, ft = fira()
-    return [(csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL), "tds_26as.v1", {}), (csv(AIS_HEAD, AIS_ROWS, AIS_TOTAL), "ais.v1", {}),
+    return [(csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL), "tds_26as.v1", {"currency": "INR"}),
+            (csv(AIS_HEAD, AIS_ROWS, AIS_TOTAL), "ais.v1", {"currency": "INR"}),
             (csv(FIRA_HEAD, fr, ft), "fira.v1", {}), (csv(TB_HEAD, TB_ROWS), "trial_balance.v1", {"currency": "INR"}),
-            (B1099, "form_1099b.v1", {})]
+            (B1099, "form_1099b.v1", {"currency": "USD"})]
 
 
 @pytest.mark.parametrize("text,layout,params", cases())
@@ -77,7 +78,7 @@ def test_a_cent_of_tampering_is_refused(run, tampered):
 
 
 def test_a_document_with_no_printed_total_has_nothing_to_prove_itself_against(run):
-    doc = run(csv(TDS_HEAD, TDS_ROWS))
+    doc = run(csv(TDS_HEAD, TDS_ROWS), currency="INR")
     assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH"
 
 
@@ -90,12 +91,17 @@ def test_fira_fx_arithmetic_is_checked(run):
 def test_1099b_refuses_a_date_order_it_cannot_prove(run):
     amb = B1099.replace("01/15/2025", "01/05/2025").replace("03/20/2026", "03/04/2026").replace("04/21/2026", "04/06/2026")
     assert run(amb)["status"] == "refused"
-    assert run(amb, date_order="mdy")["status"] == "ok"
+    assert run(amb, date_order="mdy", currency="USD")["status"] == "ok"
 
 
-def test_the_default_currency_is_an_assumption_and_the_caller_can_override_it(run):
-    assert run(csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL))["data"]["batches"][0]["currency"] == "INR"
-    assert run(B1099)["data"]["batches"][0]["currency"] == "USD"
+def test_a_layout_with_no_currency_in_the_file_or_the_caller_refuses_instead_of_assuming(run):
+    for text in (csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL), csv(AIS_HEAD, AIS_ROWS, AIS_TOTAL), B1099):
+        doc = run(text)
+        assert doc["status"] == "refused" and doc["error"]["code"] == "PARSE_ERROR"
+
+
+def test_the_caller_currency_is_used_when_the_file_has_none(run):
+    assert run(csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL), currency="INR")["data"]["batches"][0]["currency"] == "INR"
     assert run(B1099, currency="EUR")["data"]["batches"][0]["currency"] == "EUR"
 
 
@@ -109,8 +115,8 @@ def test_tax_alone_refuses_a_stripe_file_and_names_the_package(tmp_path):
 def test_processing_a_tax_file_imports_no_other_provider(tmp_path):
     f = tmp_path / "in.csv"
     f.write_text(csv(TDS_HEAD, TDS_ROWS, TDS_TOTAL), encoding="utf-8")
-    code = ("import sys\nfrom openbooks.core import process\n"
-            f"assert process({str(f)!r})['status'] == 'ok'\n"
+    code = ("import sys\nfrom openbooks.core import Params, process\n"
+            f"assert process({str(f)!r}, Params(currency='INR'))['status'] == 'ok'\n"
             "print(sorted(m for m in sys.modules if '.'.join(m.split('.')[:2]) in ('openbooks.pipeline', 'openbooks.gateways', 'openbooks.statements')))\n")
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.strip().splitlines()[-1]
     assert out == "[]", out

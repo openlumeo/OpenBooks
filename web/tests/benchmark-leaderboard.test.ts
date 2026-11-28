@@ -37,7 +37,6 @@ async function openStore() {
   return { db, store };
 }
 
-// Cold PGlite startup can exceed the default timeout on shared CI runners.
 describe("benchmark leaderboard on isolated PostgreSQL", { timeout: 30_000 }, () => {
   it("keeps the best run per provider and model, sorted by overall, without audit data", async () => {
     const { db, store } = await openStore();

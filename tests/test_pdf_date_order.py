@@ -35,9 +35,14 @@ def test_month_first_is_proven_from_a_day_above_12(tmp_path):
     assert _dates(doc)[-1] == "2026-01-15"
 
 
-def test_unproven_pdf_defaults_to_day_first(tmp_path):
+def test_unproven_pdf_is_refused_as_ambiguous(tmp_path):
     path, _ = _pdf(tmp_path, 10, "%d/%m/%Y")
     doc = process(path, Params(currency="INR"))
+    assert doc["status"] == "refused" and doc["error"]["code"] == "AMBIGUOUS_DATE"
+
+def test_unproven_pdf_reads_day_first_when_declared(tmp_path):
+    path, _ = _pdf(tmp_path, 10, "%d/%m/%Y")
+    doc = process(path, Params(currency="INR", date_order="dmy"))
     assert doc["status"] == "ok" and _dates(doc)[-1] == "2026-01-05"
 
 

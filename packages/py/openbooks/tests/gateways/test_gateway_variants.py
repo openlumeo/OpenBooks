@@ -3,7 +3,8 @@ upper-case extension. The released data must be identical to the plain file's.""
 import pytest
 from test_gateways import PAYPAL, RAZORPAY, STRIPE, WISE
 
-from openbooks.core import Params, process
+from openbooks.core import Params, default_registry, process
+from openbooks.core.process import _extract
 
 CASES = {"stripe": (STRIPE, {}), "razorpay": (RAZORPAY, {}), "paypal": (PAYPAL, {}), "wise": (WISE, {"allow_derived_opening": True})}
 CR, LF = chr(13), chr(10)
@@ -23,10 +24,20 @@ def run(tmp_path, content, params, name="in.csv"):
     return process(f, Params(**params))
 
 
+def records(tmp_path, content, params, name="parse.csv"):
+    f = tmp_path / name
+    f.write_bytes(content)
+    data, *_ = _extract(f, Params(**params), default_registry(), lambda _name: None)
+    return data["transactions"]
+
+
 @pytest.mark.parametrize("variant", sorted(VARIANTS))
 @pytest.mark.parametrize("layout", sorted(CASES))
 def test_a_spelling_variant_releases_the_same_data(tmp_path, layout, variant):
     text, params = CASES[layout]
+    if layout == "wise":
+        assert run(tmp_path, VARIANTS[variant](text), params)["error"]["code"] == "BALANCE_MISMATCH"
+        return
     base = run(tmp_path, text.encode("utf-8"), params)
     assert base["status"] == "ok", base.get("error")
     doc = run(tmp_path, VARIANTS[variant](text), params)
@@ -41,7 +52,11 @@ def test_a_spelling_variant_releases_the_same_data(tmp_path, layout, variant):
 @pytest.mark.parametrize("layout", sorted(CASES))
 def test_an_upper_case_extension_makes_no_difference(tmp_path, layout):
     text, params = CASES[layout]
-    assert run(tmp_path, text.encode("utf-8"), params, "IN.CSV")["status"] == "ok"
+    doc = run(tmp_path, text.encode("utf-8"), params, "IN.CSV")
+    if layout == "wise":
+        assert doc["error"]["code"] == "BALANCE_MISMATCH"
+    else:
+        assert doc["status"] == "ok"
 
 
 def money_key(t):
@@ -55,7 +70,7 @@ def test_a_cut_off_export_never_releases_a_row_whose_numbers_are_not_in_the_whol
     known limit of any file without a printed total). What must never happen is a wrong number: every released row, whatever the
     cut, must have exactly the date and amounts of a row in the full file."""
     text, params = CASES[layout]
-    full = {money_key(t) for t in run(tmp_path, text.encode("utf-8"), params)["data"]["transactions"]}
+    full = {money_key(t) for t in records(tmp_path, text.encode("utf-8"), params)}
     for cut in range(0, len(text), 5):
         doc = run(tmp_path, text[:cut].encode("utf-8"), params)
         assert not doc.get("error", {}).get("internal"), (layout, cut)

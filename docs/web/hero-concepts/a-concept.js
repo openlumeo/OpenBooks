@@ -1,4 +1,3 @@
-/* Concept A, "The Twin". Entrance timeline, the one switch, theme flip, optional pointer tilt. */
 (function () {
   var root = document.documentElement;
   root.classList.remove("no-js");
@@ -9,7 +8,6 @@
   var srBalance = document.querySelector("[data-sr-balance]");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // The one interaction: alter the TXN 4 balance, or restore it.
   function setRefused(refused) {
     inst.setAttribute("data-state", refused ? "refused" : "released");
     sw.setAttribute("aria-checked", refused ? "true" : "false");
@@ -22,14 +20,12 @@
     setRefused(inst.getAttribute("data-state") !== "refused");
   });
 
-  // Light / dark flip for the screenshot pass and for the visitor.
   var theme = document.getElementById("theme");
   theme.addEventListener("click", function () {
     if (root.getAttribute("data-theme") === "light") root.removeAttribute("data-theme");
     else root.setAttribute("data-theme", "light");
   });
 
-  // One-time entrance. Static CSS is already the composed final frame.
   function enter() {
     root.classList.remove("js-enter");
     if (reduce || !window.gsap) return;
@@ -52,7 +48,6 @@
   if (window.gsap) enter();
   else root.classList.remove("js-enter");
 
-  // Optional tiny pointer parallax, fine pointers only, never under reduced motion.
   if (!reduce && window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
     var hero = document.querySelector(".hero");
     var tilt = document.querySelector(".tilt");

@@ -12,7 +12,7 @@ import pytest
 from openbooks_lab.golden import build
 from openbooks.pipeline import Params, process
 
-PARAMS = Params(currency="INR", opening=Decimal("1000.00"))
+PARAMS = Params(currency="INR", opening=Decimal("1000.00"), date_order="dmy")
 
 
 @pytest.fixture(scope="module")

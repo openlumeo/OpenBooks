@@ -19,7 +19,7 @@ def test_golden_set_all_codes_match_and_zero_false_accepts(golden, capsys):
 
 
 def test_ok_output_has_evidence_and_decimal_strings(golden):
-    doc = process(golden / "ok_bank_csv" / "in.csv", Params("INR", Decimal("1000.00")))
+    doc = process(golden / "ok_bank_csv" / "in.csv", Params("INR", Decimal("1000.00"), date_order="dmy"))
     assert doc["status"] == "ok"
     for t in doc["data"]["transactions"]:
         assert f"{t['id']}.amount" in doc["evidence"]

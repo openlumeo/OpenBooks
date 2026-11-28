@@ -6,10 +6,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from .errors import Refusal
-
-EXPONENT = {**dict.fromkeys(("BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW", "PYG", "RWF", "UGX", "UYI", "VND", "VUV",
-                             "XAF", "XOF", "XPF"), 0),
-            **dict.fromkeys(("BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND"), 3)}
+from .iso4217 import exponent_of
 
 _PLAIN = re.compile(r"\d+(\.\d+)?")
 _WESTERN = re.compile(r"\d{1,3}(,\d{3})+(\.\d+)?")
@@ -54,27 +51,38 @@ _NUMERIC_DATE = re.compile(r"^\s*(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}\b")
 YEAR_RANGE = (1970, 2100)
 
 
-def date_order(raws, forced: str | None = None, *, default: str | None = None, where: str = "dates") -> str:
-    """Day/month order of a file's numeric dates. A forced order wins. Otherwise any first field above 12 proves day-first
-    and any second field above 12 proves month-first; both is a mixed file and refuses. A file with no proof uses `default`,
-    or refuses when there is none: guessing 03/04 as 3 April or 4 March silently moves money between periods."""
-    if forced in ("dmy", "mdy"):
-        return forced
-    first_big = second_big = False
+def resolve_date_order(raws, forced: str | None = None, *, where: str = "dates") -> tuple[str, str]:
+    """Day/month order of a file's numeric dates and its provenance: CALLER_SUPPLIED when declared (an assumption, checked
+    against the data), FILE_EVIDENCE when a field above 12 proves it, NO_NUMERIC_DATES when there is nothing to order.
+    Both a day-first and a month-first proof in one file refuse as PARSE_ERROR, declared order or not. A declared order that
+    the data contradicts refuses as PARSE_ERROR naming the conflict. Numeric dates with no proof refuse as AMBIGUOUS_DATE:
+    guessing 03/04 as 3 April or 4 March silently moves money between periods. ISO and month-name dates never refuse."""
+    first_big = second_big = numeric = False
     for raw in raws:
         if m := _NUMERIC_DATE.match(raw or ""):
+            numeric = True
             first_big |= int(m[1]) > 12
             second_big |= int(m[2]) > 12
     if first_big and second_big:
         raise Refusal("PARSE_ERROR", f"{where}: both day-first and month-first dates in one file")
+    if forced in ("dmy", "mdy"):
+        if forced == "dmy" and second_big:
+            raise Refusal("PARSE_ERROR", f"{where}: declared day-first order contradicts the data: a month-first date is present")
+        if forced == "mdy" and first_big:
+            raise Refusal("PARSE_ERROR", f"{where}: declared month-first order contradicts the data: a day-first date is present")
+        return forced, "CALLER_SUPPLIED"
     if first_big or second_big:
-        return "dmy" if first_big else "mdy"
-    if default:
-        return default
-    raise Refusal("PARSE_ERROR", f"{where}: day/month order is ambiguous; supply --date-order dmy or mdy")
+        return ("dmy" if first_big else "mdy"), "FILE_EVIDENCE"
+    if numeric:
+        raise Refusal("AMBIGUOUS_DATE", f"{where}: day/month order is ambiguous; declare --date-order dmy or mdy")
+    return "dmy", "NO_NUMERIC_DATES"
 
 
-def to_date(raw: str, where: str, order: str = "dmy") -> str:
+def date_order(raws, forced: str | None = None, *, where: str = "dates") -> str:
+    return resolve_date_order(raws, forced, where=where)[0]
+
+
+def to_date(raw: str, where: str, order: str) -> str:
     """Numeric dates follow `order` (default day-first: 05/01/2026 is 5 January); the other order is never tried, so a
     month-first file cannot be read day-first by fallback. Two-digit years are 20yy. A year outside YEAR_RANGE refuses."""
     s = re.sub(r"\bSept\b", "Sep", _TIME_TAIL.sub("", raw.strip()))
@@ -96,7 +104,7 @@ def to_date(raw: str, where: str, order: str = "dmy") -> str:
 def fmt(d: Decimal, cur: str) -> str:
     if not d.is_finite() or d.adjusted() >= MAX_AMOUNT_DIGITS:
         raise Refusal("PARSE_ERROR", f"amount is not a finite number with at most {MAX_AMOUNT_DIGITS} integer digits")
-    q = Decimal(1).scaleb(-EXPONENT.get(cur, 2))
+    q = Decimal(1).scaleb(-exponent_of(cur))
     if d != d.quantize(q):
         raise Refusal("PARSE_ERROR", f"{d} has more decimals than {cur} allows")
     d = d.quantize(q)

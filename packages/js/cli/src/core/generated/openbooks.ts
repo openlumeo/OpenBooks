@@ -37,6 +37,15 @@ export interface OpenBooksDocument {
    * @minItems 1
    */
   assertions: [Assertion, ...Assertion[]];
+  /**
+   * Transaction coverage over statement batches. Optional; present on released documents.
+   */
+  coverage?: {
+    transactions: number;
+    covered_transactions: number;
+    independent_covered: number;
+    conditional_transactions: number;
+  };
   [k: string]: unknown;
 }
 export interface Account {

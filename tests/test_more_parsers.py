@@ -25,6 +25,7 @@ TOTAL,,,2300.00,1900.00,,425.00
 """
 
 BANK = """Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance
+,Opening Balance,,,1000.00
 {d1},TXN 0,,500.00,1500.00
 {d2},TXN 1,200.00,,1300.00
 """
@@ -58,11 +59,10 @@ def test_paypal_ambiguous_date_order_is_never_guessed(tmp_path):
     assert _run(tmp_path, ambiguous, date_order="dmy")["data"]["transactions"][0]["date"] == "2026-05-01"
 
 
-def test_wise_ties_every_running_balance_and_reads_newest_first(tmp_path):
+def test_wise_with_only_a_caller_opening_is_not_released(tmp_path):
     doc = _run(tmp_path, WISE, opening=Decimal("1000.00"))
-    assert doc["status"] == "ok" and doc["file"]["layout_version"] == "wise_statement.v1"
-    assert [t["date"] for t in doc["data"]["transactions"]] == ["2026-01-01", "2026-01-02", "2026-01-13"]
-    assert doc["data"]["batches"][0]["closing"]["amount"] == "1074.50"
+    assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH"
+    assert "independent evidence" in doc["error"]["message"]
 
 
 def test_wise_needs_an_opening_and_refuses_a_broken_balance(tmp_path):
@@ -72,7 +72,7 @@ def test_wise_needs_an_opening_and_refuses_a_broken_balance(tmp_path):
 
 
 def test_1099b_releases_with_wash_sale_and_printed_totals(tmp_path):
-    doc = _run(tmp_path, B1099)
+    doc = _run(tmp_path, B1099, currency="USD")
     assert doc["status"] == "ok" and doc["file"]["layout_version"] == "form_1099b.v1"
     t = doc["data"]["transactions"]
     assert t[0]["date"] == "2026-03-20" and t[0]["date_acquired"] == "2025-01-15"
@@ -82,7 +82,7 @@ def test_1099b_releases_with_wash_sale_and_printed_totals(tmp_path):
 
 @pytest.mark.parametrize("old,new", [("500.00\n", "501.00\n"), ("2300.00", "2301.00"), ("-75.00", "-50.00")])
 def test_1099b_tampered_figure_refuses(tmp_path, old, new):
-    doc = _run(tmp_path, B1099.replace(old, new, 1))
+    doc = _run(tmp_path, B1099.replace(old, new, 1), currency="USD")
     assert doc["status"] == "refused" and doc["error"]["code"] == "BALANCE_MISMATCH"
 
 
@@ -92,10 +92,12 @@ def test_bank_csv_month_first_dates_are_proven_by_a_day_above_12(tmp_path):
     assert [t["date"] for t in doc["data"]["transactions"]] == ["2026-01-13", "2026-01-14"]
 
 
-def test_bank_csv_without_proof_stays_day_first_and_can_be_forced(tmp_path):
+def test_bank_csv_without_proof_is_refused_until_the_order_is_declared(tmp_path):
     text = BANK.format(d1="03/04/2026", d2="04/04/2026")
     kw = {"currency": "INR", "opening": Decimal("1000.00")}
-    assert _run(tmp_path, text, **kw)["data"]["transactions"][0]["date"] == "2026-04-03"
+    refused = _run(tmp_path, text, **kw)
+    assert refused["status"] == "refused" and refused["error"]["code"] == "AMBIGUOUS_DATE"
+    assert _run(tmp_path, text, date_order="dmy", **kw)["data"]["transactions"][0]["date"] == "2026-04-03"
     assert _run(tmp_path, text, date_order="mdy", **kw)["data"]["transactions"][0]["date"] == "2026-03-04"
 
 

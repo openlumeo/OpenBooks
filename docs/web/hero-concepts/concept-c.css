@@ -1,6 +1,3 @@
-/* Concept C, "The Equation". Tokens come from vendor/theme-tokens.css (dark on :root,
-   light on [data-theme="light"]). Radius is 0 everywhere except the glass nav. */
-
 @font-face {
   font-family: "Geist Local";
   src: url("vendor/fonts/Geist-Variable.woff2") format("woff2");
@@ -37,8 +34,6 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
-
-/* ---------- Atmosphere (behind everything, hairlines and bloom only) ---------- */
 .c-stage {
   position: fixed;
   inset: 0;
@@ -90,8 +85,6 @@ body {
 }
 
 :root[data-theme="light"] .c-grain { opacity: 0.03; }
-
-/* ---------- Nav: the existing floating glass pill ---------- */
 .c-nav {
   position: fixed;
   top: 12px;
@@ -157,8 +150,6 @@ body {
   transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
 .c-toggle:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
-
-/* ---------- Buttons ---------- */
 .c-btn {
   display: inline-flex;
   align-items: center;
@@ -206,8 +197,6 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
-
-/* ---------- Hero ---------- */
 .c-hero {
   position: relative;
   z-index: 1;
@@ -231,9 +220,6 @@ body {
   color: var(--text);
   text-wrap: balance;
 }
-
-/* The equation. --F is the mono figure size, fitted to the container (cqi) so the
-   line spans the 1280px content box at every desktop width without overflowing. */
 .c-eq-wrap {
   container-type: inline-size;
   width: 100%;
@@ -291,16 +277,12 @@ body {
 .t-cr    { grid-column: 3; grid-row: 1; }
 .t-dr    { grid-column: 5; grid-row: 1; }
 .t-close { grid-column: 7; grid-row: 1; justify-self: start; align-items: center; gap: 0.3em; }
-
-/* Closing figure: Geist sans, the largest size, resolves last. */
 .t-close .fig {
   font-family: var(--font-geist-sans);
   font-size: calc(var(--F) * 1.5);
   line-height: 0.9;
   letter-spacing: -0.045em;
 }
-
-/* The mint equals rule: one hairline-weight bar under the terms. */
 .eq-rule {
   grid-column: 1 / -1;
   grid-row: 2;
@@ -308,8 +290,6 @@ body {
   background: var(--accent);
   transform-origin: 0% 50%;
 }
-
-/* Legend as a subgrid so each word sits under its own term. */
 .legend {
   grid-column: 1 / -1;
   grid-row: 3;
@@ -333,8 +313,6 @@ body {
 .lg-sep:nth-child(2) { grid-column: 2; }
 .lg-sep:nth-child(4) { grid-column: 4; }
 .lg-sep:nth-child(6) { grid-column: 6; }
-
-/* Source chip: appears in each term's slot, then gives way to the figure. */
 .src {
   position: absolute;
   left: 0;
@@ -353,8 +331,6 @@ body {
   white-space: nowrap;
   pointer-events: none;
 }
-
-/* Stamp: the one lavender moment. */
 .stamp {
   flex: none;
   display: inline-block;
@@ -372,8 +348,6 @@ body {
   transform: rotate(2deg);
   transform-origin: 50% 50%;
 }
-
-/* Tooltip: 1 to 2 real rows, shown on hover or keyboard focus. */
 .tip {
   display: none;
   position: absolute;
@@ -428,8 +402,6 @@ body {
 
 .term:is(:hover, :focus-visible) .tip { display: block; }
 .term:is(:hover, :focus-visible) .fig { color: var(--accent); }
-
-/* While one term is under the pointer or focus, the others step back. */
 .c-eq:has(.term:is(:hover, :focus-visible)) .term:not(:is(:hover, :focus-visible)) { opacity: 0.4; }
 
 .c-copy {
@@ -452,8 +424,6 @@ body {
   gap: 8px 18px;
   margin-top: 28px;
 }
-
-/* ---------- Mobile: the terms become a ledger column with the equals rule ---------- */
 @media (max-width: 680px) {
   .c-hero { padding: 116px var(--gutter) 64px; justify-content: flex-start; padding-top: 128px; }
 
@@ -501,13 +471,9 @@ body {
   .c-brand img { height: 24px; }
   .brand-word { display: none; }
 }
-
-/* Mobile: no hover, so the tooltips open on focus or tap only. */
 @media (hover: none) {
   .term:hover .tip { display: none; }
 }
-
-/* ---------- Entrance: JS takes over only when motion is allowed ---------- */
 .pre .c-nav,
 .pre .c-h1,
 .pre .c-copy { opacity: 0; }

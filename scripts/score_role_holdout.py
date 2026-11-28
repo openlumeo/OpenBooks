@@ -50,7 +50,6 @@ def model_identity(folder: Path) -> dict[str, str]:
 
 
 def score_bundle(folder: Path, root: Path, holdout: dict, identity: dict, threads: int) -> dict:
-    # Each spawned process selects its assets before the runtime binds the model paths.
     os.environ["OPENBOOKS_MODELS_DIR"] = str(folder)
     import torch
 
