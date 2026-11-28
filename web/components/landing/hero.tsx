@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { HeroFlip } from "./hero-flip";
 import { HeroStage } from "./hero-stage";
 import styles from "./hero.module.css";
 
@@ -9,13 +10,12 @@ export function Hero() {
       <div data-hero-lead className={styles.lead}>
         <div className={styles.leadIn}>
           <h1 id="hero-heading" className={`t-display t-h1 ${styles.title}`}>
-            Every figure proven, or{" "}
-            refused with a reason.
+            <HeroFlip />
           </h1>
           <p className={`t-lede ${styles.lede}`}>
-            Open Books checks each document&apos;s own arithmetic. Ties out: structured data, with the source of every
-            figure.{" "}
-            Does not: the reason, never a guess.
+            Every figure comes back with the{" "}
+            <strong className={styles.em}>page, row and raw text</strong> it came from. If a file&apos;s own numbers
+            don&apos;t tie out, you get the reason. Never a guess.
           </p>
           <div className={styles.actions}>
             <Link href="/app" className={`btn btn-hero-primary ${styles.primary}`}>
